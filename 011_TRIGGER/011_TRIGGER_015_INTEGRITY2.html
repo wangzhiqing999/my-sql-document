@@ -1,0 +1,456 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 触发器 - 触发器实现数据完整性的处理2 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 触发器 </h1>
+
+
+<h2>  触发器实现数据完整性的处理2 </h2>
+
+<pre><code>
+
+SQL语句，约束不重叠。电影院订票。
+一行记录是‘陈’，12，19。
+（陈的人订了12到19号座位）
+那么下一个记录不能重叠，
+即下一条记录不能出现12到19中任何数（13到18都不能再出现），
+
+表结构
+Create table reservations(
+  reserver    char(10) not null primary key,
+  start_seat  integer  not null,
+  Finish_seat integer  not null
+);
+
+--先插入2条合法的测试数据.
+INSERT INTO reservations VALUES ('张三', 1, 2);
+INSERT INTO reservations VALUES ('陈', 12, 19);
+
+</code></pre>
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+假如用触发器来做检查：
+由于 Oracle 的 FOR EACH ROW 触发器不允许访问 被触发表。
+因此这里只能使用
+行级的触发器来暂存数据。
+语句级的触发器来检索当前表。
+
+-- 暂存数据的部分。
+CREATE OR REPLACE PACKAGE ReservationsData AS
+  -- 定义数据类型.
+  TYPE t_reservers
+    IS TABLE OF reservations.reserver%TYPE
+      INDEX BY BINARY_INTEGER;
+  TYPE t_start_seats
+    IS TABLE OF reservations.start_seat%TYPE
+      INDEX BY BINARY_INTEGER;
+  TYPE t_finish_seats
+    IS TABLE OF reservations.finish_seat%TYPE
+      INDEX BY BINARY_INTEGER;
+
+  -- 定义变量.
+  v_reservers     t_reservers;
+  v_start_seats   t_start_seats;
+  v_finish_seats  t_finish_seats;
+  -- 索引.
+  v_NumOfSeats    BINARY_INTEGER :=0;
+END ReservationsData;
+
+
+-- 行级 BEFORE 触发器
+-- 暂存插入/修改的数据.
+CREATE OR REPLACE TRIGGER CheckReservationsRows
+  BEFORE INSERT OR UPDATE ON reservations
+  FOR EACH ROW
+BEGIN
+  -- 索引递增.
+  ReservationsData.v_NumOfSeats := ReservationsData.v_NumOfSeats + 1;
+
+  dbms_output.put_line('ROW：当前暂存行 :' 
+      || TO_CHAR(ReservationsData.v_NumOfSeats) );
+      
+  -- 暂存本次更新数据.
+  ReservationsData.v_reservers(ReservationsData.v_NumOfSeats) := 
+    :new.reserver;
+  ReservationsData.v_start_seats(ReservationsData.v_NumOfSeats) := 
+    :new.start_seat;
+  ReservationsData.v_finish_seats(ReservationsData.v_NumOfSeats) := 
+    :new.finish_seat;
+  dbms_output.put_line('ROW：主键 = ' || TO_CHAR(:new.reserver) );
+  dbms_output.put_line('ROW：开始 = ' || TO_CHAR(:new.start_seat) );
+  dbms_output.put_line('ROW：结束 = ' || TO_CHAR(:new.finish_seat) );
+END;
+/
+
+-- 语句级 AFTER 触发器
+-- 检查数据合法性.
+CREATE OR REPLACE TRIGGER CheckReservations
+  AFTER INSERT OR UPDATE ON reservations
+DECLARE
+  v_reserver     reservations.reserver%TYPE;
+  v_start_seat   reservations.start_seat%TYPE;
+  v_finish_seat  reservations.finish_seat%TYPE;
+  v_exist_count  INT;
+BEGIN
+
+  dbms_output.put_line('ALL：需要检查的行数： ' || TO_CHAR(ReservationsData.v_NumOfSeats) );
+
+  -- 依次查询本次插入的每一行数据，与其他行数据是否有冲突.
+  FOR v_LookIndex IN 1..ReservationsData.v_NumOfSeats LOOP
+
+    -- 取出前面行级触发器存入的数据.
+    v_reserver := ReservationsData.v_reservers(v_LookIndex);
+    v_start_seat := ReservationsData.v_start_seats(v_LookIndex);
+    v_finish_seat := ReservationsData.v_finish_seats(v_LookIndex);
+
+    dbms_output.put_line('ALL：主键 = ' || TO_CHAR(v_reserver) );
+    dbms_output.put_line('ALL：开始 = ' || TO_CHAR(v_start_seat) );
+    dbms_output.put_line('ALL：结束 = ' || TO_CHAR(v_finish_seat) );
+
+    -- 数据检查.
+    SELECT
+      COUNT(1) INTO v_exist_count
+    FROM
+      -- 数据库的表 与 本次插入/更新的数据作关联.
+      -- 但是排除掉 本次自己更新的这些数据.
+      reservations r
+    WHERE
+      -- 首先排除掉自己.
+      r.reserver != v_reserver 
+      AND
+      (
+      ( -- 检查 自己的开始[自己的开始，在别人的范围内]. 
+        r.start_seat &lt;= v_start_seat
+        and r.finish_seat &gt;= v_start_seat )
+      OR
+      ( -- 检查 自己的结束[自己的结束，在别人的范围内].
+        r.start_seat &lt;= v_finish_seat
+        and r.finish_seat &gt;= v_finish_seat )
+      OR
+      ( -- 检查 别人的开始[别人的开始，在自己的范围内].
+        v_start_seat &lt;= r.start_seat
+        and v_finish_seat &gt;= r.start_seat )
+      OR
+      ( -- 检查 别人的结束[别人的结束，在自己的范围内].
+        v_start_seat &lt;= r.finish_seat
+        and v_finish_seat &gt;= r.finish_seat )
+      );
+
+    dbms_output.put_line('ALL: 重复数据量 = ' || TO_CHAR(v_exist_count) );
+
+    IF v_exist_count > 0 THEN
+      -- 重置索引为零
+      ReservationsData.v_NumOfSeats :=0;
+      RAISE_APPLICATION_ERROR(-20000, '存在位置冲突!');
+    END IF;
+
+  END LOOP;
+
+  -- 重置索引为零
+  ReservationsData.v_NumOfSeats :=0;
+END;
+/ 
+
+SQL> INSERT INTO reservations VALUES ('李四', 11, 12);
+ROW：当前暂存行 :1
+ROW：主键 = 李四
+ROW：开始 = 11
+ROW：结束 = 12
+ALL：需要检查的行数： 1
+ALL：主键 = 李四
+ALL：开始 = 11
+ALL：结束 = 12
+ALL: 重复数据量 = 1
+INSERT INTO reservations VALUES ('李四', 11, 12)
+            *
+第 1 行出现错误:
+ORA-20000: 存在位置冲突!
+ORA-06512: 在 "TEST.CHECKRESERVATIONS", line 56
+ORA-04088: 触发器 'TEST.CHECKRESERVATIONS' 执行过程中出错
+
+
+SQL> INSERT INTO reservations VALUES ('李四', 19, 20);
+ROW：当前暂存行 :1
+ROW：主键 = 李四
+ROW：开始 = 19
+ROW：结束 = 20
+ALL：需要检查的行数： 1
+ALL：主键 = 李四
+ALL：开始 = 19
+ALL：结束 = 20
+ALL: 重复数据量 = 1
+INSERT INTO reservations VALUES ('李四', 19, 20)
+            *
+第 1 行出现错误:
+ORA-20000: 存在位置冲突!
+ORA-06512: 在 "TEST.CHECKRESERVATIONS", line 56
+ORA-04088: 触发器 'TEST.CHECKRESERVATIONS' 执行过程中出错
+
+
+SQL> INSERT INTO reservations VALUES ('李四', 10, 20);
+ROW：当前暂存行 :1
+ROW：主键 = 李四
+ROW：开始 = 10
+ROW：结束 = 20
+ALL：需要检查的行数： 1
+ALL：主键 = 李四
+ALL：开始 = 10
+ALL：结束 = 20
+ALL: 重复数据量 = 1
+INSERT INTO reservations VALUES ('李四', 10, 20)
+            *
+第 1 行出现错误:
+ORA-20000: 存在位置冲突!
+ORA-06512: 在 "TEST.CHECKRESERVATIONS", line 56
+ORA-04088: 触发器 'TEST.CHECKRESERVATIONS' 执行过程中出错
+
+
+SQL> INSERT INTO reservations VALUES ('李四', 20, 22);
+ROW：当前暂存行 :1
+ROW：主键 = 李四
+ROW：开始 = 20
+ROW：结束 = 22
+ALL：需要检查的行数： 1
+ALL：主键 = 李四
+ALL：开始 = 20
+ALL：结束 = 22
+ALL: 重复数据量 = 0
+
+已创建 1 行。
+
+
+至于要使用函数来做约束的CHECK
+参考 Oracle 的文档：
+Application Developer's Guide - Fundamentals
+  6 Maintaining Data Integrity in Application Development
+
+Restrictions on CHECK Constraints
+A CHECK integrity constraint requires that a condition be true or unknown for every row of the table. If a statement causes the condition to evaluate to false, then the statement is rolled back. The condition of a CHECK constraint has the following limitations:
+The condition must be a boolean expression that can be evaluated using the values in the row being inserted or updated.
+The condition cannot contain subqueries or sequences.
+The condition cannot include the SYSDATE, UID, USER, or USERENV SQL functions.
+The condition cannot contain the pseudocolumns LEVEL, PRIOR, or ROWNUM.
+The condition cannot contain a user-defined SQL function.
+
+因此这种操作，仅能使用触发器来完成。
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+
+假如用触发器来做检查：
+CREATE TRIGGER tr_iu_reservation ON reservations
+FOR INSERT, UPDATE AS
+BEGIN
+  IF EXISTS (
+    SELECT
+      1
+    FROM
+      -- 数据库的表 与 本次插入/更新的数据作关联.
+      -- 但是排除掉 本次自己更新的这些数据.
+      reservations r
+        JOIN inserted i ON (r.reserver != i.reserver)
+    WHERE
+      ( -- 检查 开始.
+        r.start_seat &lt;= i.start_seat
+        and r.finish_seat &gt;= i.start_seat )
+      OR
+      ( -- 检查 结束.
+        r.start_seat &lt;= i.finish_seat
+        and r.finish_seat &gt;= i.finish_seat )
+  )
+    -- 如果存在重复的数据，那么回滚掉.
+    ROLLBACK;
+END
+Go
+
+-- 开始插入 检查不通过的数据.
+1> INSERT INTO reservations VALUES ('李四', 11, 12);
+2> GO
+消息 3609，级别 16，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+事务在触发器中结束。批处理已中止。
+1> INSERT INTO reservations VALUES ('李四', 19, 20);
+2> GO
+消息 3609，级别 16，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+事务在触发器中结束。批处理已中止。
+1> INSERT INTO reservations
+2>   SELECT '李四', 19, 20  UNION ALL
+3>   SELECT '王五', 21, 22
+4> GO
+消息 3609，级别 16，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+事务在触发器中结束。批处理已中止。
+
+
+假如要使用约束来处理的话，那么需要创建一个 FUNCTION 来做数据检查
+然后通过创建约束的方式来实现。
+先删除掉前面那个触发器
+DROP TRIGGER tr_iu_reservation;
+
+
+创建函数.
+CREATE FUNCTION reserExistsCheck(
+  @reserver     char(10),
+  @start_seat   INT,
+  @finish_seat  INT
+)
+RETURNS INT
+AS
+BEGIN
+  -- 检查的结果.
+  DECLARE @CheckResult INT;
+  -- 开始检查:
+  IF EXISTS (
+    SELECT
+      1
+    FROM
+      reservations r
+    WHERE
+      r.reserver != @reserver
+      AND
+      (
+        ( -- 检查 开始.
+          r.start_seat &lt;= @start_seat
+          and r.finish_seat &gt;= @start_seat )
+        OR
+        ( -- 检查 结束.
+          r.start_seat &lt;= @finish_seat
+          and r.finish_seat &gt;= @finish_seat )
+      )
+    )
+    BEGIN
+      -- 存在有重复的数据.
+      SET @CheckResult = 1;
+    END
+  ELSE
+    BEGIN
+      -- 不存在有重复的数据.
+      SET @CheckResult = 0;
+    END
+  -- 处理完毕. 返回.
+  RETURN @CheckResult;
+END;
+GO
+
+
+-- 为表新增加约束.
+ALTER TABLE reservations
+  ADD CONSTRAINT reservations_check
+    CHECK (dbo.reserExistsCheck(reserver, start_seat, finish_seat) = 0);
+GO
+
+
+-- 开始插入 检查不通过的数据.
+1> INSERT INTO reservations VALUES ('李四', 11, 12);
+2> GO
+消息 547，级别 16，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+INSERT 语句与 CHECK 约束"reservations_check"冲突。该冲突发生于数据库"test"，表"dbo.reservations"。
+语句已终止。
+1> INSERT INTO reservations VALUES ('李四', 19, 20);
+2> GO
+消息 547，级别 16，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+INSERT 语句与 CHECK 约束"reservations_check"冲突。该冲突发生于数据库"test"，表"dbo.reservations"。
+语句已终止。
+1> INSERT INTO reservations
+2>   SELECT '李四', 19, 20  UNION ALL
+3>   SELECT '王五', 21, 22
+4> GO
+消息 547，级别 16，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+INSERT 语句与 CHECK 约束"reservations_check"冲突。该冲突发生于数据库"test"，表"dbo.reservations"。
+语句已终止。
+
+
+
+需要注意的地方
+触发器 与 约束，都要增加一个 排除自己这条记录的条件。
+因为 SQL Server 的触发器，是 AFTER 的，也就是数据先记录到表里面以后，再触发的。
+如果不排除掉自己这一行记录，那么重复的检查，就肯定能检查到结果。
+约束也是一样。数据先到表里面，然后再检查。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

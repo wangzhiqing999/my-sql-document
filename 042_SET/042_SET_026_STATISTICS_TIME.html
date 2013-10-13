@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库会话的基本参数设置 SET - 显示花费时间 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库会话的基本参数设置 SET </h1>
+
+
+<h2>  显示花费时间 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SET STATISTICS TIME { ON | OFF }
+
+备注
+当 SET STATISTICS TIME 为 ON 时，会显示语句的时间统计信息。为 OFF 时，不显示时间统计信息。
+SET STATISTICS TIME 的设置是在执行或运行时设置，而不是在分析时设置。 
+Microsoft SQL Server 不能在纤程模式下提供准确的统计信息，而纤程模式在启用“轻型池” 配置选项时激活。
+只有当使用 SET STATISTICS TIME ON 执行查询时才更新 sysprocesses 表中的 cpu 列。当 SET STATISTICS TIME 为 OFF 时，将返回 0。
+ON 和 OFF 设置还影响 SQL Server Management Studio 内的“当前活动的进程信息视图”中的 CPU 列。
+
+1> SET STATISTICS TIME ON
+2> go
+1> SELECT * FROM test_main
+2> GO
+SQL Server 分析和编译时间:
+   CPU 时间 = 0 毫秒，占用时间 = 1 毫秒。
+id          value
+----------- ----------
+          1 ONE1
+          2 TWO1
+          3 Three1
+          4 FOUR1
+
+(4 行受影响)
+
+SQL Server 执行时间:
+   CPU 时间 = 0 毫秒，占用时间 = 1 毫秒。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

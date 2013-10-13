@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 触发器 - 已创建的触发器的查询 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 触发器 </h1>
+
+
+<h2> 已创建的触发器的查询  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+SELECT
+  trigger_name,
+  status
+FROM
+  user_triggers
+WHERE
+  table_name='TEST_TRIGGER_TABLE';
+
+TRIGGER_NAME                                                 STATUS
+------------------------------------------------------------ ----------------
+BEFOREALLTEST                                                ENABLED
+BEFOREALLTEST2                                               ENABLED
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+SELECT
+  CAST(NAME AS varchar(25)),
+  CAST(TBNAME AS varchar(25))
+FROM
+  sysibm.systriggers;
+
+1                         2
+------------------------- -------------------------
+POLICY_IR                 POLICY
+POLICY_IV                 POLICY
+POLICY_UV                 POLICY
+POLICY_DR                 POLICY
+V_SALE_REPORT_TRIGGER     V_SALE_REPORT_SUM
+AFTERINSERTTEST           TEST_TRIGGER_TABLE
+AFTERINSERTDETAIL         ORDERDETAIL
+AFTERUPDATETEST           TEST_TRIGGER_TABLE
+
+  8 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+select
+  name
+from
+  sysobjects
+where
+  xtype='TR'
+  and parent_obj=object_id('table_1')
+go
+
+name
+
+--------------------------------------------------------------------------------
+------------------------------------------------
+AfterInsertTable_1
+
+
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+SELECT
+  TRIGGER_NAME,
+  EVENT_MANIPULATION,
+  EVENT_OBJECT_TABLE
+FROM
+  INFORMATION_SCHEMA.TRIGGERS;
+
++-------------------------+--------------------+--------------------+
+| TRIGGER_NAME            | EVENT_MANIPULATION | EVENT_OBJECT_TABLE |
++-------------------------+--------------------+--------------------+
+| BeforeInsertOrderDetail | INSERT             | orderdetail        |
+| BeforeInsertTest4       | INSERT             | test_create_tab4   |
++-------------------------+--------------------+--------------------+
+2 rows in set (0.11 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+SELECT
+  TRIGGER_NAME,
+  EVENT_MANIPULATION,
+  EVENT_OBJECT_TABLE
+FROM
+  INFORMATION_SCHEMA.TRIGGERS;
+
+    trigger_name    | event_manipulation | event_object_table
+--------------------+--------------------+--------------------
+ tr_recursive_test2 | DELETE             | test_trigger_table
+ tr_insert_detail   | INSERT             | orderdetail
+(2 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

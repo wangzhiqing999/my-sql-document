@@ -1,0 +1,203 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 窗口函数 - 逐步累计 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 窗口函数 </h1>
+
+
+<h2> 逐步累计  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+ROWS UNBOUNDED PRECEDING 意味着 物理行从分组的第一行开始，直到当前行结束。
+
+SELECT
+  student_name,
+  SUM(grade) AS AllGrade,
+  SUM(SUM(grade)) OVER(ORDER BY student_name ROWS UNBOUNDED PRECEDING) AS "依次累计"
+FROM
+  test_course
+GROUP BY
+  student_name;
+
+STUDENT_NA   ALLGRADE   依次累计
+---------- ---------- ----------
+丙                145        145
+丁                125        270
+庚                120        390
+己                100        490
+甲                185        675
+奎                185        860
+壬                165       1025
+戊                105       1130
+辛                140       1270
+乙                165       1435
+
+已选择10行。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+SQL Server 实现 逐步累积的处理机制.
+
+
+
+WITH MyCte AS(
+SELECT
+  ROW_NUMBER() OVER( ORDER BY student_name ) AS NO,
+  student_name,
+  SUM(grade) AS AllGrade
+FROM
+  test_course
+GROUP BY
+  student_name
+)
+SELECT
+  student_name,
+  AllGrade,
+  (SELECT SUM(AllGrade) FROM MyCte  M2 WHERE  M2.NO &lt;= MyCte.NO ) AS [依次累计]
+FROM
+  MyCte;
+  
+  
+student_name AllGrade    依次累计
+------------ ----------- -----------
+丙                    145         145
+丁                    125         270
+庚                    120         390
+己                    100         490
+甲                    185         675
+奎                    185         860
+壬                    165        1025
+戊                    105        1130
+辛                    140        1270
+乙                    165        1435
+
+(10 行受影响)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+SELECT
+  student_name,
+  SUM(grade) AS AllGrade,
+  SUM(SUM(grade)) OVER(ORDER BY student_name ROWS UNBOUNDED PRECEDING) AS "依次累计"
+FROM
+  test_course
+GROUP BY
+  student_name;
+
+
+ student_name | allgrade | 依次累计
+--------------+----------+----------
+ 丙           |      145 |      145
+ 丁           |      125 |      270
+ 庚           |      120 |      390
+ 己           |      100 |      490
+ 甲           |      185 |      675
+ 奎           |      185 |      860
+ 壬           |      165 |     1025
+ 戊           |      105 |     1130
+ 辛           |      140 |     1270
+ 乙           |      165 |     1435
+(10 行记录)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

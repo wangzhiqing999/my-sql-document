@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库会话的基本参数设置 SET - 检查是否遵从 FIPS 127-2 标准  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库会话的基本参数设置 SET </h1>
+
+
+<h2> 检查是否遵从 FIPS 127-2 标准  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SET FIPS_FLAGGER 'level'
+参数
+'level'
+对 FIPS 127-2 标准的遵从级别，将检查所有数据库操作是否达到该级别。如果数据库操作与选定的 SQL-92 标准级别冲突，则 Microsoft SQL Server 2005 将生成一个警告。
+level 必须是下列值中的一个。 
+值  说明  
+ENTRY 检查是否遵从 SQL-92 入门级标准。
+FULL 检查是否遵从 SQL-92 完全级标准。
+INTERMEDIATE 检查是否遵从 SQL-92 中间级标准。
+OFF 不检查是否遵从标准。
+
+备注
+SET FIPS_FLAGGER 的设置是在分析时设置，而不是在执行或运行时设置。在分析时进行设置意味着：SET 语句只要出现在批处理或存储过程中即生效，与代码执行实际上是否到达该点无关；并且 SET 语句在任何语句执行之前生效。例如，假设 SET 语句在 IF...ELSE 语句块中，而在执行过程中从未到达过该语句块，但由于分析了 IF...ELSE 语句块，因此 SET 语句仍生效。
+如果在存储过程中设置 SET FIPS_FLAGGER，则从存储过程返回控制后将还原 SET FIPS_FLAGGER 的值。因此，在动态 SQL 中指定的 SET FIPS_FLAGGER 语句对动态 SQL 语句之后的任何语句无效。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

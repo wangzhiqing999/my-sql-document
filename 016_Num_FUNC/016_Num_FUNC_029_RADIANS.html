@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数学函数 - 度数值返回弧度值RADIANS </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数学函数 </h1>
+
+
+<h2>  度数值返回弧度值RADIANS </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => SELECT
+db2 (cont.) =>   RADIANS(90)
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+1
+------------------------
+  +1.57079632679490E+000
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SELECT RADIANS(90);
+-----------
+1
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+RADIANS(X) 
+返回由度转化为弧度的参数 X,  (注意 ? 弧度等于180度）。 
+mysql> SELECT RADIANS(90);
+        -> 1.5707963267949
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+Test=# SELECT RADIANS(90);
+     radians
+-----------------
+ 1.5707963267949
+(1 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

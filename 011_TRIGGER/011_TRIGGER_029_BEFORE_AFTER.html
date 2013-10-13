@@ -1,0 +1,196 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 触发器 - 执行顺序 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 触发器 </h1>
+
+
+<h2> 执行顺序  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+-- 删除并重建 测试表， 删除所有的触发器.
+DROP TABLE test_trigger_table;
+
+CREATE TABLE test_trigger_table (
+    id     INT,
+    name   VARCHAR(10),
+    val    INT
+);
+
+
+-- 逐行 BEFORE
+CREATE OR REPLACE TRIGGER tr_before_I_each_row
+  BEFORE INSERT ON test_trigger_table
+FOR EACH ROW
+BEGIN
+  dbms_output.put_line('BEFORE INSERT FOR EACH ROW');
+END;
+/
+
+-- 逐语句 BEFORE
+CREATE OR REPLACE TRIGGER tr_before_I_each_st
+  BEFORE INSERT ON test_trigger_table
+BEGIN
+  dbms_output.put_line('BEFORE INSERT FOR EACH STATEMENT');
+END;
+/
+
+-- 逐行 AFTER
+CREATE OR REPLACE TRIGGER tr_after_I_each_row
+  AFTER INSERT  ON test_trigger_table
+FOR EACH ROW
+BEGIN
+  dbms_output.put_line('AFTRE INSERT  FOR EACH ROW');
+END;
+/
+
+-- 逐语句 AFTER
+CREATE OR REPLACE TRIGGER tr_after_I_each_st
+  AFTER INSERT ON test_trigger_table
+BEGIN
+  dbms_output.put_line('AFTRE INSERT FOR EACH STATEMENT');
+END;
+/
+
+
+set serveroutput on
+
+
+SQL> INSERT INTO test_trigger_table VALUES( 1, 'A', 100);
+BEFORE INSERT FOR EACH STATEMENT
+BEFORE INSERT FOR EACH ROW
+AFTRE INSERT  FOR EACH ROW
+AFTRE INSERT FOR EACH STATEMENT
+
+已创建 1 行。
+
+
+SQL> INSERT INTO test_trigger_table 
+  2  SELECT 2, 'B', 200 FROM dual  UNION ALL
+  3  SELECT 3, 'C', 300 FROM dual  UNION ALL
+  4  SELECT 4, 'D', 400 FROM dual;
+BEFORE INSERT FOR EACH STATEMENT
+BEFORE INSERT FOR EACH ROW
+AFTRE INSERT  FOR EACH ROW
+BEFORE INSERT FOR EACH ROW
+AFTRE INSERT  FOR EACH ROW
+BEFORE INSERT FOR EACH ROW
+AFTRE INSERT  FOR EACH ROW
+AFTRE INSERT FOR EACH STATEMENT
+
+已创建3行。
+
+
+
+执行顺序如下：
+
+1、语句级的  BEFORE  触发器。
+2、行级的 BEFORE  触发器。
+3、行级的 AFTER   触发器。
+4、语句级的  AFTRE  触发器。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

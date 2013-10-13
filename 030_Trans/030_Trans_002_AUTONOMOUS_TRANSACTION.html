@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 事务处理 - 自治事务(Oracle Only) </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 事务处理 </h1>
+
+
+<h2> 自治事务(Oracle Only)  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> select * from test_main;
+
+        ID VALUE
+---------- --------------------
+         2 TWO
+         3 THREE
+         1 ONE
+
+SQL> CREATE OR REPLACE PROCEDURE Autonomous_Insert
+  2  AS
+  3    -- 定义 “自治事务”
+  4    PRAGMA AUTONOMOUS_TRANSACTION;
+  5  BEGIN
+  6    INSERT INTO test_main(id, value) VALUES (5, 'FIVE');
+  7    COMMIT;
+  8  END;
+  9  /
+
+Procedure created.
+
+SQL> BEGIN
+  2    -- 非自治事务的语句.
+  3    INSERT INTO test_main(id, value) VALUES (4, 'FOUR');
+  4    -- 自治事务
+  5    Autonomous_Insert;
+  6    -- 非自治事务回滚，不影响自治事务.
+  7    rollback;
+  8  END;
+  9  /
+
+PL/SQL procedure successfully completed.
+
+SQL> select * from test_main;
+
+        ID VALUE
+---------- --------------------
+         5 FIVE
+         2 TWO
+         3 THREE
+         1 ONE
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+db2 => select * from test_main@
+
+ID          VALUE
+----------- ----------
+          1 ONE
+          2 TWO
+
+  2 条记录已选择。
+  
+
+CREATE OR REPLACE PROCEDURE Autonomous_Insert
+LANGUAGE SQL  
+AUTONOMOUS
+BEGIN  
+  -- 在调用自治过程时，将在独立的会话中执行，以提供必需的事务独立性。
+  -- 成功的自治过程将使用隐式方式提交，而失败的自治过程将执行回滚。
+  INSERT INTO test_main(id, value) VALUES (5, 'FIVE');  
+END@
+COMMIT@
+
+
+BEGIN
+  -- 非自治事务的语句.
+  INSERT INTO test_main(id, value) VALUES (4, 'FOUR');
+  -- 自治事务
+  call Autonomous_Insert;
+END@
+
+-- 非自治事务回滚，不影响自治事务.
+db2 => rollback@
+DB20000I  SQL 命令成功完成。
+
+
+db2 => select * from test_main@
+
+ID          VALUE
+----------- ----------
+          1 ONE
+          2 TWO
+          5 FIVE
+
+  3 条记录已选择。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> MODEL查询函数 - 排序规则 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> MODEL查询函数 </h1>
+
+
+<h2> 排序规则  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+-- 下面用于以 SEQUENTIAL ORDER 的方式来处理 逐月累计销售合计
+-- SEQUENTIAL ORDER 表示按照顺序依次处理。
+-- 排序方式为：ORDER BY month ASC 也就是 月份 从小到大的处理方式开始处理
+-- 本例子就是直接按顺序执行： 
+-- 本月的 逐月累计数据 = 上月 逐月累计数据 + 本月销售数据。
+SELECT
+  month,
+  sum_money,
+  all_sum
+FROM sale_report
+GROUP BY
+  EXTRACT(MONTH	FROM SALE_DATE)
+MODEL
+  DIMENSION	BY (EXTRACT(MONTH FROM SALE_DATE) AS month)	-- 按照	月 为 维度
+  MEASURES(SUM(sale_money) AS sum_money, 0 AS all_sum) -- 数组的数据为 sum_money, all_sum
+  IGNORE NAV
+  RULES SEQUENTIAL ORDER
+  (
+	all_sum[ANY] ORDER BY month ASC  
+	  = all_sum[CV(month) - 1] + sum_money[CV(month)]
+  )
+ORDER BY
+  month;
+
+
+     MONTH  SUM_MONEY    ALL_SUM
+---------- ---------- ----------
+         1      62806      62806
+         2      56714     119520
+         3      62868     182388
+         4      60855     243243
+         5      62930     306173
+         6      60915     367088
+         7      62992     430080
+         8      63023     493103
+         9      61005     554108
+        10      63085     617193
+        11      61065     678258
+
+     MONTH  SUM_MONEY    ALL_SUM
+---------- ---------- ----------
+        12      63147     741405
+
+已选择12行。
+
+注意：假如上面的 ORDER BY month ASC
+修改为 ORDER BY month  DESC，那么结果数据将不正确。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

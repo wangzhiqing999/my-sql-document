@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 聚集函数 - 平均值AVG </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 聚集函数 </h1>
+
+
+<h2>  平均值AVG </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    sale_item,
+  3    AVG(sale_money)
+  4  FROM
+  5    sale_report
+  6  GROUP BY
+  7    sale_item;
+
+SALE AVG(SALE_MONEY)
+---- ---------------
+A               2009
+B          6.5260274
+C         15.7205479
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT
+2>   sale_item,
+3>   AVG(sale_money)
+4> FROM
+5>   sale_report
+6> GROUP BY
+7>   sale_item
+8> go
+sale_item
+--------- ----------------------------------------
+A                                      2009.000000
+C                                        15.720547
+B                                         6.526027
+
+(3 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT
+    ->   sale_item,
+    ->   AVG(sale_money)
+    -> FROM
+    ->   sale_report
+    -> GROUP BY
+    ->   sale_item
+    -> //
++-----------+-----------------+
+| sale_item | AVG(sale_money) |
++-----------+-----------------+
+| A         |     2009.000000 |
+| B         |        6.526027 |
+| C         |       15.720548 |
++-----------+-----------------+
+3 rows in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+SELECT
+  sale_item,
+  AVG(sale_money)
+FROM
+  sale_report
+GROUP BY
+  sale_item;
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+Test=# SELECT
+Test-#   sale_item,
+Test-#   AVG(sale_money)
+Test-# FROM
+Test-#   sale_report
+Test-# GROUP BY
+Test-#   sale_item;
+ sale_item |          avg
+-----------+-----------------------
+ C         |   15.7296372347707050
+ B         |    6.5229295003422313
+ A         | 2010.5010266940451745
+(3 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

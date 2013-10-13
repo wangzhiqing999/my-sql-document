@@ -1,0 +1,262 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 基本SQL命令-变量定义与赋值 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 基本SQL命令 </h1>
+
+
+<h2> 变量定义与赋值 </h2>
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> <span class="BasicInfo">DECLARE</span>
+  2    testvalue1  VARCHAR2(20);
+  3    testvalue2  VARCHAR2(20);
+  4  BEGIN
+  5    testvalue1 <span class="BasicInfo">:=</span> 'First Test! ';
+  6    <span class="BasicInfo">SELECT</span>  'Second Test !' <span class="BasicInfo">INTO</span>  testvalue2 FROM DUAL;  
+  7    dbms_output.put_line( testvalue1 || testvalue2 );
+  8  END;
+  9  /
+First Test! Second Test !
+
+PL/SQL 过程已成功完成。
+
+
+
+<hr/>
+某些情况下， 希望定义变量的时候， 数据类型，与某个表中的某一列的数据类型一样。
+这样，将来万一业务变化， 表的数据类型变化了，不需要修改存储过程代码。
+定义的方式，是  <span class="BasicInfo">表名.列名%TYPE</span>
+
+
+CREATE TABLE test_type (
+  test_ID    INT,
+  test_name  nvarchar2(20)
+);
+
+
+
+
+SQL> DECLARE
+  2    testvalue1  <span class="BasicInfo">test_type.test_ID%TYPE</span>;
+  3    testvalue2  <span class="BasicInfo">test_type.test_name%TYPE</span>;
+  4  BEGIN
+  5    testvalue1 := 1024;
+  6    SELECT  'Second Test !' INTO  testvalue2 FROM DUAL;  
+  7    dbms_output.put_line(  TO_CHAR(testvalue1) || testvalue2 );
+  8  END;
+  9  /
+1024Second Test !
+
+PL/SQL 过程已成功完成。
+
+
+<hr/>
+如果表的列很多， 定义很多个  <span class="BasicInfo">表名.列名%TYPE</span> 的变量， 也是很折腾得。
+这种情况下， 可以通过定义一个  <span class="BasicInfo">表名%ROWTYPE</span>  的变量来完成处理。
+
+INSERT INTO test_type VALUES( 1,  'Test Type 123');
+
+DECLARE
+  -- 定义变量.
+  v_test_result    test_type%rowtype;
+BEGIN
+  -- 查询数据，全部的列结果，存储到 v_test_result 变量中.
+  SELECT
+    *  INTO  v_test_result
+  FROM
+    test_type
+  WHERE
+    test_ID = 1;
+  
+  -- 输出到控制台上.
+  dbms_output.put_line(v_test_result.test_name);
+END;
+/
+
+
+Test Type 123
+
+PL/SQL 过程已成功完成。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => CREATE PROCEDURE FirstTest \
+db2 (cont.) => LANGUAGE SQL \
+db2 (cont.) => BEGIN \
+db2 (cont.) =>   <span class="BasicInfo">DECLARE</span> testvalue VARCHAR(20); \
+db2 (cont.) =>   <span class="BasicInfo">SET</span> testvalue = 'First Test!'; \
+db2 (cont.) =>   INSERT INTO test_helloworld VALUES(testvalue); \
+db2 (cont.) => END
+DB20000I  SQL 命令成功完成。
+db2 => call FirstTest
+
+  返回状态 = 0
+
+由于一不能 print ，二不能 select ， 这里只要借用前面的测试表。
+
+Db2 => select * from test_helloworld
+
+DATA
+Hello World
+First Test!
+
+  2 条记录已选择。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> <span class="BasicInfo">DECLARE</span>
+2>      @testvalue1 AS VARCHAR(20),
+3>      @testvalue2 AS VARCHAR(20);
+4> BEGIN
+5>      <span class="BasicInfo">SET</span> @testvalue1 = 'First Test !';
+6>      <span class="BasicInfo">SELECT</span> @testvalue2 = 'Second Test !';
+7>      PRINT( @testvalue1 + @testvalue2);
+8> END;
+9> go
+First Test !Second Test !
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE FirstTest()
+-> BEGIN
+->   <span class="BasicInfo">DECLARE</span> testvalue VARCHAR(20);
+->   <span class="BasicInfo">SET</span> testvalue = ‘First Test!’;
+->   SELECT testvalue;
+-> END//
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> call FirstTest() //
++-------------+
+| testvalue   |
++-------------+
+| First Test! |
++-------------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# CREATE OR REPLACE FUNCTION  FirstTest () RETURNS void AS
+Test-# $$
+Test$# <span class="BasicInfo"> DECLARE </span>
+Test$#   testvalue VARCHAR(20);
+Test$# BEGIN
+Test$#   testvalue <span class="BasicInfo"> := </span> 'First Test!';
+Test$#   INSERT INTO test_helloworld VALUES(testvalue);
+Test$# END;
+Test$# $$
+Test-# LANGUAGE plpgsql;
+CREATE FUNCTION
+Test=#
+
+Test=# SELECT FirstTest();
+ firsttest
+-----------
+
+(1 行记录)
+
+
+Test=# select * from test_helloworld;
+    data
+-------------
+ Hello World
+ First Test!
+(2 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

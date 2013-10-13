@@ -1,0 +1,208 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 外键约束-延迟约束 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 外键约束 </h1>
+
+
+<h2>  外键约束-延迟约束 </h2>
+
+
+<pre><code>
+
+在编程开发环境中，可能会遇到，要先插入子表， 然后插入主表。
+或者先更新主表的 主键， 然后更新子表的外键的情况。
+
+
+由于是开发环境下，因此不适合使用 先 DISABLE 再 ENABLE 的处理机制。
+原因是程序中可能会存在并发处理
+
+也就是
+
+用户A   DISABLE -- 更新处理  -- ENABLE
+用户B              DISABLE -- 更新处理  -- ENABLE
+
+
+这种情况下，需要启用 延迟约束
+也就是 INSERT / UPDATE 语句执行的时候， 暂时不检查数据的完整性，等到 Commit 的时候，统一做检查。
+
+
+</code></pre>
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> -- 创建外键(默认选项)
+SQL> ALTER TABLE test_sub ADD CONSTRAINT main_id_cons 
+  2    FOREIGN KEY (main_id)  REFERENCES  test_main 
+  3    DEFERRABLE   INITIALLY DEFERRED;
+表已更改。
+
+
+SQL> INSERT INTO test_sub (ID, MAIN_ID, VALUE) VALUES (4, 4, 'FOURFOUR');
+
+已创建 1 行。
+
+SQL> commit;
+commit
+*
+ERROR 位于第 1 行:
+ORA-02091: 事务处理已回退
+ORA-02291: 违反完整约束条件 (TEST.MAIN_ID_CONS) - 未找到父项关键字
+
+
+
+
+SQL> INSERT INTO test_sub (ID, MAIN_ID, VALUE) VALUES (4, 4, 'FOURFOUR');
+已创建 1 行。
+
+SQL> INSERT INTO test_main(id, value) VALUES (4, 'FOUR');
+已创建 1 行。
+
+SQL> commit;
+提交完成。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+
+	
+<pre><code>
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+Test=# ALTER TABLE test_sub ADD CONSTRAINT main_id_cons
+Test-#   FOREIGN KEY (main_id)  REFERENCES  test_main
+Test-#   DEFERRABLE   INITIALLY DEFERRED;
+ALTER TABLE
+
+
+Test=#  INSERT INTO test_sub (ID, MAIN_ID, VALUE) VALUES (4, 4, 'FOURFOUR');
+错误:  插入或更新表 "test_sub" 违反外键约束 "main_id_cons"
+描述:  键值对(main_id)=(4)没有在表"test_main"中出现.
+Test=#
+
+
+注：PostgreSQL 中， BEGIN; 表示开启一个事务， COMMIT; 用于提交一个事务.
+如果没有 BEGIN;  那么每一个 SQL 语句， 作为独立的事务在运行。
+
+Test=# BEGIN;
+BEGIN
+Test=# INSERT INTO test_sub (ID, MAIN_ID, VALUE) VALUES (4, 4, 'FOURFOUR');
+INSERT 0 1
+Test=# INSERT INTO test_main(id, value) VALUES (4, 'FOUR');
+INSERT 0 1
+Test=# COMMIT;
+COMMIT
+Test=#
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+<p>
+测试完毕后，删除 外键约束 
+ALTER TABLE test_sub DROP CONSTRAINT main_id_cons;
+</p>
+
+<p>
+注：MySQL使用下面这个语句删除外键约束
+ALTER TABLE test_sub DROP FOREIGN KEY  main_id_cons;
+</p>
+
+<p>
+注：SQLite 等下要重建表的， 就不折腾了。
+</p>
+
+
+
+</body>
+
+
+</html>

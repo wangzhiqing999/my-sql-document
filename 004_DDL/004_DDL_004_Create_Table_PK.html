@@ -1,0 +1,210 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - 创建表同时定义主键 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 创建表同时定义主键 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> CREATE TABLE test_create_tab1 (
+  2    id   INT,
+  3    val  VARCHAR(10),
+  4    PRIMARY KEY (id)
+  5  );
+
+Table created.
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => CREATE TABLE test_create_tab1 (
+db2 (cont.) =>   id   INT,
+db2 (cont.) =>   val  VARCHAR(10),
+db2 (cont.) =>   PRIMARY KEY (id)
+db2 (cont.) => );
+DB21034E  该命令被当作 SQL 语句来处理，因为它是无效的“命令行处理器”命令。在
+SQL 处理期间，它返回：
+SQL0542N  因为 "ID" 可能包含空值，所以它不能是主键或唯一键的列。
+SQLSTATE=42831
+
+
+db2 => CREATE TABLE test_create_tab1 (
+db2 (cont.) =>   id   INT  NOT NULL,
+db2 (cont.) =>   val  VARCHAR(10),
+db2 (cont.) =>   PRIMARY KEY (id)
+db2 (cont.) => );
+DB20000I  SQL 命令成功完成。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> CREATE TABLE test_create_tab1 (
+2>   id   INT,
+3>   val  VARCHAR(10),
+4>   PRIMARY KEY (id)
+5> );
+6> go
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> CREATE TABLE test_create_tab1 (
+    ->   id   INT,
+    ->   val  VARCHAR(10),
+    ->   PRIMARY KEY (id)
+    -> );
+    -> //
+Query OK, 0 rows affected (0.08 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+CREATE TABLE test_create_tab1 (
+  id   INT,
+  val  VARCHAR(10),
+  PRIMARY KEY (id)
+);
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+Test=# CREATE TABLE test_create_tab1 (
+Test(#   id   INT,
+Test(#   val  VARCHAR(10),
+Test(#   PRIMARY KEY (id)
+Test(# );
+注意:  CREATE TABLE / PRIMARY KEY 将要为表 "test_create_tab1" 创建隐含索引 "test_create_tab1_pkey"
+CREATE TABLE
+Test=#
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+默认以 _id 列作为主键.
+
+
+> db.my_test_user.insert(
+...   { name: "Edward",
+...     age: 35,
+... tel:123456789
+...   }
+... )
+
+> show collections
+my_test_tab
+my_test_user
+mycoll
+system.indexes
+
+>
+>
+> db.my_test_user.find();
+{ "_id" : ObjectId("523ffdc0942245e2aaf07811"), "name" : "Edward", "age" : 35, "tel" : 123456789 }
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+
+</body>
+
+
+</html>

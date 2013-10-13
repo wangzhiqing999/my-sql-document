@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - INTERSECT – 仅仅给出2个表都有的数据(去除重复记录) </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> INTERSECT – 仅仅给出2个表都有的数据(去除重复记录)  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT * FROM union_tab_1
+  2  INTERSECT
+  3  SELECT * FROM union_tab_2;
+
+        ID VAL
+---------- --------------------
+         1 A
+         2 B
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => SELECT * FROM union_tab_1
+db2 (cont.) => INTERSECT
+db2 (cont.) => SELECT * FROM union_tab_2;
+
+ID          VAL
+----------- ----------
+          1 A
+          2 B
+
+  2 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT * FROM union_tab_1
+2> INTERSECT
+3> SELECT * FROM union_tab_2;
+4> go
+id          val
+----------- ----------
+          1 A
+          2 B
+
+(2 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+不支持.
+
+实现相同功能的 SQL 如下：
+
+
+SELECT 
+  DISTINCT union_tab_1.* 
+FROM 
+  union_tab_1 JOIN union_tab_2
+    ON (union_tab_1.id = union_tab_2.id
+	    AND union_tab_1.val = union_tab_2.val);
+
++------+------+
+| id   | val  |
++------+------+
+|    1 | A    |
+|    2 | B    |
++------+------+
+2 rows in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+sqlite> SELECT * FROM union_tab_1
+   ...> INTERSECT
+   ...> SELECT * FROM union_tab_2;
+id|val
+1|A
+2|B
+sqlite>
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+Test=# SELECT * FROM union_tab_1
+Test-# INTERSECT
+Test-# SELECT * FROM union_tab_2;
+ id | val
+----+-----
+  1 | A
+  2 | B
+(2 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

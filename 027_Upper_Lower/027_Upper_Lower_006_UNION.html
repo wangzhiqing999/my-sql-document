@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 大小写敏感问题 - 排序规则冲突  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 大小写敏感问题 </h1>
+
+
+<h2> 排序规则冲突  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+另外一种冲突情况
+
+SELECT * FROM test_one
+UNION
+SELECT * FROM test_two
+
+消息 468，级别 16，状态 9，服务器 ZQWANG\SQLEXPRESS，第 1 行
+无法解决 UNION 运算中 "Chinese_Taiwan_Stroke_CI_AS" 和 "Latin1_General_CI_AS" 之间的排序规则冲突。
+
+冲突的解决
+
+针对有冲突的 列,  指定相同的排序规则.
+
+SELECT  name COLLATE Chinese_Taiwan_Stroke_CI_AS AS name, val FROM test_one 
+UNION
+SELECT  name COLLATE Chinese_Taiwan_Stroke_CI_AS AS name, val FROM test_two 
+
+
+name       val
+---------- -----------
+一                  111
+一                  122
+二                  211
+二                  222
+三                  311
+三                  322
+
+(6 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,297 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - 约束 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 约束 </h2>
+
+
+这里只演示简单的约束，外键约束参考 后面的部分。
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> CREATE TABLE test_create_tab4 (
+  2    id   INT  PRIMARY KEY,
+  3    val  VARCHAR(10)
+  4      CONSTRAINT test_tab4_val_nn NOT NULL,
+  5    val2 INT,
+  6      CONSTRAINT test_tab4_val2_100 CHECK(val2 &gt;= 0 AND val2 &lt;= 100)
+  7  );
+
+Table created.
+
+SQL> INSERT INTO test_create_tab4(id, val2) VALUES(1, 100);
+INSERT INTO test_create_tab4(id, val2) VALUES(1, 100)
+*
+ERROR at line 1:
+ORA-01400: cannot insert NULL into ("HR"."TEST_CREATE_TAB4"."VAL")
+
+
+SQL> INSERT INTO test_create_tab4(id, val, val2) VALUES(1, 'ERR', 1024);
+INSERT INTO test_create_tab4(id, val, val2) VALUES(1, 'ERR', 1024)
+*
+ERROR at line 1:
+ORA-02290: check constraint (HR.TEST_TAB4_VAL2_100) violated
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+db2 => CREATE TABLE test_create_tab4 (
+db2 (cont.) =>   id   INT NOT NULL PRIMARY KEY,
+db2 (cont.) =>   val  VARCHAR(10)
+db2 (cont.) =>     CONSTRAINT test_tab4_val_nn NOT NULL,
+db2 (cont.) =>   val2 INT,
+db2 (cont.) =>     CONSTRAINT test_tab4_val2_100 CHECK(val2 &gt;= 0 AND val2 &lt;= 100
+)
+db2 (cont.) => );
+DB20000I  SQL 命令成功完成。
+
+db2 => INSERT INTO test_create_tab4(id, val2) VALUES(1, 100);
+DB21034E  该命令被当作 SQL 语句来处理，因为它是无效的“命令行处理器”命令。在
+SQL 处理期间，它返回：
+SQL0407N  不允许对 NOT NULL 列 "TBSPACEID=2, TABLEID=10, COLNO=1" 赋予空值。
+SQLSTATE=23502
+
+db2 => INSERT INTO test_create_tab4(id, val, val2) VALUES(1, 'ERR', 1024);
+DB21034E  该命令被当作 SQL 语句来处理，因为它是无效的“命令行处理器”命令。在
+SQL 处理期间，它返回：
+SQL0545N  因为行不满足检查约束
+"WZQ.TEST_CREATE_TAB4.TEST_TAB4_VAL2_100"，所以不允许所请求的操作。
+SQLSTATE=23513
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> CREATE TABLE test_create_tab4 (
+2>   id   INT  PRIMARY KEY,
+3>   val  VARCHAR(10)
+4>     CONSTRAINT test_tab4_val_nn NOT NULL,
+5>   val2 INT,
+6>     CONSTRAINT test_tab4_val2_100 CHECK(val2 &gt;= 0 AND val2 &lt;= 100)
+7> );
+8> go
+
+1> INSERT INTO test_create_tab4(id, val2) VALUES(1, 100);
+2> GO
+消息 515，级别 16，状态 2，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+不能将值 NULL 插入列 'val'，表 'Stock.dbo.test_create_tab4'；列不允许有空值。INS
+ERT 失败。
+语句已终止。
+
+1> INSERT INTO test_create_tab4(id, val, val2) VALUES(1, 'ERR', 1024);
+2> GO
+消息 547，级别 16，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+INSERT 语句与 CHECK 约束"test_tab4_val2_100"冲突。该冲突发生于数据库"Stock"，表"
+dbo.test_create_tab4", column 'val2'。
+语句已终止。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<p>
+CHECK子句会被分析，但是会被忽略。
+</p>
+
+<p>
+对于 in 方式的 Check 可以采用enum 的方式处理
+</p>
+
+<p>
+对于 UNIQUE 的约束，使用 UNIQUE KEY 进行设定。
+</p>
+
+<pre><code>
+
+
+mysql> CREATE TABLE test_create_tab4 (
+    ->   id   INT  PRIMARY KEY,
+    ->   val  VARCHAR(10) NOT NULL,
+    ->   val2 INT
+    ->       CHECK(val2 &gt;= 0 AND val2 &lt;= 100)
+    -> );
+    -> //
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> INSERT INTO test_create_tab4(id, val2) VALUES(1, 100);
+    -> //
+ERROR 1364 (HY000): Field 'val' doesn't have a default value
+
+mysql> INSERT INTO test_create_tab4(id, val, val2) VALUES(1, 'ERR', 1024);
+    -> //
+Query OK, 1 row affected (0.05 sec)
+
+mysql> select * from test_create_tab4;
+    -> //
++----+-----+------+
+| id | val | val2 |
++----+-----+------+
+|  1 | ERR | 1024 |
++----+-----+------+
+1 row in set (0.00 sec)
+
+
+mysql> CREATE TABLE test_create_tab5 (
+    ->   id   INT  PRIMARY KEY,
+    ->   val  VARCHAR(10) NOT NULL,
+    ->   val2 enum ('1', '2', '3', '4', '5')
+    -> );
+Query OK, 0 rows affected (0.08 sec)
+
+
+mysql> INSERT INTO test_create_tab5(id, val, val2)
+    -> VALUES(1, 'ERR', 1);
+Query OK, 1 row affected (0.03 sec)
+
+mysql>
+mysql> INSERT INTO test_create_tab5(id, val, val2)
+    -> VALUES(8, 'ERR', 8);
+ERROR 1265 (01000): Data truncated for column 'val2' at row 1
+
+
+
+mysql> CREATE TABLE `trainrunplan` (
+    -> `train_id` varchar(20) NOT NULL,
+    -> `trainState` enum('售票中', '运行中', '已完成') NOT NULL,
+    -> `runDate` varchar(40) NOT NULL,
+    -> PRIMARY KEY  (`train_id`, `runDate`)
+    -> );
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> INSERT INTO `trainrunplan`
+    -> VALUES ('1', '售票中', '2010-11-21');
+Query OK, 1 row affected (0.03 sec)
+
+mysql>
+mysql> INSERT INTO `trainrunplan`
+    -> VALUES ('2', '非法数据', '2010-11-21');
+ERROR 1265 (01000): Data truncated for column 'trainState' at row 1
+mysql>
+
+
+
+mysql> CREATE TABLE test1 (
+    ->   id int(11) NOT NULL auto_increment,
+    ->   name varchar(11) default NULL,
+    ->   PRIMARY KEY (id),
+    ->   UNIQUE KEY (name)
+    -> );
+Query OK, 0 rows affected (0.06 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+sqlite> CREATE TABLE test_create_tab4 (
+   ...>   id   integer,
+   ...>   val  VARCHAR(10)  NOT  NULL,
+   ...>   val2 INT UNIQUE,
+   ...>   CHECK (val2 &gt;= 0 AND val2 &lt;= 100),
+   ...>   PRIMARY KEY (id)
+   ...> );
+sqlite> INSERT INTO test_create_tab4(id, val2) VALUES(1, 100);
+Error: test_create_tab4.val may not be NULL
+sqlite> INSERT INTO test_create_tab4(id, val, val2) VALUES(1, 'ERR', 1024);
+Error: constraint failed
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# CREATE TABLE test_create_tab4 (
+Test(#   id   INT  PRIMARY KEY,
+Test(#   val  VARCHAR(10)
+Test(#     CONSTRAINT test_tab4_val_nn NOT NULL,
+Test(#   val2 INT,
+Test(#     CONSTRAINT test_tab4_val2_100 CHECK(val2 &gt;= 0 AND val2 &lt;= 100)
+Test(# );
+注意:  CREATE TABLE / PRIMARY KEY 将要为表 "test_create_tab4" 创建隐含索引 "test_create_tab4_pkey"
+CREATE TABLE
+Test=#
+Test=# INSERT INTO test_create_tab4(id, val2) VALUES(1, 100);
+错误:  在字段 "val" 中空值违反了非空约束
+描述:  失败, 行包含(1, null, 100).
+Test=#
+Test=# INSERT INTO test_create_tab4(id, val, val2) VALUES(1, 'ERR', 1024);
+错误:  关系 "test_create_tab4" 的新列违反了检查约束 "test_tab4_val2_100"
+描述:  失败, 行包含(1, ERR, 1024).
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

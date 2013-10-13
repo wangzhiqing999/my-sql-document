@@ -1,0 +1,2449 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<meta name="GENERATOR" content="Microsoft&reg; HTML Help Workshop 4.1">
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<!-- Sitemap 1.0 -->
+</HEAD><BODY>
+<OBJECT type="text/site properties">
+	<param name="ImageType" value="Folder">
+</OBJECT>
+<UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="环境">
+		<param name="Local" value="000_Index.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="基本SQL命令">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="启动程序">
+			<param name="Local" value="001_Basic_Sql\001_Basic_Sql_001_Startup.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="清除输入缓冲">
+			<param name="Local" value="001_Basic_Sql\001_Basic_Sql_002_Clear.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="显示表结构">
+			<param name="Local" value="001_Basic_Sql\001_Basic_Sql_003_DescTable.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="HelloWorld">
+			<param name="Local" value="001_Basic_Sql\001_Basic_Sql_004_HelloWorld.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="变量定义与赋值">
+			<param name="Local" value="001_Basic_Sql\001_Basic_Sql_005_DECLARE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="MERGE 语句">
+			<param name="Local" value="001_Basic_Sql\001_Basic_Sql_006_MERGE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="两表UPDATE处理">
+			<param name="Local" value="001_Basic_Sql\001_Basic_Sql_007_TwoTable.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="数据类型">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="数字类型">
+			<param name="Local" value="002_DataType\002_DataType_001_Number.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="字符类型">
+			<param name="Local" value="002_DataType\002_DataType_002_Char.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="日期类型">
+			<param name="Local" value="002_DataType\002_DataType_003_Date.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="二进制类型">
+			<param name="Local" value="002_DataType\002_DataType_004_Bin.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="其他类型">
+			<param name="Local" value="002_DataType\002_DataType_005_Other.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="数组/表">
+			<param name="Local" value="002_DataType\002_DataType_010_Table.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="运算符号">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="算术运算符">
+			<param name="Local" value="003_Operation\003_Operation_001_Number.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="赋值运算符">
+			<param name="Local" value="003_Operation\003_Operation_002_setter.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="按位运算符">
+			<param name="Local" value="003_Operation\003_Operation_003_Bit.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="比较运算符">
+			<param name="Local" value="003_Operation\003_Operation_004_Compare.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="逻辑运算符">
+			<param name="Local" value="003_Operation\003_Operation_005_Logic.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="字符串串联运算符">
+			<param name="Local" value="003_Operation\003_Operation_006_Concat.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="一元运算符">
+			<param name="Local" value="003_Operation\003_Operation_007_unary.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="运算符优先级">
+			<param name="Local" value="003_Operation\003_Operation_008_priority.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="IS">
+			<param name="Local" value="003_Operation\003_Operation_009_IS.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="DDL">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="创建数据库">
+			<param name="Local" value="004_DDL\004_DDL_001_Create_DB.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="创建构架">
+			<param name="Local" value="004_DDL\004_DDL_002_Create_Schema.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="创建表空间">
+			<param name="Local" value="004_DDL\004_DDL_003_001_Create_TableSpace.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="创建表">
+			<param name="Local" value="004_DDL\004_DDL_003_Create_Table.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="创建表同时定义主键">
+			<param name="Local" value="004_DDL\004_DDL_004_Create_Table_PK.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="创建表设置自动递增列">
+			<param name="Local" value="004_DDL\004_DDL_005_Create_Table_auto.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="计算列">
+			<param name="Local" value="004_DDL\004_DDL_006_Create_Table_calculate.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="创建表定义约束">
+			<param name="Local" value="004_DDL\004_DDL_007_Create_Table_CONSTRAINT.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="表与字段的备注">
+			<param name="Local" value="004_DDL\004_DDL_008_Create_Table_Comment.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="通过查询创建表">
+			<param name="Local" value="004_DDL\004_DDL_009_Create_Table_ByQuery.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="修改表新增主键">
+			<param name="Local" value="004_DDL\004_DDL_010_Alter_Table_PK.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="修改表新增唯一约束">
+			<param name="Local" value="004_DDL\004_DDL_011_Alter_Table_Unique.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="修改表新增其他约束">
+			<param name="Local" value="004_DDL\004_DDL_012_Alter_Table_Check.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="修改表新增IN方式的约束">
+			<param name="Local" value="004_DDL\004_DDL_013_Alter_Table_Check_in.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="修改表Check约束中调用自定义函数">
+			<param name="Local" value="004_DDL\004_DDL_014_Alter_Table_Check_Func.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="修改表Check两列比较">
+			<param name="Local" value="004_DDL\004_DDL_015_Alter_Table_Check_TwoCol.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="修改表新增列">
+			<param name="Local" value="004_DDL\004_DDL_016_Alter_Table_AddCol.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="修改表删除列">
+			<param name="Local" value="004_DDL\004_DDL_017_Alter_Table_DelCol.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="修改表修改列名">
+			<param name="Local" value="004_DDL\004_DDL_018_Alter_Table_RenameCol.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="修改表修改列的数据类型">
+			<param name="Local" value="004_DDL\004_DDL_019_Alter_Table_ColType.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="修改表修改列的默认值">
+			<param name="Local" value="004_DDL\004_DDL_020_Alter_Table_Default.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="修改表变更表名">
+			<param name="Local" value="004_DDL\004_DDL_021_Alter_Table_RenameTab.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="修改表加入缓存">
+			<param name="Local" value="004_DDL\004_DDL_022_Alter_Table_Cahce.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="创建索引概述">
+			<param name="Local" value="004_DDL\004_DDL_023_Index.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="创建普通索引">
+			<param name="Local" value="004_DDL\004_DDL_024_CreateIndex.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="SQL Server 聚集索引与非聚集索引">
+			<param name="Local" value="004_DDL\004_DDL_025_Index_CLUSTERED.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="SQL Server 索引中的 INCLUDE">
+			<param name="Local" value="004_DDL\004_DDL_026_Index_Include.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="基于函数的索引">
+			<param name="Local" value="004_DDL\004_DDL_027_Index_Function.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="创建用户">
+			<param name="Local" value="004_DDL\004_DDL_030_CreateUser.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="创建PROFILE">
+			<param name="Local" value="004_DDL\004_DDL_031_CreateProfile.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="用户权限设置">
+			<param name="Local" value="004_DDL\004_DDL_032_UserPermission.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="对用户授权与撤销权限">
+			<param name="Local" value="004_DDL\004_DDL_033_GrantRevoke.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="对用户分配角色">
+			<param name="Local" value="004_DDL\004_DDL_034_GrantRole.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="禁用、启用登陆帐户">
+			<param name="Local" value="004_DDL\004_DDL_035_AccountLock.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="登陆帐户改名">
+			<param name="Local" value="004_DDL\004_DDL_036_AccountRename.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="登陆帐户改密码">
+			<param name="Local" value="004_DDL\004_DDL_037_ChangePwd.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="数据库用户改名">
+			<param name="Local" value="004_DDL\004_DDL_038_UserReanem.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="数据库用户改名">
+			<param name="Local" value="004_DDL\004_DDL_038_UserReanem.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="更改数据库用户 默认构架(default_schema)">
+			<param name="Local" value="004_DDL\004_DDL_039_default_schema.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="删除用户">
+			<param name="Local" value="004_DDL\004_DDL_040_drop_uesr.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="创建角色">
+			<param name="Local" value="004_DDL\004_DDL_041_CreateRole.html">
+			</OBJECT>
+
+
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="控制结构">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="IF ELSE">
+			<param name="Local" value="005_LANG\005_LANG_001_IFELSE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="WHILE">
+			<param name="Local" value="005_LANG\005_LANG_002_WHILE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="FOR">
+			<param name="Local" value="005_LANG\005_LANG_003_FOR.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="LOOP">
+			<param name="Local" value="005_LANG\005_LANG_004_LOOP.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="REPEAT">
+			<param name="Local" value="005_LANG\005_LANG_005_REPEAT.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="循环控制Break 与 Continue">
+			<param name="Local" value="005_LANG\005_LANG_006_BreakContinue.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="查询">
+		<param name="Local" value="006_QUERY\006_QUERY_000_TestData.html">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="TOP-N 只取前面N条">
+			<param name="Local" value="006_QUERY\006_QUERY_001_TOP_N.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="LAST-N 只取最后N条">
+			<param name="Local" value="006_QUERY\006_QUERY_001_000_LAST_N.html">
+			</OBJECT>			
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="TOP-N 只更新前面N条">
+			<param name="Local" value="006_QUERY\006_QUERY_001_001_TOP_N_UPDATE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="TOP-N + UNION ALL 的处理">
+			<param name="Local" value="006_QUERY\006_QUERY_001_002_TOP_N_UNION.html">
+			</OBJECT>			
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="TOP-N 前面N条到N+M条（使用 ROWNUM方案）">
+			<param name="Local" value="006_QUERY\006_QUERY_002_N_to_M_ROWNUM.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="TOP-N 前面N条到N+M条（使用 TOP 方案）">
+			<param name="Local" value="006_QUERY\006_QUERY_002_N_to_M_Top.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="TOP-N 前面N条到N+M条（使用MINUS EXCEPT方案）">
+			<param name="Local" value="006_QUERY\006_QUERY_003_N_to_M_Minus.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="TOP-N 更新第N条到N+M条的数据">
+			<param name="Local" value="006_QUERY\006_QUERY_002_N_to_M_Update.html">
+			</OBJECT>			
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="分组的TOP-N">
+			<param name="Local" value="006_QUERY\006_QUERY_004_GroupTopN.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="行转换为列">
+			<param name="Local" value="006_QUERY\006_QUERY_005_RowToCol.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="行转换为列2">
+			<param name="Local" value="006_QUERY\006_QUERY_006_RowToCol2.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="列转换为行">
+			<param name="Local" value="006_QUERY\006_QUERY_005_001_ColToRow.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="树形结构">
+			<param name="Local" value="006_QUERY\006_QUERY_007_Tree.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="树形结构-获取全路径">
+			<param name="Local" value="006_QUERY\006_QUERY_007_001_Tree_Path.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="树形结构-由叶子节点查询到根节点">
+			<param name="Local" value="006_QUERY\006_QUERY_007_002_Tree_GotoRoot.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="树形结构-合计">
+			<param name="Local" value="006_QUERY\006_QUERY_007_010_Tree_Summy.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="树形结构-复制">
+			<param name="Local" value="006_QUERY\006_QUERY_007_020_CopyTree.html">
+			</OBJECT>			
+
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="多行转一行">
+			<param name="Local" value="006_QUERY\006_QUERY_008_GROUP_CONCAT.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="多行转一行(指定排序)">
+			<param name="Local" value="006_QUERY\006_QUERY_008_GROUP_CONCAT_ORDER.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="多行转一行(填充数值)">
+			<param name="Local" value="006_QUERY\006_QUERY_008_GROUP_CONCAT_SETVAL.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="一行转多行">
+			<param name="Local" value="006_QUERY\006_QUERY_017_Split.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="JOIN">
+			<param name="Local" value="006_QUERY\006_QUERY_009_JOIN.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="CROSS APPLY 和 OUTER APPLY">
+			<param name="Local" value="006_QUERY\006_QUERY_010_APPLY.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="UNION">
+			<param name="Local" value="006_QUERY\006_QUERY_011_UNION.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="UNION ALL">
+			<param name="Local" value="006_QUERY\006_QUERY_012_UNION_ALL.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="INTERSECT">
+			<param name="Local" value="006_QUERY\006_QUERY_013_INTERSECT.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="MINUS / EXCEPT">
+			<param name="Local" value="006_QUERY\006_QUERY_014_MINUS_EXCEPT.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="随机获取数据的处理">
+			<param name="Local" value="006_QUERY\006_QUERY_015_Random.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="分组随机获取数据的处理">
+			<param name="Local" value="006_QUERY\006_QUERY_015_Random_WithGroup.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="产生一个连续的编号段">
+			<param name="Local" value="006_QUERY\006_QUERY_016_spt_values.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="报表方式显示数据">
+			<param name="Local" value="006_QUERY\006_QUERY_018_Report.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="逐步累计">
+			<param name="Local" value="006_QUERY\006_QUERY_019_SumStepByStep.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="逐步累计百分比">
+			<param name="Local" value="006_QUERY\006_QUERY_021_SumStepByStepRatio.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="行行相减">
+			<param name="Local" value="006_QUERY\006_QUERY_020_SubLineByLine.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="区间段拆分明细行">
+			<param name="Local" value="006_QUERY\006_QUERY_022_PartToOne.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="明细行组合区间段">
+			<param name="Local" value="006_QUERY\006_QUERY_023_OneToPart.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="查询最大连续日期">
+			<param name="Local" value="006_QUERY\006_QUERY_024_Max_Seq.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="不连续区间所对应离散最大值">
+			<param name="Local" value="006_QUERY\006_QUERY_028_Not_Seq_MaxVal.html">
+			</OBJECT>						
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="批量设置连续ID">
+			<param name="Local" value="006_QUERY\006_QUERY_025_Set_ID.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="去掉最高最低">
+			<param name="Local" value="006_QUERY\006_QUERY_026_Remove_Max_Min.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="简单复制一列数据">
+			<param name="Local" value="006_QUERY\006_QUERY_027_Simple_CopyOneCol.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="首次非零数据">
+			<param name="Local" value="006_QUERY\006_QUERY_029_FirstSales.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="varchar 字段存储数字类型情况下的查询">
+			<param name="Local" value="006_QUERY\006_QUERY_030_varchar_Save_number.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="用户自定义排序">
+			<param name="Local" value="006_QUERY\006_QUERY_031_user_orderby.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="视图">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="单表简单视图">
+			<param name="Local" value="007_VIEW\007_VIEW_001_OneTable.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="只读视图">
+			<param name="Local" value="007_VIEW\007_VIEW_002_Readonly.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="约束可更新视图">
+			<param name="Local" value="007_VIEW\007_VIEW_003_CHECK_OPTION.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="单表统计视图">
+			<param name="Local" value="007_VIEW\007_VIEW_004_OneTableSum.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="多表关联视图">
+			<param name="Local" value="007_VIEW\007_VIEW_005_MulTable.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="带有主键的视图">
+			<param name="Local" value="007_VIEW\007_VIEW_006_WithPK.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="视图上的索引">
+			<param name="Local" value="007_VIEW\007_VIEW_007_WithIndex.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="序列号">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="创建序列号">
+			<param name="Local" value="050_SEQUENCE\050_SEQUENCE_001_Create.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="获取序列号数据">
+			<param name="Local" value="050_SEQUENCE\050_SEQUENCE_002_Values.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="修改序列号">
+			<param name="Local" value="050_SEQUENCE\050_SEQUENCE_003_ALTER.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="同义词">
+		<param name="Local" value="008_SYNONYM\008_SYNONYM_000_All.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="存储过程">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="创建时的基本定义与调用">
+			<param name="Local" value="009_PROCEDURE\009_PROCEDURE_001_BasicCreate.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="修改存储过程">
+			<param name="Local" value="009_PROCEDURE\009_PROCEDURE_002_Alter.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="参数定义-单个参数">
+			<param name="Local" value="009_PROCEDURE\009_PROCEDURE_003_OneParam.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="参数定义-IN、OUT、IN OUT">
+			<param name="Local" value="009_PROCEDURE\009_PROCEDURE_004_in_out.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="参数定义-默认值">
+			<param name="Local" value="009_PROCEDURE\009_PROCEDURE_005_DEFAULT.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="参数定义-指定参数名称调用">
+			<param name="Local" value="009_PROCEDURE\009_PROCEDURE_006_DEFAULT2.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="存储过程返回结果集">
+			<param name="Local" value="009_PROCEDURE\009_PROCEDURE_007_ResultSet.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="函数">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="创建时的基本定义与调用">
+			<param name="Local" value="010_FUNCTION\010_FUNCTION_001_BasicCreate.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="创建返回结果集的函数">
+			<param name="Local" value="010_FUNCTION\010_FUNCTION_002_ReturnTable.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="创建返回结果集的函数(自定义)">
+			<param name="Local" value="010_FUNCTION\010_FUNCTION_003_ReturnMyTable.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="触发器">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="统一的测试表">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_001_TestTable.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="INSERT">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_002_INSERT.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="UPDATE">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_003_UPDATE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="DELETE">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_004_DELETE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="INSERT/UPDATE/DELETE行为判断">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_005_INSERT_UPDATE_DELETE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Oracle、DB2语句级/行级">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_006_STATEMENT_ROW.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="语句级/行级的执行顺序">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_029_BEFORE_AFTER.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="SQL Server INSERT/UPDATE/DELETE多行">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_007_SQL_MUL_ROW.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="针对特定列的触发">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_008_OF_ON.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="针对特定条件的触发">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_009_WHEN.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="嵌套触发器">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_010_NESTED.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="递归触发器">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_011_RECURSIVE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="通过数据库参数禁止递归">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_012_NO_RECURSIVE_CONF.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="通过代码避免过度递归">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_013_NO_RECURSIVE_CODE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="触发器实现数据完整性的处理1">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_014_INTEGRITY1.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="触发器实现数据完整性的处理2">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_015_INTEGRITY2.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="已创建的触发器的查询">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_016_Query.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="INSTEAD OF 触发器">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_017_INSTEAD_OF.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="DDL触发器 数据库级别">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_018_DDL_DB.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="DDL触发器 服务器级别">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_019_DDL_Server.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="DDL触发器 服务器级别-登录时使用">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_020_DDL_Server_Login.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="触发器的临时禁用">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_021_DISABLE.html">
+			</OBJECT>			
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="与自动递增列的相关处理">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_022_AUTO_INCREMENT.html">
+			</OBJECT>
+			
+			
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="使用触发器来产生流水号">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_025_SEQNO.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="使用触发器来 DELETE CASCADE">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_026_DELETE_CASCADE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="使用触发器来 UPDATE CASCADE">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_027_UPDATE_CASCADE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="使用触发器来 ON DELETE SET NULL">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_028_DELETE_SET_NULL.html">
+			</OBJECT>
+
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="使用触发器来产生自定义流水号">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_030_YYYYMM_SEQ.html">
+			</OBJECT>
+
+			
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="数据库导入处理，是否会导致触发器的执行">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_045_IMPORT.html">
+			</OBJECT>			
+			
+			
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="小结">
+			<param name="Local" value="011_TRIGGER\011_TRIGGER_050_SUMMARY.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="外键约束">
+		<param name="Local" value="012_FOREIGN_KEY\012_FOREIGN_KEY_000_TestData.html">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="默认外键约束方式">
+			<param name="Local" value="012_FOREIGN_KEY\012_FOREIGN_KEY_001_Default.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="DELETE CASCADE 方式">
+			<param name="Local" value="012_FOREIGN_KEY\012_FOREIGN_KEY_002_DELETE_CASCADE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="UPDATE CASCADE 方式 (级联删除触发器)">
+			<param name="Local" value="012_FOREIGN_KEY\012_FOREIGN_KEY_022_DELETE_CASCADE_TRIGGER.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="UPDATE CASCADE 方式">
+			<param name="Local" value="012_FOREIGN_KEY\012_FOREIGN_KEY_003_UPDATE_CASCADE.html">
+			</OBJECT>
+
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="SET NULL 方式">
+			<param name="Local" value="012_FOREIGN_KEY\012_FOREIGN_KEY_004_SET_NULL.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="SET DEFAULT 方式">
+			<param name="Local" value="012_FOREIGN_KEY\012_FOREIGN_KEY_006_SET_DEFAULT.html">
+			</OBJECT>
+
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="关于非主键的外键设置">
+			<param name="Local" value="012_FOREIGN_KEY\012_FOREIGN_KEY_005_NOT_PK.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="外键约束-启用/禁用">
+			<param name="Local" value="012_FOREIGN_KEY\012_FOREIGN_KEY_011_ENABLE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="外键约束-延迟约束">
+			<param name="Local" value="012_FOREIGN_KEY\012_FOREIGN_KEY_012_DEFERRABLE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="自关联 DELETE CASCADE">
+			<param name="Local" value="012_FOREIGN_KEY\012_FOREIGN_KEY_030_Self_DELETE_CASCADE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="批量外键管理">
+			<param name="Local" value="012_FOREIGN_KEY\012_FOREIGN_KEY_040_BatchManager.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="游标处理">
+		<param name="Local" value="013_CURSOR\013_CURSOR_000_TestData.html">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="简单循环处理I">
+			<param name="Local" value="013_CURSOR\013_CURSOR_001_Simple1.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="简单循环处理II">
+			<param name="Local" value="013_CURSOR\013_CURSOR_002_Simple2.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="支持来回滚动的游标">
+			<param name="Local" value="013_CURSOR\013_CURSOR_003_SCROLL.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="带参数的游标">
+			<param name="Local" value="013_CURSOR\013_CURSOR_004_PARAM.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="用于更新的游标">
+			<param name="Local" value="013_CURSOR\013_CURSOR_005_FOR_UPDATE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="游标的状态">
+			<param name="Local" value="013_CURSOR\013_CURSOR_006_STATUS.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="FOR的使用">
+			<param name="Local" value="013_CURSOR\013_CURSOR_007_FOR.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="BULK COLLECT使用">
+			<param name="Local" value="013_CURSOR\013_CURSOR_008_BULK_COLLECT.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="数据库系统自带函数">
+		<param name="Local" value="014_DB_FUNC\014_DB_FUNC_000_Readme.html">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="字符函数">
+			</OBJECT>
+		<UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="由字符获取ASCII码ASCII">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_001_ASCII.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="格式化为 ASCII 字符串信息">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_002_ASCIISTR.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="由字符获取 UNICODE码 ">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_003_UNICODE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="返回字符集CHARSET">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_004_CHARSET.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="由ASCII码获取字符 CHR / CHAR">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_005_CHR.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="由UNICODE码获取字符 NCHAR">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_006_NCHAR.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="字符串连接 CONCAT">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_007_CONCAT.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="单词首字母大写 INITCAP">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_008_INITCAP.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="字符替换 INSERT">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_009_INSERT.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="字符串搜索 INSTR">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_010_INSTR.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="获取字符串左边开始指定个数的字符 LEFT">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_011_LEFT.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="字符串长度 LENGTH">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_012_LENGTH.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="加载文件 LOAD_FILE">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_013_LOAD_FILE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="字符转换为小写 LOWER">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_014_LOWER.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="左边字符填充 LPAD">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_015_LPAD.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="去除左边空格与字符 LTRIM">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_016_LTRIM.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="MAKE_SET">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_017_MAKE_SET.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="MD5">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_044_MD5.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="检索指定模式首次出现位置 PATINDEX">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_018_PATINDEX.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="正则表达式检索 REGEXP">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_019_REGEXP.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="正则表达式字符截取 REGEXP_SUBSTR">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_020_REGEXP_SUBSTR.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="正则表达式字符位置检索 REGEXP_INSTR">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_021_REGEXP_INSTR.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="正则表达式字符替换 REGEXP_REPLACE">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_022_REGEXP_REPLACE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="字符替换 REPLACE">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_023_REPLACE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="增加标示符定义QUOTE">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_024_QUOTE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="重复字符串 REPLICATE / REPEAT">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_025_REPLICATE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="字符反转 REVERSE">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_026_REVERSE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="获取字符串右边开始指定个数的字符 RIGHT">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_027_RIGHT.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="右边字符填充 RPAD">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_028_RPAD.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="去除右边空格与字符 RTRIM">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_029_RTRIM.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="取得发音 SOUNDEX">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_030_SOUNDEX.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="取得发音的不同 DIFFERENCE">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_031_DIFFERENCE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="返回由重复的空格组成的字符串 SPACE">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_032_SPACE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="小数转换为字符串 STR">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_033_STR.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="逐字符比较字符串大小 STRCMP">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_034_STRCMP.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="删除指定长度的字符并在指定的起始点插入另一组字符 STUFF">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_035_STUFF.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="返回字符串一部分 SUBSTR">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_036_SUBSTR.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="返回字符串一部分 SUBSTRING_INDEX">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_037_SUBSTRING_INDEX.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="TRANSLATE">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_038_TRANSLATE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="删除前后空格或其它字符 TRIM">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_039_TRIM.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="转换为大写 UPPER">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_040_UPPER.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="半角字符转全角字符 TO_MULTI_BYTE">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_041_TO_MULTI_BYTE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="全角字符转半角字符 TO_SINGLE_BYTE">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_042_TO_SINGLE_BYTE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="转换为 Unicode 编码字符 TO_NCHAR">
+				<param name="Local" value="015_Char_FUNC\015_Char_FUNC_043_TO_NCHAR.html">
+				</OBJECT>
+		</UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="数学函数">
+			</OBJECT>
+		<UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="绝对值 ABS">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_001_ABS.html">
+				</OBJECT>
+
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="十进制转二进制 BIN">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_006_BIN.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="二进制转十进制BIN_TO_NUM">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_007_BIN_TO_NUM.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="按位与操作 BITAND">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_008_BITAND.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="立方根 CBRT">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_041_CBRT.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="向上取整 CEIL / CEILING">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_009_CEIL.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="进制转换 CONV">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_010_CONV.html">
+				</OBJECT>
+
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="循环冗余码校验值CRC32">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_014_CRC32.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="度数为单位的角度 DEGREES">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_015_DEGREES.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="指数值EXP">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_016_EXP.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="向下取整 FLOOR">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_017_FLOOR.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="保留小数位数 FORMAT">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_018_FORMAT.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="转16进制 HEX">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_019_HEX.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="快速查找 INTERVAL">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_020_INTERVAL.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="自然对数 LN / LOG">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_021_LN.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="对数 LOG">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_022_LOG.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="以2为底的对数 LOG2">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_023_LOG2.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="以10为底的对数 LOG10">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_024_LOG10.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="余数 MOD / %">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_025_MOD.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="哈希值 ORA_HASH">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_026_ORA_HASH.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="PI 的常量值PI">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_027_PI.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="乘指定次方POWER">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_028_POWER.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="度数值返回弧度值RADIANS">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_029_RADIANS.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="随机数 RAND">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_030_RAND.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="四舍五入 ROUND">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_031_ROUND.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="表达式的正零或负号 SIGN">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_032_SIGN.html">
+				</OBJECT>
+
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="平方SQUARE">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_035_SQUARE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="平方根SQRT">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_036_SQRT.html">
+				</OBJECT>
+
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="截尾TRUNC">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_039_TRUNC.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="数字格式化显示">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_040_TO_CHAR.html">
+				</OBJECT>
+		</UL>
+
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="三角函数">
+			</OBJECT>
+		<UL>
+
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="反余弦 ACOS">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_002_ACOS.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="反正弦 ASIN">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_003_ASIN.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="反正切 ATAN">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_004_ATAN.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="反正切 ATAN2 / ATN2">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_005_ATAN2.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="余弦COS">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_011_COS.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="双曲余弦COSH">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_012_COSH.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="三角余切COT">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_013_COT.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="正弦 SIN">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_033_SIN.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="双曲正弦SINH">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_034_SINH.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="正切TAN">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_037_TAN.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="双曲正切TANH">
+				<param name="Local" value="016_Num_FUNC\016_Num_FUNC_038_TANH.html">
+				</OBJECT>
+		</UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="日期函数">
+			</OBJECT>
+		<UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="系统时间 SYSDATE">
+				<param name="Local" value="017_Date_FUNC\017_Date_FUNC_001_SYSDATE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="日期增减计算 DATEADD ">
+				<param name="Local" value="017_Date_FUNC\017_Date_FUNC_002_DATEADD.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="日期组成部分的取得 ">
+				<param name="Local" value="017_Date_FUNC\017_Date_FUNC_003_YMD.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="两个日期之间的差值 ">
+				<param name="Local" value="017_Date_FUNC\017_Date_FUNC_004_DATEDIFF.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="日期的截尾 ">
+				<param name="Local" value="017_Date_FUNC\017_Date_FUNC_005_TRUNC.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="日期的名称 ">
+				<param name="Local" value="017_Date_FUNC\017_Date_FUNC_006_DATENAME.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="日期/时间的格式化[日期转换为字符串]">
+				<param name="Local" value="017_Date_FUNC\017_Date_FUNC_007_DATE_TO_CHAR.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="日期/时间的格式化[字符串转换为日期]">
+				<param name="Local" value="017_Date_FUNC\017_Date_FUNC_008_CHAR_TO_DATE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="时间/秒转换 SEC_TO_TIME">
+				<param name="Local" value="017_Date_FUNC\017_Date_FUNC_009_SEC_TO_TIME.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="新建日期/时间">
+				<param name="Local" value="017_Date_FUNC\017_Date_FUNC_010_MAKEDATE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="时区相关">
+				<param name="Local" value="017_Date_FUNC\017_Date_FUNC_011_TIMEZONE.html">
+				</OBJECT>
+		</UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="一般比较函数">
+			</OBJECT>
+		<UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="取得最大值GREATEST">
+				<param name="Local" value="018_Compare_FUNC\018_Compare_FUNC_001_GREATEST.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="取得最小值LEAST">
+				<param name="Local" value="018_Compare_FUNC\018_Compare_FUNC_002_LEAST.html">
+				</OBJECT>
+		</UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="数据字典类函数">
+			</OBJECT>
+		<UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="返回列名 COL_NAME">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_001_COL_NAME.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="列属性 COLUMNPROPERTY">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_002_COLUMNPROPERTY.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="数据库选项设置 DATABASEPROPERTYEX">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_003_DATABASEPROPERTYEX.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="数据库中的主体的 ID 号 DATABASE_PRINCIPAL_ID">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_004_DATABASE_PRINCIPAL_ID.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="取得数据库标识号 DB_ID">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_005_DB_ID.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="取得数据库名DB_NAME / DATABASE">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_006_DB_NAME.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="取得文件标识号FILE_IDEX">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_007_FILE_IDEX.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="取得逻辑文件名FILE_NAME">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_008_FILE_NAME.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="取得文件组标识号FILEGROUP_ID">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_009_FILEGROUP_ID.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="取得文件组名 FILEGROUP_NAME">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_010_FILEGROUP_NAME.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="读取文件属性 FILEPROPERTY">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_011_FILEPROPERTY.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="取得工作站标识号 HOST_ID">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_012_HOST_ID.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="取得工作站名称 HOST_NAME">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_013_HOST_NAME.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="返回定义的源文本 OBJECT_DEFINITION">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_014_OBJECT_DEFINITION.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="返回对象标识  OBJECT_ID">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_015_OBJECT_ID.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="返回对象名称 OBJECT_NAME">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_016_OBJECT_NAME.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="返回对象构架名 OBJECT_SCHEMA_NAME">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_017_OBJECT_SCHEMA_NAME.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="对象的有关信息 OBJECTPROPERTY">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_018_OBJECTPROPERTY.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="对象的有关信息 OBJECTPROPERTYEX">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_019_OBJECTPROPERTYEX.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="获取当前用户可用权限 PERMISSIONS">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_020_PERMISSIONS.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="获取架构名称 SCHEMA_ID">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_021_SCHEMA_ID.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="获取架构名称 SCHEMA_NAME">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_022_SCHEMA_NAME.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="获取服务器实例的属性信息 SERVERPROPERTY">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_023_SERVERPROPERTY.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="返回会话的 SET 选项设置 SESSIONPROPERTY">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_024_SESSIONPROPERTY.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="返回上次更新指定索引的统计信息的日期 STATS_DATE">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_025_STATS_DATE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="返回用户登录名的安全标识号 (SID)  SUSER_SID">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_026_SUSER_SID.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="从用户的安全标识号 (SID) 返回登录标识名 SUSER_SNAME">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_027_SUSER_SNAME.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="取得用户ID UID / USER_ID">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_028_UID.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="取得用户名 USER_NAME">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_029_USER_NAME.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="获取数据类型名称的编号 TYPE_ID">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_030_TYPE_ID.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="获取指定类型 ID 的未限定的类型名称 TYPE_NAME">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_031_TYPE_NAME.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="返回有关数据类型的信息 TYPEPROPERTY">
+				<param name="Local" value="019_Dict_FUNC\019_Dict_FUNC_032_TYPEPROPERTY.html">
+				</OBJECT>
+		</UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="其他函数">
+			</OBJECT>
+		<UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="取得客户端应用程序名字 APP_NAME">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_001_APP_NAME.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="数字或字符转换为BIGINT数据类型 BIGINT">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_002_BIGINT.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="数据校验 BINARY_CHECKSUM">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_003_BINARY_CHECKSUM.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="数据转换为 BLOB类型 BLOB">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_004_BLOB.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="类型转换 CAST">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_005_CAST.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="字符串转换为行编号 CHARTOROWID">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_006_CHARTOROWID.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="返回最近语句更新行数 CHANGE">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_007_CHANGE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="数据校验 CHECKSUM">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_008_CHECKSUM.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="数据校验 CHECKSUM_AGG">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_009_CHECKSUM_AGG.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="数据转换为 CLOB类型 CLOB">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_010_CLOB.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="返回列的定义的长度 COL_LENGTH">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_011_COL_LENGTH.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="条件判断函数 DECODE">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_012_DECODE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="非空判断 NVL / ISNULL">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_013_NVL.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="非空判断 NVL2">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_014_NVL2.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="取得第一个非空数据 COALESCE">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_015_COALESCE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="取得字段所占用字节数 VSIZE / DATALENGTH">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_016_VSIZE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="判断是否是日期 ISDATE">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_017_ISDATE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="判断是否是数字 ISNUMERIC">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_018_ISNUMERIC.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="取得 GUID号 SYS_GUID / NEWID">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_019_SYS_GUID.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="如果两个指定的表达式相等，则返回空值 NULLIF">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_020_NULLIF.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="取指定位置的数据 ELT">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_021_ELT.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="取数据的位置FIELD">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_022_FIELD.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="FIND_IN_SET">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_023_FIND_IN_SET.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="PARSENAME">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_024_PARSENAME.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="获取数据库当前的版本">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_025_VERSION.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="IP地址转换处理">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_026_IPv4.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="休眠一段时间">
+				<param name="Local" value="020_Other_FUNC\020_Other_FUNC_099_WAITFOR.html">
+				</OBJECT>
+		</UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="统计分析函数">
+			<param name="Local" value="021_Row_Func\021_Row_Func_000_TestData.html">
+			</OBJECT>
+		<UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="ROW_NUMBER 顺序编号">
+				<param name="Local" value="021_Row_Func\021_Row_Func_001_ROW_NUMBER.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="RANK 排名不连续">
+				<param name="Local" value="021_Row_Func\021_Row_Func_002_RANK.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="DENSE_RANK 排名连续">
+				<param name="Local" value="021_Row_Func\021_Row_Func_003_DENSE_RANK.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="NTILE 分组">
+				<param name="Local" value="021_Row_Func\021_Row_Func_004_NTILE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="计算一行在组中的相对位置 CUME_DIST">
+				<param name="Local" value="021_Row_Func\021_Row_Func_005_CUME_DIST.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="PERCENT_RANK">
+				<param name="Local" value="021_Row_Func\021_Row_Func_006_PERCENT_RANK.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="计算百分比 RATIO_TO_REPORT ">
+				<param name="Local" value="021_Row_Func\021_Row_Func_007_RATIO_TO_REPORT.html">
+				</OBJECT>
+		</UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="窗口函数">
+			<param name="Local" value="022_Windows_Func\022_Windows_Func_000_Basic.html">
+			</OBJECT>
+		<UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="逐步累计">
+				<param name="Local" value="022_Windows_Func\022_Windows_Func_001.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="移动平均1">
+				<param name="Local" value="022_Windows_Func\022_Windows_Func_002.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="移动平均2">
+				<param name="Local" value="022_Windows_Func\022_Windows_Func_003.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="移动平均3">
+				<param name="Local" value="022_Windows_Func\022_Windows_Func_004.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="FIRST_VALUE and LAST_VALUE">
+				<param name="Local" value="022_Windows_Func\022_Windows_Func_005.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="LAG/LEAD">
+				<param name="Local" value="022_Windows_Func\022_Windows_Func_006.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="FIRST/LAST">
+				<param name="Local" value="022_Windows_Func\022_Windows_Func_007.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="WITHIN GROUP">
+				<param name="Local" value="022_Windows_Func\022_Windows_Func_008.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="PERCENTILE_CONT | PERCENTILE_DISC">
+				<param name="Local" value="022_Windows_Func\022_Windows_Func_009.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="中位数 Median">
+				<param name="Local" value="022_Windows_Func\022_Windows_Func_010_MEDIAN.html">
+				</OBJECT>
+		</UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="MODEL查询函数">
+			<param name="Local" value="023_MODEL_Func\023_MODEL_Func_000_Basic.html">
+			</OBJECT>
+		<UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="CURRENTV() 取当前行">
+				<param name="Local" value="023_MODEL_Func\023_MODEL_Func_001_CURRENTV.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="IS PRESENT / PRESENTV / PRESENTNNV">
+				<param name="Local" value="023_MODEL_Func\023_MODEL_Func_002_PRESENT.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="IGNORE NAV 选项">
+				<param name="Local" value="023_MODEL_Func\023_MODEL_Func_003_IGNORE_NAV.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="RULES UPDATE选项">
+				<param name="Local" value="023_MODEL_Func\023_MODEL_Func_004_RULES_UPDATE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="REFERENCE语句 与 CV函数">
+				<param name="Local" value="023_MODEL_Func\023_MODEL_Func_005_REFERENCE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Iterative 方法">
+				<param name="Local" value="023_MODEL_Func\023_MODEL_Func_006_Iterative.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="AUTOMATIC ORDER">
+				<param name="Local" value="023_MODEL_Func\023_MODEL_Func_007_AUTOMATIC_ORDER.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="排序规则">
+				<param name="Local" value="023_MODEL_Func\023_MODEL_Func_008_ORDER.html">
+				</OBJECT>
+		</UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="安全函数">
+			</OBJECT>
+		<UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="是否可访问指定数据库 HAS_DBACCESS">
+				<param name="Local" value="024_Security_Func\024_Security_Func_001_HAS_DBACCESS.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="IS_MEMBER">
+				<param name="Local" value="024_Security_Func\024_Security_Func_002_IS_MEMBER.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="IS_SRVROLEMEMBER">
+				<param name="Local" value="024_Security_Func\024_Security_Func_003_IS_SRVROLEMEMBER.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="ORIGINAL_LOGIN SYSTEM_USER">
+				<param name="Local" value="024_Security_Func\024_Security_Func_004_ORIGINAL_LOGIN.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="取得用户名 USER">
+				<param name="Local" value="024_Security_Func\024_Security_Func_005_USER.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="取得用户会话信息">
+				<param name="Local" value="024_Security_Func\024_Security_Func_006_USERENV.html">
+				</OBJECT>
+		</UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="聚集函数">
+			</OBJECT>
+		<UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="平均值AVG">
+				<param name="Local" value="025_Sum_Func\025_Sum_Func_001_AVG.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="相关系数 CORR">
+				<param name="Local" value="025_Sum_Func\025_Sum_Func_002_CORR.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="行的计数 COUNT">
+				<param name="Local" value="025_Sum_Func\025_Sum_Func_003_COUNT.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="COUNT_BIG">
+				<param name="Local" value="025_Sum_Func\025_Sum_Func_004_COUNT_BIG.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="总体协方差 COVAR_POP">
+				<param name="Local" value="025_Sum_Func\025_Sum_Func_005_COVAR_POP.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="最大值MAX">
+				<param name="Local" value="025_Sum_Func\025_Sum_Func_007_MAX.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="中位数 MEDIAN">
+				<param name="Local" value="025_Sum_Func\025_Sum_Func_008_MEDIAN.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="最小值MIN">
+				<param name="Local" value="025_Sum_Func\025_Sum_Func_009_MIN.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="标准偏差 STDDEV / STDEV">
+				<param name="Local" value="025_Sum_Func\025_Sum_Func_010_STDDEV.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="总体标准方差 STDDEV_POP/样本标准方差 STDDEV_SAMP">
+				<param name="Local" value="025_Sum_Func\025_Sum_Func_011_STDDEV_POP.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="填充统计标准偏差STDEVP">
+				<param name="Local" value="025_Sum_Func\025_Sum_Func_012_STDEVP.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="合计值 SUM">
+				<param name="Local" value="025_Sum_Func\025_Sum_Func_013_SUM.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="COMPUTE SUM">
+				<param name="Local" value="025_Sum_Func\025_Sum_Func_014_COMPUTE_SUM.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="方差VARIANCE / VAR">
+				<param name="Local" value="025_Sum_Func\025_Sum_Func_015_VARIANCE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="总体方差 VAR_POP/样本方差 VAR_SAMP">
+				<param name="Local" value="025_Sum_Func\025_Sum_Func_016_VARPOP.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="填充的统计方差 VARP">
+				<param name="Local" value="025_Sum_Func\025_Sum_Func_017_VARP.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="返回数组">
+				<param name="Local" value="025_Sum_Func\025_Sum_Func_018_Array_agg.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="返回字符列表">
+				<param name="Local" value="025_Sum_Func\025_Sum_Func_019_string_agg.html">
+				</OBJECT>
+		</UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="ROLLUP 与 CUBE 查询">
+			</OBJECT>
+		<UL>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="ROLLUP-简单用法">
+				<param name="Local" value="026_Rollup_Cube\026_Rollup_Cube_001_ROLLUP.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="ROLLUP-GROUPING">
+				<param name="Local" value="026_Rollup_Cube\026_Rollup_Cube_002_ROLLUP_GROUPING.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="ROLLUP-调整NULL显示">
+				<param name="Local" value="026_Rollup_Cube\026_Rollup_Cube_003_ROLLUP_NULL.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="CUBE-简单用法">
+				<param name="Local" value="026_Rollup_Cube\026_Rollup_Cube_004_CUBE.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="CUBE-GROUPING">
+				<param name="Local" value="026_Rollup_Cube\026_Rollup_Cube_005_CUBE_GROUPING.html">
+				</OBJECT>
+		</UL>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="大小写敏感问题">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="表名字段名的例子">
+			<param name="Local" value="027_Upper_Lower\027_Upper_Lower_001_TableName.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="=操作的例子">
+			<param name="Local" value="027_Upper_Lower\027_Upper_Lower_002_eq.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="LIKE操作的例子">
+			<param name="Local" value="027_Upper_Lower\027_Upper_Lower_003_like.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="排序的例子">
+			<param name="Local" value="027_Upper_Lower\027_Upper_Lower_004_ORDERBY.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="排序规则冲突的处理 - JOIN">
+			<param name="Local" value="027_Upper_Lower\027_Upper_Lower_005_JOIN.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="排序规则冲突的处理 - UNION">
+			<param name="Local" value="027_Upper_Lower\027_Upper_Lower_006_UNION.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="关于中文汉字的排序">
+			<param name="Local" value="027_Upper_Lower\027_Upper_Lower_007_CHINESE.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="异常处理">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="没有异常处理时">
+			<param name="Local" value="028_Exception\028_Exception_001_NoCatch.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="有异常处理时">
+			<param name="Local" value="028_Exception\028_Exception_002_Catch.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="取得错误代码与错误信息">
+			<param name="Local" value="028_Exception\028_Exception_003_ERRORCODE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="自定义错误-简单命名">
+			<param name="Local" value="028_Exception\028_Exception_004_NameError.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="自定义错误-与数据库错误关联">
+			<param name="Local" value="028_Exception\028_Exception_005_DBError.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="自定义错误-应用级别的错误">
+			<param name="Local" value="028_Exception\028_Exception_006_AppError.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="错误的传播-当前代码块未处理异常">
+			<param name="Local" value="028_Exception\028_Exception_007_ErrorNotHandle.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="错误的传播-当前代码块处理异常">
+			<param name="Local" value="028_Exception\028_Exception_008_ErrorHandle.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="数据字典表">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="数据库">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_000_DATABASE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="构架">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_001_SCHEMATA.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="用户">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_002_USER.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="表">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_003_TABLE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="列">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_004_COLUMN.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="列的默认值">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_004_COLUMN_DEFAULT.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="表备注说明信息">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_005_TABLE_COMMENT.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="字段备注说明信息">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_006_COLUMN_COMMENT.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="视图">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_007_VIEW.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="视图列">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_008_VIEW_COLUMN.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="触发器">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_009_TRIGGER.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="存储过程">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_010_PROCEDURE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="函数">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_011_FUNCTION.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="依赖关系">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_012_DEPENDENCIE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="约束-主键">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_013_CONSTRAINTS_PK.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="约束-唯一">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_014_CONSTRAINTS_UNIQUE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="约束-外键">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_015_CONSTRAINTS_FK.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="约束-其他">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_016_CONSTRAINTS_OTHER.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="索引">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_017_INDEX.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="同义词">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_018_SYNONYM.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="日志模式">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_020_LOG_MODE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="表空间">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_021_TABLESPACE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="数据文件">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_022_DATAFILE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="回收站">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_030_RECYCLEBIN.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="字符集">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_040_CharacterSet.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="角色">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_050_ROLE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="角色与用户关联">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_051_ROLE_USER.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="角色权限">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_052_ROLE_PRIVS.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="事务处理">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="简单的正常提交-异常回滚">
+			<param name="Local" value="030_Trans\030_Trans_001_Simple.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="自治事务">
+			<param name="Local" value="030_Trans\030_Trans_002_AUTONOMOUS_TRANSACTION.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="多用户间锁的处理-简单锁定">
+			<param name="Local" value="030_Trans\030_Trans_003_SimpleLock.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="多用户间锁的处理-SQL Server (nolock)">
+			<param name="Local" value="030_Trans\030_Trans_004_NOLOCK.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="多用户间锁的处理-SQL Server (READPAST)">
+			<param name="Local" value="030_Trans\030_Trans_005_READPAST.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="多用户间锁的处理-死锁">
+			<param name="Local" value="030_Trans\030_Trans_006_deadlock.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="事务隔离级别">
+			<param name="Local" value="030_Trans\030_Trans_007_ISOLATION_LEVEL.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="数据锁定检测">
+			<param name="Local" value="030_Trans\030_Trans_008_LockQuery.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="队列处理">
+		<param name="Local" value="031_Queue\031_Queue_000_Basic.html">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="HelloWorld">
+			<param name="Local" value="031_Queue\031_Queue_001_HelloWorld.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="HelloWorld2">
+			<param name="Local" value="031_Queue\031_Queue_002_HelloWorld2.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="临时表">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="创建临时表">
+			<param name="Local" value="032_TEMPORARY_TABLE\032_TEMPORARY_TABLE_001_CREATE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="插入数据-查询">
+			<param name="Local" value="032_TEMPORARY_TABLE\032_TEMPORARY_TABLE_002_INSERT.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="总结">
+			<param name="Local" value="032_TEMPORARY_TABLE\032_TEMPORARY_TABLE_003.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="分区表">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="RANGE分区-初期分区定义">
+			<param name="Local" value="033_PARTITION_TABLE\033_PARTITION_TABLE_001_RANGE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="RANGE分区-查询分区信息">
+			<param name="Local" value="033_PARTITION_TABLE\033_PARTITION_TABLE_002_RANGE_QUERY.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="RANGE分区-新增分区">
+			<param name="Local" value="033_PARTITION_TABLE\033_PARTITION_TABLE_003_RANGE_ADD.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="RANGE分区-删除分区">
+			<param name="Local" value="033_PARTITION_TABLE\033_PARTITION_TABLE_004_RANGE_DEL.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="RANGE分区-分区的合并">
+			<param name="Local" value="033_PARTITION_TABLE\033_PARTITION_TABLE_005_RANGE_MERGE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="RANGE分区-分区的拆分">
+			<param name="Local" value="033_PARTITION_TABLE\033_PARTITION_TABLE_006_RANGE_SPLIT.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="RANGE分区-计算列的分区">
+			<param name="Local" value="033_PARTITION_TABLE\033_PARTITION_TABLE_007_RANGE_AS_COL.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="List分区-初期分区定义">
+			<param name="Local" value="033_PARTITION_TABLE\033_PARTITION_TABLE_010_LIST.html">
+			</OBJECT>
+ 		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="List分区-新增分区">
+			<param name="Local" value="033_PARTITION_TABLE\033_PARTITION_TABLE_011_LIST_ADD.html">
+			</OBJECT>
+  		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="List分区-删除分区">
+			<param name="Local" value="033_PARTITION_TABLE\033_PARTITION_TABLE_012_LIST_DEL.html">
+			</OBJECT>
+   		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="List分区-分区的拆分">
+			<param name="Local" value="033_PARTITION_TABLE\033_PARTITION_TABLE_013_LIST_SPLIT.html">
+			</OBJECT>
+   		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="List分区-分区的合并">
+			<param name="Local" value="033_PARTITION_TABLE\033_PARTITION_TABLE_014_LIST_MERGE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Hash分区-初期分区定义">
+			<param name="Local" value="033_PARTITION_TABLE\033_PARTITION_TABLE_021_HASH.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Hash分区-增加分区">
+			<param name="Local" value="033_PARTITION_TABLE\033_PARTITION_TABLE_022_HASH_ADD.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Hash分区-减少分区">
+			<param name="Local" value="033_PARTITION_TABLE\033_PARTITION_TABLE_023_HASH_COALESCE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="组合分区-初期分区定义">
+			<param name="Local" value="033_PARTITION_TABLE\033_PARTITION_TABLE_031_SUB.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="分区视图">
+			<param name="Local" value="033_PARTITION_TABLE\033_PARTITION_TABLE_041_VIEW.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="动态SQL">
+		<param name="Local" value="034_DYNAMIC_SQL\034_DYNAMIC_SQL_000_TestData.html">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="直接执行的方式-简单执行">
+			<param name="Local" value="034_DYNAMIC_SQL\034_DYNAMIC_SQL_001_EXEC.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="直接执行的方式-单条结果的获取">
+			<param name="Local" value="034_DYNAMIC_SQL\034_DYNAMIC_SQL_002_EXEC_GETRESULT.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="直接执行的方式-游标方式获取">
+			<param name="Local" value="034_DYNAMIC_SQL\034_DYNAMIC_SQL_003_EXEC_CURSOR.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="执行存储过程的方式-简单执行">
+			<param name="Local" value="034_DYNAMIC_SQL\034_DYNAMIC_SQL_011_CALL_PORC.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="执行存储过程的方式-参数的传入">
+			<param name="Local" value="034_DYNAMIC_SQL\034_DYNAMIC_SQL_012_CALL_PORC_PARAM.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="执行存储过程的方式-单条结果的获取">
+			<param name="Local" value="034_DYNAMIC_SQL\034_DYNAMIC_SQL_013_CALL_PORC_GETRESULT.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="执行存储过程的方式-游标方式获取">
+			<param name="Local" value="034_DYNAMIC_SQL\034_DYNAMIC_SQL_014_CALL_PORC_CURSOR.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="小结">
+			<param name="Local" value="034_DYNAMIC_SQL\034_DYNAMIC_SQL_020.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="数据库链接">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Oracle">
+			<param name="Local" value="035_DATABASE_LINK\035_DATABASE_LINK_001_Oracle.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="SQL Server">
+			<param name="Local" value="035_DATABASE_LINK\035_DATABASE_LINK_002_SQLServer.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="MySQL">
+			<param name="Local" value="035_DATABASE_LINK\035_DATABASE_LINK_003_MySQL.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Access">
+			<param name="Local" value="035_DATABASE_LINK\035_DATABASE_LINK_004_Access.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Excel">
+			<param name="Local" value="035_DATABASE_LINK\035_DATABASE_LINK_005_Excel.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="权限体系结构">
+		<param name="Local" value="036_AUTHORITY\036_AUTHORITY_000.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="数据库作业">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="作业的创建">
+			<param name="Local" value="037_JOB\037_JOB_001_CREATE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="作业的查询">
+			<param name="Local" value="037_JOB\037_JOB_002_QUERY.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="作业的修改">
+			<param name="Local" value="037_JOB\037_JOB_003_CHANGE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="作业的删除">
+			<param name="Local" value="037_JOB\037_JOB_004_REMOVE.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="查询的优化">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="获取执行计划">
+			<param name="Local" value="038_SQL_PLAN\038_SQL_PLAN_001.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="获取执行成本">
+			<param name="Local" value="038_SQL_PLAN\038_SQL_PLAN_002.html">
+			</OBJECT>
+	</UL>
+
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="提示 Hint">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="基本定义方式">
+			<param name="Local" value="039_HINT\039_HINT_001.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="优化器提示">
+			<param name="Local" value="039_HINT\039_HINT_002.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="连接提示">
+			<param name="Local" value="039_HINT\039_HINT_003_JOIN.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="表反连接提示">
+			<param name="Local" value="039_HINT\039_HINT_004.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Index提示">
+			<param name="Local" value="039_HINT\039_HINT_005_index.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Parallel提示">
+			<param name="Local" value="039_HINT\039_HINT_006_Parallel.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="表提示">
+			<param name="Local" value="039_HINT\039_HINT_007_TABLE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="查询提示">
+			<param name="Local" value="039_HINT\039_HINT_008_QUERY.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="数据库系统参数">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="查询系统参数">
+			<param name="Local" value="040_PARAM\040_PARAM_001.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="修改系统参数">
+			<param name="Local" value="040_PARAM\040_PARAM_002.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="监控运行状况">
+		<param name="Local" value="041_MON\041_MON_000.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="数据库会话的基本参数设置 SET">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="设置一周的第一天">
+			<param name="Local" value="042_SET\042_SET_001_DATEFIRST.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="设置输入的年月日顺序">
+			<param name="Local" value="042_SET\042_SET_002_DATEFORMAT.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="死锁优先级设置">
+			<param name="Local" value="042_SET\042_SET_003_DEADLOCK_PRIORITY.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="锁定超时设置">
+			<param name="Local" value="042_SET\042_SET_004_LOCK_TIMEOUT.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="提交事务时是否关闭游标">
+			<param name="Local" value="042_SET\042_SET_005_CURSOR_CLOSE_ON_COMMIT.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="检查是否遵从 FIPS 127-2 标准">
+			<param name="Local" value="042_SET\042_SET_006_FIPS_FLAGGER.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="允许将显式值插入表的标识列中">
+			<param name="Local" value="042_SET\042_SET_007_IDENTITY_INSERT.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="指定会话的语言环境">
+			<param name="Local" value="042_SET\042_SET_008_LANGUAGE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="双引号分隔标识符设置">
+			<param name="Local" value="042_SET\042_SET_009_QUOTED_IDENTIFIER.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="溢出或被零除错误时的处理">
+			<param name="Local" value="042_SET\042_SET_010_ARITHABORT.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="测试响应模式">
+			<param name="Local" value="042_SET\042_SET_011_FMTONLY.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="显示行数信息设置">
+			<param name="Local" value="042_SET\042_SET_012_NOCOUNT.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="仅仅编译不执行">
+			<param name="Local" value="042_SET\042_SET_013_NOEXEC.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="舍入精度损失时的处理">
+			<param name="Local" value="042_SET\042_SET_014_NUMERIC_ROUNDABORT.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="语法检查">
+			<param name="Local" value="042_SET\042_SET_015_PARSEONLY.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="查询开销设置">
+			<param name="Local" value="042_SET\042_SET_016_QUERY_GOVERNOR_COST_LIMIT.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="ANSI_DEFAULTS 设置">
+			<param name="Local" value="042_SET\042_SET_017_ANSI_DEFAULTS.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="空/非空的默认值设定">
+			<param name="Local" value="042_SET\042_SET_018_ANSI_NULL_DFLT_OFF.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="错误警告的提示">
+			<param name="Local" value="042_SET\042_SET_019_ANSI_WARNINGS.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="查询计划的设置">
+			<param name="Local" value="042_SET\042_SET_020_FORCEPLAN.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="查看查询计划的详细情况">
+			<param name="Local" value="042_SET\042_SET_021_SHOWPLAN_ALL.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="查看查询计划文本">
+			<param name="Local" value="042_SET\042_SET_022_SHOWPLAN_TEXT.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="XML方式查看查询计划">
+			<param name="Local" value="042_SET\042_SET_023_SHOWPLAN_XML.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="显示磁盘活动统计信息">
+			<param name="Local" value="042_SET\042_SET_024_STATISTICS_IO.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="显示查询计划与实际执行情况信息">
+			<param name="Local" value="042_SET\042_SET_025_STATISTICS_PROFILE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="显示花费时间">
+			<param name="Local" value="042_SET\042_SET_026_STATISTICS_TIME.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="隐式事务模式">
+			<param name="Local" value="042_SET\042_SET_027_IMPLICIT_TRANSACTIONS.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="分布式事务">
+			<param name="Local" value="042_SET\042_SET_028_REMOTE_PROC_TRANSACTIONS.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="隔离级别的设定">
+			<param name="Local" value="042_SET\042_SET_029_ISOLATION_LEVEL.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="是否自动回滚">
+			<param name="Local" value="042_SET\042_SET_030_XACT_ABORT.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="导出/导入">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="简单表的导出/导入">
+			<param name="Local" value="043_ImpExp\043_ImpExp_001.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="导出/导入参数">
+			<param name="Local" value="043_ImpExp\043_ImpExp_002.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="大容量导入/导出操作">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="普通表导入导出">
+			<param name="Local" value="044_SQL_Loader\044_SQL_Loader_001_Normal.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="文件结构与表结构不匹配情况下的导入">
+			<param name="Local" value="044_SQL_Loader\044_SQL_Loader_002_Diff.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="存在特殊字符情况的处理">
+			<param name="Local" value="044_SQL_Loader\044_SQL_Loader_003_CSV.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="使用外部表">
+			<param name="Local" value="044_SQL_Loader\044_SQL_LOADER_004_EXTERNAL_TABLE.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="导入到 Oracle">
+			<param name="Local" value="044_SQL_Loader\044_SQL_LOADER_011_TO_Oracle.html">
+			</OBJECT>
+	</UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="备份与恢复">
+		<param name="Local" value="045_Backup\045_Backup_001.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="错误恢复">
+		<param name="Local" value="046_Flashback\046_Flashback_001.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="更改跟踪">
+		<param name="Local" value="051_CHANGE_TRACKING\051_CHANGE_TRACKING_001_Basic.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="执行操作系统下的程序">
+		<param name="Local" value="047_cmdshell\047_cmdshell_001.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="执行外部 sql 文件">
+		<param name="Local" value="048_RunSql\048_RunSql_001.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="XML">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="简单格式化">
+			<param name="Local" value="049_XML\049_XML_001.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="前提条件">
+			<param name="Local" value="049_XML\049_XML_002.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="query查询">
+			<param name="Local" value="049_XML\049_XML_003.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Exist查询">
+			<param name="Local" value="049_XML\049_XML_004.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="value查询">
+			<param name="Local" value="049_XML\049_XML_005.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="modify查询">
+			<param name="Local" value="049_XML\049_XML_006.html">
+			</OBJECT>
+	</UL>
+</UL>
+</BODY></HTML>

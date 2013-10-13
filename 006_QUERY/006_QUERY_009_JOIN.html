@@ -1,0 +1,484 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - JOIN 关联 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2>  JOIN 关联 </h2>
+
+
+
+通用测试表
+
+<pre><code>
+
+-- 学生表
+CREATE TABLE student (
+  SNO    INT,
+  SNAME  VARCHAR(10),
+  ICNO   INT
+);
+
+-- 食堂IC卡表
+CREATE TABLE IC (
+  ICNO     INT,
+  ICNAME   VARCHAR(10),
+  ICMoney  INT
+);
+
+INSERT INTO student VALUES(1, '张三', 1   );
+INSERT INTO student VALUES(2, '李四', 2   );
+INSERT INTO student VALUES(3, '王五', NULL);
+
+
+INSERT INTO IC VALUES(1, '张三', 500 );
+INSERT INTO IC VALUES(2, '李四', 250 );
+INSERT INTO IC VALUES(3, '赵老师', 600);
+
+
+</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> INNER JOIN </td>
+    <td>
+Oracle 、DB2、SQL Server、MySQL、SQLite、PostgreSQL 基本上无差别，仅仅演示一种数据库结果：
+(INNER 可省略)
+
+<pre><code>
+
+
+SELECT
+  student.SNO,
+  student.SNAME,
+  IC.ICNAME,
+  IC.ICMoney
+FROM
+  student
+    JOIN IC
+      ON (student.ICNO = IC.ICNO);
+
++------+-------+--------+---------+
+| SNO  | SNAME | ICNAME | ICMoney |
++------+-------+--------+---------+
+|    1 | 张三  | 张三   |     500 |
+|    2 | 李四  | 李四   |     250 |
++------+-------+--------+---------+
+2 rows in set (0.00 sec)
+
+
+
+<hr/>
+
+不使用 JOIN 的话， 可以使用
+
+SELECT
+  student.SNO,
+  student.SNAME,
+  IC.ICNAME,
+  IC.ICMoney
+FROM
+  student, IC
+WHERE
+  student.ICNO = IC.ICNO;
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> LEFT OUTER JOIN </td>
+    <td>
+Oracle 、DB2、SQL Server、MySQL、SQLite、PostgreSQL  基本上无差别，仅仅演示一种数据库结果：
+（OUTER 可省略）
+
+<pre><code>
+
+SELECT
+  student.SNO,
+  student.SNAME,
+  IC.ICNAME,
+  IC.ICMoney
+FROM
+  student
+    LEFT JOIN IC
+      ON (student.ICNO = IC.ICNO);
+
++------+-------+--------+---------+
+| SNO  | SNAME | ICNAME | ICMoney |
++------+-------+--------+---------+
+|    1 | 张三  | 张三   |     500 |
+|    2 | 李四  | 李四   |     250 |
+|    3 | 王五  | NULL   |    NULL |
++------+-------+--------+---------+
+3 rows in set (0.00 sec)
+
+
+
+<hr/>
+Oracle 有种另外的写法.
+
+SELECT
+  student.SNO,
+  student.SNAME,
+  IC.ICNAME,
+  IC.ICMoney
+FROM
+  student, IC
+WHERE
+  student.ICNO = IC.ICNO(+);
+
+
+      SNO SNAME                ICNAME                  ICMONEY
+--------- -------------------- -------------------- ----------
+        1 张三                 张三                        500
+        2 李四                 李四                        250
+        3 王五
+
+可以理解为， 有 (+) 的， 就是  可选的 (也就是可以为 NULL 的)。
+
+
+<hr/>
+SQL 低版本的情况下，有种另外的写法.
+(下面仅仅用于说明， 曾经有过这样的语法， 但是不推荐这么使用)
+(SQL Server 2012 中已废止)
+
+ALTER DATABASE test SET COMPATIBILITY_LEVEL=80;
+GO
+
+
+SELECT
+  student.SNO,
+  student.SNAME,
+  IC.ICNAME,
+  IC.ICMoney
+FROM
+  student, IC
+WHERE
+  student.ICNO *= IC.ICNO;
+
+
+
+SNO         SNAME      ICNAME     ICMoney
+----------- ---------- ---------- -----------
+          1 张三         张三                 500
+          2 李四         李四                 250
+          3 王五         NULL              NULL
+
+(3 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> RIGHT OUTER JOIN </td>
+    <td>
+Oracle 、DB2、SQL Server、MySQL、PostgreSQL 基本上无差别，仅仅演示一种数据库结果：
+（OUTER 可省略）
+注：SQLite 不支持 RIGHT JOIN
+
+<pre><code>
+
+SELECT
+  student.SNO,
+  student.SNAME,
+  IC.ICNAME,
+  IC.ICMoney
+FROM
+  student
+    RIGHT JOIN IC
+      ON (student.ICNO = IC.ICNO);
+
++------+-------+--------+---------+
+| SNO  | SNAME | ICNAME | ICMoney |
++------+-------+--------+---------+
+|    1 | 张三  | 张三   |     500 |
+|    2 | 李四  | 李四   |     250 |
+| NULL | NULL  | 赵老师 |     600 |
++------+-------+--------+---------+
+3 rows in set (0.00 sec)
+
+
+<hr/>
+Oracle 有种另外的写法.
+
+SELECT
+  student.SNO,
+  student.SNAME,
+  IC.ICNAME,
+  IC.ICMoney
+FROM
+  student, IC
+WHERE
+  student.ICNO(+) = IC.ICNO;
+
+
+       SNO SNAME                ICNAME                  ICMONEY
+---------- -------------------- -------------------- ----------
+         1 张三                 张三                        500
+         2 李四                 李四                        250
+                                赵老师                      600
+
+可以理解为， 有 (+) 的， 就是  可选的 (也就是可以为 NULL 的)。
+
+
+<hr/>
+SQL 低版本的情况下，有种另外的写法.
+(下面仅仅用于说明， 曾经有过这样的语法， 但是不推荐这么使用)
+(SQL Server 2012 中已废止)
+
+
+ALTER DATABASE test SET COMPATIBILITY_LEVEL=80;
+GO
+
+SELECT
+  student.SNO,
+  student.SNAME,
+  IC.ICNAME,
+  IC.ICMoney
+FROM
+  student, IC
+WHERE
+  student.ICNO =* IC.ICNO;
+
+SNO         SNAME      ICNAME     ICMoney
+----------- ---------- ---------- -----------
+          1 张三         张三                 500
+          2 李四         李四                 250
+       NULL NULL       赵老师                600
+
+(3 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> CROSS JOIN </td>
+    <td>
+Oracle 、DB2、SQL Server、MySQL、SQLite、PostgreSQL  基本上无差别，仅仅演示一种数据库结果：
+<pre><code>
+
+SELECT
+  student.SNO,
+  student.SNAME,
+  IC.ICNAME,
+  IC.ICMoney
+FROM
+  student
+    CROSS JOIN IC;
+
++------+-------+--------+---------+
+| SNO  | SNAME | ICNAME | ICMoney |
++------+-------+--------+---------+
+|    1 | 张三  | 张三   |     500 |
+|    2 | 李四  | 张三   |     500 |
+|    3 | 王五  | 张三   |     500 |
+|    1 | 张三  | 李四   |     250 |
+|    2 | 李四  | 李四   |     250 |
+|    3 | 王五  | 李四   |     250 |
+|    1 | 张三  | 赵老师 |     600 |
+|    2 | 李四  | 赵老师 |     600 |
+|    3 | 王五  | 赵老师 |     600 |
++------+-------+--------+---------+
+9 rows in set (0.08 sec)
+
+
+
+<hr/>
+
+不使用 JOIN 的话， 可以使用
+
+
+SELECT
+  student.SNO,
+  student.SNAME,
+  IC.ICNAME,
+  IC.ICMoney
+FROM
+  student, IC;
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> FULL JOIN </td>
+    <td>
+Oracle 、DB2、SQL Server、PostgreSQL  支持 Full JOIN
+（OUTER 可省略）
+
+
+
+<pre><code>
+
+SELECT
+  student.SNO,
+  student.SNAME,
+  IC.ICNAME,
+  IC.ICMoney
+FROM
+  student
+    FULL JOIN IC
+      ON (student.ICNO = IC.ICNO);
+go
+SNO         SNAME      ICNAME     ICMoney
+----------- ---------- ---------- -----------
+          1 张三         张三                 500
+          2 李四         李四                 250
+          3 王五         NULL              NULL
+       NULL NULL       赵老师                600
+
+(4 行受影响)
+
+MySQL 好像是不支持
+
+mysql> SELECT
+    ->   student.SNO,
+    ->   student.SNAME,
+    ->   IC.ICNAME,
+    ->   IC.ICMoney
+    -> FROM
+    ->   student
+    ->     FULL JOIN IC
+    ->       ON (student.ICNO = IC.ICNO);
+ERROR 1054 (42S22): Unknown column 'student.SNO' in 'field list'
+
+
+
+变通着，修改为
+
+LEFT JOIN  +   UNION  +  RIGHT JOIN 的方式。
+
+mysql> SELECT
+    ->   student.SNO,
+    ->   student.SNAME,
+    ->   IC.ICNAME,
+    ->   IC.ICMoney
+    -> FROM
+    ->   student
+    ->     LEFT JOIN IC
+    ->       ON (student.ICNO = IC.ICNO)
+    -> UNION
+    -> SELECT
+    ->   student.SNO,
+    ->   student.SNAME,
+    ->   IC.ICNAME,
+    ->   IC.ICMoney
+    -> FROM
+    ->   student
+    ->     RIGHT JOIN IC
+    ->       ON (student.ICNO = IC.ICNO);
++------+-------+--------+---------+
+| SNO  | SNAME | ICNAME | ICMoney |
++------+-------+--------+---------+
+|    1 | 张三  | 张三   |     500 |
+|    2 | 李四  | 李四   |     250 |
+|    3 | 王五  | NULL   |    NULL |
+| NULL | NULL  | 赵老师 |     600 |
++------+-------+--------+---------+
+4 rows in set (0.01 sec)
+
+
+SQLite  是 FULL 与 RIGHT JOIN 都不支持
+
+sqlite> SELECT
+   ...>   student.SNO,
+   ...>   student.SNAME,
+   ...>   IC.ICNAME,
+   ...>   IC.ICMoney
+   ...> FROM
+   ...>   student
+   ...>     FULL JOIN IC
+   ...>       ON (student.ICNO = IC.ICNO);
+Error: RIGHT and FULL OUTER JOINs are not currently supported
+
+只能通过 UNION  2个 LEFT JOIN 来处理
+
+SELECT
+  student.SNO,
+  student.SNAME,
+  IC.ICNAME,
+  IC.ICMoney
+FROM
+  student
+    LEFT JOIN IC
+      ON (student.ICNO = IC.ICNO)
+UNION
+SELECT
+  student.SNO,
+  student.SNAME,
+  IC.ICNAME,
+  IC.ICMoney
+FROM
+  IC
+    LEFT JOIN student
+      ON (student.ICNO = IC.ICNO);
+
+student.SNO|student.SNAME|IC.ICNAME|IC.ICMoney
+||赵老师|600
+1|张三|张三|500
+2|李四|李四|250
+3|王五||
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

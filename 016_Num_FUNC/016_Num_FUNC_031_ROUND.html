@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数学函数 - 四舍五入 ROUND  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数学函数 </h1>
+
+
+<h2>  四舍五入 ROUND </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT ROUND(1.56), ROUND(1.56,1), ROUND(12.34, -2) FROM dual;
+
+ROUND(1.56) ROUND(1.56,1) ROUND(12.34,-2)
+----------- ------------- ---------------
+          2           1.6               0
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => SELECT ROUND(1.56, 0), ROUND(1.56,1), ROUND(12.34, -2)
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+1      2      3
+------ ------ -------
+  2.00   1.60    0.00
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+注:该函数要求2-3个参数
+第3个参数非0时，为截尾
+
+ROUND ( numeric_expression , length [ ,function ] )
+ 
+
+ 参数
+numeric_expression 
+精确数值或近似数值数据类别（bit 数据类型除外）的表达式。
+
+length 
+numeric_expression 的舍入精度。length 必须是 tinyint、smallint 或 int 类型的表达式。如果 length 为正数，则将 numeric_expression 舍入到 length 指定的小数位数。如果 length 为负数，则将 numeric_expression 小数点左边部分舍入到 length 指定的长度。
+
+function 
+要执行的操作的类型。function 必须为 tinyint、smallint 或 int。如果省略 function 或其值为 0（默认值），则将舍入 numeric_expression。如果指定了 0 以外的值，则将截断 numeric_expression。
+
+
+
+1> SELECT ROUND(1.56, 0), ROUND(1.56,1), ROUND(12.34, -2)
+2> go
+
+----- ----- ------
+ 2.00  1.60    .00
+
+(1 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT ROUND(1.56), ROUND(1.56,1), ROUND(12.34, -2)
+    -> //
++-------------+---------------+------------------+
+| ROUND(1.56) | ROUND(1.56,1) | ROUND(12.34, -2) |
++-------------+---------------+------------------+
+|           2 |           1.6 |                0 |
++-------------+---------------+------------------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+Test=# SELECT ROUND(1.56), ROUND(1.56,1), ROUND(12.34, -2);
+ round | round | round
+-------+-------+-------
+     2 |   1.6 |     0
+(1 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

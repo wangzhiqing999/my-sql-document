@@ -1,0 +1,409 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 日期函数 - 日期增减计算 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 日期函数 </h1>
+
+
+<h2> 日期增减计算  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+只有一个 ADD_MONTHS，其他的 按1天=1计算
+
+SQL> ALTER session
+  2     SET nls_date_format='yyyy-mm-dd hh24:mi:ss';
+
+Session altered.
+
+
+SELECT 'Now' AS date_title, sysdate AS date_value FROM dual
+UNION ALL
+SELECT 'Next Sec' AS date_title, sysdate + 1/(24*60*60) AS date_value FROM dual
+UNION ALL
+SELECT 'Next Min' AS  date_title, sysdate + 1/(24*60) AS date_value FROM dual
+UNION ALL
+SELECT 'Next Hour' AS date_title, sysdate + 1/24 AS date_value FROM dual
+UNION ALL
+SELECT 'Tomorrow' AS date_title, sysdate + 1 AS date_value FROM dual
+UNION ALL
+SELECT 'Next Week' AS date_title, sysdate + 7 AS date_value FROM dual
+UNION ALL
+SELECT 'Next Month' AS  date_title,  ADD_MONTHS(sysdate,1) AS date_value FROM dual
+UNION ALL
+SELECT 'Next Quarter'  AS date_title,  ADD_MONTHS(sysdate,3) AS date_value FROM dual
+UNION ALL
+SELECT 'Next year' AS  date_title,  ADD_MONTHS(sysdate,12) AS date_value FROM dual;
+
+DATE_TITLE               DATE_VALUE
+------------------------ -------------------
+Now                      2010-08-31 18:11:01
+Next Sec                 2010-08-31 18:11:02
+Next Min                 2010-08-31 18:12:01
+Next Hour                2010-08-31 19:11:01
+Tomorrow                 2010-09-01 18:11:01
+Next Week                2010-09-07 18:11:01
+Next Month               2010-09-30 18:11:01
+Next Quarter             2010-11-30 18:11:01
+Next year                2011-08-31 18:11:01
+
+9 rows selected.
+
+
+注意：NEXT_DAY的第2个参数，与会话中的语言设置有关系。
+SQL> SELECT 
+  2    SYSDATE,
+  3    NEXT_DAY(SYSDATE,'星期日') "下个周日"
+  4  FROM DUAL;
+
+SYSDATE        下个周日
+-------------- --------------
+14-6月 -11     19-6月 -11
+
+
+
+注：NEXT_DAY的第2个参数， 还可以是 int 类型。 1=星期天，2=星期一 ... 7=星期六
+
+SQL> SELECT 
+  2    SYSDATE,
+  3    NEXT_DAY(SYSDATE,1) "下个周日",
+  4    NEXT_DAY(SYSDATE,2) "下个周一"
+  5  FROM DUAL;
+
+SYSDATE    下个周日   下个周一
+---------- ---------- ----------
+10-4月 -13 14-4月 -13 15-4月 -13
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+DB2中，日期、时间的加减，直接写，不需要函数。
+
+SELECT '现在' AS date_title, CURRENT_TIMESTAMP AS date_value FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '下一秒' AS date_title, CURRENT_TIMESTAMP + 1 SECOND AS date_value FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '下一分' AS  date_title, CURRENT_TIMESTAMP + 1 MINUTE AS date_value FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '下一小时' AS date_title, CURRENT_TIMESTAMP + 1 HOUR AS date_value FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '明天' AS date_title, CURRENT_TIMESTAMP + 1 DAY AS date_value FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '下周' AS date_title, CURRENT_TIMESTAMP + 7 DAY AS date_value FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '下个月' AS  date_title,  CURRENT_TIMESTAMP + 1 MONTH AS date_value FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '下个季度'  AS date_title,  CURRENT_TIMESTAMP + 3 MONTH AS date_value FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '明年' AS  date_title, CURRENT_TIMESTAMP + 1 YEAR AS date_value FROM SYSIBM.SYSDUMMY1
+;
+
+DATE_TITLE   DATE_VALUE
+------------ --------------------------
+下个季度     2012-01-06-19.25.25.593000
+下个月       2011-11-06-19.25.25.593000
+下周         2011-10-13-19.25.25.593000
+明天         2011-10-07-19.25.25.593000
+下一小时     2011-10-06-20.25.25.593000
+下一分       2011-10-06-19.26.25.593000
+下一秒       2011-10-06-19.25.26.593000
+现在         2011-10-06-19.25.25.593000
+明年         2012-10-06-19.25.25.593000
+
+  9 条记录已选择。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+使用 DATEADD 函数
+
+
+日期部分	缩写
+year	yy, yyyy
+quarter	qq, q
+month	mm, m
+dayofyear	dy, y
+day	dd, d
+week	wk, ww
+weekday	dw, w
+hour	hh
+minute	mi, n
+second	ss, s
+millisecond	ms
+	
+
+
+
+
+SELECT '现在' AS [日期], GETDATE() AS [数据]
+UNION ALL
+SELECT '下一秒' AS [日期], DATEADD(ss, 1, GETDATE() ) AS [数据]
+UNION ALL
+SELECT '下一分' AS [日期], DATEADD(mi, 1, GETDATE() ) AS [数据]
+UNION ALL
+SELECT '下一小时' AS [日期], DATEADD(hh, 1, GETDATE() ) AS [数据]
+UNION ALL
+SELECT '明天' AS [日期], DATEADD(dd, 1, GETDATE() ) AS [数据]
+UNION ALL
+SELECT '下周' AS [日期], DATEADD(ww, 1, GETDATE() ) AS [数据]
+UNION ALL
+SELECT '下月' AS [日期], DATEADD(mm, 1, GETDATE() ) AS [数据]
+UNION ALL
+SELECT '下季度' AS [日期], DATEADD(qq, 1, GETDATE() ) AS [数据]
+UNION ALL
+SELECT '明年' AS [日期], DATEADD(yy, 1, GETDATE() ) AS [数据]
+go
+日期       数据
+-------- -----------------------
+现在       2010-08-31 17:20:57.950
+下一秒      2010-08-31 17:20:58.950
+下一分      2010-08-31 17:21:57.950
+下一小时     2010-08-31 18:20:57.950
+明天       2010-09-01 17:20:57.950
+下周       2010-09-07 17:20:57.950
+下月       2010-09-30 17:20:57.950
+下季度      2010-11-30 17:20:57.950
+明年       2011-08-31 17:20:57.950
+
+(9 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+ADDTIME (日期，时间)  或者  ADDTIME (时间，时间)
+
+时间增加
+mysql> SELECT ADDTIME(
+    ->     '2000-01-01 00:00:00.000000',
+    ->              '1 2:3:4.000005') A;
++----------------------------+
+| A                          |
++----------------------------+
+| 2000-01-02 02:03:04.000005 |
++----------------------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT ADDTIME(
+    ->     '01:00:00.000000',
+    ->     '02:03:04.000005') B;
++-----------------+
+| B               |
++-----------------+
+| 03:03:04.000005 |
++-----------------+
+1 row in set (0.00 sec)
+
+
+
+
+
+DATE_ADD 指定日期 + 日/月/周/年
+
+DATE_SUB 指定日期 - 日/月/周/年
+
+可选单位参数
+MICROSECOND 
+SECOND 
+MINUTE 
+HOUR 
+DAY 
+WEEK 
+MONTH 
+QUARTER 
+YEAR
+
+
+
+mysql> SELECT DATE_ADD(
+    ->     '2000-01-01 00:00:00.000000',
+    ->     INTERVAL 2 DAY) A,
+    ->     DATE_SUB(
+    ->     '2000-01-01 00:00:00.000000',
+    ->     INTERVAL 2 DAY) B;
++---------------------+---------------------+
+| A                   | B                   |
++---------------------+---------------------+
+| 2000-01-03 00:00:00 | 1999-12-30 00:00:00 |
++---------------------+---------------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT DATE_ADD(
+    ->     '2000-01-01 00:00:00.000000',
+    ->     INTERVAL 2 MONTH) A,
+    ->     DATE_SUB(
+    ->     '2000-01-01 00:00:00.000000',
+    ->     INTERVAL 2 MONTH) B;
++---------------------+---------------------+
+| A                   | B                   |
++---------------------+---------------------+
+| 2000-03-01 00:00:00 | 1999-11-01 00:00:00 |
++---------------------+---------------------+
+1 row in set (0.00 sec)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+select '现在' AS  "日期",  datetime('now') AS "数据"
+UNION ALL
+select '下一秒' AS  "日期",  datetime('now', '+1 seconds') AS "数据"
+UNION ALL
+select '下一分' AS  "日期",  datetime('now', '+1 minutes') AS "数据"
+UNION ALL
+select '下一小时' AS  "日期",  datetime('now', '+1 hours') AS "数据"
+UNION ALL
+select '明天' AS  "日期",  datetime('now', '+1 days') AS "数据"
+UNION ALL
+select '下月' AS  "日期",  datetime('now', '+1 months') AS "数据"
+UNION ALL
+select '明年' AS  "日期",  datetime('now', '+1 year') AS "数据";
+
+
+日期|数据
+现在|2012-12-19 05:42:51
+下一秒|2012-12-19 05:42:52
+下一分|2012-12-19 05:43:51
+下一小时|2012-12-19 06:42:51
+明天|2012-12-20 05:42:51
+下月|2013-01-19 05:42:51
+明年|2013-12-19 05:42:51
+
+
+上面的查询， 是 0 时区的日期时间。
+
+下面的查询，是本地时区的日期时间。
+
+select '现在' AS  "日期",  datetime('now', 'localtime') AS "数据"
+UNION ALL
+select '下一秒' AS  "日期",  datetime('now', 'localtime', '+1 seconds') AS "数据"
+UNION ALL
+select '下一分' AS  "日期",  datetime('now', 'localtime', '+1 minutes') AS "数据"
+UNION ALL
+select '下一小时' AS  "日期",  datetime('now', 'localtime', '+1 hours') AS "数据"
+UNION ALL
+select '明天' AS  "日期",  datetime('now', 'localtime', '+1 days') AS "数据"
+UNION ALL
+select '下月' AS  "日期",  datetime('now', 'localtime', '+1 months') AS "数据"
+UNION ALL
+select '明年' AS  "日期",  datetime('now', 'localtime', '+1 year') AS "数据";
+
+日期|数据
+现在|2012-12-19 13:46:38
+下一秒|2012-12-19 13:46:39
+下一分|2012-12-19 13:47:38
+下一小时|2012-12-19 14:46:38
+明天|2012-12-20 13:46:38
+下月|2013-01-19 13:46:38
+明年|2013-12-19 13:46:38
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+SELECT '现在' 	AS title,    current_timestamp      					AS  value   UNION ALL
+SELECT '下一秒' AS title,    current_timestamp + interval '1 second' 	AS  value   UNION ALL
+SELECT '下一分' AS title,    current_timestamp + interval '1 minute'  	AS  value   UNION ALL
+SELECT '下一小时' AS title,  current_timestamp + interval '1 hour'  	AS  value   UNION ALL
+SELECT '明天' AS title,      current_timestamp + interval '1 day'    	AS  value   UNION ALL
+SELECT '下月' AS title,      current_timestamp + interval '1 month'    	AS  value   UNION ALL
+SELECT '明年' AS title,      current_timestamp + interval '1 year'    	AS  value;
+
+
+  title   |           value
+----------+---------------------------
+ 现在     | 2013-04-09 11:32:21.53+08
+ 下一秒   | 2013-04-09 11:32:22.53+08
+ 下一分   | 2013-04-09 11:33:21.53+08
+ 下一小时 | 2013-04-09 12:32:21.53+08
+ 明天     | 2013-04-10 11:32:21.53+08
+ 下月     | 2013-05-09 11:32:21.53+08
+ 明年     | 2014-04-09 11:32:21.53+08
+(7 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

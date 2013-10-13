@@ -1,0 +1,342 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 日期函数 - 两个日期之间的差值 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 日期函数 </h1>
+
+
+<h2>  两个日期之间的差值 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+两日期相减，单位是“天”
+
+SQL> SELECT
+  2    TO_DATE('2012-12-21', 'YYYY-MM-DD') - sysdate AS have_dates
+  3  FROM
+  4    dual;
+
+HAVE_DATES
+----------
+842.234896
+
+MONTHS_BETWEEN函数，单位是“月”
+
+SQL> SELECT
+  2    MONTHS_BETWEEN(TO_DATE('2012-12-21', 'YYYY-MM-DD'), sysdate) AS have_mont
+hs
+  3  FROM
+  4    dual;
+
+HAVE_MONTHS
+-----------
+ 27.6526609 
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+按照 Oracle 的处理方式： 日期 - 日期
+SELECT 
+    TO_DATE('2013-12-30 20:30:30', 'YYYY-MM-DD HH24:MI:SS') 
+  - TO_DATE('2001-09-26 15:24:23', 'YYYY-MM-DD HH24:MI:SS')  AS result
+FROM SYSIBM.SYSDUMMY1;
+
+RESULT
+----------------------
+   120304050607.000000
+
+  1 条记录已选择。
+
+
+结果是像上面这样的一串数字。
+
+
+
+
+
+timestampdiff 为一个估计类型的计算。
+
+timestampdiff ( &lt;n&gt;, char( 
+timestamp('2011-10-06-00.00.00')- 
+timestamp('2011-10-01-00.00.00'))) 
+
+对于 &lt;n&gt;，可以使用以下各值来替代，以指出结果的时间单位： 
+1 = 秒的小数部分  
+2 = 秒  
+4 = 分  
+8 = 时  
+16 = 天  
+32 = 周  
+64 = 月  
+128 = 季度  
+256 = 年  
+
+
+SELECT
+  timestampdiff (256, char(timestamp('2013-12-30 20:30:30') - timestamp('2001-09-26 15:24:23'))) AS "间隔年",
+  timestampdiff (128, char(timestamp('2013-12-30 20:30:30') - timestamp('2001-09-26 15:24:23'))) AS "间隔季度",
+  timestampdiff (64, char(timestamp('2013-12-30 20:30:30') - timestamp('2001-09-26 15:24:23'))) AS "间隔月",
+  timestampdiff (32, char(timestamp('2013-12-30 20:30:30') - timestamp('2001-09-26 15:24:23'))) AS "间隔周",
+  timestampdiff (16, char(timestamp('2013-12-30 20:30:30') - timestamp('2001-09-26 15:24:23'))) AS "间隔日",
+  timestampdiff (8, char(timestamp('2013-12-30 20:30:30') - timestamp('2001-09-26 15:24:23'))) AS "间隔时",
+  timestampdiff (4, char(timestamp('2013-12-30 20:30:30') - timestamp('2001-09-26 15:24:23'))) AS "间隔分",
+  timestampdiff (2, char(timestamp('2013-12-30 20:30:30') - timestamp('2001-09-26 15:24:23'))) AS "间隔秒"
+FROM SYSIBM.SYSDUMMY1;
+
+间隔年      间隔季度    间隔月      间隔周      间隔日      间隔时      间隔分    间隔秒
+----------- ----------- ----------- ----------- ----------- ----------- ----------- -----------
+         12          49         147         637        4474      107381     6442866   386571967
+
+  1 条记录已选择。
+  
+  
+
+
+如果需要精确计算到秒，可以使用
+
+db2 => SELECT
+db2 (cont.) =>   (DAYS(CURRENT_TIMESTAMP)
+db2 (cont.) =>     - DAYS(timestamp('2011-10-01-00.00.00'))) * 86400
+db2 (cont.) =>   +
+db2 (cont.) =>   (MIDNIGHT_SECONDS(CURRENT_TIMESTAMP)
+db2 (cont.) =>     - MIDNIGHT_SECONDS(timestamp('2011-10-01-00.00.00')))
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+1
+-----------
+     503163
+
+  1 条记录已选择。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT '年'  AS  '日期部分',  DATEDIFF(yy, '2012-12-21',  GETDATE()) AS [数值
+]
+2> UNION ALL
+3> SELECT '季度'  AS  '日期部分',  DATEDIFF(qq, '2012-12-21', GETDATE()) AS [数
+值]
+4> UNION ALL
+5> SELECT '月'  AS  '日期部分',  DATEDIFF(mm, '2012-12-21', GETDATE()) AS [数值]
+
+6> UNION ALL
+7> SELECT '日'  AS  '日期部分',  DATEDIFF(dd, '2012-12-21', GETDATE()) AS [数值]
+
+8> UNION ALL
+9> SELECT '周'  AS  '日期部分',   DATEDIFF(ww, '2012-12-21', GETDATE()) AS [数值
+]
+10> UNION ALL
+11> SELECT '时'  AS  '日期部分',   DATEDIFF(hh, '2012-12-21', GETDATE()) AS [数
+值]
+12> UNION ALL
+13> SELECT '分'  AS  '日期部分',   DATEDIFF(mi, '2012-12-21', GETDATE()) AS [数
+值]
+14> UNION ALL
+15> SELECT '秒'  AS  '日期部分',   DATEDIFF(ss, '2012-12-21', GETDATE()) AS [数
+值]
+16> go
+日期部分 数值
+---- -----------
+年             -2
+季度            -9
+月            -28
+日           -843
+周           -120
+时         -20214
+分       -1212810
+秒      -72768599
+
+(8 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+DATEDIFF 只计算到天的单位
+
+
+TIMEDIFF 精确到毫秒单位
+
+
+
+mysql> SELECT DATEDIFF (
+    ->     '2000-01-01 00:00:00.000000',
+    ->     '2000-01-02 05:06:07.000008') A;
++------+
+| A    |
++------+
+|   -1 |
++------+
+1 row in set (0.00 sec)
+
+mysql> SELECT
+    ->   TIMEDIFF ('2000-01-01 00:00:00.000000',
+    ->             '2000-01-02 05:06:07.000008') A;
++------------------+
+| A                |
++------------------+
+| -29:06:07.000008 |
++------------------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+使用 julianday 函数， 将其转换为 数值类型后，做相减的操作。
+
+
+SELECT julianday('now') - julianday('2012-10-01') A;
+A
+79.2488677198999
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+-- 两个日期时间  直接相减.
+Test=# SELECT NOW() - '2010-01-01 12:30:30' A;
+           a
+------------------------
+ 1194 days 03:07:59.886
+(1 行记录)
+
+-- 取得具体的 int 数字
+SELECT EXTRACT(DAY from  (NOW() - '2010-01-01 12:30:30'));
+ date_part
+-----------
+      1194
+(1 行记录)  
+  
+
+<hr/>
+
+
+
+-- 使用 age 函数. 返回2个日期直接的间隔， 生成一个使用年、月的"符号化"的结果
+Test=# SELECT age('2013-04-01', timestamp '2010-01-01');
+      age
+----------------
+ 3 years 3 mons
+(1 行记录)
+
+
+-- 取得具体的 int 数字
+Test=# SELECT
+Test-#   EXTRACT(YEAR from age('2013-04-01', timestamp '2010-01-01')),
+Test-#   EXTRACT(MONTH from age('2013-04-01', timestamp '2010-01-01')),
+Test-#   EXTRACT(DAY from age('2013-04-01', timestamp '2010-01-01'));
+ date_part | date_part | date_part
+-----------+-----------+-----------
+         3 |         3 |         0
+(1 行记录)
+
+
+
+
+
+-- 从current_date减去得到的数值， 生成一个使用年、月的"符号化"的结果
+Test=# SELECT age(timestamp '2010-01-01');
+          age
+-----------------------
+ 3 years 3 mons 8 days
+(1 行记录)
+
+
+
+-- 取得具体的 int 数字
+Test=# SELECT
+Test-#   EXTRACT(YEAR from age(timestamp '2010-01-01')),
+Test-#   EXTRACT(MONTH from age(timestamp '2010-01-01')),
+Test-#   EXTRACT(DAY from age(timestamp '2010-01-01'));
+ date_part | date_part | date_part
+-----------+-----------+-----------
+         3 |         3 |         8
+(1 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

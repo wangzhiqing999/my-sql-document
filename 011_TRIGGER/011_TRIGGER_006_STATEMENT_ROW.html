@@ -1,0 +1,375 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 触发器 - Oracle、DB2、PostgreSQL 语句级/行级 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 触发器 </h1>
+
+
+<h2>  Oracle、DB2、PostgreSQL 语句级/行级 </h2>
+
+前面的 INSERT/UPDATE/DELETE 都是行级
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> CREATE OR REPLACE TRIGGER BeforeAllTest2
+  2    BEFORE INSERT OR UPDATE OR DELETE ON test_trigger_table
+  3  BEGIN
+  4    dbms_output.put_line('BEFORE ALL 2');
+  5  END;
+  6  /
+
+Trigger created./
+SQL>  INSERT INTO test_trigger_table(id, name) VALUES (1, 'ABC');
+
+1 row created.
+
+SQL> set serveroutput on
+SQL>  INSERT INTO test_trigger_table(id, name) VALUES (2, 'DEF');
+BEFORE ALL 2
+BEFORE ALL
+INSERTING!
+
+1 row created.
+
+SQL> insert into test_trigger_table  select * from test_trigger_table;
+BEFORE ALL 2
+BEFORE ALL
+INSERTING!
+BEFORE ALL
+INSERTING!
+
+2 rows created.
+
+SQL> UPDATE test_trigger_table SET name = 'XYZ' WHERE id = 1;
+BEFORE ALL 2
+BEFORE ALL
+UPDATING!
+BEFORE ALL
+UPDATING!
+
+2 rows updated.
+
+
+
+<hr/>
+由于 Oracle 的 FOR EACH ROW 触发器， 不允许在触发器内部， 查询自己这张表.
+因此，当遇到业务需求，需要在触发器当中，查询当前表的情况下，使用 语句级触发器。
+
+
+下面是一个例子
+
+
+
+-- 主表.
+CREATE TABLE test_main_tab (
+  id  	INT   PRIMARY  KEY,
+  val   varchar(10)
+);
+
+INSERT INTO test_main_tab VALUES( 1,  '主表1');
+INSERT INTO test_main_tab VALUES( 2,  '主表2');
+
+
+-- 子表.
+CREATE TABLE test_sub_tab (
+  main_id	INT,
+  id  	    INT,
+  val   varchar(10)
+);
+
+-- 子表的主键是 复合主键 （主表ID,   ID）.
+ALTER TABLE test_sub_tab
+  ADD CONSTRAINT pk_A PRIMARY KEY(main_id,  id)
+  DEFERRABLE   INITIALLY DEFERRED;
+
+
+-- 外键约束.
+ALTER TABLE test_sub_tab ADD 
+  CONSTRAINT kf_test_sub_tab_main
+      FOREIGN KEY (main_id)  REFERENCES  test_main_tab;
+
+
+-- 处理需求：
+子表的 ID ， 需要在触发器中， 自动生成。
+生成的逻辑是， 依赖于 主表ID.
+也就是当插入一行  主表ID = 1  的数据的时候。
+需要去查询 当前表里面， 所有的 主表ID = 1  的行数.
+然后新插入的这一行的 id = 前面的行数 + 1.
+
+
+
+-- 触发器.
+-- 由于逐行的不能查询当前表， 因此使用逐语句触发器.
+CREATE OR REPLACE TRIGGER tr_InsertSub  AFTER INSERT ON test_sub_tab
+DECLARE
+  v_rowCount  INT;
+  v_lineData  test_sub_tab%ROWTYPE;
+  CURSOR c_A IS SELECT * FROM test_sub_tab WHERE id  is  null  FOR UPDATE;  
+BEGIN
+  -- 打开游标.
+  OPEN c_A;
+  LOOP
+    -- 填充数据(主表).
+    FETCH c_A INTO v_lineData;
+    -- 假如没有检索到(主表)数据，结束循环处理
+    Exit when c_A%NOTFOUND;
+
+    -- 查询行数
+	SELECT 
+	  COUNT(id) INTO v_rowCount
+	FROM 
+      test_sub_tab
+    WHERE
+      main_id = v_lineData.main_id
+      AND  id  IS  NOT NULL;
+
+    -- 更新.
+    UPDATE
+      test_sub_tab
+    SET 
+      id = v_rowCount + 1
+    WHERE 
+       CURRENT OF c_A;  
+  END LOOP;
+  -- 关闭游标
+  CLOSE c_A;
+END;
+/
+
+
+INSERT INTO test_sub_tab(main_id, val) VALUES(1, 'Main1_Sub1');
+INSERT INTO test_sub_tab(main_id, val) VALUES(1, 'Main1_Sub2');
+
+
+INSERT INTO test_sub_tab(main_id, val)
+SELECT  1,  'Main1_Sub3'  FROM dual  UNION  ALL
+SELECT  1,  'Main1_Sub4'  FROM dual  UNION  ALL
+SELECT  1,  'Main1_Sub5'  FROM dual;
+
+
+		 
+INSERT INTO test_sub_tab(main_id, val)
+SELECT  2,  'Main2_Sub1'  FROM dual  UNION  ALL
+SELECT  2,  'Main2_Sub2'  FROM dual  UNION  ALL
+SELECT  2,  'Main2_Sub3'  FROM dual;
+
+
+
+INSERT INTO test_sub_tab(main_id, val)
+SELECT  1,  'Main1_SubA'  FROM dual  UNION  ALL
+SELECT  1,  'Main1_SubB'  FROM dual  UNION  ALL
+SELECT  2,  'Main2_SubA'  FROM dual  UNION  ALL
+SELECT  2,  'Main2_SubB'  FROM dual;
+
+
+SELECT * FROM test_sub_tab ORDER BY 1,2;
+
+   MAIN_ID         ID VAL
+---------- ---------- --------------------
+         1          1 Main1_Sub1
+         1          2 Main1_Sub2
+         1          3 Main1_Sub3
+         1          4 Main1_Sub4
+         1          5 Main1_Sub5
+         1          6 Main1_SubA
+         1          7 Main1_SubB
+         2          1 Main2_Sub1
+         2          2 Main2_Sub2
+         2          3 Main2_Sub3
+         2          4 Main2_SubA
+
+   MAIN_ID         ID VAL
+---------- ---------- --------------------
+         2          5 Main2_SubB
+
+已选择12行。
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+db2 => truncate TABLE log_table IMMEDIATE
+DB20000I  SQL 命令成功完成。
+
+db2 => CREATE TRIGGER AfterInsertTest \
+db2 (cont.) => AFTER INSERT ON test_trigger_table \
+db2 (cont.) => REFERENCING NEW_TABLE AS inserted \
+db2 (cont.) => for each statement \
+db2 (cont.) => BEGIN ATOMIC \
+db2 (cont.) =>    INSERT INTO log_table SELECT 'N' || name FROM inserted; \
+db2 (cont.) => END
+DB20000I  SQL 命令成功完成。
+
+
+db2 => INSERT INTO test_trigger_table(id, name) VALUES (1, 'ABC')
+DB20000I  SQL 命令成功完成。
+db2 =>  INSERT INTO test_trigger_table(id, name) VALUES (2, 'DEF')
+DB20000I  SQL 命令成功完成。
+db2 => insert into test_trigger_table  select * from test_trigger_table
+DB20000I  SQL 命令成功完成。
+db2 => select * from log_table
+
+LOG_TEXT
+------------------------------
+NABC
+NDEF
+NABC
+NDEF
+
+  4 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+-- 清除Log日志表
+Test=# truncate table log_table;
+TRUNCATE TABLE
+
+
+
+-- 创建 触发器函数.
+CREATE OR REPLACE FUNCTION TrStatementTest()  RETURNS trigger AS $tr_st_test$
+BEGIN
+  INSERT INTO log_table VALUES ( 'TG_LEVEL=' || TG_LEVEL); 
+  -- 语句级的触发器函数， 将忽略返回值，因此这里简单返回 NULL.
+  RETURN NULL;
+END;
+$tr_st_test$ LANGUAGE plpgsql;
+
+
+-- 定义触发器.
+CREATE TRIGGER tr_st_test 
+  BEFORE INSERT ON test_trigger_table
+  FOR EACH STATEMENT EXECUTE 
+  PROCEDURE TrStatementTest();
+
+
+-- 测试第一次插入 （一条语句，插入一行记录，触发器执行一次）
+Test=#  INSERT INTO test_trigger_table(id, name) VALUES (1, 'ABC');
+INSERT 0 1
+Test=# select * from log_table;
+      log_text
+--------------------
+ TG_LEVEL=STATEMENT
+(1 行记录)
+
+
+-- 测试第二次插入（一条语句，插入一行记录，触发器执行一次）
+Test=#  INSERT INTO test_trigger_table(id, name) VALUES (2, 'DEF');
+INSERT 0 1
+Test=# select * from log_table;
+      log_text
+--------------------
+ TG_LEVEL=STATEMENT
+ TG_LEVEL=STATEMENT
+(2 行记录)
+
+
+-- 测试第三次插入（一条语句，插入两行记录，触发器执行一次）
+Test=# insert into test_trigger_table  select * from test_trigger_table;
+INSERT 0 2
+Test=# select * from log_table;
+      log_text
+--------------------
+ TG_LEVEL=STATEMENT
+ TG_LEVEL=STATEMENT
+ TG_LEVEL=STATEMENT
+(3 行记录)
+
+
+Test=#
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

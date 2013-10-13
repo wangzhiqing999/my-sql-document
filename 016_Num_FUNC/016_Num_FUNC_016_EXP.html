@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数学函数 - 指数值EXP </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数学函数 </h1>
+
+
+<h2> 指数值EXP  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT EXP(1), EXP(2.7) FROM DUAL;
+
+    EXP(1)   EXP(2.7)
+---------- ----------
+2.71828183 14.8797317
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => SELECT EXP(1), EXP(2.7)
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+1                        2
+------------------------ ------------------------
+  +2.71828182845905E+000   +1.48797317248728E+001
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT EXP(1), EXP(2.7)
+2> go
+
+------------------------ ------------------------
+      2.7182818284590451       14.879731724872837
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+EXP(X) 
+返回e的X乘方后的值(自然对数的底)。
+mysql> SELECT EXP(2);
+        -> 7.3890560989307
+mysql> SELECT EXP(-2);
+        -> 0.13533528323661
+mysql> SELECT EXP(0);
+        -> 1
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 分区表 - 组合分区-初期分区定义  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 分区表 </h1>
+
+
+<h2> 组合分区-初期分区定义  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+SQL> CREATE TABLE sale_data3 (
+  2    sale_date  DATE NOT NULL,
+  3    sale_item_type  INT NOT NULL,
+  4    sale_money DECIMAL(10,2) NOT NULL
+  5  )
+  6  PARTITION BY RANGE (sale_date)
+  7  SUBPARTITION BY HASH(sale_item_type) SUBPARTITIONS 2
+  8  (
+  9    PARTITION p2010 VALUES LESS THAN (TO_DATE('20110101', 'YYYYMMDD'))
+ 10    (
+ 11      SUBPARTITION s1,
+ 12      SUBPARTITION s2
+ 13    ),
+ 14    PARTITION p2011 VALUES LESS THAN (TO_DATE('20120101', 'YYYYMMDD'))
+ 15    (
+ 16      SUBPARTITION s3,
+ 17      SUBPARTITION s4
+ 18    ),
+ 19    PARTITION p2012 VALUES LESS THAN (MAXVALUE)
+ 20    (
+ 21      SUBPARTITION s5,
+ 22      SUBPARTITION s6
+ 23    )
+ 24  );
+
+表已创建。
+
+SQL> SELECT
+  2    partition_name, high_value
+  3  FROM
+  4    user_tab_partitions
+  5  WHERE
+  6    table_name = 'SALE_DATA3';
+
+PARTITION_NAME
+------------------------------
+HIGH_VALUE
+--------------------------------------------------------------------------------
+P2010
+TO_DATE(' 2011-01-01 00:00:00', 'SYYYY-MM-DD HH24:MI:SS', 'NLS_CALENDAR=GREGORIA
+
+P2011
+TO_DATE(' 2012-01-01 00:00:00', 'SYYYY-MM-DD HH24:MI:SS', 'NLS_CALENDAR=GREGORIA
+
+P2012
+MAXVALUE
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> CREATE TABLE sale_data3 (
+    ->   sale_date  DATETIME NOT NULL,
+    ->   sale_item_type  INT NOT NULL,
+    ->   sale_money DECIMAL(10,2) NOT NULL
+    -> )
+    -> PARTITION BY RANGE (YEAR(sale_date))
+    -> SUBPARTITION BY HASH(sale_item_type)
+    -> (
+    ->   PARTITION p2010 VALUES LESS THAN (2011)
+    ->   (
+    ->     SUBPARTITION s1,
+    ->     SUBPARTITION s2
+    ->   ),
+    ->   PARTITION p2011 VALUES LESS THAN (2012)
+    ->   (
+    ->     SUBPARTITION s3,
+    ->     SUBPARTITION s4
+    ->   ),
+    ->   PARTITION p2012 VALUES LESS THAN MAXVALUE
+    ->   (
+    ->     SUBPARTITION s5,
+    ->     SUBPARTITION s6
+    ->   )
+    -> );
+Query OK, 0 rows affected (0.19 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,399 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 基本SQL命令-启动程序 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 基本SQL命令 </h1>
+
+
+<h2> 启动程序 </h2>
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+	<td>
+
+
+<pre><code>
+
+C:\Documents and Settings\wzq><span class="KeyInfo">sqlplus</span>
+
+SQL*Plus: Release 10.2.0.1.0 - Production on 星期二 8月 24 11:08:52 2010
+
+Copyright (c) 1982, 2005, Oracle.  All rights reserved.
+
+Enter user-name: hr
+Enter password:
+
+Connected to:
+Oracle Database 10g Express Edition Release 10.2.0.1.0 - Production
+
+SQL>
+
+</code></pre>
+
+
+
+
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+C:\Documents and Settings\wzq>DB2CMD.exe DB2SETCP.BAT DB2.EXE
+弹出新窗口
+
+(c) Copyright IBM Corporation 1993,2007
+DB2 客户机 9.7.1 的命令行处理器
+
+可从命令提示符处发出数据库管理器命令和 SQL 语句。例如：
+    db2 => connect to sample
+    db2 => bind sample.bnd
+
+要获得一般帮助，输入：?。
+要获得命令帮助，输入：? command，其中 command 可以是
+数据库管理器命令的前几个关键字。例如：
+ ? CATALOG DATABASE 用于关于 CATALOG DATABASE 命令的帮助
+ ? CATALOG          用于关于所有 CATALOG 命令的帮助。
+
+要退出 db2 交互方式，在命令提示符处输入
+QUIT。在非交互方式下，所有命令都必须以“db2”作前缀。
+要列出当前命令选项设置，输入 LIST COMMAND OPTIONS。
+
+要获取更详细的帮助，请参阅 Online Reference Manual。
+
+Db2 =>
+
+db2 => connect to test
+
+   数据库连接信息
+
+ 数据库服务器         = DB2/NT 9.7.1
+ SQL 授权标识         = WZQ
+ 本地数据库别名       = TEST
+
+
+注意：
+Db2 默认情况下，以回车换行，认为是语句执行结束。
+如果要换行，需要使用 \  符号来标记为换行的处理。
+
+如果要使用 ;  作为 语句结束的处理，建议使用
+<span class="KeyInfo"> Db2.exe -t </span> 的参数，这种情况下，数据库将遇到 分号的时候，才认为是语句结束。
+
+后面大部分查询代码 （非存储过程），将都是用 <span class="KeyInfo"> Db2.exe -t </span> 的处理逻辑。
+
+
+
+E:\IBM\SQLLIB\BIN>db2.exe ? options
+db2 [option ...] [db2-command | sql-statement |
+    [? [phrase | message | sqlstate | class-code]]]
+option：-a、-c、-d、-e{c|s}、-finfile、-i、-lhistfile、-m、-n、-o、
+        -p、-q、-rreport、-s、-t、-td;、-v、-w、-x 和 -zoutputfile。
+
+ 选项    描述                                      缺省设置
+ ------  ----------------------------------------  ---------------
+   -a    显示 SQLCA                                OFF
+   -c    自动落实                                  ON
+   -d    检索并显示 XML 声明                       OFF
+   -e    显示 SQLCODE/SQLSTATE                     OFF
+   -f    读取输入文件                              OFF
+   -i    显示 XML 数据并带有缩进                   OFF
+   -l    将命令记录到历史记录文件中                OFF
+   -m    显示受影响的行数                          OFF
+   -n    除去换行字符                              OFF
+   -o    显示输出                                  ON
+   -p    显示 db2 交互式提示符                     ON
+   -q    保留空格和换行符                          OFF
+   -r    将输出报告保存到文件                      OFF
+   -s    在命令出错时停止执行                      OFF
+<span class="KeyInfo">   -t    设置语句终止字符                          OFF </span>
+   -v    回传当前命令                              OFF
+   -w    显示 FETCH/SELECT 警告消息                ON
+   -x    不打印列标题                              OFF
+   -z    将所有输出保存到输出文件                  OFF
+
+注意：
+ 使用 DB2OPTIONS 环境变量定制选项缺省值。
+ 紧跟选项字母后的减号（-）使该选项关闭。
+ 使用 UPDATE COMMAND OPTIONS 更改选项设置（以交互方式或
+ 文件输入方式）。
+
+
+对于存储过程，可以通过
+<span class="KeyInfo"> db2 -td@ </span>
+来使用 @ 字符， 作为命令的结束字符.
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+C:\Documents and Settings\wzq><span class="KeyInfo">sqlcmd</span> -S "HOME-BED592453C\SQLEXPRESS"
+1> USE stock;
+2> go
+已将数据库上下文更改为 'Stock'。
+1>
+
+或者
+
+C:\Documents and Settings\wzq><span class="KeyInfo">sqlcmd</span> -S "localhost\SQLEXPRESS"
+1> use stock
+2> go
+已将数据库上下文更改为 'Stock'。
+此处使用 Microsoft Windows 身份验证模式进行连接，没有输入用户名与密码。
+
+
+或者
+C:\>sqlcmd -S "localhost\SQLEXPRESS" -U test_user
+密码:
+1> use test
+2> go
+已将数据库上下文更改为 'test'。
+此处使用 SQL Server 身份验证模式进行连接，通过 U 参数指定用户名，并手动输入密码。
+
+
+或者
+C:\Users\zqwang><span class="KeyInfo">osql</span> -E -S "localhost\SQLEXPRESS"
+1> use stock
+2> :reset
+无法打开文件“eset”
+3> reset
+1> use test
+2> go
+
+
+
+
+<hr/>
+
+注：上面的登录过程中， 都加了一个  -S "localhost\SQLEXPRESS"  的参数。
+这个是因为， 数据库创建的时候， 实例名称是 SQLEXPRESS。
+
+如果要登录数据库的时候， 只使用 localhost 登录， 那么需要 实例名称为  MSSQLSERVER
+也就是 SQL Server 的 默认实例名称。
+
+E:\>sqlcmd -S localhost
+1> select @@version
+2> go
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+------------------------------------------------------------
+Microsoft SQL Server 2008 R2 (RTM) - 10.50.1600.1 (X64)
+        Apr  2 2010 15:48:46
+        Copyright (c) Microsoft Corporation
+        Express Edition with Advanced Services (64-bit) on Windows NT 6.1 <X64>
+(Build 7601: Service Pack 1)
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+E:\MySQL\MySQL Server 5.1\bin><span class="KeyInfo">mysql</span> -u root -p
+Enter password: ********
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 4
+Server version: 5.1.50-community MySQL Community Server (GPL)
+
+Copyright (c) 2000, 2010, Oracle and/or its affiliates. All rights reserved.
+This software comes with ABSOLUTELY NO WARRANTY. This is free software,
+and you are welcome to modify and redistribute it under the GPL v2 license
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> use test
+Database changed
+
+
+
+连接其他机器上的 MySQL 时， 使用 -h 参数.
+
+
+F:\mysql-4.1.10a-win32\bin>mysql -u test_user -h 192.168.56.101 -p
+Enter password: ************
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 8 to server version: 5.0.96-community-nt
+
+Type 'help;' or '\h' for help. Type '\c' to clear the buffer.
+
+mysql>
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+E:\SQLite\SQLite\Debug><span class="KeyInfo">sqlite</span> test.db
+SQLite version 3.7.15 2012-12-12 13:36:53
+Enter ".help" for instructions
+Enter SQL statements terminated with a ";"
+sqlite>
+
+注： 上面的命令， 后面跟了一个  test.db  ， 就是 使用  test 数据库。
+如果数据库文件不存在， 那么将自动创建一个。（当建表的时候创建）
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+F:\PostgreSQL\9.2\bin>psql.exe -h localhost -U postgres -d Test -p 5432
+psql (9.2.4)
+输入 "help" 来获取帮助信息.
+
+Test=#
+Test=# help;
+您正在使用psql, 这是一种用于访问PostgreSQL的命令行界面
+键入： \copyright 显示发行条款
+       \h 显示 SQL 命令的说明
+       \? 显示 pgsql 命令的说明
+       \g 或者以分号(;)结尾以执行查询
+       \q 退出
+
+
+
+注: 数据库名称区分大小写的。
+
+
+
+
+使用某些有密码的用户的情况下, 会提示输入密码.
+F:\PostgreSQL\9.2\bin>psql.exe -h localhost -U test -d Test -p 5432
+用户 test 的口令：
+psql (9.2.4)
+输入 "help" 来获取帮助信息.
+
+Test=#
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+  
+
+  
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+
+服务器端运行
+mongod
+
+
+
+
+客户端运行
+mongo
+
+[root@mongodb01 bin]# ./mongo
+MongoDB shell version: 2.4.6
+connecting to: test
+不指定参数的情况下，默认连接到 test 数据库.
+
+
+如果指定一个参数，则是连接到的数据库名称.
+[root@mongodb01 bin]# ./mongo abc
+MongoDB shell version: 2.4.6
+connecting to: abc
+
+
+
+关闭数据库.
+
+D:\mongodb\bin>mongo.exe localhost/admin
+MongoDB shell version: 2.4.6
+connecting to: localhost/admin
+> db.shutdownServer();
+Wed Oct 09 15:54:35.353 DBClientCursor::init call() failed
+server should be down...
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+
+</body>
+
+
+</html>

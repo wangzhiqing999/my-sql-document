@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> SQL参考手册 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 创建表空间 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+-- 正式表空间
+CREATE BIGFILE TABLESPACE DATA01
+  DATAFILE 'DATA01.dat'
+  SIZE 20M AUTOEXTEND ON;
+
+表空间已创建。
+
+
+-- 临时表空间
+CREATE TEMPORARY TABLESPACE TEMP01
+   TEMPFILE 'temp01.dbf'
+   SIZE 5M AUTOEXTEND ON;
+
+表空间已创建。
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+	
+
+
+<pre><code>
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+语法：
+CREATE TABLESPACE tablespacename [ OWNER username ] LOCATION 'directory'
+
+
+例如：
+CREATE TABLESPACE test_ts
+  OWNER postgres
+  LOCATION 'F:\\PostgreSQL\\9.2\\data';
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+
+
+</body>
+
+
+</html>

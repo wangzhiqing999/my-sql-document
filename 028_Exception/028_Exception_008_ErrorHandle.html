@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 异常处理 - 错误的传播-当前代码块处理异常 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 异常处理 </h1>
+
+
+<h2> 错误的传播-当前代码块处理异常  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> DECLARE
+  2    p_test_val  INT;
+  3  BEGIN
+  4    dbms_output.put_line('TEST BEGIN!');
+  5    BEGIN
+  6      -- 导致一个 除零错误
+  7      p_test_val := 1024 / 0;
+  8
+  9      EXCEPTION
+ 10        WHEN NO_DATA_FOUND THEN
+ 11          -- 这里处理一个 NO_DATA_FOUND 的异常
+ 12          dbms_output.put_line('NO_DATA_FOUND');
+ 13        WHEN ZERO_DIVIDE THEN
+ 14          -- 这里处理 除零错误
+ 15          dbms_output.put_line('Err:' || SQLERRM );
+ 16    END;
+ 17    -- 由于异常被被处理，下面这行将被执行.
+ 18    dbms_output.put_line('TEST END!');
+ 19
+ 20    EXCEPTION
+ 21      WHEN OTHERS THEN
+ 22        dbms_output.put_line('Error Code = ' || TO_CHAR(SQLCODE) );
+ 23        dbms_output.put_line('Error Message = ' || SQLERRM );
+ 24  END;
+ 25  /
+TEST BEGIN!
+Err:ORA-01476: divisor is equal to zero
+TEST END!
+
+PL/SQL procedure successfully completed.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> DECLARE
+2>   @test_val  INT;
+3> BEGIN TRY
+4>
+5>   PRINT('TEST BEGIN!');
+6>
+7>   BEGIN TRY
+8>     -- 导致一个 除零错误
+9>     SET @test_val = 1024 / 0;
+10>     PRINT(STR(@test_val));
+11>   END TRY
+12>   BEGIN CATCH
+13>     PRINT('Sub.错误代码 = ' + STR(ERROR_NUMBER()));
+14>     PRINT('Sub.错误严重级别 = ' + STR(ERROR_SEVERITY()));
+15>     PRINT('Sub.错误状态代码 = ' + STR(ERROR_STATE()));
+16>     PRINT('Sub.错误信息 = ' + ERROR_MESSAGE());
+17>   END CATCH
+18>
+19>   -- 由于异常被被处理，下面这行将被执行
+20>   PRINT('TEST END!');
+21>
+22> END TRY
+23> BEGIN CATCH
+24>   PRINT('Main.错误代码 = ' + STR(ERROR_NUMBER()));
+25>   PRINT('Main.错误严重级别 = ' + STR(ERROR_SEVERITY()));
+26>   PRINT('Main.错误状态代码 = ' + STR(ERROR_STATE()));
+27>   PRINT('Main.错误信息 = ' + ERROR_MESSAGE());
+28> END CATCH
+29> go
+TEST BEGIN!
+Sub.错误代码 =       8134
+Sub.错误严重级别 =         16
+Sub.错误状态代码 =          1
+Sub.错误信息 = 遇到以零作除数错误。
+TEST END!
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

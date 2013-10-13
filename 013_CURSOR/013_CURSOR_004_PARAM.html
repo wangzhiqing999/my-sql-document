@@ -1,0 +1,319 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 游标处理 - 带参数的游标 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 游标处理 </h1>
+
+
+<h2> 带参数的游标  </h2>
+
+这里同时需要使用前面外键约束的 test_sub 表
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+DECLARE
+  -- 定义游标(主表).
+  CURSOR c_test_main IS
+    SELECT id, value FROM test_main;
+  -- 保存主表游标数据的变量
+  v_main_data  c_test_main%ROWTYPE;
+
+  -- 定义游标(子表).
+  CURSOR c_test_sub(p_main_id INT) IS
+    SELECT id, value
+    FROM test_sub
+    WHERE main_id = p_main_id;
+  -- 保存子表游标数据的变量
+  v_sub_data  c_test_sub%ROWTYPE;
+BEGIN
+
+  -- 打开游标(主表).
+  OPEN c_test_main;
+  -- 开始循环处理(主表).
+  LOOP
+    -- 填充数据(主表).
+    FETCH c_test_main INTO v_main_data;
+    -- 假如没有检索到(主表)数据，结束循环处理
+    Exit when c_test_main%NOTFOUND;
+
+    dbms_output.put_line('Main:'
+      || TO_CHAR(v_main_data.id) || '='
+      || v_main_data.value );
+
+    -- 打开游标(子表).
+    OPEN c_test_sub(v_main_data.id);
+    -- 开始循环处理(子表).
+    LOOP
+      -- 填充数据(子表).
+      FETCH c_test_sub INTO v_sub_data;
+      -- 假如没有检索到(子表)数据，结束循环处理
+      Exit when c_test_sub%NOTFOUND;
+
+      dbms_output.put_line('-->Sub:'
+        || TO_CHAR(v_sub_data.id) || '='
+        || v_sub_data.value );
+    END LOOP;
+    -- 关闭游标(子表).
+    CLOSE c_test_sub;
+  END LOOP;
+  -- 关闭游标(主表).
+  CLOSE c_test_main;
+END;
+/
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+语法中显示 不支持
+
+SQL 92 Syntax
+DECLARE cursor_name [ INSENSITIVE ] [ SCROLL ] CURSOR 
+     FOR select_statement 
+     [ FOR { READ ONLY | UPDATE [ OF column_name [ ,...n ] ] } ]
+[;]
+Transact-SQL Extended Syntax
+DECLARE cursor_name CURSOR [ LOCAL | GLOBAL ] 
+     [ FORWARD_ONLY | SCROLL ] 
+     [ STATIC | KEYSET | DYNAMIC | FAST_FORWARD ] 
+     [ READ_ONLY | SCROLL_LOCKS | OPTIMISTIC ] 
+     [ TYPE_WARNING ] 
+     FOR select_statement 
+     [ FOR UPDATE [ OF column_name [ ,...n ] ] ]
+[;]
+
+可简单的通过
+子游标的中的 SQL 语句里面，写入 子表列名 = @变量 的方式。
+通过在父游标中更新该变量的方式来实现同样的功能。
+
+DECLARE
+  @id INT, @value VARCHAR(10),
+  @subid INT, @subvalue VARCHAR(10);
+BEGIN
+  -- 定义游标(主表).
+  DECLARE c_test_main CURSOR FOR
+    SELECT id, value FROM test_main;
+  -- 注意：假如子表的游标定义在这里，执行的时候，将得不到结果
+  -- 打开游标(主表).
+  OPEN c_test_main;
+ 
+  WHILE 1=1
+  BEGIN
+    -- 填充数据.
+    FETCH NEXT FROM c_test_main INTO @id, @value;
+    -- 假如未检索到(主表)数据，退出循环.
+    IF @@fetch_status != 0 BREAK;
+
+    PRINT 'Main:' + CAST(@id as varchar) + '=' +  @value;
+    
+    -- 定义游标(子表).
+    DECLARE c_test_sub CURSOR FOR
+      SELECT id, value
+      FROM test_sub
+      WHERE main_id = @id;
+
+    -- 打开游标(子表).
+    OPEN c_test_sub;
+    
+    WHILE 2=2
+    BEGIN
+      -- 填充数据.
+      FETCH NEXT FROM c_test_sub INTO @subid, @subvalue;
+      -- 假如未检索到(子表)数据，退出循环.
+      IF @@fetch_status != 0 BREAK;
+      
+      PRINT 'Sub:' + @subvalue;
+    END;
+    
+    -- 关闭游标(子表)
+    CLOSE c_test_sub;    
+
+    -- 释放游标(子表).
+    DEALLOCATE c_test_sub;
+  END;
+  
+  
+  -- 关闭游标(主表)
+  CLOSE c_test_main;
+  -- 释放游标(主表).
+  DEALLOCATE c_test_main;
+END;
+go
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+-- 清空日志表.
+Test=# truncate table log_table;
+TRUNCATE TABLE
+
+
+
+
+
+CREATE OR REPLACE FUNCTION TestCursorMainSub() RETURNS void AS
+$$
+DECLARE
+  -- 定义游标(主表).
+  c_test_main CURSOR FOR
+    SELECT id, value FROM test_main;
+  -- 保存主表游标数据的变量
+  v_main_data  test_main%ROWTYPE;
+  
+  -- 定义游标(子表).
+  c_test_sub CURSOR(p_main_id INT) IS
+    SELECT id, main_id, value
+    FROM test_sub
+    WHERE main_id = p_main_id;
+  -- 保存子表游标数据的变量
+  v_sub_data  test_sub%ROWTYPE;
+BEGIN
+
+  -- 打开游标(主表).
+  OPEN c_test_main;
+
+  -- 开始循环处理(主表).
+  LOOP  
+    -- 填充数据(主表).
+    FETCH c_test_main INTO v_main_data;
+    -- 假如没有检索到(主表)数据，结束循环处理
+    Exit when NOT found;
+
+    -- 主表每一行的实际操作.
+    INSERT INTO log_table VALUES ( 'Main:' || v_main_data.value );
+
+    -- 打开游标(子表).
+    OPEN c_test_sub(v_main_data.id);
+
+    -- 开始循环处理(子表).
+    LOOP
+      -- 填充数据(子表).
+      FETCH c_test_sub INTO v_sub_data;
+      -- 假如没有检索到(主表)数据，结束循环处理
+      Exit when NOT found;
+
+      -- 子表每一行的实际操作.
+      INSERT INTO log_table VALUES ( '-->Sub:' || v_sub_data.value );
+    END LOOP;
+    -- 关闭游标(子表).
+    CLOSE c_test_sub;
+  END LOOP; 
+  
+  -- 关闭游标(主表).
+  CLOSE c_test_main;
+END;
+$$
+LANGUAGE plpgsql;
+
+
+
+Test=# select TestCursorMainSub();
+ testcursormainsub
+-------------------
+
+(1 行记录)
+
+
+Test=# select * from log_table;
+    log_text
+-----------------
+ Main:ONE
+ -->Sub:ONEONE
+ Main:TWO
+ -->Sub:TWOTWO
+ Main:FOUR
+ -->Sub:FOURFOUR
+(6 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

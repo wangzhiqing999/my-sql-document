@@ -1,0 +1,233 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 不连续区间所对应离散最大值</title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> 不连续区间所对应离散最大值  </h2>
+
+
+<pre><code>
+
+
+如数据时间表
+A列       C列
+张三     1
+李四     100
+李四      200
+王五     300
+王五     350
+李四    400
+王六    500
+
+要拿出A更中某一个条件所对应的最大值（或最小值）
+如  王五，对应最大值为350
+但李四，由于不连续，要拿的最大值为两个  一个是200，另外一个是400
+
+
+
+
+</code></pre>
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+CREATE TABLE #temp (
+  A  varchar(8),
+  C  INT
+);
+GO
+
+INSERT INTO #temp
+SELECT  '张三',    1		UNION ALL
+SELECT  '李四',    100      UNION ALL
+SELECT  '李四',     200     UNION ALL
+SELECT  '王五',    300      UNION ALL
+SELECT  '王五',    350      UNION ALL
+SELECT  '李四',   400       UNION ALL
+SELECT  '王六',   500;
+GO
+
+-- 为了测试， 额外新增的数据.
+INSERT INTO #temp
+SELECT  '张三',    1		UNION ALL
+SELECT  '张三',    3		UNION ALL
+SELECT  '张三',    9		UNION ALL
+SELECT  '张三',    7		UNION ALL
+SELECT  '张三',    5;
+GO
+
+
+SELECT * FROM #temp
+go
+
+A        C
+-------- -----------
+张三                 1
+李四               100
+李四               200
+王五               300
+王五               350
+李四               400
+王六               500
+张三                 1
+张三                 3
+张三                 9
+张三                 7
+张三                 5
+
+(12 行受影响)
+
+
+
+
+With MyCTE AS
+(
+SELECT
+  ROW_NUMBER() OVER(ORDER BY (SELECT 1)) AS NO,
+  A,
+  C
+FROM
+  #temp
+),
+MyCTE2 AS
+(
+SELECT
+  NO,
+  A,
+  ( SELECT 
+      MAX(C) 
+	FROM 
+      MyCTE  M2 
+    WHERE 
+      M1.A= M2.A 
+      AND  M2.NO &gt;=  ISNULL((SELECT TOP 1 NO FROM MyCTE M3  WHERE M3.A != M1.A AND M3.NO &lt; M1.NO ORDER BY M3.NO DESC), 0) + 1
+	  AND  M2.NO &lt;=  ISNULL((SELECT TOP 1 NO FROM MyCTE M4  WHERE M4.A != M1.A AND M4.NO &gt; M1.NO ORDER BY M4.NO ), 99999) -1
+  ) AS MAXC
+FROM 
+  MyCTE  M1
+)
+SELECT
+  A, MAXC
+FROM
+  MyCTE2  main
+WHERE
+  NOT EXISTS (
+    SELECT 1 FROM  MyCTE2  sub WHERE main.A = sub.A AND  main.NO = sub.NO + 1
+  )
+GO
+
+
+A        MAXC
+-------- -----------
+张三                 1
+李四               200
+王五               350
+李四               400
+王六               500
+张三                 9
+
+(6 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

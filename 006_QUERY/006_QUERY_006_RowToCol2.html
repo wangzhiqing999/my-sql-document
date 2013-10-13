@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 行转换为列2 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> 行转换为列2 </h2>
+
+要求 SALE_REPORT 表中，每月销售金额， 列数据为 年、月、A、B、C 
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SELECT 
+  TO_CHAR(SALE_DATE, 'YYYY') SALE_YEAR,
+  TO_CHAR(SALE_DATE, 'MM') SALE_MONTH,
+  SUM ( DECODE(SALE_ITEM, 'A', SALE_MONEY, 0) )  AS  A_SUM,
+  SUM ( DECODE(SALE_ITEM, 'B', SALE_MONEY, 0) )  AS  B_SUM,
+  SUM ( DECODE(SALE_ITEM, 'C', SALE_MONEY, 0) )  AS  C_SUM
+FROM
+  SALE_REPORT
+GROUP BY
+  TO_CHAR(SALE_DATE, 'YYYY'),
+  TO_CHAR(SALE_DATE, 'MM')
+
+  
+<hr/>
+Oracle 11 新特性.
+
+Pivot 和 Unpivot
+
+http://www.oracle.com/technetwork/cn/articles/11g-pivot-101924-zhs.html
+
+  
+  
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+语句与Oracle相同
+<pre><code>
+
+SELECT 
+  TO_CHAR(SALE_DATE, 'YYYY') SALE_YEAR,
+  TO_CHAR(SALE_DATE, 'MM') SALE_MONTH,
+  SUM ( DECODE(SALE_ITEM, 'A', SALE_MONEY, 0) )  AS  A_SUM,
+  SUM ( DECODE(SALE_ITEM, 'B', SALE_MONEY, 0) )  AS  B_SUM,
+  SUM ( DECODE(SALE_ITEM, 'C', SALE_MONEY, 0) )  AS  C_SUM
+FROM
+  SALE_REPORT
+GROUP BY
+  TO_CHAR(SALE_DATE, 'YYYY'),
+  TO_CHAR(SALE_DATE, 'MM')
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SELECT 
+  YEAR(tmp.SALE_DATE) SALE_YEAR,
+  MONTH(tmp.SALE_DATE) SALE_MONTH,
+  SUM( tmp.[A] ) A_SUM,
+  SUM( tmp.[B] ) B_SUM,
+  SUM( tmp.[C] ) C_SUM
+FROM
+  SALE_REPORT
+PIVOT( 
+  SUM(SALE_MONEY)
+  FOR SALE_ITEM IN ([A], [B], [C] )
+) tmp
+GROUP BY
+  YEAR(tmp.SALE_DATE),
+  MONTH(tmp.SALE_DATE)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+SELECT
+  EXTRACT(year FROM SALE_DATE) AS SALE_YEAR,
+  EXTRACT(month FROM SALE_DATE) AS SALE_MONTH,
+  SUM(CASE WHEN SALE_ITEM = 'A' THEN SALE_MONEY ELSE 0 END) AS  A,
+  SUM(CASE WHEN SALE_ITEM = 'B' THEN SALE_MONEY ELSE 0 END) AS  B,
+  SUM(CASE WHEN SALE_ITEM = 'C' THEN SALE_MONEY ELSE 0 END) AS  C
+FROM
+  SALE_REPORT
+GROUP BY
+  EXTRACT(year FROM SALE_DATE),
+  EXTRACT(month FROM SALE_DATE);
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

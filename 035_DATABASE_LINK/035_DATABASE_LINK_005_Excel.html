@@ -1,0 +1,159 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库链接 - Excel </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库链接 </h1>
+
+
+<h2> Excel  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+首先
+
+-- 启用Ad Hoc Distributed Queries：
+exec sp_configure 'show advanced options',1
+reconfigure
+exec sp_configure 'Ad Hoc Distributed Queries',1
+reconfigure
+
+下面两句执行同样的功能
+从 E:\Test.xls 文件中，检索 Sheet1 中的数据。
+SELECT *   
+FROM OpenDataSource( 
+  'Microsoft.Jet.OLEDB.4.0',  
+  'Data Source="E:\Test.xls";User ID=Admin;Password=;Extended properties=Excel 5.0')...[Sheet1$] 
+
+SELECT *   
+FROM OpenDataSource( 
+  'Microsoft.Jet.OLEDB.4.0',  
+  'Excel 8.0;DATABASE=E:\Test.xls')...[Sheet1$]
+
+默认第一行是标题。 如果第一行不是标题，那么加入 HDR=NO 参数
+
+查询结束后
+
+-- 为了安全使用完成后，关闭Ad Hoc Distributed Queries：
+exec sp_configure 'Ad Hoc Distributed Queries',0
+reconfigure
+exec sp_configure 'show advanced options',0
+reconfigure
+
+
+
+使用链接服务器
+/****** 对象:  LinkedServer [TEST_EX]    脚本日期: 02/25/2011 22:29:12 ******/
+EXEC master.dbo.sp_addlinkedserver @server = N'TEST_EX', @srvproduct=N'Excel 8.0', @provider=N'Microsoft.Jet.OLEDB.4.0', @datasrc=N'E:\Test.xls', @provstr=N'Excel 8.0'
+GO
+EXEC master.dbo.sp_serveroption @server=N'TEST_EX', @optname=N'collation compatible', @optvalue=N'false'
+GO
+EXEC master.dbo.sp_serveroption @server=N'TEST_EX', @optname=N'data access', @optvalue=N'true'
+GO
+EXEC master.dbo.sp_serveroption @server=N'TEST_EX', @optname=N'dist', @optvalue=N'false'
+GO
+EXEC master.dbo.sp_serveroption @server=N'TEST_EX', @optname=N'pub', @optvalue=N'false'
+GO
+EXEC master.dbo.sp_serveroption @server=N'TEST_EX', @optname=N'rpc', @optvalue=N'false'
+GO
+EXEC master.dbo.sp_serveroption @server=N'TEST_EX', @optname=N'rpc out', @optvalue=N'false'
+GO
+EXEC master.dbo.sp_serveroption @server=N'TEST_EX', @optname=N'sub', @optvalue=N'false'
+GO
+EXEC master.dbo.sp_serveroption @server=N'TEST_EX', @optname=N'connect timeout', @optvalue=N'0'
+GO
+EXEC master.dbo.sp_serveroption @server=N'TEST_EX', @optname=N'collation name', @optvalue=null
+GO
+EXEC master.dbo.sp_serveroption @server=N'TEST_EX', @optname=N'lazy schema validation', @optvalue=N'false'
+GO
+EXEC master.dbo.sp_serveroption @server=N'TEST_EX', @optname=N'query timeout', @optvalue=N'0'
+GO
+EXEC master.dbo.sp_serveroption @server=N'TEST_EX', @optname=N'use remote collation', @optvalue=N'true'
+
+select * from [TEST_EX]...[Sheet1$]
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

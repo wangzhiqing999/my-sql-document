@@ -1,0 +1,256 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典表 - 字符集 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典表 </h1>
+
+
+<h2> 字符集  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+Oracle字符集是一个字节数据的解释的符号集合,有大小之分,有相互的包容关系。
+ORACLE 支持国家语言的体系结构允许你使用本地化语言来存储，处理，检索数据。
+它使数据库工具，错误消息，排序次序，日期，时间，货币，数字，和日历自动适应本地化语言和平台。 
+
+影响oracle数据库字符集最重要的参数是NLS_LANG参数。 
+它的格式如下:   
+NLS_LANG = language_territory.charset 
+它有三个组成部分(语言、地域和字符集)，每个成分控制了NLS子集的特性。 
+
+其中: 
+  Language 指定服务器消息的语言，
+  territory 指定服务器的日期和数字格式，
+  charset 指定字符集。
+如:AMERICAN _ AMERICA. ZHS16GBK 
+
+从NLS_LANG的组成我们可以看出，真正影响数据库字符集的其实是第三部分。 
+所以两个数据库之间的字符集只要第三部分一样就可以相互导入导出数据，前面影响的只是提示信息是中文还是英文
+
+
+
+-- 查看数据库当前字符集参数设置 
+select * from V$NLS_PARAMETERS;
+
+PARAMETER	VALUE
+NLS_LANGUAGE	SIMPLIFIED CHINESE
+NLS_TERRITORY	CHINA
+NLS_CURRENCY	￥
+NLS_ISO_CURRENCY	CHINA
+NLS_NUMERIC_CHARACTERS	.,
+NLS_CALENDAR	GREGORIAN
+NLS_DATE_FORMAT	DD-MON-RR
+NLS_DATE_LANGUAGE	SIMPLIFIED CHINESE
+NLS_CHARACTERSET	ZHS16GBK
+NLS_SORT	BINARY
+NLS_TIME_FORMAT	HH.MI.SSXFF AM
+NLS_TIMESTAMP_FORMAT	DD-MON-RR HH.MI.SSXFF AM
+NLS_TIME_TZ_FORMAT	HH.MI.SSXFF AM TZR
+NLS_TIMESTAMP_TZ_FORMAT	DD-MON-RR HH.MI.SSXFF AM TZR
+NLS_DUAL_CURRENCY	￥
+NLS_NCHAR_CHARACTERSET	AL16UTF16
+NLS_COMP	BINARY
+NLS_LENGTH_SEMANTICS	BYTE
+NLS_NCHAR_CONV_EXCP	FALSE
+
+
+
+-- 查询服务器当前的字符集信息.
+select USERENV('LANGUAGE') L FROM dual;
+
+SIMPLIFIED CHINESE_CHINA.ZHS16GBK
+
+
+
+-- 查询当前数据库可用的语言
+SELECT * 
+FROM v$nls_valid_values
+WHERE PARAMETER = 'LANGUAGE'; 
+
+PARAMETER	VALUE	ISDEPRECATED
+LANGUAGE	AMERICAN	FALSE
+LANGUAGE	GERMAN	FALSE
+LANGUAGE	FRENCH	FALSE
+LANGUAGE	CANADIAN FRENCH	FALSE
+LANGUAGE	SPANISH	FALSE
+......
+大约 63行数据.
+
+
+-- 查询当前数据库可用的格式
+SELECT * 
+FROM v$nls_valid_values
+WHERE PARAMETER = 'TERRITORY'; 
+
+PARAMETER	VALUE	ISDEPRECATED
+TERRITORY	AMERICA	FALSE
+TERRITORY	UNITED KINGDOM	FALSE
+TERRITORY	GERMANY	FALSE
+TERRITORY	FRANCE	FALSE
+......
+大约 92行数据.
+
+
+-- 查询当前数据库可用的字符集
+SELECT * 
+FROM v$nls_valid_values
+WHERE PARAMETER = 'CHARACTERSET'; 
+
+PARAMETER	VALUE	ISDEPRECATED
+CHARACTERSET	US7ASCII	FALSE
+CHARACTERSET	US8PC437	FALSE
+CHARACTERSET	WE8PC850	FALSE
+CHARACTERSET	WE8PC858	FALSE
+......
+大约 56行数据.
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+
+1> Exec Sp_helpsort
+2> go
+Server default collation
+----------------------------------------
+Chinese-PRC, case-insensitive, accent-sensitive, kanatype-insensitive, width-insensitive
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+-- 创建数据库的时候, 指定字符集.
+CREATE DATABASE test_utf8
+  DEFAULT CHARACTER SET utf8 
+  COLLATE utf8_general_ci;
+
+
+mysql> use test_utf8
+Database changed
+mysql> show variables like 'character%';
++--------------------------+----------------------------------------------------
+-----+
+| Variable_name            | Value
+     |
++--------------------------+----------------------------------------------------
+-----+
+| character_set_client     | latin1
+     |
+| character_set_connection | latin1
+     |
+| character_set_database   | utf8
+     |
+| character_set_filesystem | binary
+     |
+| character_set_results    | latin1
+     |
+| character_set_server     | latin1
+     |
+| character_set_system     | utf8
+     |
+| character_sets_dir       | C:\Program Files\MySQL\MySQL Server 5.0\share\chars
+ets\ |
++--------------------------+----------------------------------------------------
+-----+
+8 rows in set (0.00 sec)
+
+
+
+-- 创建表的时候, 指定字符集.
+CREATE  TABLE  test_tab (
+    id   	INT  AUTO_INCREMENT,
+    value1  varchar(20),
+	value2  nvarchar(20),
+	PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+处理 UTF8 的时候， C# 的连接字符串中，要加上  charset=utf8   
+例如：
+Server=192.168.56.101;Database=test_utf8;Uid=test_user;Pwd=testpassword; charset=utf8
+
+
+注：
+dos下不支持UTF8的显示.
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

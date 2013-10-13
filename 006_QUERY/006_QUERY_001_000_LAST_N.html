@@ -1,0 +1,271 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - LAST-N</title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> LAST-N  </h2>
+
+
+
+<pre><code>
+
+某些情况下， 需要完成这样的查询：
+
+
+表没有主键，没有自增ID， 没有最后更新时间。
+需要查询出， 最后插入的 N 行数据。
+
+
+例如：
+
+CREATE TABLE test_last_n (
+  ID  INT
+);
+
+INSERT INTO test_last_n VALUES(5);
+INSERT INTO test_last_n VALUES(1);
+INSERT INTO test_last_n VALUES(7);
+INSERT INTO test_last_n VALUES(8);
+INSERT INTO test_last_n VALUES(9);
+INSERT INTO test_last_n VALUES(3);
+INSERT INTO test_last_n VALUES(6);
+
+
+
+要求查询出  最后插入的3行数据。
+
+
+
+
+</code></pre>
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+-- 注意： 这里的  rowdependencies  很关键！
+-- 因为 在默认状态下，oracle是在块级维护scn的。
+-- rowdependencies 用于 行级跟踪SCN
+CREATE TABLE test_last_n (
+  ID  INT
+) rowdependencies ;
+
+
+INSERT INTO test_last_n VALUES(5);
+COMMIT;
+
+INSERT INTO test_last_n VALUES(1);
+COMMIT;
+
+INSERT INTO test_last_n VALUES(7);
+COMMIT;
+
+INSERT INTO test_last_n VALUES(8);
+COMMIT;
+
+INSERT INTO test_last_n VALUES(9);
+COMMIT;
+
+INSERT INTO test_last_n VALUES(3);
+COMMIT;
+
+INSERT INTO test_last_n VALUES(6);
+COMMIT;
+
+
+
+
+SQL> -- 初始数据
+SQL> SELECT * FROM test_last_n;
+
+        ID
+----------
+         5
+         1
+         7
+         8
+         9
+         3
+         6
+
+已选择7行。
+
+
+
+-- 倒数后3行
+SELECT
+  *
+FROM
+(
+SELECT
+  *
+FROM
+  test_last_n
+ORDER BY
+  scn_to_timestamp(ora_rowscn) DESC
+) WHERE rownum &lt;= 3;
+
+        ID
+----------
+         6
+         3
+         9
+
+
+
+注意：这里排序为 最后插入的排在最前面。
+
+
+<hr/>
+知识点：
+ORA_ROWSCN  是 Oracle 10 开始有的.
+scn_to_timestamp 是获取 ORA_ROWSCN 的时间点.
+
+
+SELECT
+  to_char(scn_to_timestamp(ora_rowscn), 'YYYY-MM-DD HH24:MI:SS') AS  "最后更新的时间",
+  id
+FROM
+  test_last_n;
+
+最后更新的时间                                 ID
+-------------------------------------- ----------
+2013-06-28 12:39:14                             5
+2013-06-28 12:39:14                             1
+2013-06-28 12:39:44                             7
+2013-06-28 12:40:29                             8
+2013-06-28 12:41:21                             9
+2013-06-28 12:41:27                             3
+2013-06-28 12:41:36                             6
+
+已选择7行。
+
+
+
+注意：由于 在默认状态下，oracle是在块级维护scn的。  
+也就是默认情况下， 这几行的数据， 如果都在一个块里面的情况下。
+其中一行更新了， 将影响其它几行的 ORA_ROWSCN
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SELECT
+  TOP 3 *
+FROM
+  test_last_n
+ORDER BY
+  ROW_NUMBER()OVER(ORDER BY (SELECT 1))  DESC;
+GO
+
+
+ID
+-----------
+          6
+          3
+          9
+
+(3 行受影响)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

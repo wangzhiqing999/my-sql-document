@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库会话的基本参数设置 SET  - ANSI_DEFAULTS 设置 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库会话的基本参数设置 SET </h1>
+
+
+<h2> ANSI_DEFAULTS 设置  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SET ANSI_DEFAULTS { ON | OFF }
+
+备注
+SET ANSI_DEFAULTS 是客户端不会修改的服务器端设置。
+客户端管理自己的设置。在默认情况下，这些设置与服务器设置相反。
+用户不应修改服务器设置。
+若要更改客户端行为，用户应使用 SQL_COPT_SS_PRESERVE_CURSORS。
+
+当启用 (ON) 时，该选项将启用下列 SQL-92 设置：
+SET ANSI_NULLS
+SET CURSOR_CLOSE_ON_COMMIT
+SET ANSI_NULL_DFLT_ON
+SET IMPLICIT_TRANSACTIONS
+SET ANSI_PADDING
+SET QUOTED_IDENTIFIER
+SET ANSI_WARNINGS
+
+下面是测试输出配置信息：
+
+-- SET ANSI_DEFAULTS ON.
+SET ANSI_DEFAULTS ON
+GO
+-- Display the current settings.
+DBCC USEROPTIONS
+GO
+
+Set Option               Value
+------------------------ ----------------------------------------------
+textsize                 2147483647
+language                 简体中文
+dateformat               ymd
+datefirst                7
+lock_timeout             -1
+quoted_identifier        SET
+arithabort               SET
+ansi_null_dflt_on        SET
+ansi_defaults            SET
+ansi_warnings            SET
+ansi_padding             SET
+ansi_nulls               SET
+concat_null_yields_null  SET
+cursor_close_on_commit   SET
+implicit_transactions    SET
+isolation level          read committed
+
+(16 行受影响)
+
+DBCC 执行完毕。如果 DBCC 输出了错误信息，请与系统管理员联系。
+
+
+
+-- SET ANSI_DEFAULTS OFF.
+SET ANSI_DEFAULTS OFF
+GO
+-- Display the current settings.
+DBCC USEROPTIONS
+GO
+Set Option                Value
+------------------------- ----------------------------------------------
+textsize                  2147483647
+language                  简体中文
+dateformat                ymd
+datefirst                 7
+lock_timeout              -1
+arithabort                SET
+concat_null_yields_null   SET
+isolation level           read committed
+
+(8 行受影响)
+
+DBCC 执行完毕。如果 DBCC 输出了错误信息，请与系统管理员联系。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

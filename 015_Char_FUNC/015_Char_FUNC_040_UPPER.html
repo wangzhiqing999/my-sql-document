@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 字符函数 - 转换为大写 UPPER </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 字符函数 </h1>
+
+
+<h2>  转换为大写 UPPER </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    UPPER('oRacle SQL sERVER') A
+  3  FROM
+  4    dual;
+
+A
+----------------------------------
+ORACLE SQL SERVER
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => SELECT
+db2 (cont.) =>   UPPER('oRacle SQL sERVER') A,
+db2 (cont.) =>   UCASE('oRacle SQL sERVER') B
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+A                 B
+----------------- -----------------
+ORACLE SQL SERVER ORACLE SQL SERVER
+
+  1 条记录已选择。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT UPPER('oRacle SQL sERVER') A
+2> go
+A
+----------------------------------
+ORACLE SQL SERVER
+
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT UCASE ('oRacle SQL sERVER') A //
++-------------------+
+| A                 |
++-------------------+
+| ORACLE SQL SERVER |
++-------------------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+sqlite> SELECT UPPER('oRacle SQL sERVER') A;
+A
+ORACLE SQL SERVER
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+Test=# SELECT UPPER('oRacle SQL sERVER') A;
+         a
+-------------------
+ ORACLE SQL SERVER
+(1 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

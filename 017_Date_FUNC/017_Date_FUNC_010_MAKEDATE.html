@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 日期函数 - 新建日期/时间 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 日期函数 </h1>
+
+
+<h2>  新建日期/时间 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+-- 可以通过 年*10000 + 月*100 + 日 的方式， 来进行处理.
+
+SQL> ALTER session SET nls_date_format='yyyy-mm-dd';
+
+会话已更改。
+
+SQL> 
+SQL> SELECT TO_DATE(TO_CHAR( 2013*10000 + 6*100 + 20 ), 'YYYYMMDD') AS MAKEDATE FROM dual;
+
+MAKEDATE
+----------
+2013-06-20
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+通过  DATEADD 的方式， 针对 1900-01-01 的基础上， 作日期增加的处理.
+
+
+1> SELECT
+2>   DATEADD(
+3>      dd,
+4>      11 -1,
+5>      DATEADD(
+6>              mm,
+7>              3 -1,
+8>              DATEADD(yy, 2013 - 1900, 0))) RESULT;
+9> go
+RESULT
+-----------------------
+2013-03-11 00:00:00.000
+
+(1 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT MAKEDATE (2010, 100) A;
++------------+
+| A          |
++------------+
+| 2010-04-10 |
++------------+
+1 row in set (0.00 sec)
+
+mysql>
+mysql> SELECT MAKETIME (10, 20, 30) A;
++----------+
+| A        |
++----------+
+| 10:20:30 |
++----------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+使用函数进行处理，格式固定
+
+1.date(timestring, modifier, modifier, ...) 
+2.time(timestring, modifier, modifier, ...) 
+3.datetime(timestring, modifier, modifier, ...) 
+4.julianday(timestring, modifier, modifier, ...) 
+5.strftime(format, timestring, modifier, modifier, ...) 
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> MODEL查询函数 -  IS PRESENT / PRESENTV / PRESENTNNV </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> MODEL查询函数 </h1>
+
+
+<h2>  IS PRESENT / PRESENTV / PRESENTNNV </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+-- 在前面的基础上，增加2010年1月的 上月 数据 （数据库中无2010年数据）
+-- 这里的 IS PRESENT ：当数据单元指定的记录在MODEL子句执行之前存在，则IS PRESENT返回TRUE。
+-- PRESENTV() 如果cell引用的记录在MODEL子句执行以前就存在，那么PRESENTV(cell,expr1,expr2)返回表达式expr1。如果这条记录不存在，则返回表达式expr2。
+-- PRESENTNNV() 如果cell引用的单元在MODEL子句执行之前已经存在，并且该单元的值不为空，则PRESENTNNV(cell,expr1,expr2)返回表达式expr1。如果记录不存在，或单元值为空值，则返回表达式expr2。
+
+With cte AS
+(
+SELECT
+  EXTRACT(YEAR FROM SALE_DATE) AS year,
+  EXTRACT(MONTH FROM SALE_DATE) AS month,
+  SUM(sale_money) AS sum_money,
+  0 AS prev_sum_money
+FROM
+  sale_report
+GROUP BY
+  EXTRACT(YEAR FROM SALE_DATE),
+  EXTRACT(MONTH FROM SALE_DATE)
+)
+SELECT 
+  *
+FROM cte 
+MODEL 
+  DIMENSION BY (year, month)  -- 按照 年，月 为 维度
+  MEASURES(sum_money, prev_sum_money) -- 数组的数据为 sum_money, prev_sum_money
+  ( 
+    prev_sum_money[2009, FOR month FROM 2 TO 12 INCREMENT 1]
+      = sum_money[CURRENTV(), CURRENTV() - 1],
+    prev_sum_money[2010, 1] = sum_money[2009, 12],
+    prev_sum_money[2010, FOR month FROM 2 TO 3 INCREMENT 1]
+      = CASE WHEN sum_money[CURRENTV(), CURRENTV() - 1] IS PRESENT THEN
+          sum_money[CURRENTV(), CURRENTV() - 1]
+        ELSE
+          0
+        END,
+    prev_sum_money[2010, FOR month FROM 4 TO 6 INCREMENT 1]
+      = PRESENTV(sum_money[CURRENTV(), CURRENTV() - 1], 
+                 sum_money[CURRENTV(), CURRENTV() - 1],
+                 0),
+    prev_sum_money[2010, FOR month FROM 7 TO 9 INCREMENT 1]
+      = PRESENTNNV(sum_money[CURRENTV(), CURRENTV() - 1], 
+                 sum_money[CURRENTV(), CURRENTV() - 1],
+                 0),
+    prev_sum_money[2010, FOR month FROM 10 TO 12 INCREMENT 1]
+      = sum_money[CURRENTV(), CURRENTV() - 1]
+  )
+ORDER BY
+  year,
+  month;
+
+
+
+      YEAR      MONTH  SUM_MONEY PREV_SUM_MONEY
+---------- ---------- ---------- --------------
+      2009          1      62806              0
+      2009          2      56714          62806
+      2009          3      62868          56714
+      2009          4      60855          62868
+      2009          5      62930          60855
+      2009          6      60915          62930
+      2009          7      62992          60915
+      2009          8      63023          62992
+      2009          9      61005          63023
+      2009         10      63085          61005
+      2009         11      61065          63085
+
+      YEAR      MONTH  SUM_MONEY PREV_SUM_MONEY
+---------- ---------- ---------- --------------
+      2009         12      63147          61065
+      2010          1                     63147
+      2010          2                         0
+      2010          3                         0
+      2010          4                         0
+      2010          5                         0
+      2010          6                         0
+      2010          7                         0
+      2010          8                         0
+      2010          9                         0
+      2010         10
+
+      YEAR      MONTH  SUM_MONEY PREV_SUM_MONEY
+---------- ---------- ---------- --------------
+      2010         11
+      2010         12
+
+已选择24行。
+
+
+测试插入几条 2010年的数据，用于验证结果.
+INSERT INTO sale_report 
+  SELECT TO_DATE('20100201', 'YYYYMMDD'), 'A', 20 FROM dual UNION ALL
+  SELECT TO_DATE('20100501', 'YYYYMMDD'), 'A', 50 FROM dual UNION ALL
+  SELECT TO_DATE('20100801', 'YYYYMMDD'), 'A', 80 FROM dual UNION ALL
+  SELECT TO_DATE('20101101', 'YYYYMMDD'), 'A', 110 FROM dual;
+
+
+
+再次执行的结果：
+
+      YEAR      MONTH  SUM_MONEY PREV_SUM_MONEY
+---------- ---------- ---------- --------------
+      2009          1      62806              0
+      2009          2      56714          62806
+      2009          3      62868          56714
+      2009          4      60855          62868
+      2009          5      62930          60855
+      2009          6      60915          62930
+      2009          7      62992          60915
+      2009          8      63023          62992
+      2009          9      61005          63023
+      2009         10      63085          61005
+      2009         11      61065          63085
+
+      YEAR      MONTH  SUM_MONEY PREV_SUM_MONEY
+---------- ---------- ---------- --------------
+      2009         12      63147          61065
+      2010          1                     63147
+      2010          2         20              0
+      2010          3                        20
+      2010          4                         0
+      2010          5         50              0
+      2010          6                        50
+      2010          7                         0
+      2010          8         80              0
+      2010          9                        80
+      2010         10
+
+      YEAR      MONTH  SUM_MONEY PREV_SUM_MONEY
+---------- ---------- ---------- --------------
+      2010         11        110
+      2010         12                       110
+
+已选择24行。
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

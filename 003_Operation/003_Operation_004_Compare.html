@@ -1,0 +1,181 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 运算符号-比较运算符 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 运算符号 </h1>
+
+
+<h2> 比较运算符 </h2>
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+=（等于）
+&gt; （大于）
+&lt; （小于）
+&gt;=（大于等于）
+&lt;=（小于等于）
+&lt;&gt;（不等于）
+!=（不等于） （非 SQL-92 标准）
+!&lt;（不小于） （非 SQL-92 标准）
+!&gt;（不大于） （非 SQL-92 标准）
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+db.TestCompare.insert( {"a":1,  "b":2,  "c":3} );
+db.TestCompare.insert( {"a":2,  "b":4,  "c":6} );
+db.TestCompare.insert( {"a":3,  "b":6,  "c":9} );
+db.TestCompare.insert( {"a":4,  "b":8,  "c":12} );
+db.TestCompare.insert( {"a":5,  "b":10, "c":15} );
+
+
+
+=（等于）
+相当于 指定 属性条件进行查询.
+> db.TestCompare.find( {"a":3} );
+{ "_id" : ObjectId("52550e37f62149b6e6e2da2c"), "a" : 3, "b" : 6, "c" : 9 }
+
+
+&gt; （大于）
+使用 "$gt" 进行处理.
+> db.TestCompare.find( {"a":  {"$gt" : 3} } );
+{ "_id" : ObjectId("52550e37f62149b6e6e2da2d"), "a" : 4, "b" : 8, "c" : 12 }
+{ "_id" : ObjectId("52550e39f62149b6e6e2da2e"), "a" : 5, "b" : 10, "c" : 15 }
+
+
+&lt; （小于） 
+使用 "$lt" 进行处理.
+> db.TestCompare.find( {"a":  {"$lt" : 3} } );
+{ "_id" : ObjectId("52550e37f62149b6e6e2da2a"), "a" : 1, "b" : 2, "c" : 3 }
+{ "_id" : ObjectId("52550e37f62149b6e6e2da2b"), "a" : 2, "b" : 4, "c" : 6 }
+
+
+&gt;=（大于等于）
+使用 "$gte" 进行处理.
+> db.TestCompare.find( {"a":  {"$gte" : 3} } );
+{ "_id" : ObjectId("52550e37f62149b6e6e2da2c"), "a" : 3, "b" : 6, "c" : 9 }
+{ "_id" : ObjectId("52550e37f62149b6e6e2da2d"), "a" : 4, "b" : 8, "c" : 12 }
+{ "_id" : ObjectId("52550e39f62149b6e6e2da2e"), "a" : 5, "b" : 10, "c" : 15 }
+
+
+&lt;=（小于等于）
+使用 "$lte" 进行处理.
+> db.TestCompare.find( {"a":  {"$lte" : 3} } );
+{ "_id" : ObjectId("52550e37f62149b6e6e2da2a"), "a" : 1, "b" : 2, "c" : 3 }
+{ "_id" : ObjectId("52550e37f62149b6e6e2da2b"), "a" : 2, "b" : 4, "c" : 6 }
+{ "_id" : ObjectId("52550e37f62149b6e6e2da2c"), "a" : 3, "b" : 6, "c" : 9 }
+
+
+&lt;&gt;（不等于）
+使用 "$ne"  进行处理.
+> db.TestCompare.find( {"a":  {"$ne" : 3} } );
+{ "_id" : ObjectId("52550e37f62149b6e6e2da2a"), "a" : 1, "b" : 2, "c" : 3 }
+{ "_id" : ObjectId("52550e37f62149b6e6e2da2b"), "a" : 2, "b" : 4, "c" : 6 }
+{ "_id" : ObjectId("52550e37f62149b6e6e2da2d"), "a" : 4, "b" : 8, "c" : 12 }
+{ "_id" : ObjectId("52550e39f62149b6e6e2da2e"), "a" : 5, "b" : 10, "c" : 15 }
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

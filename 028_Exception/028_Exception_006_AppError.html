@@ -1,0 +1,261 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 异常处理 - 自定义错误-应用级别的错误 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 异常处理 </h1>
+
+
+<h2> 自定义错误-应用级别的错误  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> BEGIN
+  2    -- 错误代码允许的范围是 -20,000～20,999
+  3    RAISE_APPLICATION_ERROR(-20000, 'My Error Happen!');
+  4
+  5    EXCEPTION
+  6      WHEN OTHERS THEN
+  7        dbms_output.put_line('Error Code = ' || TO_CHAR(SQLCODE) );
+  8        dbms_output.put_line('Error Message = ' || SQLERRM );
+  9  END;
+ 10  /
+Error Code = -20000
+Error Message = ORA-20000: My Error Happen!
+
+PL/SQL procedure successfully completed.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+TRUNCATE TABLE output_debug IMMEDIATE@
+
+BEGIN
+
+  DECLARE SQLSTATE  CHAR(5);
+  DECLARE SQLCODE  INT;
+
+  DECLARE EXIT HANDLER
+  FOR
+  SQLEXCEPTION
+  BEGIN
+    -- 异常处理
+    INSERT INTO output_debug VALUES('出错啦！' 
+        || SQLSTATE || ':' || TO_CHAR(sqlcode)  );
+  END;
+
+  -- 我这里手动抛出一个错误！
+  SIGNAL SQLSTATE '75002' set message_text = '库存不足！'; 
+
+END
+@
+
+db2 => select * from output_debug@
+DATA
+----------------------------------------
+出错啦！75002:-438
+
+  1 条记录已选择。
+
+注：那个 错误文字信息， 在 SQL 中很难获取。
+对于 C 或者 Java 等编程语言，可以通过 sqlca 结构中的 sqlerrmc 来获取。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+需要把错误代码与信息，记录在数据库中
+
+第2个参数，为用户定义的与消息关联的严重级别。用户可以使用从 0 到 18 之间的严重级别。19 到 25 之间的严重级别只能由 sysadmin 固定服务器角色成员使用。
+若要使用 19 到 25 之间的严重级别，必须选择 WITH LOG 选项。
+
+注意  20 到 25 之间的严重级别被认为是致命的。如果遇到致命的严重级别，客户端连接将在收到消息后终止，并将错误记入错误日志和应用程序日志。
+
+当出现错误时，错误号将放在 @@ERROR 函数中，该函数存储最新生成的错误号。对于严重级别为 1 到 10 的消息，@@ERROR 的默认设置为0。
+
+
+
+
+1> EXEC sp_addmessage 60001, 16,
+2>    @msgtext = N'User Password Error',
+3>    @lang = 'us_english'
+4> go
+1> EXEC sp_addmessage 60001, 16,
+2>    @msgtext = N'用户密码错误',
+3>    @lang = '简体中文'
+4> go
+
+-- 注: 用户通过sp_addmessage 添加的消息, 可以在sys.message视图中查询
+
+1> BEGIN TRY
+2>
+3>   -- 抛出自定义错误
+4>   RAISERROR(60001, 1, 1);
+5>
+6> END TRY
+7> BEGIN CATCH
+8>   PRINT('错误代码 = ' + STR(ERROR_NUMBER()));
+9>    PRINT('错误严重级别 = ' + STR(ERROR_SEVERITY()));
+10>    PRINT('错误状态代码 = ' + STR(ERROR_STATE()));
+11>    PRINT('错误信息 = ' + ERROR_MESSAGE());
+12>  END CATCH
+13> go
+用户密码错误
+
+-- 错误严重级别在1-10之间，错误不被 catch。
+
+1> BEGIN TRY
+2>
+3>   -- 抛出自定义错误
+4>   RAISERROR(60001, 16, 1);
+5>
+6> END TRY
+7> BEGIN CATCH
+8>   PRINT('错误代码 = ' + STR(ERROR_NUMBER()));
+9>    PRINT('错误严重级别 = ' + STR(ERROR_SEVERITY()));
+10>    PRINT('错误状态代码 = ' + STR(ERROR_STATE()));
+11>    PRINT('错误信息 = ' + ERROR_MESSAGE());
+12>  END CATCH
+13> go
+错误代码 =      60001
+错误严重级别 =         16
+错误状态代码 =          1
+错误信息 = 用户密码错误
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+CREATE OR REPLACE FUNCTION TestException() RETURNS void AS
+$$
+DECLARE  
+  v_test_val    INT;
+BEGIN
+  -- 自己抛出一个异常！
+  RAISE EXCEPTION '用户 % 执行过程异常！', user;
+END;
+$$
+LANGUAGE plpgsql;
+
+
+Test=# select  TestException();
+错误:  用户 postgres 执行过程异常！
+
+
+
+
+CREATE OR REPLACE FUNCTION TestException() RETURNS void AS
+$$
+DECLARE  
+  v_test_val    INT;
+BEGIN
+  -- 自己抛出一个异常！
+  RAISE EXCEPTION '用户 % 执行过程异常！', user;
+  EXCEPTION
+    WHEN OTHERS  THEN
+      -- 异常自己处理
+      RAISE NOTICE '捕获到系统发生错误！';
+END;
+$$
+LANGUAGE plpgsql;
+
+
+
+Test=# select  TestException();
+注意:  捕获到系统发生错误！
+ testexception
+---------------
+
+(1 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

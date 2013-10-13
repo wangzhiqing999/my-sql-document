@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数学函数 - 反正切 ATAN2 / ATN2 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数学函数 </h1>
+
+
+<h2>  反正切 ATAN2 / ATN2 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT ATAN2(1,2) FROM DUAL;
+
+ATAN2(1,2)
+----------
+.463647609
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => SELECT ATAN2(1,2) FROM SYSIBM.SYSDUMMY1;
+
+1
+------------------------
+  +1.10714871779409E+000
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT ATN2(1,2)
+2> go
+
+------------------------
+     0.46364760900080609
+
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+ATAN(Y,X) , ATAN2(Y,X) 
+返回两个变量X 及Y的反正切。 
+它类似于 Y 或 X的反正切计算,  除非两个参数的符号均用于确定结果所在象限。 
+
+mysql> SELECT ATAN(-2,2);
+        -> -0.78539816339745
+mysql> SELECT ATAN2(PI(),0);
+        -> 1.5707963267949
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+Test=# SELECT ATAN2(1,2);
+       atan2
+-------------------
+ 0.463647609000806
+(1 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> ROLLUP 与 CUBE 查询 - ROLLUP-简单用法 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> ROLLUP 与 CUBE 查询 </h1>
+
+
+<h2> ROLLUP-简单用法  </h2>
+
+
+第一个例子，为统计每种产品，每个季度的销售情况。
+每个产品都有4个季度的合计
+最后有所有产品，4个季度的总计
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    sale_item,
+  3    TO_CHAR(sale_date, 'Q') AS sale_quarter,
+  4    SUM(sale_money)
+  5  FROM
+  6    sale_report
+  7  GROUP BY
+  8    ROLLUP(sale_item, TO_CHAR(sale_date, 'Q'));
+
+SALE SA SUM(SALE_MONEY)
+---- -- ---------------
+A    1           180810
+A    2           182819
+A    3           184828
+A    4           184828
+A                733285
+B    1              180
+B    2              455
+B    3              735
+B    4             1012
+B                  2382
+C    1             1398
+
+SALE SA SUM(SALE_MONEY)
+---- -- ---------------
+C    2             1426
+C    3             1457
+C    4             1457
+C                  5738
+                 741405
+
+16 rows selected.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+SELECT
+  sale_item,
+  TO_CHAR(sale_date, 'Q') AS sale_quarter,
+  SUM(sale_money)
+FROM
+  sale_report
+GROUP BY
+  ROLLUP(sale_item, TO_CHAR(sale_date, 'Q'));
+
+与 Oracle 相同.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT
+2>   sale_item,
+3>   DATEPART(qq, sale_date) AS sale_quarter,
+4>   SUM(sale_money)
+5> FROM
+6>   sale_report
+7> GROUP BY
+8>   sale_item, DATEPART(qq, sale_date)  WITH ROLLUP
+9> go
+sale_item sale_quarter
+--------- ------------ ----------------------------------------
+A                    1                                180810.00
+A                    2                                182819.00
+A                    3                                184828.00
+A                    4                                184828.00
+A                 NULL                                733285.00
+B                    1                                   180.00
+B                    2                                   455.00
+B                    3                                   735.00
+B                    4                                  1012.00
+B                 NULL                                  2382.00
+C                    1                                  1398.00
+C                    2                                  1426.00
+C                    3                                  1457.00
+C                    4                                  1457.00
+C                 NULL                                  5738.00
+NULL              NULL                                741405.00
+
+(16 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT
+    ->   sale_item,
+    ->   QUARTER(sale_date) AS sale_quarter,
+    ->   SUM(sale_money)
+    -> FROM
+    ->   sale_report
+    -> GROUP BY
+    ->   sale_item, QUARTER(sale_date)  WITH ROLLUP
+    -> //
++-----------+--------------+-----------------+
+| sale_item | sale_quarter | SUM(sale_money) |
++-----------+--------------+-----------------+
+| A         |            1 |       180810.00 |
+| A         |            2 |       182819.00 |
+| A         |            3 |       184828.00 |
+| A         |            4 |       184828.00 |
+| A         |         NULL |       733285.00 |
+| B         |            1 |          180.00 |
+| B         |            2 |          455.00 |
+| B         |            3 |          735.00 |
+| B         |            4 |         1012.00 |
+| B         |         NULL |         2382.00 |
+| C         |            1 |         1398.00 |
+| C         |            2 |         1426.00 |
+| C         |            3 |         1457.00 |
+| C         |            4 |         1457.00 |
+| C         |         NULL |         5738.00 |
+| NULL      |         NULL |       741405.00 |
++-----------+--------------+-----------------+
+16 rows in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

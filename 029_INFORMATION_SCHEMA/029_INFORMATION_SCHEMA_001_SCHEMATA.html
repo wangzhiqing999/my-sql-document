@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典表 - 构架 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典表 </h1>
+
+
+<h2> 构架  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+Oracle 构架与用户绑定。
+可以通过查看用户，来查看构架。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT
+2>   name
+3> FROM
+4>   sys.schemas;
+5> go
+name
+----------------------------
+dbo
+guest
+INFORMATION_SCHEMA
+sys
+Work
+Report
+db_owner
+db_accessadmin
+db_securityadmin
+db_ddladmin
+db_backupoperator
+db_datareader
+db_datawriter
+db_denydatareader
+db_denydatawriter
+
+(15 行受影响)
+
+select
+  CATALOG_NAME,
+  SCHEMA_NAME,
+  SCHEMA_OWNER
+from
+  information_schema.schemata
+
+test	dbo	dbo
+test	guest	guest
+test	INFORMATION_SCHEMA	INFORMATION_SCHEMA
+test	sys	sys
+test	Work	dbo
+test	Report	dbo
+test	db_owner	db_owner
+test	db_accessadmin	db_accessadmin
+test	db_securityadmin	db_securityadmin
+test	db_ddladmin	db_ddladmin
+test	db_backupoperator	db_backupoperator
+test	db_datareader	db_datareader
+test	db_datawriter	db_datawriter
+test	db_denydatareader	db_denydatareader
+test	db_denydatawriter	db_denydatawriter
+
+
+
+<hr/>
+
+
+
+如果需要查询 当前数据库所有用户的默认的 SCHEMA.
+
+select
+  name,
+  default_schema_name
+from
+  sys.database_principals;
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+MySQL 中 Schema 等价于 数据库。
+
+mysql> SELECT
+    ->   SCHEMA_NAME,
+    ->   DEFAULT_CHARACTER_SET_NAME,
+    ->   DEFAULT_COLLATION_NAME
+    -> FROM
+    ->   INFORMATION_SCHEMA.SCHEMATA;
++--------------------+----------------------------+------------------------+
+| SCHEMA_NAME        | DEFAULT_CHARACTER_SET_NAME | DEFAULT_COLLATION_NAME |
++--------------------+----------------------------+------------------------+
+| information_schema | utf8                       | utf8_general_ci        |
+| mysql              | latin1                     | latin1_swedish_ci      |
+| sqldoc             | utf8                       | utf8_general_ci        |
+| test               | latin1                     | latin1_swedish_ci      |
+| test2              | latin1                     | latin1_swedish_ci      |
++--------------------+----------------------------+------------------------+
+5 rows in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+<tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# SELECT
+Test-#   CATALOG_NAME,
+Test-#   SCHEMA_NAME,
+Test-#   SCHEMA_OWNER
+Test-# FROM
+Test-#   INFORMATION_SCHEMA.SCHEMATA;
+ catalog_name |    schema_name     | schema_owner
+--------------+--------------------+--------------
+ Test         | pg_toast           | postgres
+ Test         | pg_temp_1          | postgres
+ Test         | pg_toast_temp_1    | postgres
+ Test         | pg_catalog         | postgres
+ Test         | information_schema | postgres
+ Test         | TEST_SC            | postgres
+ Test         | pg_temp_2          | postgres
+ Test         | pg_toast_temp_2    | postgres
+ Test         | public             | postgres
+(9 行记录)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

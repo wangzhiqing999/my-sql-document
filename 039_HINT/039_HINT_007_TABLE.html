@@ -1,0 +1,279 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 提示 Hint - 表提示  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 提示 Hint </h1>
+
+
+<h2>  表提示  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+FULL 提示
+要求避开索引，调用全表扫描
+
+ORDERED 提示
+要求按照 FROM 子句中的顺序进行连接。
+推荐使用 LEADING 提示。
+SELECT  /*+ORDERED */ 
+  o.order_id, c.customer_id, l.unit_price * l.quantity
+FROM customers c, order_items l, orders o
+WHERE c.cust_last_name = :b1
+    AND o.customer_id = c.customer_id
+    AND o.order_id = l.order_id;
+
+
+LEADING 提示
+要求按照 指定的顺序，先进行连接。
+SELECT /*+ LEADING(e j) */ *
+    FROM employees e, departments d, job_history j
+    WHERE e.department_id = d.department_id
+      AND e.hire_date = j.start_date;
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+<table_hint> ::=  [ NOEXPAND ] 
+{ INDEX ( index_val [ ,...n ] )   
+| FASTFIRSTROW    
+| HOLDLOCK    
+| NOLOCK    
+| NOWAIT   
+| PAGLOCK    
+| READCOMMITTED    
+| READCOMMITTEDLOCK    
+| READPAST    
+| READUNCOMMITTED    
+| REPEATABLEREAD    
+| ROWLOCK    
+| SERIALIZABLE    
+| TABLOCK    
+| TABLOCKX    
+| UPDLOCK    
+| XLOCK  }   
+
+<table_hint_limited> ::= 
+{ KEEPIDENTITY    
+| KEEPDEFAULTS    
+| FASTFIRSTROW    
+| HOLDLOCK    
+| IGNORE_CONSTRAINTS    
+| IGNORE_TRIGGERS    
+| NOWAIT     
+| PAGLOCK    
+| READCOMMITTED    
+| READCOMMITTEDLOCK    
+| READPAST    
+| REPEATABLEREAD    
+| ROWLOCK    
+| SERIALIZABLE    
+| TABLOCK    
+| TABLOCKX    
+| UPDLOCK    
+| XLOCK  } 
+
+
+
+NOEXPAND
+指定查询优化器处理查询时，不扩展任何索引视图来访问基础表。查询优化器将视图当成包含聚集索引的表处理。NOEXPAND 只适用于索引视图。
+
+
+INDEX ( index_val [ ,... n ] )
+指定查询优化器处理语句时要使用的索引的名称或 ID。只能为每个表指定一个索引提示。 
+如果存在聚集索引，则 INDEX(0) 强制执行聚集索引扫描，INDEX(1) 强制执行聚集索引扫描或查找。如果不存在聚集索引，则 INDEX(0) 强制执行表扫描，INDEX(1) 被解释为错误。 
+代替的 INDEX = 语法可以指定单个索引提示。支持此语法只是为了向后兼容。 
+如果在单个提示列表中使用了多个索引，则将忽略重复项，其余列出的索引将用于检索表中的行。索引提示中的索引顺序很重要。多索引提示还强制执行索引 AND 运算，查询优化器将对每个被访问的索引应用尽可能多的条件。如果带提示的索引集合不是涵盖性的，则在 SQL Server 2005 数据库引擎检索了所有索引列之后，将执行一次提取操作。 
+注意： 
+如果将引用多个索引的索引提示用于星型联接中的事实数据表，则优化器将忽略索引提示，并返回一个警告消息。另外，不允许对包含指定索引提示的表执行索引 OR 操作。 
+表提示中的最大索引数为 250 个非聚集索引。
+
+
+
+
+KEEPIDENTITY 
+只适用于 INSERT 语句（当 BULK 选项与 OPENROWSET 一起使用时）。 
+指定导入数据文件中的标识值用于标识列。如果不指定 KEEPIDENTITY，则将验证但不导入此列的标识值。
+查询优化器将根据创建表时指定的种子值和增量值自动分配唯一值。 
+
+
+
+KEEPDEFAULTS 
+只适用于 INSERT 语句（当 BULK 选项与 OPENROWSET 一起使用时）。 
+如果列的数据记录缺少值，则指定插入用于代替 NULL 的表列的默认值（如果有）。
+
+
+FASTFIRSTROW 
+等同于 OPTION (FAST 1)。有关详细信息，请参阅 SELECT 的 OPTION 字句中的 FAST。
+
+
+
+IGNORE_CONSTRAINTS 
+只适用于 INSERT 语句（当 BULK 选项与 OPENROWSET 一起使用时）。 
+指定大容量导入操作将忽略对表的任何约束。默认情况下，INSERT 检查 CHECK 和 FOREIGN KEY 约束。当为大容量导入操作指定 IGNORE_CONSTRAINTS 时，INSERT 必须忽略对目标表的这些约束。注意，您无法禁用 UNIQUE、PRIMARY KEY 或 NOT NULL 约束。 
+如果输入数据包含违反约束的行，则可能会出现希望禁用 CHECK 和 FOREIGN KEY 约束的情况。通过禁用 CHECK 和 FOREIGN KEY 约束，可以导入数据，然后使用 Transact-SQL 语句清除该数据。
+不过请注意，当忽略 CHECK 和 FOREIGN KEY 约束时，操作之后表的每个被忽略的约束都将在 sys.check_constraints 或 sys.foreign_keys 目录视图中标记为 is_not_trusted。在某些点，需要检查整个表的约束。如果在大容量导入操作之前表不为空，则重新验证约束的开销可能超过对增量数据应用 CHECK 和 FOREIGN KEY 约束的开销。
+
+
+IGNORE_TRIGGERS 
+只适用于 INSERT 语句（当 BULK 选项与 OPENROWSET 一起使用时）。 
+指定大容量导入操作将忽略为表定义的所有触发器。默认情况下，INSERT 将应用触发器。 
+仅当应用程序不依赖任何触发器，并且必须最大程度地提高性能时，才使用 IGNORE_TRIGGERS。 
+
+
+
+HOLDLOCK 
+等同于 SERIALIZABLE。
+HOLDLOCK 仅应用于那些为其指定了 HOLDLOCK 的表或视图，并且仅在使用了 HOLDLOCK 的语句定义的事务的持续时间内应用。HOLDLOCK 不能被用于包含 FOR BROWSE 选项的 SELECT 语句。
+
+
+NOLOCK 
+等同于 READUNCOMMITTED。
+
+
+NOWAIT
+指示 SQL Server 2005 数据库引擎在遇到表的锁时，立即返回一个消息。
+NOWAIT 等同于将特定表的 SET LOCK_TIMEOUT 值指定为 0。
+
+PAGLOCK 
+在通常行或键采用单个锁的地方，或者通常采用单个表锁的地方，请采用页锁。
+默认情况下，请使用与操作相对应的锁模式。
+在从 SNAPSHOT 隔离级别操作的事务中指定时，除非将 PAGLOCK 与需要锁的其他表提示（例如，UPDLOCK 和 HOLDLOCK）组合，否则不会取得页锁。
+
+
+READCOMMITTED 
+指定读操作使用锁定或行版本控制来遵循有关 READ COMMITTED 隔离级别的规则。
+如果数据库选项 READ_COMITTED_SNAPSHOT 为 OFF，则数据库引擎将在读取数据时获取共享锁，在读操作完成时释放这些锁。
+如果数据库选项 READ_COMMITTED_SNAPSHOT 为 ON，则数据库引擎不获取锁，并使用行版本控制。
+
+
+READCOMMITTEDLOCK 
+指定读操作使用锁定来遵循有关 READ COMMITTED 隔离级别的规则。
+无论 READ_COMMITTED_SNAPSHOT 数据库选项的设置如何，数据库引擎都将在读取数据时获取共享锁，在读操作完成后释放这些锁。
+
+
+
+READPAST 
+指定数据库引擎不读取由其他事务锁定的行。在大多数情况下，这同样适用于页。数据库引擎跳过这些行或页，而不是在释放锁之前阻塞当前事务。仅可在运行于 READ COMMITTED 或 REPEATABLE READ 隔离级别的事务中指定 READPAST。在从 SNAPSHOT 隔离级别操作的事务中指定时，READPAST 必须与需要锁的其他表提示（例如，UPDLOCK 和 HOLDLOCK）组合。如果指定了 READPAST，则将跳过行级别锁和页级别锁。可为 UPDATE 或 DELETE 语句中以及 FROM 子句中引用的任何表指定 READPAST。如果 READPAST 是在 UPDATE 语句中指定的，则仅当读取数据以标识要更新的记录时才应用 READPAST，而不考虑语句中指定 READPAST 的位置。不能为 INSERT 语句的 INTO 子句中的表指定 READPAST。 
+使用 READPAST 的读操作不会发生阻塞。读取外键或索引视图或者修改辅助索引时，使用 READPAST 的更新或删除操作可能发生阻塞。
+例如，假定表 T1 包含一个单精度整数列，其值为 1、2、3、4 和 5。如果事务 A 将值 3 值改为 8，但尚未提交，则 SELECT * FROM T1 (READPAST) 将生成值 1、2、4 和 5。使用 SQL Server 表实现工作队列时，READPAST 主要用于减少锁定争用。使用 READPAST 的队列读取器会跳过被其他事务锁定的队列项，跳至下一个可用的队列项，而不是等待其他事务释放锁。
+
+
+READUNCOMMITTED 
+指定允许脏读。不发布共享锁来阻止其他事务修改当前事务在读的数据，其他事务设置的排他锁不会阻碍当前事务读取锁定数据。允许脏读可能产生较多的并发操作，但其代价是读取以后会被其他事务回滚的数据修改。这可能会生成事务的错误，或向用户显示从未提交过的数据。
+READUNCOMMITTED 和 NOLOCK 提示仅适用于数据锁。所有查询（包括那些带有 READUNCOMMITTED 和 NOLOCK 提示的查询）都会在编译和执行过程中获取 Sch-S（架构稳定性）锁。因此，当并发事务持有表的 Sch-M（架构修改）锁时，将阻塞查询。例如，数据定义语言 (DDL) 操作在修改表的架构信息之前获取 Sch-M 锁。所有并发查询（包括那些使用 READUNCOMMITTED 或 NOLOCK 提示运行的查询）都会在尝试获取 Sch-S 琐时被阻塞。相反，持有 Sch-S 锁的查询将阻塞尝试获取 Sch-M 锁的并发事务。
+不能为通过插入、更新或删除操作修改过的表指定 READUNCOMMITTED 和 NOLOCK。SQL Server 查询优化器忽略 FROM 子句中应用于 UPDATE 或 DELETE 语句的目标表的 READUNCOMMITTED 和 NOLOCK 提示。
+
+
+
+REPEATABLEREAD 
+指定事务在 REPEATABLE READ 隔离级别运行时，使用相同的锁定语义执行一次扫描。
+
+
+
+ROWLOCK 
+指定通常采用页锁或表锁时，采用行锁。在从 SNAPSHOT 隔离级别操作的事务中指定时，除非将 ROWLOCK 与需要锁的其他表提示（例如，UPDLOCK 和 HOLDLOCK）组合，否则不会取得行锁。
+
+
+
+SERIALIZABLE 
+等同于 HOLDLOCK。保持共享锁直到事务完成，使共享锁更具有限制性；而不是无论事务是否完成，都在不再需要所需表或数据页时立即释放共享锁。执行扫描时所用的语义与在 SERIALIZABLE 隔离级别运行的事务的语义相同。
+
+
+TABLOCK 
+指定对表采用锁并一直保持到语句结束。如果正在读取数据，则采用共享锁。如果正在修改数据，则采用排他锁。如果同时指定了 HOLDLOCK，那么，在事务结束之前将一直保持共享表锁。
+
+如果与 OPENROWSET 大容量行集提供程序一起用于将数据导入无索引的表，则 TABLOCK 将启用多个客户端，同时将数据加载到包含优化日志记录和锁定的目标表中。
+
+TABLOCKX 
+指定对表采用排他锁直至事务完成。
+
+UPDLOCK 
+指定采用更新锁并保持到事务完成。
+
+XLOCK 
+指定采用排他锁并保持到事务完成。如果同时指定了 ROWLOCK, PAGLOCK 或 TABLOCK，则排他锁将应用于相应的粒度级别。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 字符函数 - MAKE_SET(MySQL Only) </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 字符函数 </h1>
+
+
+<h2>  MAKE_SET(MySQL Only) </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+MAKE_SET(bits,str1,str2,...) 
+返回一个设定值 (一个包含被‘,’号分开的字字符串的字符串) ，
+由在bits 组中具有相应的比特的字符串组成。
+str1 对应比特 0, str2 对应比特1,以此类推。str1, str2, ...中的 NULL值不会被添加到结果中。 
+
+
+mysql> SELECT MAKE_SET(1,'a','b','c');
+        -> 'a'
+mysql> SELECT MAKE_SET(1 | 4,'hello','nice','world');
+        -> 'hello,world'
+mysql> SELECT MAKE_SET(1 | 4,'hello','nice',NULL,'world');
+        -> 'hello'
+mysql> SELECT MAKE_SET(0,'a','b','c');
+        -> ''
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

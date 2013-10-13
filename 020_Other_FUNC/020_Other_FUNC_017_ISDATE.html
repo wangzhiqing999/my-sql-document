@@ -1,0 +1,230 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 其他函数 - 判断是否是日期 ISDATE  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 其他函数 </h1>
+
+
+<h2> 判断是否是日期 ISDATE  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+如果格式固定的话， 可以尝试 TO_DATE 再捕获异常的方式进行处理。
+
+create or replace function isdate(p_date in varchar2,  p_format  VARCHAR2 DEFAULT 'YYYY-MM-DD')
+return number
+as
+  v_date date;
+begin
+  v_date:=to_date(p_date, p_format);
+  return 1;  --正确
+  exception
+    when others then
+      return 0;
+end;
+/
+
+SQL> select isdate('2012-10-10') A,  isdate('2012-13-13') B FROM dual;
+
+         A          B
+---------- ----------
+         1          0
+
+SQL> select 
+  2   isdate('2012-10-10 12:10:15', 'YYYY-MM-DD HH24:MI:SS') A,
+  3   isdate('2012-11-13 19:70:15', 'YYYY-MM-DD HH24:MI:SS') B 
+  4  FROM dual;
+
+         A          B
+---------- ----------
+         1          0
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+如果格式固定的话， 可以尝试 TO_DATE 再捕获异常的方式进行处理。
+
+CREATE FUNCTION ISDATE(p_date varchar(10))
+RETURNS INT
+LANGUAGE SQL
+BEGIN
+  -- 错误标志
+  DECLARE v_result INT;
+  DECLARE v_date  DATE;
+  -- 定义错误处理
+  -- 如果发生错误，继续处理
+  -- 但是把标志位设置为 0
+  DECLARE CONTINUE HANDLER
+  FOR
+  SQLEXCEPTION SET v_result=0;
+  -- 错误标志，首先设置为正常.
+  SET v_result = 1;
+  SET v_date = TO_DATE(p_date, 'YYYY-MM-DD');
+  return v_result;
+END
+@
+
+
+db2 => select
+db2 (cont.) =>  isdate('2012-10-10') A,
+db2 (cont.) =>  isdate('2012-13-13') B
+db2 (cont.) => FROM
+db2 (cont.) =>  SYSIBM.SYSDUMMY1@
+
+A           B
+----------- -----------
+          1           0
+
+  1 条记录已选择。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT 'NULL'   AS  [DATA],     ISDATE(NULL)    AS  [ISDATE]
+2> UNION ALL
+3> SELECT 'ABC'    AS  [DATA],     ISDATE('Abc')   AS  [ISDATE]
+4> UNION ALL
+5> SELECT '100'    AS  [DATA],     ISDATE('100')   AS  [ISDATE]
+6> UNION ALL
+7> SELECT '-100'   AS  [DATA],     ISDATE('-100')  AS  [ISDATE]
+8> UNION ALL
+9> SELECT '.01'    AS  [DATA],     ISDATE('.01')   AS  [ISDATE]
+10> UNION ALL
+11> SELECT '1995-10-1'    AS  [DATA],     ISDATE('1995-10-1')   AS  [ISDATE]
+12> UNION ALL
+13> SELECT '1/20/95'    AS  [DATA],     ISDATE('1/20/95')   AS  [ISDATE]
+14> UNION ALL
+15> SELECT '1995-10-1 13:00'    AS  [DATA],     ISDATE('1995-10-1 13:00')   AS
+[ISDATE]
+16>
+17> go
+DATA            ISDATE
+--------------- -----------
+NULL                      0
+ABC                       0
+100                       0
+-100                      0
+.01                       0
+1995-10-1                 1
+1/20/95                   0
+1995-10-1 13:00           1
+
+(8 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+如果格式固定的话， 可以尝试 STR_TO_DATE 再捕获异常的方式进行处理。
+
+
+DELIMITER //
+
+CREATE FUNCTION isdate(p_date varchar(10))
+RETURNS int
+BEGIN
+  -- 错误标志
+  DECLARE v_result INT;
+  DECLARE v_date  DATE;
+  -- 定义错误处理
+  -- 如果发生错误，继续处理
+  -- 但是把标志位设置为 0
+  DECLARE CONTINUE HANDLER
+  FOR
+  SQLEXCEPTION SET v_result=0;  
+  -- 错误标志，首先设置为正常.
+  SET v_result = 1;  
+  SET v_date = STR_TO_DATE(p_date, '%Y-%m-%d');
+  return v_result;
+END;
+//
+
+DELIMITER ;
+
+
+mysql> select isdate('2012-10-10') A,  isdate('2012-13-13') B FROM dual;
++------+------+
+| A    | B    |
++------+------+
+|    1 |    0 |
++------+------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

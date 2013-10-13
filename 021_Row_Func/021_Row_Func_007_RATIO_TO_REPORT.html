@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 统计分析函数 - 计算百分比 RATIO_TO_REPORT </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 统计分析函数 </h1>
+
+
+<h2> 计算百分比 RATIO_TO_REPORT  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SELECT
+  RATIO_TO_REPORT(SUM(grade))
+    OVER() AS "所占百分比",
+  student_name,
+  SUM(grade) AS AllGrade
+FROM
+  test_course
+GROUP BY
+  student_name;
+
+
+所占百分比 STUDENT_NA   ALLGRADE
+---------- ---------- ----------
+.101045296 丙                145
+.087108014 丁                125
+.083623693 庚                120
+.069686411 己                100
+.128919861 甲                185
+.128919861 奎                185
+.114982578 壬                165
+.073170732 戊                105
+.097560976 辛                140
+.114982578 乙                165
+
+已选择10行。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SQL Server 没有 RATIO_TO_REPORT， 只好采用下面这种方式处理.
+
+
+SELECT
+  1.0 * SUM(grade) / sumT.sum_grade AS [所占百分比],
+  student_name,
+  SUM(grade) AS AllGrade
+FROM
+  test_course,
+  (SELECT SUM(grade) AS sum_grade FROM test_course) sumT
+GROUP BY
+  student_name,
+  sumT.sum_grade;
+
+  
+所占百分比                      student_name AllGrade
+-------------------------- ------------ -----------
+             .101045296167 丙                    145
+             .087108013937 丁                    125
+             .083623693379 庚                    120
+             .069686411149 己                    100
+             .128919860627 甲                    185
+             .128919860627 奎                    185
+             .114982578397 壬                    165
+             .073170731707 戊                    105
+             .097560975609 辛                    140
+             .114982578397 乙                    165
+
+(10 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

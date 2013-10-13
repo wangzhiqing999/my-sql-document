@@ -1,0 +1,520 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 触发器 - 与自动递增列的相关处理 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 触发器 </h1>
+
+
+<h2> 与自动递增列的相关处理   </h2>
+
+
+
+<pre><code>
+
+
+测试目标：
+
+
+有一个主表 包含一个自动递增列。
+有一个子表 包含一个自动递增列。和一个 主表ID 的列。
+
+要求写一个触发器。
+
+当主表插入数据的时候， 自动向子表插入一行数据。
+
+验证的结果：
+1、主表的自增ID 正确地增加了。
+2、子表的自增ID 正确地增加了。
+3、子表的 主表ID  正确地填写了， 与本次主表自动生成的 ID 一致。
+
+
+</code></pre>
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+-- Oracle 没有自动递增列，
+-- 就靠触发器 + 序列号了.
+
+CREATE TABLE t_AUTO_and_trigger_main (
+  id   INT ,
+  val  VARCHAR(10),
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE t_AUTO_and_trigger_sub (
+  id  INT,
+  main_id  INT,
+  val  VARCHAR(10),
+  PRIMARY KEY (id)
+);
+
+-- 创建外键(默认选项)
+ALTER TABLE t_AUTO_and_trigger_sub ADD CONSTRAINT fk_auto_tr  FOREIGN KEY (main_id)  REFERENCES  t_AUTO_and_trigger_main(id);
+
+
+CREATE SEQUENCE seq_AUTO_and_trigger_main
+  increment by 1    -- 每次递增1
+  start with 10       -- 从10开始
+  nomaxvalue      -- 没有最大值
+  minvalue 1       -- 最小值=1
+  NOCYCLE;
+
+CREATE SEQUENCE seq_AUTO_and_trigger_sub
+  increment by 1    -- 每次递增1
+  start with 100       -- 从100开始
+  nomaxvalue      -- 没有最大值
+  minvalue 1       -- 最小值=1
+  NOCYCLE;
+
+
+-- 主表触发器。
+CREATE OR REPLACE TRIGGER tr_i_AUTO_and_trigger_m
+  BEFORE INSERT ON t_AUTO_and_trigger_main
+FOR EACH ROW
+BEGIN
+  -- 设置自增id.
+  SELECT seq_AUTO_and_trigger_main.nextval INTO :new.id  FROM dual;
+  -- 插入子表数据
+  INSERT INTO t_AUTO_and_trigger_sub(main_id, val) VALUES (:new.id,  CONCAT(:new.val, 'sub'));
+END;
+/
+
+-- 子表触发器
+CREATE OR REPLACE TRIGGER tr_i_AUTO_and_trigger_s
+  BEFORE INSERT ON t_AUTO_and_trigger_sub
+FOR EACH ROW
+BEGIN
+  -- 设置自增id.
+  SELECT seq_AUTO_and_trigger_sub.nextval INTO :new.id  FROM dual;
+END;
+/
+
+
+INSERT INTO t_AUTO_and_trigger_main(val) VALUES ('Test0');
+
+SQL> INSERT INTO t_AUTO_and_trigger_main(val) VALUES ('Test0');
+INSERT INTO t_AUTO_and_trigger_main(val) VALUES ('Test0')
+            *
+ERROR 位于第 1 行:
+ORA-02291: 违反完整约束条件 (TEST.FK_AUTO_TR) - 未找到父项关键字
+ORA-06512: 在 "TEST.TR_I_AUTO_AND_TRIGGER_M", line 5
+ORA-04088: 触发器 'TEST.TR_I_AUTO_AND_TRIGGER_M' 执行过程中出错
+
+
+
+-- 这个情况 是要在主表的 AFTER 触发器里面， 去完成 子表的 插入处理.
+
+-- 主表触发器 (BEFORE 设置ID)。
+CREATE OR REPLACE TRIGGER tr_i_AUTO_and_trigger_m
+  BEFORE INSERT ON t_AUTO_and_trigger_main
+FOR EACH ROW
+BEGIN
+  -- 设置自增id.
+  SELECT seq_AUTO_and_trigger_main.nextval INTO :new.id  FROM dual;
+END;
+/
+
+-- 主表触发器 (AFTER 插入子表)。
+CREATE OR REPLACE TRIGGER tr_i_AUTO_and_trigger_m2
+  AFTER INSERT ON t_AUTO_and_trigger_main
+FOR EACH ROW
+BEGIN
+  -- 插入子表数据
+  INSERT INTO t_AUTO_and_trigger_sub(main_id, val) VALUES (:new.id,  CONCAT(:new.val, 'sub'));
+END;
+/
+
+
+SQL> INSERT INTO t_AUTO_and_trigger_main(val) VALUES ('Test1');
+
+已创建 1 行。
+
+SQL> SELECT * FROM t_AUTO_and_trigger_main;
+
+        ID VAL
+---------- --------------------
+        11 Test1
+
+SQL> SELECT * FROM t_AUTO_and_trigger_sub;
+
+        ID    MAIN_ID VAL
+---------- ---------- --------------------
+       101         11 Test1sub
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+CREATE TABLE t_AUTO_and_trigger_main (
+  id   INT   identity(10,1),
+  val  VARCHAR(10),
+  PRIMARY KEY (id)
+);
+GO
+
+CREATE TABLE t_AUTO_and_trigger_sub (
+  id  INT   identity(100,1),
+  main_id  INT,
+  val  VARCHAR(10),
+  PRIMARY KEY (id)
+);
+GO
+
+-- 创建外键(默认选项)
+ALTER TABLE t_AUTO_and_trigger_sub ADD CONSTRAINT fk_auto_tr  FOREIGN KEY (main_id)  REFERENCES  t_AUTO_and_trigger_main(id);
+GO
+
+
+CREATE TRIGGER tr_i_AUTO_and_trigger_m
+ ON t_AUTO_and_trigger_main
+FOR INSERT
+AS
+BEGIN
+  INSERT INTO t_AUTO_and_trigger_sub(main_id, val) SELECT id, val+'Sub' FROM inserted;
+END;
+GO
+
+
+
+
+1> INSERT INTO t_AUTO_and_trigger_main(val) VALUES ('Test1');
+2> go
+
+(1 行受影响)
+1> SELECT * FROM t_AUTO_and_trigger_main;
+2> SELECT * FROM t_AUTO_and_trigger_sub;
+3> go
+id          val
+----------- ----------
+         10 Test1
+
+(1 行受影响)
+id          main_id     val
+----------- ----------- ----------
+        100          10 Test1Sub
+
+(1 行受影响)
+
+
+
+1> INSERT INTO t_AUTO_and_trigger_main(val)
+2> SELECT 'Test2' UNION ALL
+3> SELECT 'Test3';
+4> GO
+
+(2 行受影响)
+1> SELECT * FROM t_AUTO_and_trigger_main;
+2> SELECT * FROM t_AUTO_and_trigger_sub;
+3> go
+id          val
+----------- ----------
+         10 Test1
+         11 Test2
+         12 Test3
+
+(3 行受影响)
+id          main_id     val
+----------- ----------- ----------
+        100          10 Test1Sub
+        101          12 Test3Sub
+        102          11 Test2Sub
+
+(3 行受影响)
+
+
+注意到， 当一条SQL插入多行数据的情况下，子表的 id 顺序， 不是很满足预期。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+CREATE TABLE t_AUTO_and_trigger_main (
+  id   INT  AUTO_INCREMENT,
+  val  VARCHAR(10),
+  PRIMARY KEY (id)
+) AUTO_INCREMENT = 10;
+
+CREATE TABLE t_AUTO_and_trigger_sub (
+  id  INT AUTO_INCREMENT,
+  main_id  INT,
+  val  VARCHAR(10),
+  PRIMARY KEY (id)
+) AUTO_INCREMENT = 100;
+
+
+
+
+
+mysql> -- 没有触发器的情况下.
+mysql> INSERT INTO t_AUTO_and_trigger_main(val) VALUES ('NO id');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select last_insert_id() as id;
++----+
+| id |
++----+
+| 10 |
++----+
+1 row in set (0.01 sec)
+
+mysql>
+mysql>
+mysql> INSERT INTO t_AUTO_and_trigger_sub(main_id, val) VALUES (10, 'NO id');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select last_insert_id() as id;
++-----+
+| id  |
++-----+
+| 100 |
++-----+
+1 row in set (0.00 sec)
+
+
+
+
+-- 首先，模拟一个 插入主表的时候， 顺便插入一行子表的触发器.
+DELIMITER //
+CREATE TRIGGER tr_i_AUTO_and_trigger_m
+  BEFORE INSERT ON t_AUTO_and_trigger_main
+FOR EACH ROW
+BEGIN
+  INSERT INTO t_AUTO_and_trigger_sub(main_id, val) VALUES (new.ID,  CONCAT(new.val, 'sub'));
+END;
+//
+DELIMITER ;
+
+
+mysql> INSERT INTO t_AUTO_and_trigger_main(val) VALUES ('Test1');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select last_insert_id() as id;
++----+
+| id |
++----+
+| 11 |
++----+
+1 row in set (0.00 sec)
+
+
+mysql> SELECT * FROM t_AUTO_and_trigger_main;
++----+-------+
+| id | val   |
++----+-------+
+| 10 | NO id |
+| 11 | Test1 |
++----+-------+
+2 rows in set (0.01 sec)
+
+mysql> SELECT * FROM t_AUTO_and_trigger_sub;
++-----+---------+----------+
+| id  | main_id | val      |
++-----+---------+----------+
+| 100 |      10 | NO id    |
+| 101 |       0 | Test1sub |
++-----+---------+----------+
+2 rows in set (0.00 sec)
+
+注意： 这里检测到， 触发器那里， 对于 new.ID,  未能正确的获取到。
+
+
+
+-- 删除掉 BEFORE 触发器， 尝试使用 AFTER 触发器的方式来处理.
+DROP TRIGGER tr_i_AUTO_and_trigger_m;
+
+
+DELIMITER //
+CREATE TRIGGER tr_i_AUTO_and_trigger_m
+  AFTER INSERT ON t_AUTO_and_trigger_main
+FOR EACH ROW
+BEGIN
+  INSERT INTO t_AUTO_and_trigger_sub(main_id, val) VALUES (new.ID,  CONCAT(new.val, 'sub'));
+END;
+//
+DELIMITER ;
+
+
+
+mysql> INSERT INTO t_AUTO_and_trigger_main(val) VALUES ('Test2');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select last_insert_id() as id;
++----+
+| id |
++----+
+| 12 |
++----+
+1 row in set (0.00 sec)
+
+
+mysql> SELECT * FROM t_AUTO_and_trigger_main;
++----+-------+
+| id | val   |
++----+-------+
+| 10 | NO id |
+| 11 | Test1 |
+| 12 | Test2 |
++----+-------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT * FROM t_AUTO_and_trigger_sub;
++-----+---------+----------+
+| id  | main_id | val      |
++-----+---------+----------+
+| 100 |      10 | NO id    |
+| 101 |       0 | Test1sub |
+| 102 |      12 | Test2sub |
++-----+---------+----------+
+3 rows in set (0.00 sec)
+
+
+使用 AFTER 触发器之后， 数据处理正常了。
+
+
+<hr/>
+
+-- 为了确保数据完整性。
+-- 测试在有外键约束的情况下， 触发器是否可以完成处理。
+-- 首先，修改前面那个出错的数据.
+update t_AUTO_and_trigger_sub set main_id = 11 where main_id = 0;
+
+
+-- 创建外键(默认选项)
+ALTER TABLE t_AUTO_and_trigger_sub ADD CONSTRAINT fk_auto_tr  FOREIGN KEY (main_id)  REFERENCES  t_AUTO_and_trigger_main(id);
+
+
+mysql> INSERT INTO t_AUTO_and_trigger_main(val) VALUES ('Test3');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select last_insert_id() as id;
++----+
+| id |
++----+
+| 13 |
++----+
+1 row in set (0.00 sec)
+
+mysql> SELECT * FROM t_AUTO_and_trigger_main;
++----+-------+
+| id | val   |
++----+-------+
+| 10 | NO id |
+| 11 | Test1 |
+| 12 | Test2 |
+| 13 | Test3 |
++----+-------+
+4 rows in set (0.00 sec)
+
+mysql> SELECT * FROM t_AUTO_and_trigger_sub;
++-----+---------+----------+
+| id  | main_id | val      |
++-----+---------+----------+
+| 100 |      10 | NO id    |
+| 101 |      11 | Test1sub |
+| 102 |      12 | Test2sub |
+| 103 |      13 | Test3sub |
++-----+---------+----------+
+4 rows in set (0.00 sec)
+
+
+结果显示， 在有外键约束的情况下， 触发器能够正常处理.
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

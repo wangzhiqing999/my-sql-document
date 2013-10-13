@@ -1,0 +1,363 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> ROLLUP 与 CUBE 查询 - ROLLUP-调整NULL显示 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> ROLLUP 与 CUBE 查询 </h1>
+
+
+<h2> ROLLUP-调整NULL显示  </h2>
+
+
+通过 判断 第一个字段 空/非空。 来决定是否是 “总计”
+第二个字段之后的，需要通过 GROUPING 来判断，该行是 总计行，还是小计行。
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    NVL(sale_item, 'ALL') AS item,
+  3    CASE
+  4      WHEN GROUPING(sale_item) = 1
+  5        AND GROUPING(TO_CHAR(sale_date, 'Q')) = 1
+  6        THEN 'ALL'
+  7      WHEN GROUPING(sale_item) = 0
+  8        AND GROUPING(TO_CHAR(sale_date, 'Q')) = 1
+  9        THEN 'SUB'
+ 10      ELSE
+ 11        TO_CHAR(sale_date, 'Q')
+ 12    END AS sale_q,
+ 13    SUM(sale_money) AS money
+ 14  FROM
+ 15    sale_report
+ 16  GROUP BY
+ 17    ROLLUP(sale_item, TO_CHAR(sale_date, 'Q'));
+
+ITEM   SALE_Q      MONEY
+------ ------ ----------
+A      1          180810
+A      2          182819
+A      3          184828
+A      4          184828
+A      SUB        733285
+B      1             180
+B      2             455
+B      3             735
+B      4            1012
+B      SUB          2382
+C      1            1398
+
+ITEM   SALE_Q      MONEY
+------ ------ ----------
+C      2            1426
+C      3            1457
+C      4            1457
+C      SUB          5738
+ALL    ALL        741405
+
+16 rows selected.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+SELECT
+  NVL(sale_item, 'ALL') AS item,
+  CASE
+    WHEN GROUPING(sale_item) = 1
+      AND GROUPING(TO_CHAR(sale_date, 'Q')) = 1
+      THEN 'ALL'
+    WHEN GROUPING(sale_item) = 0
+      AND GROUPING(TO_CHAR(sale_date, 'Q')) = 1
+      THEN 'SUB'
+    ELSE
+      TO_CHAR(sale_date, 'Q')
+  END AS sale_q,
+  SUM(sale_money) AS money
+FROM
+  sale_report
+GROUP BY
+  ROLLUP(sale_item, TO_CHAR(sale_date, 'Q'));
+
+报错：
+SQL0119N  在 SELECT 子句、HAVING 子句 或 ORDER BY 子句中指定的以 "SALE_DATE"
+开始的表达式未在 GROUP BY 子句中指定，或者它在 SELECT 子句、HAVING 子句或 ORDER
+BY 子句中，具有列函数，但未指定 GROUP BY 子句。  SQLSTATE=42803
+
+
+估计是 TO_CHAR(sale_date, 'Q') 的判断上面， 存在一些问题。
+
+
+
+SELECT
+  NVL(sale_item, 'ALL') AS item,
+  SUM(sale_money) AS money
+FROM
+  sale_report
+GROUP BY
+  ROLLUP(sale_item);
+
+ITEM MONEY
+---- ---------------------------------
+ALL                          741405.00
+A                            733285.00
+B                              2382.00
+C                              5738.00
+
+  4 条记录已选择。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SELECT
+  ISNULL(sale_item, '总计') AS item,
+  CASE
+    WHEN GROUPING(sale_item) = 1
+      AND GROUPING(STR(DATEPART(qq, sale_date))) = 1
+      THEN '总计'
+    WHEN GROUPING(sale_item) = 0
+      AND GROUPING(STR(DATEPART(qq, sale_date))) = 1
+      THEN '小计'
+    ELSE
+      STR(DATEPART(qq, sale_date))
+  END AS sale_q,
+  SUM(sale_money) [money]
+FROM
+  sale_report
+GROUP BY
+  sale_item, STR(DATEPART(qq, sale_date)) WITH ROLLUP;
+
+item sale_q     money
+---- ---------- ----------------------------------------
+A             1                                180810.00
+A             2                                182819.00
+A             3                                184828.00
+A             4                                184828.00
+A    小计                                        733285.00
+B             1                                   180.00
+B             2                                   455.00
+B             3                                   735.00
+B             4                                  1012.00
+B    小计                                          2382.00
+C             1                                  1398.00
+C             2                                  1426.00
+C             3                                  1457.00
+C             4                                  1457.00
+C    小计                                          5738.00
+T             3                                   100.00
+T    小计                                           100.00
+总    总计                                        741505.00
+
+(18 行受影响)
+
+
+<hr/>
+如果希望 总计、小计显示在上面， 那么 ORDER BY 设置一下.
+
+
+SELECT
+  ISNULL(sale_item, '总计') AS item,
+  CASE
+    WHEN GROUPING(sale_item) = 1
+      AND GROUPING(STR(DATEPART(qq, sale_date))) = 1
+      THEN '总计'
+    WHEN GROUPING(sale_item) = 0
+      AND GROUPING(STR(DATEPART(qq, sale_date))) = 1
+      THEN '小计'
+    ELSE
+      STR(DATEPART(qq, sale_date))
+  END AS sale_q,
+  SUM(sale_money) [money]
+FROM
+  sale_report
+GROUP BY
+  sale_item, STR(DATEPART(qq, sale_date)) WITH ROLLUP
+ORDER BY
+  GROUPING(sale_item) desc, item,  
+  GROUPING(STR(DATEPART(qq, sale_date))) desc
+
+
+item sale_q     money
+---- ---------- ----------------------------------------
+总    总计                                        741505.00
+A    小计                                        733285.00
+A             1                                180810.00
+A             2                                182819.00
+A             3                                184828.00
+A             4                                184828.00
+B    小计                                          2382.00
+B             1                                   180.00
+B             2                                   455.00
+B             3                                   735.00
+B             4                                  1012.00
+C    小计                                          5738.00
+C             1                                  1398.00
+C             2                                  1426.00
+C             3                                  1457.00
+C             4                                  1457.00
+T    小计                                           100.00
+T             3                                   100.00
+
+(18 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT
+    ->   IFNULL(sale_item, 'ALL') AS sale_item,
+    ->   IFNULL(QUARTER(sale_date), 5) AS sale_quarter,
+    ->   SUM(sale_money)
+    -> FROM
+    ->   sale_report
+    -> GROUP BY
+    ->   sale_item, QUARTER(sale_date)  WITH ROLLUP
+    -> //
++-----------+--------------+-----------------+
+| sale_item | sale_quarter | SUM(sale_money) |
++-----------+--------------+-----------------+
+| A         |            1 |       180810.00 |
+| A         |            2 |       182819.00 |
+| A         |            3 |       184828.00 |
+| A         |            4 |       184828.00 |
+| A         |            4 |       733285.00 |
+| B         |            1 |          180.00 |
+| B         |            2 |          455.00 |
+| B         |            3 |          735.00 |
+| B         |            4 |         1012.00 |
+| B         |            4 |         2382.00 |
+| C         |            1 |         1398.00 |
+| C         |            2 |         1426.00 |
+| C         |            3 |         1457.00 |
+| C         |            4 |         1457.00 |
+| C         |            4 |         5738.00 |
+| ALL       |            4 |       741405.00 |
++-----------+--------------+-----------------+
+16 rows in set, 1 warning (0.00 sec)
+
+注：IFNULL 对表达式处理有一定的问题.
+
+
+
+
+普通 字符类型， 无此问题：
+
+CREATE TABLE test_ROLLUP_1 (
+  StateCode  CHAR(6),
+  DepCode 	 CHAR(6),
+  SendMoney  INT
+);
+
+INSERT INTO test_ROLLUP_1
+SELECT '100001',  '310001',  3000  UNION ALL
+SELECT '100001',  '310002',  1500  UNION ALL
+SELECT '100002',  '320001',  4200  UNION ALL
+SELECT '100003',  '330001',  1800  UNION ALL
+SELECT '100003',  '330002',  2100  UNION ALL
+SELECT '100004',  '340001',  2500;
+
+
+SELECT
+  IFNULL(StateCode, 'Total:')  AS  StateCode,
+  IFNULL(DepCode, 'State Total:') AS  DepCode,
+  SUM(SendMoney) AS SendMoney
+FROM
+  test_ROLLUP_1
+GROUP BY
+  StateCode,  DepCode   WITH ROLLUP;
+  
+
+
++-----------+--------------+-----------+
+| StateCode | DepCode      | SendMoney |
++-----------+--------------+-----------+
+| 100001    | 310001       |      3000 |
+| 100001    | 310002       |      1500 |
+| 100001    | State Total: |      4500 |
+| 100002    | 320001       |      4200 |
+| 100002    | State Total: |      4200 |
+| 100003    | 330001       |      1800 |
+| 100003    | 330002       |      2100 |
+| 100003    | State Total: |      3900 |
+| 100004    | 340001       |      2500 |
+| 100004    | State Total: |      2500 |
+| Total:    | State Total: |     15100 |
++-----------+--------------+-----------+
+11 rows in set, 2 warnings (0.00 sec)
+
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

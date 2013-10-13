@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库会话的基本参数设置 SET - 允许将显式值插入表的标识列中 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库会话的基本参数设置 SET </h1>
+
+
+<h2>  允许将显式值插入表的标识列中 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+SET IDENTITY_INSERT [ database_name . [ schema_name ] . ] table { ON | OFF }
+
+参数
+database_name 
+指定的表所在的数据库的名称。
+schema_name 
+表所属的架构的名称。
+table 
+包含标识列的表的名称。
+
+备注
+任何时候，一个会话中只有一个表的 IDENTITY_INSERT 属性可以设置为 ON。如果某个表已将此属性设置为 ON，
+则对另一个表发出 SET IDENTITY_INSERT ON 语句时，
+SQL Server 2005 将返回一个错误信息，指出 SET IDENTITY_INSERT 已设置为 ON，并报告已将其属性设置为 ON 的表。
+
+如果插入值大于表的当前标识值，则 SQL Server 自动将新插入值作为当前标识值使用。
+SET IDENTITY_INSERT 的设置是在执行或运行时设置的，而不是在分析时设置的。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

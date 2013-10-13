@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 大小写敏感问题 - 排序规则冲突的处理 - JOIN  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 大小写敏感问题 </h1>
+
+
+<h2> 排序规则冲突的处理 - JOIN  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+首先 模拟出一个 冲突的环境
+CREATE TABLE test_one (
+  name nvarchar(10) ,
+  val  INT
+)
+
+CREATE TABLE test_two (
+  name nvarchar(10) ,
+  val  INT
+)
+go
+
+ALTER TABLE test_one
+   ALTER COLUMN name NVARCHAR(10) COLLATE Latin1_General_CI_AS
+go
+
+ALTER TABLE test_two
+   ALTER COLUMN name NVARCHAR(10) COLLATE Chinese_Taiwan_Stroke_CI_AS
+go
+
+INSERT INTO test_one 
+  SELECT '一', 111 UNION ALL
+  SELECT '二', 211 UNION ALL
+  SELECT '三', 311
+go
+
+INSERT INTO test_two
+  SELECT '一', 122 UNION ALL
+  SELECT '二', 222 UNION ALL
+  SELECT '三', 322
+go
+
+SELECT
+  test_one.name,
+  test_one.val,
+  test_two.val AS val2
+FROM
+  test_one 
+    JOIN test_two
+      ON (test_one.name = test_two.name)
+go
+
+消息 468，级别 16，状态 9，服务器 ZQWANG\SQLEXPRESS，第 9 行
+无法解决 equal to 运算中 "Chinese_Taiwan_Stroke_CI_AS" 和 "Latin1_General_CI_AS"
+ 之间的排序规则冲突。
+
+冲突的解决
+通过在关联的时候，强制指定排序规则，来避免冲突。
+
+SELECT
+  test_one.name,
+  test_one.val,
+  test_two.val AS val2
+FROM
+  test_one 
+    JOIN test_two
+      ON (test_one.name = test_two.name   
+COLLATE Chinese_Taiwan_Stroke_CI_AS) 
+go
+
+name       val         val2
+---------- ----------- -----------
+一                  111         122
+二                  211         222
+三                  311         322
+
+(3 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+
+-- 首先 模拟出一个 冲突的环境
+
+CREATE TABLE test_one (
+  name varchar(10)  CHARACTER SET gbk DEFAULT NULL,
+  val  INT
+) DEFAULT CHARSET gbk;
+
+
+CREATE TABLE test_two (
+  name varchar(10) CHARACTER SET utf8 DEFAULT NULL,
+  val  INT
+) DEFAULT CHARSET utf8 ;
+
+
+
+INSERT INTO test_one 
+  SELECT '一', 111 UNION ALL
+  SELECT '二', 211 UNION ALL
+  SELECT '三', 311
+;
+
+INSERT INTO test_two
+  SELECT '一', 122 UNION ALL
+  SELECT '二', 222 UNION ALL
+  SELECT '三', 322
+;
+
+
+SELECT
+  test_one.name,
+  test_one.val,
+  test_two.val AS val2
+FROM
+  test_one 
+    JOIN test_two
+      ON (test_one.name = test_two.name)
+;
+
+ERROR 1267 (HY000): Illegal mix of collations (gbk_chinese_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+
+
+注：
+上面这种情况， 在一个 mysql-4.1.10a-win32 的环境下， 测试出现了。
+在一个 mysql-5.6.13-winx64 的环境下， 不产生这样的问题...
+
+
+暂时没有找到不修改表字符集， 简单在查询语句上处理的解决办法。
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

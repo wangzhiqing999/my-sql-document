@@ -1,0 +1,388 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 测试表与测试数据 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2>  查询部分使用下面的测试表与测试数据  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+CREATE TABLE SALE_REPORT (
+   SALE_DATE  DATE NOT NULL ,
+   SALE_ITEM  VARCHAR(2) NOT NULL ,
+   SALE_MONEY DECIMAL(10,2) NOT NULL
+);
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+CREATE TABLE SALE_REPORT (
+      SALE_DATE  DATE NOT NULL ,
+      SALE_ITEM  VARCHAR(2) NOT NULL ,
+      SALE_MONEY DECIMAL(10,2) NOT NULL
+);
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+CREATE TABLE SALE_REPORT (
+     SALE_DATE  DATETIME NOT NULL ,
+     SALE_ITEM  VARCHAR(2) NOT NULL ,
+     SALE_MONEY DECIMAL(10,2) NOT NULL
+)
+go
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+CREATE TABLE SALE_REPORT (
+     SALE_DATE  DATETIME NOT NULL ,
+     SALE_ITEM  VARCHAR(2) NOT NULL ,
+     SALE_MONEY DECIMAL(10,2) NOT NULL
+);
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+CREATE TABLE SALE_REPORT (
+   SALE_DATE  DATE NOT NULL ,
+   SALE_ITEM  VARCHAR(2) NOT NULL ,
+   SALE_MONEY DECIMAL(10,2) NOT NULL
+);
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+CREATE TABLE SALE_REPORT (
+   SALE_DATE  DATE NOT NULL ,
+   SALE_ITEM  VARCHAR(2) NOT NULL ,
+   SALE_MONEY DECIMAL(10,2) NOT NULL
+);
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+
+
+
+
+
+
+
+测试数据
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+DECLARE
+  v_begin_day  DATE;
+  v_end_day  DATE;
+BEGIN
+  v_begin_day := TO_DATE('2009-01-01', 'YYYY-MM-DD');
+  v_end_day := TO_DATE('2013-01-01', 'YYYY-MM-DD');
+
+  WHILE v_begin_day &lt; v_end_day LOOP
+    INSERT INTO SALE_REPORT VALUES(v_begin_day,  'A',  TO_NUMBER( TO_CHAR(v_begin_day, 'YYYY') ));
+    INSERT INTO SALE_REPORT VALUES(v_begin_day,  'B',  TO_NUMBER( TO_CHAR(v_begin_day, 'MM') ));
+    INSERT INTO SALE_REPORT VALUES(v_begin_day,  'C',  TO_NUMBER( TO_CHAR(v_begin_day, 'DD') ));
+    v_begin_day := v_begin_day + 1;
+  END LOOP;
+END;
+/
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+BEGIN
+  DECLARE  v_begin_day  DATE;
+  DECLARE  v_end_day  DATE;
+  SET v_begin_day = TO_DATE('2009-01-01', 'YYYY-MM-DD');
+  SET v_end_day = TO_DATE('2010-01-01', 'YYYY-MM-DD');
+  WHILE v_begin_day &lt;  v_end_day DO
+    INSERT INTO SALE_REPORT VALUES
+      (v_begin_day,  'A', Year(v_begin_day) );
+    INSERT INTO SALE_REPORT VALUES
+      (v_begin_day,  'B', Month(v_begin_day) );
+    INSERT INTO SALE_REPORT VALUES
+      (v_begin_day,  'C', DAY(v_begin_day) );
+    SET v_begin_day = v_begin_day + 1 DAY;
+  END WHILE;
+END@
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+DECLARE
+  @v_begin_day DATETIME, @v_end_day DATETIME;
+BEGIN
+  SET @v_begin_day = '2009-01-01';
+  SET @v_end_day = '2010-01-01';
+
+  WHILE @v_begin_day &lt;  @v_end_day
+  BEGIN
+    INSERT INTO SALE_REPORT VALUES(@v_begin_day,  'A',   YEAR(@v_begin_day) );
+    INSERT INTO SALE_REPORT VALUES(@v_begin_day,  'B',   MONTH(@v_begin_day) );
+    INSERT INTO SALE_REPORT VALUES(@v_begin_day,  'C',   DAY(@v_begin_day) );
+    SET @v_begin_day = @v_begin_day + 1;
+  END;
+END;
+go
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+DELIMITER //
+CREATE PROCEDURE CreateReportData()
+BEGIN
+  DECLARE  v_begin_day  DATE;
+  DECLARE  v_end_day  DATE;
+
+  SET v_begin_day = STR_TO_DATE('2009-01-01', '%Y-%m-%d');
+  SET v_end_day = STR_TO_DATE('2013-01-01', '%Y-%m-%d');
+
+  WHILE v_begin_day &lt;  v_end_day DO
+    INSERT INTO SALE_REPORT VALUES
+      (v_begin_day,  'A',
+          Year(v_begin_day) );
+    INSERT INTO SALE_REPORT VALUES
+      (v_begin_day,  'B',
+          Month(v_begin_day) );
+    INSERT INTO SALE_REPORT VALUES
+      (v_begin_day,  'C',
+          DAY(v_begin_day) );
+    SET v_begin_day = DATE_ADD(v_begin_day, INTERVAL 1 DAY);
+  END WHILE;
+END;
+//
+
+DELIMITER ;
+
+call CreateReportData();
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+INSERT INTO SALE_REPORT
+SELECT date('2009-01-15'),	'A',  1		UNION  ALL
+SELECT date('2009-02-15'),	'A',  2		UNION  ALL
+SELECT date('2009-03-15'),	'A',  3		UNION  ALL
+SELECT date('2009-04-15'),	'A',  4		UNION  ALL
+SELECT date('2009-05-15'),	'A',  5		UNION  ALL
+SELECT date('2009-06-15'),	'A',  6		UNION  ALL
+SELECT date('2009-01-15'),	'B',  11	UNION  ALL
+SELECT date('2009-02-15'),	'B',  12	UNION  ALL
+SELECT date('2009-03-15'),	'B',  13	UNION  ALL
+SELECT date('2009-04-15'),	'B',  14	UNION  ALL
+SELECT date('2009-05-15'),	'B',  15	UNION  ALL
+SELECT date('2009-06-15'),	'B',  16;
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+CREATE OR REPLACE FUNCTION InitQueryTestData() RETURNS void AS
+$$
+DECLARE
+  v_begin_day  DATE;
+  v_end_day  DATE;
+BEGIN
+  v_begin_day := '2009-01-01';
+  v_end_day := '2013-01-01';
+
+  WHILE v_begin_day &lt; v_end_day LOOP
+    INSERT INTO SALE_REPORT VALUES(v_begin_day,  'A',  EXTRACT(year FROM v_begin_day) );
+    INSERT INTO SALE_REPORT VALUES(v_begin_day,  'B',  EXTRACT(month FROM v_begin_day) );
+    INSERT INTO SALE_REPORT VALUES(v_begin_day,  'C',  EXTRACT(day FROM  v_begin_day) );
+    v_begin_day := v_begin_day + 1;
+  END LOOP;
+END;
+$$
+LANGUAGE plpgsql;
+
+SELECT InitQueryTestData();
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+
+db.SALE_REPORT.insert( {SALE_DATE:ISODate("2009-01-15"),  SALE_ITEM:"A",  SALE_MONEY: 1} )
+db.SALE_REPORT.insert( {SALE_DATE:ISODate("2009-02-15"),  SALE_ITEM:"A",  SALE_MONEY: 2} )
+db.SALE_REPORT.insert( {SALE_DATE:ISODate("2009-03-15"),  SALE_ITEM:"A",  SALE_MONEY: 3} )
+db.SALE_REPORT.insert( {SALE_DATE:ISODate("2009-04-15"),  SALE_ITEM:"A",  SALE_MONEY: 4} )
+db.SALE_REPORT.insert( {SALE_DATE:ISODate("2009-05-15"),  SALE_ITEM:"A",  SALE_MONEY: 5} )
+db.SALE_REPORT.insert( {SALE_DATE:ISODate("2009-05-16"),  SALE_ITEM:"A",  SALE_MONEY: 6} )
+
+db.SALE_REPORT.insert( {SALE_DATE:ISODate("2009-01-15"),  SALE_ITEM:"B",  SALE_MONEY: 11} )
+db.SALE_REPORT.insert( {SALE_DATE:ISODate("2009-02-15"),  SALE_ITEM:"B",  SALE_MONEY: 12} )
+db.SALE_REPORT.insert( {SALE_DATE:ISODate("2009-03-15"),  SALE_ITEM:"B",  SALE_MONEY: 13} )
+db.SALE_REPORT.insert( {SALE_DATE:ISODate("2009-04-15"),  SALE_ITEM:"B",  SALE_MONEY: 14} )
+db.SALE_REPORT.insert( {SALE_DATE:ISODate("2009-05-15"),  SALE_ITEM:"B",  SALE_MONEY: 15} )
+db.SALE_REPORT.insert( {SALE_DATE:ISODate("2009-06-15"),  SALE_ITEM:"B",  SALE_MONEY: 16} )
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典表 - 存档模式 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典表 </h1>
+
+
+<h2> 存档模式  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SELECT
+  log_mode
+FROM
+  v$database;
+
+
+<b>
+将数据库切换为 “存档模式” 的处理。
+</b>
+
+SQL> conn / as sysdba
+已连接。
+
+SQL> SELECT
+  2    log_mode
+  3  FROM
+  4    v$database;
+
+LOG_MODE
+------------
+<span class="KeyInfo">NOARCHIVELOG</span>
+
+SQL> shutdown
+数据库已经关闭。
+已经卸载数据库。
+ORACLE 例程已经关闭。
+SQL>
+SQL> startup mount
+ORACLE 例程已经启动。
+
+Total System Global Area  135338868 bytes
+Fixed Size                   453492 bytes
+Variable Size             109051904 bytes
+Database Buffers           25165824 bytes
+Redo Buffers                 667648 bytes
+数据库装载完毕。
+SQL>
+SQL> <span class="KeyInfo">ALTER DATABASE ARCHIVELOG;</span>
+
+数据库已更改。
+
+SQL> <span class="KeyInfo">alter system set log_archive_start=true scope=spfile;</span>
+
+系统已更改。
+
+
+SQL> ALTER DATABASE OPEN;
+
+数据库已更改。
+
+SQL> SELECT
+  2    log_mode
+  3  FROM
+  4    v$database;
+
+LOG_MODE
+------------
+<span class="KeyInfo">ARCHIVELOG</span>
+
+SQL>
+
+
+
+
+<b>
+设置 “自动存档” 的处理
+</b>
+alter system set log_archive_start=true scope=spfile;
+为设置 “自动存档” 的处理
+
+
+
+
+<b>
+手动执行存档的处理
+</b>
+ALTER SYSTEM ARCHIVE LOG CURRENT;
+手动执行存档.
+
+-- 修改日期显示格式.
+ALTER session SET nls_date_format='yyyy-mm-dd hh24:mi:ss';
+
+-- 查询归档日志信息.
+SQL> SELECT sequence#, name, first_time, next_time FROM v$archived_log ORDER BY sequence#;
+
+ SEQUENCE#
+----------
+NAME
+-----------------------------------------
+
+FIRST_TIME          NEXT_TIME
+------------------- -------------------
+         2
+F:\ORACLE\ORA92\RDBMS\ARC00002.001
+2013-02-20 13:24:45 2013-02-20 14:58:58
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

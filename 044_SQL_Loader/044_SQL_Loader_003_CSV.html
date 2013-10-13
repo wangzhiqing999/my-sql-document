@@ -1,0 +1,236 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 大容量导入/导出操作 - 存在特殊字符情况的处理 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 大容量导入/导出操作 </h1>
+
+
+<h2>  存在特殊字符情况的处理 </h2>
+
+
+<h4>Book1.csv</h4>
+
+<pre><code>
+
+编号,名称,说明
+1,测试数据1,"测试CSV文件中,有逗号"
+2,测试数据2,"测试CSV文件中有""双引号"""
+3,测试数据3,"测试CSV文件中,有逗号和""双引号"""
+4,测试数据4,普通数据
+
+</code></pre>
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+目标表：
+CREATE TABLE Test_Book1 (
+  id    int,
+  name  VARCHAR(10),
+  data  VARCHAR(100)
+);
+
+SQLLDR 控制文件：
+Book1.ctl
+LOAD DATA
+INTO TABLE Test_Book1
+FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"'
+(id, Name, data)
+
+下面的 skip = 1 意思是，跳过第一行 标题行。
+D:\temp>sqlldr userid=test/test123 control=Book1.ctl data=Book1.csv skip=1
+
+SQL*Loader: Release 10.2.0.1.0 - Production on 星期日 8月 21 12:06:28 2011
+
+Copyright (c) 1982, 2005, Oracle.  All rights reserved.
+
+达到提交点 - 逻辑记录计数 4
+
+SQL> select * from Test_Book1;
+
+        ID NAME
+---------- ----------
+DATA
+-----------------------------------
+         1 测试数据1
+测试CSV文件中,有逗号
+
+         2 测试数据2
+测试CSV文件中有"双引号"
+
+         3 测试数据3
+测试CSV文件中,有逗号和"双引号"
+
+
+        ID NAME
+---------- ----------
+DATA
+-----------------------------------
+         4 测试数据4
+普通数据
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> CREATE TABLE Test_Book1 (
+    ->   id    int,
+    ->   name  VARCHAR(10),
+    ->   data  VARCHAR(100)
+    -> );
+Query OK, 0 rows affected (0.05 sec)
+
+
+下面的 lines terminated by '\r\n' 是 要求换行符号,为 windows的换行
+下面的 ignore 1 lines是 忽略第一行的标题行。
+mysql> LOAD DATA INFILE 'f:/Book1.csv'
+    -> INTO TABLE Test_Book1
+    -> FIELDS TERMINATED BY ','
+    -> OPTIONALLY ENCLOSED BY '"'
+    -> lines terminated by '\r\n'
+    -> ignore 1 lines
+    -> (id, name, data);
+Query OK, 4 rows affected (0.00 sec)
+Records: 4  Deleted: 0  Skipped: 0  Warnings: 0
+
+mysql> select * from test_book1;
++------+-----------+--------------------------------+
+| id   | name      | data                           |
++------+-----------+--------------------------------+
+|    1 | 测试数据1 | 测试CSV文件中,有逗号           |
+|    2 | 测试数据2 | 测试CSV文件中有"双引号"        |
+|    3 | 测试数据3 | 测试CSV文件中,有逗号和"双引号" |
+|    4 | 测试数据4 | 普通数据                       |
++------+-----------+--------------------------------+
+4 rows in set (0.00 sec)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+目标表：
+CREATE TABLE Test_Book1 (
+  id    int,
+  name  VARCHAR(10),
+  data  VARCHAR(100)
+);
+
+
+Test=# COPY Test_Book1 FROM 'F:\PostgreSQL\Book1.csv'
+Test-# CSV HEADER;
+COPY 4
+Test=# select * from Test_Book1;
+ id |   name    |              data
+----+-----------+--------------------------------
+  1 | 测试数据1 | 测试CSV文件中,有逗号
+  2 | 测试数据2 | 测试CSV文件中有"双引号"
+  3 | 测试数据3 | 测试CSV文件中,有逗号和"双引号"
+  4 | 测试数据4 | 普通数据
+(4 行记录)
+
+
+
+注：
+
+CSV
+打开逗号分隔变量（CSV）模式。
+
+HEADER
+声明文件包含一个头标识行，包含文件中每个字段的名字。
+输出时，的一行包含表的字段名，输入时，第一行被忽略。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,388 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 事务处理 - 死锁 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 事务处理 </h1>
+
+
+<h2>  死锁 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+会话1：
+SQL> select * from test_main;
+        ID VALUE
+---------- --------------------
+         5 Five-5
+         2 TWO
+         3 THREE-5
+         1 ONE
+
+SQL> UPDATE test_main SET value='Two-5' WHERE id=2;
+1 row updated.
+
+会话2：
+SQL> UPDATE test_main SET value='THREE' WHERE id=3;
+1 row updated.
+
+会话1：
+SQL> UPDATE test_main SET value='THREE-55' WHERE id=3;
+由于 id=3 的行，已经被会话2修改，并锁定，因此会话1当前进入等待状态。
+
+会话2：
+SQL> UPDATE test_main SET value='Two-2' WHERE id=2;
+由于 id=2 的行，已经被会话1修改，并锁定，因此会话2当前进入等待状态。
+
+会话1：
+UPDATE test_main SET value='THREE-55' WHERE id=3
+       *
+ERROR at line 1:
+ORA-00060: deadlock detected while waiting for resource
+Oracle 检测到 死锁的发生，断开发生死锁的一方
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+会话1：
+db2 => select * from test_main@
+
+ID          VALUE
+----------- ----------
+          1 ONE
+          2 TWO
+          5 Five-5
+          3 THREE-5
+
+  4 条记录已选择。
+  
+  
+db2 => UPDATE test_main SET value='Two-5' WHERE id=2@
+DB20000I  SQL 命令成功完成。
+
+
+
+
+会话2：
+db2 => UPDATE test_main SET value='THREE' WHERE id=3@
+DB20000I  SQL 命令成功完成。
+
+
+
+会话1：
+db2 => UPDATE test_main SET value='THREE-55' WHERE id=3@
+由于 id=3 的行，已经被会话2修改，并锁定，因此会话1当前进入等待状态。
+
+
+会话2：
+db2 => UPDATE test_main SET value='Two-2' WHERE id=2@
+由于 id=2 的行，已经被会话1修改，并锁定，因此会话2当前进入等待状态。
+
+
+等待一段时间后
+
+DB21034E  该命令被当作 SQL 语句来处理，因为它是无效的“命令行处理器”命令。在
+SQL 处理期间，它返回：
+SQL0911N  因为死锁或超时，所以当前事务已回滚。原因码为 "2"。  SQLSTATE=40001
+db2 =>
+
+
+会话1
+DB20000I  SQL 命令成功完成。
+db2 =>
+db2 => select * from test_main@
+
+ID          VALUE
+----------- ----------
+          1 ONE
+          2 Two-5
+          5 Five-5
+          3 THREE-55
+
+  4 条记录已选择。
+
+  
+
+会话2：
+db2 => select * from test_main@
+
+ID          VALUE
+----------- ----------
+          1 ONE
+          2 TWO
+          5 Five-5
+          3 THREE-5
+
+  4 条记录已选择。
+
+
+显示会话二的更新已丢失。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+会话1：
+1> BEGIN TRANSACTION
+2> go
+1> UPDATE test_main SET value = 'FOUR-4' WHERE id = 4;
+2> go
+(1 行受影响)
+
+会话2：
+1> BEGIN TRANSACTION
+2> go
+1> UPDATE test_main SET value = 'TWO-2' WHERE id = 2;
+2> go
+(1 行受影响)
+
+会话1：
+1> UPDATE test_main SET value = 'TWO-4' WHERE id = 2;
+2> go
+这里 由于 id=2 数据，已经被会话2锁定，因此会话1进入等待。
+
+会话2：
+1> UPDATE test_main SET value = 'FOUR-2' WHERE id = 4;
+2> go
+
+会话1：
+消息 1205，级别 13，状态 51，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+事务(进程 ID 51)与另一个进程被死锁在 锁 资源上，并且已被选作死锁牺牲品。请重新运行该事务。
+
+SQL Server 检测到死锁，将会话1的锁全部释放了。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+会话一
+mysql> select * from test_main;
++----+---------+
+| id | value   |
++----+---------+
+|  1 | ONE     |
+|  2 | TWO     |
+|  3 | THREE-3 |
+|  4 | FOUR-4  |
++----+---------+
+4 rows in set (0.00 sec)
+
+mysql> START TRANSACTION;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> UPDATE test_main SET value='Two-5' WHERE id=2;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+
+会话二
+mysql> START TRANSACTION;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> UPDATE test_main SET value='THREE' WHERE id=3;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+会话一
+mysql> UPDATE test_main SET value='THREE-55' WHERE id=3;
+由于记录被锁定，卡住。
+
+会话二
+mysql> UPDATE test_main SET value='Two-2' WHERE id=2;
+ERROR 1213 (40001): Deadlock found when trying to get lock; try restarting trans
+action
+
+会话一
+前面卡住的可以继续了
+mysql> UPDATE test_main SET value='THREE-55' WHERE id=3;
+Query OK, 1 row affected (0.70 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from test_main;
++----+----------+
+| id | value    |
++----+----------+
+|  1 | ONE      |
+|  2 | Two-5    |
+|  3 | THREE-55 |
+|  4 | FOUR-4   |
++----+----------+
+4 rows in set (0.00 sec)
+
+
+会话二
+mysql> select * from test_main;
++----+---------+
+| id | value   |
++----+---------+
+|  1 | ONE     |
+|  2 | TWO     |
+|  3 | THREE-3 |
+|  4 | FOUR-4  |
++----+---------+
+4 rows in set (0.00 sec)
+
+显示会话二的更新已丢失。
+
+会话1：
+mysql> commit;
+Query OK, 0 rows affected (0.03 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+会话1：
+
+Test=# BEGIN;
+BEGIN
+Test=# select * from test_main;
+ id |   value
+----+-----------
+  1 | ONE1
+ 11 | ONEONE
+ 12 | ONETWO
+ 13 | ONETHREE
+  4 | FOUR - 4
+  2 | TWO - TWO
+(6 行记录)
+
+
+Test=# UPDATE test_main SET value='Two-5' WHERE id=2;
+UPDATE 1
+Test=#
+
+
+会话2：
+
+Test=# BEGIN;
+BEGIN
+Test=# UPDATE test_main SET value='One-9' WHERE id = 1;
+UPDATE 1
+Test=#
+
+
+
+
+会话1：
+Test=# UPDATE test_main SET value='One-5' WHERE id = 1;
+由于 id=1 的行，已经被会话2修改，并锁定，因此会话1当前进入等待状态。
+
+
+
+
+会话2：
+Test=# UPDATE test_main SET value='Two-9' WHERE id = 2;
+错误:  检测到死锁
+描述:  进程1680等待在事务 1177上的ShareLock; 由进程1564阻塞.
+进程1564等待在事务 1178上的ShareLock; 由进程1680阻塞.
+提示:  详细信息请查看服务器日志.
+Test=# select * from test_main;
+错误:  当前事务被终止, 事务块结束之前的查询被忽略
+Test=# END;
+ROLLBACK
+
+
+
+会话1：
+UPDATE 1
+Test=# select * from test_main;
+ id |  value
+----+----------
+ 11 | ONEONE
+ 12 | ONETWO
+ 13 | ONETHREE
+  4 | FOUR - 4
+  2 | Two-5
+  1 | One-5
+(6 行记录)
+
+Test=# COMMIT;
+COMMIT
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

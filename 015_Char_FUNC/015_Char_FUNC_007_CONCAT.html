@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 字符函数 -  字符串连接 CONCAT || / + </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 字符函数 </h1>
+
+
+<h2>  字符串连接 CONCAT || / + </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    CONCAT('Good ', 'Morning!') A,
+  3    'Good ' || 'Morning!'  B
+  4  FROM
+  5    dual;
+
+A                          B
+-------------------------- --------------------------
+Good Morning!              Good Morning!
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+和 Oracle 一样。
+
+db2 => SELECT
+db2 (cont.) =>   CONCAT('Good ', 'Morning!') A,
+db2 (cont.) =>   'Good ' || 'Morning!'  B
+db2 (cont.) => FROM
+db2 (cont.) =>   SYSIBM.SYSDUMMY1;
+
+A             B
+------------- -------------
+Good Morning! Good Morning!
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT 'Good ' + 'Morning!'  B
+2> go
+B
+-------------
+Good Morning!
+
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> select CONCAT('Good ', 'Morning!') A
+    -> //
++---------------+
+| A             |
++---------------+
+| Good Morning! |
++---------------+
+1 row in set (0.02 sec)
+
+
+-- CONCAT_WS 第一个参数为分隔符号
+
+
+mysql> SELECT CONCAT_WS(',',
+    ->   'First name',
+    ->   'Second name',
+    ->   'Last Name') A;
++----------------------------------+
+| A                                |
++----------------------------------+
+| First name,Second name,Last Name |
++----------------------------------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+同 Oracle.
+
+Test=# SELECT CONCAT('Good ', 'Morning!') A,  'Good ' || 'Morning!'  B;
+       a       |       b
+---------------+---------------
+ Good Morning! | Good Morning!
+(1 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

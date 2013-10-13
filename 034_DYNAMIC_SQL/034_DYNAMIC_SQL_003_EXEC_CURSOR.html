@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 动态SQL - 直接执行的方式-游标方式获取 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 动态SQL </h1>
+
+
+<h2>  直接执行的方式-游标方式获取 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> DECLARE
+  2    TYPE   refcursor IS REF CURSOR;
+  3    v_cursor  REFCURSOR;
+  4    v_Sql     VARCHAR(200);
+  5    v_name    VARCHAR(10);
+  6  BEGIN
+  7    -- 动态SQL
+  8    v_Sql := 'SELECT name FROM test_dysql';
+  9    -- 打开游标.
+ 10    OPEN v_cursor FOR v_SQL;
+ 11    -- 循环处理.
+ 12    LOOP
+ 13      -- 填充数据.
+ 14      FETCH v_cursor INTO v_name;
+ 15      -- 无数据时 退出循环.
+ 16      EXIT WHEN v_cursor%NOTFOUND;
+ 17      -- 输出.
+ 18      dbms_output.put_line(v_name);
+ 19    END LOOP;
+ 20    -- 关闭游标.
+ 21    CLOSE v_cursor;
+ 22  EXCEPTION
+ 23    WHEN OTHERS THEN
+ 24      -- 发生异常时，如果游标还打开，那么关闭掉.
+ 25      IF (v_cursor%isopen) THEN
+ 26        CLOSE v_cursor;
+ 27      END IF;
+ 28      RAISE;
+ 29  END;
+ 30  /
+A
+B
+C
+D
+E
+
+PL/SQL procedure successfully completed.
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> BEGIN
+2>   DECLARE @Sql varchar(200);
+3>   DECLARE @name varchar(10);
+4>   SET @Sql='DECLARE cur CURSOR for select [name] from test_dysql';
+5>   EXEC(@Sql);
+6>
+7>   OPEN cur;
+8>   FETCH next FROM cur INTO @name;
+9>   WHILE @@FETCH_STATUS=0
+10>   BEGIN
+11>       PRINT @name;
+12>       FETCH next FROM cur INTO @name;
+13>   END
+14>   CLOSE cur;
+15>   DEALLOCATE cur;
+16> END
+17> go
+A
+B
+C
+D
+E
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+-- 清空日志表.
+Test=# truncate table log_table;
+TRUNCATE TABLE
+
+
+
+CREATE OR REPLACE FUNCTION TestExecByCursor() 
+RETURNS INT AS
+$$
+DECLARE
+  v_Sql     VARCHAR(200);
+  -- 定义游标.
+  c_test refcursor;
+  -- 定义存储数据的变量.
+  v_data  test_dysql%ROWTYPE;
+BEGIN
+  v_Sql := 'SELECT name FROM test_dysql';
+  -- 打开游标.
+  OPEN c_test FOR v_Sql;
+  LOOP
+    -- 填充数据.
+    FETCH c_test INTO v_data;
+    -- 假如没有检索到数据，结束循环处理
+    Exit when NOT found;
+	-- 游标每一行的实际操作.
+    INSERT INTO log_table VALUES (v_data.val);
+  END LOOP;
+  -- 关闭游标
+  CLOSE c_test;
+END;
+$$
+LANGUAGE plpgsql;
+
+
+错误:  语法错误 在 "v_Sql" 或附近的
+第13行  OPEN c_test FOR v_Sql;
+
+好像不行的样子......
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

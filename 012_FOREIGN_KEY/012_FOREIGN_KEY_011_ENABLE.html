@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 外键约束-启用/禁用 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 外键约束 </h1>
+
+
+<h2>  外键约束-启用/禁用 </h2>
+
+
+
+<pre><code>
+
+当遇到批量数据导入的时候，如果外键处于有效的状态。
+那么要求 数据导入的程序， 必须先导入主表的数据，然后再导入子表的数据。
+如果表多，且关系复杂的话，会增加很大的工作量。
+
+可以在数据导入以前， 先暂时禁用外键约束。
+子表、主表数据都导入完毕后， 再启用外键约束。
+
+
+
+以下测试环境为 初始的创建表、初始数据的情况。
+</code></pre>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> -- 创建外键(默认选项)
+SQL> ALTER TABLE test_sub ADD CONSTRAINT main_id_cons  FOREIGN KEY (main_id)  REFERENCES  test_main;
+表已更改。
+
+SQL> -- 测试插入子表数据. 将出错 ORA-02291: 违反完整约束条件
+SQL> INSERT INTO test_sub (ID, MAIN_ID, VALUE) VALUES (3, 3, 'THREETHREE');
+INSERT INTO test_sub (ID, MAIN_ID, VALUE) VALUES (3, 3, 'THREETHREE')
+*
+ERROR 位于第 1 行:
+ORA-02291: 违反完整约束条件 (TEST.MAIN_ID_CONS) - 未找到父项关键字
+
+-- 尝试禁用外键约束.
+SQL> ALTER TABLE test_sub  MODIFY   CONSTRAINT main_id_cons DISABLE;
+表已更改。
+
+
+SQL> INSERT INTO test_sub (ID, MAIN_ID, VALUE) VALUES (3, 3, 'THREETHREE');
+已创建 1 行。
+
+SQL> INSERT INTO test_main(id, value) VALUES (3, 'THREE');
+已创建 1 行。
+
+SQL> commit;
+提交完成。
+
+-- 恢复启用外键约束.
+SQL> ALTER TABLE test_sub  MODIFY   CONSTRAINT main_id_cons  ENABLE;
+表已更改。
+
+
+SQL> DELETE test_main  WHERE ID = 1;
+DELETE test_main  WHERE ID = 1
+*
+ERROR 位于第 1 行:
+ORA-02292: 违反完整约束条件 (TEST.MAIN_ID_CONS) - 已找到子记录
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+
+db2 => ALTER TABLE test_sub ADD CONSTRAINT main_id_cons  FOREIGN KEY (main_id)
+REFERENCES  test_main;
+DB20000I  SQL 命令成功完成。
+
+
+db2 => INSERT INTO test_sub (ID, MAIN_ID, VALUE) VALUES (3, 3, 'THREETHREE');
+DB21034E  该命令被当作 SQL 语句来处理，因为它是无效的“命令行处理器”命令。在
+SQL 处理期间，它返回：
+SQL0530N  FOREIGN KEY "TEST.TEST_SUB.MAIN_ID_CONS"
+的插入或更新值不等于父表的任何父键值。  SQLSTATE=23503
+
+
+db2 => ALTER TABLE test_sub ALTER FOREIGN KEY main_id_cons NOT ENFORCED;
+DB20000I  SQL 命令成功完成。
+
+
+db2 => INSERT INTO test_sub (ID, MAIN_ID, VALUE) VALUES (3, 3, 'THREETHREE');
+DB20000I  SQL 命令成功完成。
+db2 => INSERT INTO test_main(id, value) VALUES (3, 'THREE');
+DB20000I  SQL 命令成功完成。
+
+
+db2 => ALTER TABLE test_sub ALTER FOREIGN KEY main_id_cons ENFORCED;
+DB20000I  SQL 命令成功完成。
+db2 =>
+
+
+
+db2 => DELETE test_main  WHERE ID = 1;
+DB21034E  该命令被当作 SQL 语句来处理，因为它是无效的“命令行处理器”命令。在
+SQL 处理期间，它返回：
+SQL0532N  因为关系 "TEST.TEST_SUB.MAIN_ID_CONS" 限制删除，所以不能删除父行。
+SQLSTATE=23504
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+
+	
+<pre><code>
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+<p>
+测试完毕后，删除 外键约束 
+ALTER TABLE test_sub DROP CONSTRAINT main_id_cons;
+</p>
+
+<p>
+注：MySQL使用下面这个语句删除外键约束
+ALTER TABLE test_sub DROP FOREIGN KEY  main_id_cons;
+</p>
+
+<p>
+注：SQLite 等下要重建表的， 就不折腾了。
+</p>
+
+
+
+</body>
+
+
+</html>

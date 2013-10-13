@@ -1,0 +1,337 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 树形结构-合计 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> 树形结构 - 合计  </h2>
+
+
+
+
+
+树形结构合计部分，使用下面的测试表与测试数据
+
+<pre><code>
+
+CREATE TABLE test_tree_sum (
+  test_id   INT  NOT NULL,
+  pid       INT,
+  test_name  VARCHAR(20),
+  test_val   INT,
+  PRIMARY KEY (test_id),
+  FOREIGN KEY (pid)  REFERENCES test_tree_sum(test_id)
+);
+
+INSERT INTO test_tree_sum VALUES(1,    NULL, 'A公司', 1000);
+INSERT INTO test_tree_sum VALUES(11,   1,    '北京分公司',  500);
+INSERT INTO test_tree_sum VALUES(12,   1,    '上海分公司',  800);
+INSERT INTO test_tree_sum VALUES(13,   1,    '广州分公司',  550);
+INSERT INTO test_tree_sum VALUES(2,    NULL, 'B公司', 3000);
+INSERT INTO test_tree_sum VALUES(21,   2,    '北京分公司',  2500);
+INSERT INTO test_tree_sum VALUES(22,   2,    '上海分公司',  1600);
+INSERT INTO test_tree_sum VALUES(23,   2,    '广州分公司',  1550);
+INSERT INTO test_tree_sum VALUES(3,    NULL, 'C公司', 800);
+INSERT INTO test_tree_sum VALUES(31,   3,    '北京分公司',  500);
+INSERT INTO test_tree_sum VALUES(32,   3,    '上海分公司',  600);
+INSERT INTO test_tree_sum VALUES(321,  32,   '静安分理处',  500);
+INSERT INTO test_tree_sum VALUES(322,  32,   '普陀分理处',  600);
+INSERT INTO test_tree_sum VALUES(323,  32,   '浦东分理处',  700);
+INSERT INTO test_tree_sum VALUES(3231, 323,  '张江营业点',  300);
+INSERT INTO test_tree_sum VALUES(33,   3,    '广州分公司',  550);
+
+
+</code></pre>
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+
+
+<pre><code>
+
+
+
+-- 简单统计顶级节点的 合计， 还是比较简单的。
+SELECT
+  name, 
+  SUM(test_val) AS "合计"
+FROM
+(
+SELECT
+  CONNECT_BY_ROOT test_name as name, test_val
+FROM
+  test_tree_sum
+START WITH
+  pid is NULL
+CONNECT BY PRIOR test_id = pid
+) t
+GROUP BY name;
+
+NAME                                           合计
+---------------------------------------- ----------
+B公司                                          8650
+C公司                                          4550
+A公司                                          2850
+
+
+
+
+<hr/>
+但是遇到想把每一个公司下的所有中间节点的数据都统计的话。
+SQL 语句略微复杂一些。
+
+注：
+下面的  CONNECT_BY_ISLEAF  是一个伪列 返回一个设置为 0 或 1 的小整数值。
+如果某个行是分层结构中的叶子节点，则返回的值为 1，否则返回值为 0 。
+
+
+COLUMN "机构名称" FORMAT A40
+COLUMN "总金额" FORMAT A20
+
+SELECT
+  LTRIM(SYS_CONNECT_BY_PATH(test_name, '-'), '-') AS "机构名称",
+  DECODE( CONNECT_BY_ISLEAF, 1, test_val, 
+  (
+SELECT
+  SUM(test_val)
+FROM
+  test_tree_sum sub
+START WITH
+  sub.test_id = main.test_id
+CONNECT BY PRIOR test_id = pid  
+  ))  AS  "总金额"
+FROM
+  test_tree_sum main
+START WITH
+  pid is NULL
+CONNECT BY PRIOR test_id = pid;
+
+
+机构名称                                     总金额
+---------------------------------------- ----------
+A公司                                          2850
+A公司-北京分公司                                500
+A公司-上海分公司                                800
+A公司-广州分公司                                550
+B公司                                          8650
+B公司-北京分公司                               2500
+B公司-上海分公司                               1600
+B公司-广州分公司                               1550
+C公司                                          4550
+C公司-北京分公司                                500
+C公司-上海分公司                               2700
+
+机构名称                                     总金额
+---------------------------------------- ----------
+C公司-上海分公司-静安分理处                     500
+C公司-上海分公司-普陀分理处                     600
+C公司-上海分公司-浦东分理处                    1000
+C公司-上海分公司-浦东分理处-张江营业点          300
+C公司-广州分公司                                550
+
+已选择16行。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+-- 简单统计顶级节点的 合计， 就是简单根据 根节点，进行 SUM 处理即可。
+
+WITH StepCTE
+AS
+(
+SELECT
+  test_name,
+  test_id,
+  test_val
+FROM
+  test_tree_sum
+WHERE
+  pid is null
+UNION ALL
+SELECT
+  CTE.test_name,
+  T.test_id,
+  T.test_val
+FROM
+  test_tree_sum T INNER JOIN StepCTE CTE
+  ON T.pid = CTE.test_id
+)
+SELECT
+  test_name,  SUM(test_val)
+FROM
+  StepCTE
+GROUP BY
+  test_name
+
+test_name
+-------------------- -----------
+A公司                         2850
+B公司                         8650
+C公司                         4550
+
+(3 行受影响)
+
+
+<hr/>
+但是遇到想把每一个公司下的所有中间节点的数据都统计的话。
+那么需要在 CTE 中，进行部分标志位的设置处理.
+
+
+
+WITH StepCTE
+AS
+(
+SELECT
+  test_id,
+  pid,
+  Convert(varchar(40), ',' + CAST(test_id as varchar) + ',') as keys_info,
+  Convert(varchar(40), test_name) as test_name,
+  test_val
+FROM
+  test_tree_sum
+WHERE
+  pid is null
+UNION ALL
+SELECT
+  T.test_id,
+  T.pid,
+  Convert(varchar(40), CTE.keys_info + CAST(T.test_id as varchar) + ',') as keys_info,
+  Convert(varchar(40), CTE.test_name + '-' + T.test_name) AS test_name,
+  T.test_val
+FROM
+  test_tree_sum T INNER JOIN StepCTE CTE
+  ON T.pid = CTE.test_id
+)
+SELECT
+  t.test_name, 
+  (SELECT SUM(s.test_val) FROM StepCTE s WHERE CHARINDEX(',' + CAST(t.test_id as varchar) + ',',  s.keys_info ) > 0 ) AS test_val
+FROM 
+  StepCTE t;
+
+
+
+test_name                                test_val
+---------------------------------------- -----------
+A公司                                             2850
+B公司                                             8650
+C公司                                             4550
+C公司-北京分公司                                  500
+C公司-上海分公司                                  2700
+C公司-广州分公司                                  550
+C公司-上海分公司-静安分理处                       500
+C公司-上海分公司-普陀分理处                       600
+C公司-上海分公司-浦东分理处                       1000
+C公司-上海分公司-浦东分理处-张江营业点            300
+B公司-北京分公司                                   2500
+B公司-上海分公司                                   1600
+B公司-广州分公司                                   1550
+A公司-北京分公司                                   500
+A公司-上海分公司                                   800
+A公司-广州分公司                                   550
+
+(16 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,502 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 触发器 - INSERT </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 触发器 </h1>
+
+
+<h2> INSERT  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+注：
+Oracle 有 BEFORE INSERT 和 AFTER INSERT
+
+<pre><code>
+
+
+SQL> CREATE OR REPLACE TRIGGER BeforeInsertTest
+  2    BEFORE INSERT ON test_trigger_table
+  3  FOR EACH ROW
+  4  BEGIN
+  5    dbms_output.put_line('BEFORE INSERT');
+  6    dbms_output.put_line('Old Name = ' || :old.name);
+  7    dbms_output.put_line('New Name = ' || :new.name);
+  8    :new.val := '100';
+  9  END;
+ 10  /
+
+Trigger created.
+
+SQL> INSERT INTO test_trigger_table(id, name) VALUES (1, 'ABC');
+BEFORE INSERT
+Old Name =
+New Name = ABC
+
+1 row created.
+
+SQL> SELECT * FROM test_trigger_table;
+
+        ID NAME                        VAL
+---------- -------------------- ----------
+         1 ABC                         100
+
+
+可以通过 REFERENCING old AS o new AS n 来为 :old 与 :new 创建别名
+SQL> CREATE OR REPLACE TRIGGER BeforeInsertTest
+  2    BEFORE INSERT ON test_trigger_table
+  3    REFERENCING old AS o new AS n
+  4  FOR EACH ROW
+  5  BEGIN
+  6    dbms_output.put_line('BEFORE INSERT');
+  7    dbms_output.put_line('Old Name = ' || :o.name);
+  8    dbms_output.put_line('New Name = ' || :n.name);
+  9    :n.val := '100';
+ 10  END;
+ 11  /
+触发器已创建
+
+
+
+<hr/>
+注:
+只有 BEFORE 触发器， 可以修改 :new 里面的数据。
+AFTER 触发器， 修改 :new 数据将报错。
+
+
+CREATE OR REPLACE TRIGGER AfterInsertTest
+  AFTER INSERT ON test_trigger_table
+FOR EACH ROW
+BEGIN
+  dbms_output.put_line('AFTER INSERT');
+  dbms_output.put_line('Old Name = ' || :old.name);
+  dbms_output.put_line('New Name = ' || :new.name);
+  :new.val := '100';
+END;
+/
+
+
+ERROR 位于第 1 行:
+ORA-04084: 无法更改此触发器类型的 NEW 值
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => CREATE TRIGGER BeforeInsertTest \
+db2 (cont.) => BEFORE INSERT ON test_trigger_table \
+db2 (cont.) => REFERENCING NEW AS N \
+db2 (cont.) => FOR EACH ROW \
+db2 (cont.) => BEGIN \
+db2 (cont.) =>   SET N.val = 100; \
+db2 (cont.) => END
+DB20000I  SQL 命令成功完成。
+
+db2 => INSERT INTO test_trigger_table(id, name) VALUES (1, 'ABC')
+DB20000I  SQL 命令成功完成。
+db2 => SELECT * FROM test_trigger_table
+
+ID          NAME       VAL
+----------- ---------- -----------
+          1 ABC                100
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+
+注：SQL Server 中。 没有 BEFORE INSERT 或者 AFTER INSERT
+根据文档显示，以及代码的测试。基本上类似于 Oracle 的 AFTER INSERT
+SQL Sercer 触发器 没有 FOR EACH ROW 关键字
+一次更新一条，还是多条，取决于 INSERTED 里面的内容。
+
+<pre><code>
+
+CREATE TRIGGER BeforeInsertTest
+  ON test_trigger_table
+  FOR INSERT
+AS
+DECLARE
+  @Id   INT,
+  @Name VARCHAR(10);
+BEGIN
+  PRINT('BEFORE INSERT');
+  
+  -- 这里测试，触发器触发的时候，表里面是否有数据
+  -- 也就是 确认是 数据已经进表了，才触发。
+  SELECT @ID = COUNT(1) FROM test_trigger_table;
+  PRINT('Now Data Count = ' +  Str(@ID));
+  
+  -- 取得本次插入的数据.
+  SELECT @Id = id, @Name = name FROM INSERTED;
+  PRINT('New Name = ' + @Name);
+
+  -- 更新数据.
+  UPDATE test_trigger_table SET val = 100 WHERE id=@Id;
+END;
+Go
+
+1> INSERT INTO test_trigger_table(id, name) VALUES (1, 'ABC');
+2> go
+BEFORE INSERT
+Now Data Count =          1
+New Name = ABC
+
+ (1 行受影响)
+1> select * from test_trigger_table;
+2> go
+id          name       val
+----------- ---------- -----------
+          1 ABC                100
+
+(1 行受影响)
+
+
+
+
+<hr/>
+关于触发器中， 调用动态 SQL 创建表的例子：
+
+-- 测试表
+CREATE TABLE testABC(
+  id int identity(1,1),
+  name varchar(10)
+)
+go
+
+-- 测试触发器
+CREATE TRIGGER tr_I_testABC
+  ON testABC
+  FOR INSERT
+AS
+DECLARE
+  @Id   INT,
+  @Name VARCHAR(10),
+  @sql  VARCHAR(100);
+BEGIN
+  
+  -- 取得本次插入的数据.
+  SELECT @Id = id, @Name = name FROM INSERTED;
+  PRINT('New Name = ' + @Name);
+
+  SET @sql = 'CREATE TABLE ' +  @Name  +  '(a int, b int)';
+  EXECUTE(@sql);
+  
+
+END
+GO
+
+
+-- 测试插入数据
+INSERT INTO  testABC(name)  VALUES( 'test_100');
+INSERT INTO  testABC(name)  VALUES( 'test_101');
+GO
+
+
+select * from test_100
+go
+
+select * from test_101
+go
+
+DROP TABLE test_100
+DROP TABLE test_101
+GO
+
+DROP TRIGGER tr_I_testABC
+DROP TABLE testABC
+GO
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+DELIMITER //
+
+CREATE TRIGGER BeforeInsertTest
+  BEFORE INSERT ON test_trigger_table
+FOR EACH ROW
+BEGIN
+  SET new.val = '100';
+END;
+//
+
+
+DELIMITER ;
+
+
+
+mysql> INSERT INTO test_trigger_table(id, name) VALUES (1, 'ABC');
+Query OK, 1 row affected (0.03 sec)
+
+mysql> select * from test_trigger_table;
++------+------+------+
+| id   | name | val  |
++------+------+------+
+|    1 | ABC  |  100 |
++------+------+------+
+1 row in set (0.00 sec)
+
+
+
+
+在1个方案中，所有的触发程序名称必须是唯一的，
+除了该要求外，对于能够创建的触发程序的类型还存在其他限制。
+
+尤其是，对于具有相同触发时间和触发事件的表，不能有2个触发程序。
+例如，不能为某一表定义2个BEFORE INSERT触发程序或2个AFTER UPDATE触发程序。
+
+
+在BEFORE触发程序中，AUTO_INCREMENT列的NEW值为0，不是实际插入新记录时将自动生成的序列号。
+
+
+
+<hr/>
+
+通过执行下面的语句， 可以查看目前触发器的源代码：
+
+SHOW CREATE TRIGGER BeforeInsertTest\G
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+这里的处理，与 Oracle 比较像
+不同在于
+Oracle 可以直接
+:new.val = 数据
+
+而SQLite 可以触发器中更新当前被触发表。
+(Oracle中，逐行触发起，update 当前表将报错)
+
+INSERT 触发器中，获取 old.id 将报错
+
+Drop Trigger If Exists BeforeInsertTest;
+
+CREATE TRIGGER BeforeInsertTest
+  AFTER INSERT ON test_trigger_table
+FOR EACH ROW
+BEGIN
+  UPDATE test_trigger_table 
+  SET val = '100' 
+  WHERE id = new.id;
+END;
+
+sqlite> INSERT INTO test_trigger_table(id, name) VALUES (1, 'ABC');
+sqlite> select * from test_trigger_table;
+id|name|val
+1|ABC|100
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+PostgreSQL 不同于其它数据库。
+
+PostgreSQL 需要先写一个  触发器函数
+触发器函数必须在创建触发器之前，作为一个没有参数并且返回trigger类型的函数定义。
+一旦创建了一个合适的触发器函数，触发器就用 CREATE TRIGGER 创建。同一个触发器函数可以用于多个触发器。
+
+
+-- 创建 触发器函数.
+CREATE FUNCTION TrInsertTest()  RETURNS trigger AS $tr_insert_test$
+BEGIN
+  NEW.val := '100';
+  RETURN NEW;
+END;
+$tr_insert_test$ LANGUAGE plpgsql;
+
+
+-- 定义触发器.
+CREATE TRIGGER tr_insert_test 
+  BEFORE INSERT ON test_trigger_table
+  FOR EACH ROW EXECUTE 
+  PROCEDURE TrInsertTest();
+
+-- 测试 insert.
+Test=# INSERT INTO test_trigger_table(id, name) VALUES (1, 'ABC');
+INSERT 0 1
+Test=#
+
+-- 核对结果.
+Test=# select * from test_trigger_table;
+ id | name | val
+----+------+-----
+  1 | ABC  | 100
+(1 行记录)
+
+
+Test=#
+
+
+
+
+
+
+基本语法：
+CREATE TRIGGER name { BEFORE | AFTER } { event [ OR ... ] }
+    ON table [ FOR [ EACH ] { ROW | STATEMENT } ]
+    EXECUTE PROCEDURE funcname ( arguments )
+
+参数
+
+name
+赋予新触发器的名称。它必需和任何作用于同一表的触发器不同。
+
+BEFORE
+AFTER
+决定该函数是在事件之前还是之后调用。
+
+event
+INSERT，DELETE 或 UPDATE 其中之一。 它声明击发触发器的事件。多个事件可以用 OR 声明。
+
+table
+触发器作用的表名称（可以用模式修饰）。
+
+FOR EACH ROW
+FOR EACH STATEMENT
+这些选项声明触发器过程是否为触发器事件影响的每个行触发一次， 还是只为每条 SQL 语句触发一次。
+如果都没有声明， FOR EACH STATEMENT 是缺省。
+
+funcname
+一个用户提供的函数，它声明为不接受参数并且返回 trigger 类型。
+	
+	
+
+在一个 PL/pgSQL 函数当做触发器调用的时候， 系统会在顶层的声明段里自动创建几个特殊变量。
+
+NEW
+数据类型是 RECORD； 
+该变量为INSERT/UPDATE 操作时保存行（ROW）一级的触发器新的数据库行。 
+在语句级别的触发器里，这个变量是 NULL。
+
+
+OLD
+数据类型是 RECORD； 
+该变量为 INSERT/UPDATE 操作时保存行（ROW）一级的触发器新的数据库行。 
+在语句级别的触发器里，这个变量是 NULL。
+
+
+TG_NAME
+数据类型是 name；
+该变量包含实际触发的触发器名。 fired.
+
+
+TG_WHEN
+数据类型是 text；
+是一个由触发器定义决定的字符串， 要么是 BEFORE 要么是 AFTER。
+
+
+TG_LEVEL
+数据类型是 text；
+是一个由触发器定义决定的字符串， 要么是 ROW 要么是 STATEMENT。
+
+
+TG_OP
+数据类型是 text；
+是一个说明触发触发器的操作的字符串， 可以是 INSERT，UPDATE 或者 DELETE。
+
+
+TG_RELID
+数据类型是 oid；
+是导致触发器调用的表的对象标识（OID）。
+
+
+TG_RELNAME
+数据类型是 name；
+是激活触发器调用的表的名称。
+
+
+TG_NARGS
+数据类型是 integer； 
+是在CREATE TRIGGER 语句里面赋予触发器过程的参数的个数。
+
+
+TG_ARGV[]
+数据类型是 text 的数组；
+是 CREATE TRIGGER语句里的参数。 
+下标从 0 开始记数．非法下标（小于 0 或者大于等于 tg_nargs）导致返回一个 NULL 值。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

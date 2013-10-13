@@ -1,0 +1,235 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 触发器 - 针对特定条件的触发 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 触发器 </h1>
+
+
+<h2>  针对特定条件的触发 </h2>
+
+测试此处时，先删除其它的触发器
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => CREATE TRIGGER BeforeUpdateTest \
+db2 (cont.) => BEFORE UPDATE OF val ON test_trigger_table \
+db2 (cont.) => REFERENCING OLD AS O NEW AS N \
+db2 (cont.) => FOR EACH ROW MODE DB2SQL \
+db2 (cont.) => WHEN (N.val > (O.val * 1.5)) \
+db2 (cont.) => BEGIN ATOMIC \
+db2 (cont.) =>   SIGNAL SQLSTATE '75001' ('VAL 增幅过大！') ; \
+db2 (cont.) => END
+DB20000I  SQL 命令成功完成。
+db2 => select * from test_trigger_table
+
+ID          NAME       VAL
+----------- ---------- -----------
+          1 XYZ                123
+
+  1 条记录已选择。
+
+db2 => update test_trigger_table set val = 130 where id=1
+DB20000I  SQL 命令成功完成。
+db2 => update test_trigger_table set val = 300 where id=1
+DB21034E  该命令被当作 SQL 语句来处理，因为它是无效的“命令行处理器”命令。在
+SQL 处理期间，它返回：
+SQL0438N  应用程序发生错误或警告，其诊断文本为："VAL 增幅过大！"。
+SQLSTATE=75001
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+	
+基本与 DB2 一样。
+
+就是 RAISE 编译不通过。
+
+<pre><code>
+
+Drop Trigger If Exists AfterUpdateTest ;
+
+CREATE TRIGGER AfterUpdateTest 
+  AFTER UPDATE OF val ON test_trigger_table
+FOR EACH ROW 
+WHEN (new.val > (old.val * 1.5)) 
+BEGIN
+  INSERT INTO log_table VALUES ( 'Old Val = ' || old.val ); 
+  INSERT INTO log_table VALUES ( 'New Val = ' || new.val ); 
+  -- RAISE ( FAIL, '增幅过大!' );
+END;
+
+
+sqlite> delete from log_table;
+sqlite>  update test_trigger_table set val = 130 where id=1;
+sqlite>  update test_trigger_table set val = 300 where id=1;
+sqlite> select * from test_trigger_table;
+1|XYZ|300
+sqlite> select * from log_table;
+Old Val = 130
+New Val = 300
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+PostgreSQL 8.1  语法：
+
+CREATE TRIGGER name { BEFORE | AFTER } { event [ OR ... ] }
+    ON table [ FOR [ EACH ] { ROW | STATEMENT } ]
+    EXECUTE PROCEDURE funcname ( arguments )
+
+从语法上面来看， 不支持 针对条件的的触发.
+
+
+PostgreSQL 9.2.4  语法：
+CREATE [ CONSTRAINT ] TRIGGER name { BEFORE | AFTER | INSTEAD OF } { event [ OR ... ] }
+    ON table_name
+    [ FROM referenced_table_name ]
+    { NOT DEFERRABLE | [ DEFERRABLE ] { INITIALLY IMMEDIATE | INITIALLY DEFERRED } }
+    [ FOR [ EACH ] { ROW | STATEMENT } ]
+    [ WHEN ( condition ) ]
+    EXECUTE PROCEDURE function_name ( arguments )
+
+从语法上面来看， 支持 针对条件的的触发.
+
+
+以下代码在 PostgreSQL 9.2 下执行！
+
+
+-- 清除日志表.
+TRUNCATE TABLE log_table;
+
+-- 创建 触发器函数.
+CREATE FUNCTION TrUpdateTestWhen()  RETURNS trigger AS $tr_update_test_when$
+BEGIN
+  RAISE EXCEPTION '% VAL 增幅过大！', NEW.val;
+  RETURN NULL;
+END;
+$tr_update_test_when$ LANGUAGE plpgsql;
+
+
+-- 定义触发器.
+CREATE TRIGGER tr_update_test_when 
+  BEFORE UPDATE ON test_trigger_table
+  FOR EACH ROW 
+  WHEN (NEW.VAL > (OLD.VAL * 1.5) )
+  EXECUTE PROCEDURE TrUpdateTestWhen();
+
+
+
+
+Test=# select * from test_trigger_table;
+ id | name | val
+----+------+-----
+  1 | XYZ  | 100
+(1 行记录)
+
+
+-- 测试执行. (没有满足条件， 不触发)
+Test=# update test_trigger_table set val = 130 where id=1;
+UPDATE 1
+
+-- 测试执行. (满足条件， 触发)
+Test=# update test_trigger_table set val = 300 where id=1;
+错误:  300 VAL 增幅过大！
+
+
+Test=# select * from test_trigger_table;
+ id | name | val
+----+------+-----
+  1 | XYZ  | 130
+(1 行记录)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

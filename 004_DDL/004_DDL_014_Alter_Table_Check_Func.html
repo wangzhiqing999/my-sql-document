@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL- 修改表 - Check约束中调用 自定义函数 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 修改表 - Check约束中调用 自定义函数 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+CREATE OR REPLACE FUNCTION TestCheck(pValue INT)
+RETURN INT IS
+BEGIN
+  -- 本函数用于测试, Check 约束能否使用 自定义函数.
+  -- 因此不加太复杂的逻辑.
+  RETURN ABS(pValue);
+END TestCheck;
+/
+
+SQL> ALTER TABLE test_tab_check
+  2   ADD CONSTRAINT test_tab_check_age
+  3    CHECK (TestCheck(age) > 0);
+  CHECK (TestCheck(age) > 0)
+         *
+ERROR 位于第 3 行:
+ORA-00904: "TESTCHECK": 标识符无效
+
+
+Oracle 不支持 Check 中使用  自定义函数
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+-- db2 -td@
+
+CREATE FUNCTION TestCheck(pValue INT)
+RETURNS INT
+LANGUAGE SQL 
+BEGIN
+  -- 本函数用于测试, Check 约束能否使用 自定义函数.
+  -- 因此不加太复杂的逻辑.
+  RETURN ABS(pValue);
+END@
+
+
+db2 => ALTER TABLE test_tab_check
+db2 (cont.) =>  ADD CONSTRAINT test_tab_check_age
+db2 (cont.) =>          CHECK (TestCheck(age) > 0)@
+DB21034E  该命令被当作 SQL 语句来处理，因为它是无效的“命令行处理器”命令。在SQL 处理期间，它返回：
+SQL0546N  检查约束 "TEST_TAB_CHECK_AGE" 无效。  SQLSTATE=42621
+
+
+DB2 不支持 Check 中使用  自定义函数
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+CREATE FUNCTION TestCheck(@pValue INT)
+RETURNS INT
+AS
+BEGIN
+  -- 本函数用于测试, Check 约束能否使用 自定义函数.
+  -- 因此不加太复杂的逻辑.
+  RETURN  ABS(@pValue);
+END
+Go
+
+ALTER TABLE test_tab_check
+	ADD CONSTRAINT test_tab_check_age
+		CHECK (dbo.TestCheck(age) > 0);
+
+
+1> insert into test_tab_check values(1, N'A', NULL, 0, 'A');
+2> go
+消息 547，级别 16，状态 1，服务器 EDWARDPC\SQLEXPRESS，第 1 行
+INSERT 语句与 CHECK 约束"test_tab_check_age"冲突。该冲突发生于数据库"test"，表"dbo.test_tab_check", column 'age'。
+语句已终止。
+
+1> insert into test_tab_check values(1, N'A', NULL, 10, 'A');
+2> go
+
+(1 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+不支持
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+不支持
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

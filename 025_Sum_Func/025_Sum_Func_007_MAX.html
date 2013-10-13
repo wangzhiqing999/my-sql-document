@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 聚集函数 - 最大值MAX </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 聚集函数 </h1>
+
+
+<h2>  最大值MAX </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    sale_item,
+  3    MAX(sale_money)
+  4  FROM
+  5    sale_report
+  6  GROUP BY
+  7    sale_item;
+
+SALE MAX(SALE_MONEY)
+---- ---------------
+A               2009
+B                 12
+C                 31
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT
+2>   sale_item,
+3>   MAX(sale_money)
+4> FROM
+5>   sale_report
+6> GROUP BY
+7>   sale_item
+8> go
+sale_item
+--------- ------------
+A              2009.00
+C                31.00
+B                12.00
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT
+    ->   sale_item,
+    ->   MAX(sale_money)
+    -> FROM
+    ->   sale_report
+    -> GROUP BY
+    ->   sale_item
+    -> //
++-----------+-----------------+
+| sale_item | MAX(sale_money) |
++-----------+-----------------+
+| A         |         2009.00 |
+| B         |           12.00 |
+| C         |           31.00 |
++-----------+-----------------+
+3 rows in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+SELECT
+  sale_item,
+  MAX(sale_money)
+FROM
+  sale_report
+GROUP BY
+  sale_item;
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+Test=# SELECT
+Test-#   sale_item,
+Test-#   MAX(sale_money)
+Test-# FROM
+Test-#   sale_report
+Test-# GROUP BY
+Test-#   sale_item;
+ sale_item |   max
+-----------+---------
+ C         |   31.00
+ B         |   12.00
+ A         | 2012.00
+(3 行记录)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

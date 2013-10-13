@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典表 - 用户 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典表 </h1>
+
+
+<h2> 用户  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+Oracle的数据字典表分3类
+
+USER_
+ALL_
+DBA_
+
+
+
+
+SQL> SELECT USERNAME FROM ALL_USERS;
+
+USERNAME
+------------------------------------------------------------
+FLOWS_020100
+FLOWS_FILES
+HR
+MDSYS
+ANONYMOUS
+XDB
+CTXSYS
+DBSNMP
+TSMSYS
+DIP
+OUTLN
+
+USERNAME
+------------------------------------------------------------
+SYSTEM
+SYS
+
+13 rows selected.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+-- 登录用户
+SELECT 
+  name
+FROM
+  sys.sql_logins;
+
+
+
+-- 数据库用户
+SELECT 
+  name
+FROM
+  sys.sysusers
+WHERE
+  islogin = 1
+  AND hasdbaccess = 1
+
+name
+--------------
+dbo
+Demo
+
+(2 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+可能需要使用 ROOT 用户登录后，才能查询.
+
+mysql> select host, user, password from mysql.user;
++-----------+------+-------------------------------------------+
+| host      | user | password                                  |
++-----------+------+-------------------------------------------+
+| localhost | root | *F861720E101148897B0F5239DB926E756B1C28B3 |
++-----------+------+-------------------------------------------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+Test=# select usename from pg_user;
+ usename
+----------
+ postgres
+ miriam
+ manuel
+ newname
+ davide
+(5 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

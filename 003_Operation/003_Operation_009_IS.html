@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 运算符号-IS </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 运算符号 </h1>
+
+
+<h2> IS </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+CREATE TABLE float_point_demo (
+	ID INT, 
+	bin_double BINARY_DOUBLE, 
+	bin_float BINARY_FLOAT
+);
+
+INSERT INTO float_point_demo VALUES(1, null, null);
+INSERT INTO float_point_demo VALUES(2, 12345.6789, 12345.6789);
+INSERT INTO float_point_demo VALUES(3, 'NaN', 'NaN');
+INSERT INTO float_point_demo VALUES(4, 'INF', '-INF');
+
+
+SQL> SELECT * FROM float_point_demo;
+
+        ID BIN_DOUBLE  BIN_FLOAT
+---------- ---------- ----------
+         1
+         2 1.235E+004 1.235E+004
+         3        Nan        Nan
+         4        Inf       -Inf
+
+SQL> SELECT * FROM float_point_demo WHERE bin_float IS NULL;
+
+        ID BIN_DOUBLE  BIN_FLOAT
+---------- ---------- ----------
+         1
+
+SQL> SELECT * FROM float_point_demo WHERE bin_float IS NaN;
+
+        ID BIN_DOUBLE  BIN_FLOAT
+---------- ---------- ----------
+         3        Nan        Nan
+
+SQL> SELECT * FROM float_point_demo WHERE bin_float IS INFINITE;
+
+        ID BIN_DOUBLE  BIN_FLOAT
+---------- ---------- ----------
+         4        Inf       -Inf
+
+SQL>
+
+
+注： 
+BINARY_DOUBLE、BINARY_FLOAT 为 Oracle 10 以后才有的。
+Null 表示 “不知道”
+NAN 表示 “不是数字”
+INF 表示 “无限数字”
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

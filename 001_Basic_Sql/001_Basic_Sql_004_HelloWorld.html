@@ -1,0 +1,262 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 基本SQL命令-HelloWorld </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 基本SQL命令 </h1>
+
+
+<h2> HelloWorld </h2>
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> <span class="BasicInfo">set serveroutput on</span>
+SQL> BEGIN
+  2  <span class="BasicInfo">dbms_output.put_line</span>('Hello World');
+  3  END;
+  4  /
+Hello World
+
+PL/SQL procedure successfully completed.
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+	
+注：
+DB2里面的 <span class="BasicInfo">SYSIBM.SYSDUMMY1</span> 等价于 Oracle 里面的 <span class="BasicInfo">Dual</span> . 也就是只有1行数据的.
+<br/>
+因为 Oracle 和 DB2 不能 SELECT 1.  必须要 SELECT 1 FROM 表
+	
+<pre><code>
+
+
+DB2 没有 print 之类的语句。
+只好 把结果写入临时表
+
+db2 => CREATE TABLE test_helloworld( \
+db2 (cont.) =>   data  varchar(20) \
+db2 (cont.) => )
+DB20000I  SQL 命令成功完成。
+
+
+Db2 => CREATE PROCEDURE HelloWorld \
+db2 (cont.) => LANGUAGE SQL \
+db2 (cont.) => BEGIN \
+db2 (cont.) =>   INSERT INTO test_helloworld \
+db2 (cont.) =>     SELECT ‘Hello World’ FROM SYSIBM.SYSDUMMY1; \
+db2 (cont.) => END
+DB20000I  SQL 命令成功完成。
+
+
+Db2 => <span class="KeyInfo">call</span> HelloWorld
+
+  返回状态 = 0
+db2 => select * from test_helloworld
+
+DATA
+Hello World
+
+  1 条记录已选择。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1>
+2> BEGIN
+7	<span class="BasicInfo">PRINT</span> ‘Hello World’;
+4> END;
+5> go
+Hello World
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+暂不支持 匿名的 BEGIN END
+只能通过
+
+DELIMITER //
+CREATE PROCEDURE HelloWorld()
+BEGIN
+   SELECT 'Hello World';
+END//
+
+DELIMITER ;
+
+call HelloWorld();
+
++-------------+
+| Hello World |
++-------------+
+| Hello World |
++-------------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.00 sec)
+
+
+
+注：如果 HelloWorld 都失败， 那么首先需要检查数据库的存储引擎
+
+mysql> show variables like '%storage_engine%';
++----------------+--------+
+| Variable_name  | Value  |
++----------------+--------+
+| storage_engine | MyISAM |
++----------------+--------+
+1 row in set (0.00 sec)
+
+存储引擎为  InnoDB 的数据库， 能使用存储过程。
+
+mysql> show variables like '%storage_engine%';
++----------------+--------+
+| Variable_name  | Value  |
++----------------+--------+
+| storage_engine | <span class="KeyInfo">InnoDB</span> |
++----------------+--------+
+1 row in set (0.01 sec)
+
+
+
+<hr/>
+HelloWorld 失败的信息:
+
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE HelloWorld()
+    -> BEGIN
+    ->    SELECT 'Hello World';
+    -> END//
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that
+corresponds to your MySQL server version for the right syntax to use near 'PROCE
+DURE HelloWorld()
+BEGIN
+   SELECT 'Hello World';
+END' at line 1
+
+
+也就是  MyISAM  下面, 根本就不支持  CREATE PROCEDURE 
+因此, 错误信息提示在  near 'PROCEDURE ...
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+</code></pre>
+    </td>
+  </tr>
+
+  
+  
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+和 DB2 一样，没有 print 之类的语句。
+只好 把结果写入临时表
+
+Test=# CREATE TABLE test_helloworld(
+Test(#   data  varchar(20)
+Test(# );
+CREATE TABLE
+
+
+
+Test=# CREATE OR REPLACE FUNCTION HelloWorld() RETURNS void AS
+Test-# $$
+Test$# BEGIN
+Test$#   INSERT INTO test_helloworld  SELECT 'Hello World';
+Test$# END;
+Test$# $$
+Test-# LANGUAGE plpgsql;
+CREATE FUNCTION
+Test=#
+Test=# SELECT HelloWorld();
+ helloworld
+------------
+
+(1 行记录)
+
+
+Test=# select * from test_helloworld;
+    data
+-------------
+ Hello World
+(1 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

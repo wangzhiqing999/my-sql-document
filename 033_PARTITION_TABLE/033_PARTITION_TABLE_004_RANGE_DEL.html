@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 分区表 - 删除分区  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 分区表 </h1>
+
+
+<h2> 删除分区  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> INSERT INTO sale_data
+  2  VALUES (TO_DATE('20101030','YYYYMMDD'), 'A', 1);
+已创建 1 行。
+
+SQL> SELECT * FROM sale_data PARTITION(p201010);
+SALE_DATE      SA SALE_MONEY
+-------------- -- ----------
+30-10月-10     A           1
+
+SQL> ALTER TABLE sale_data
+  2    DROP PARTITION p201010;
+表已更改。
+
+SQL>  SELECT * FROM sale_data;
+未选定行
+
+SQL> SELECT
+  2    partition_name
+  3  FROM
+  4    user_tab_partitions
+  5  WHERE
+  6    table_name = 'SALE_DATA';
+
+PARTITION_NAME
+------------------------------
+P201001
+P201002
+P201003
+P201004
+P201005
+P201006
+P201007
+P201008
+P201009
+
+已选择9行。
+
+当删除了一个分区，也同时删除了该分区中所有的数据。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+-- 删除 Orders 空闲分区
+alter partition function sale_date_part_func()
+merge range(  CONVERT(DATETIME, '2010-10-01 00:00:00', 120)  )
+go
+
+
+
+--核对
+SELECT 
+  pf.[name],
+  pf.[function_id],
+  pf.[type],
+  pf.[type_desc],
+  pv.[value]
+FROM 
+  [sys].[partition_functions] pf 
+    JOIN [sys].[partition_range_values] pv
+      ON(pf.function_id = pv.function_id)
+WHERE
+  pf.[name] = 'sale_date_part_func'
+
+name	function_id	type	type_desc	value
+sale_date_part_func	65536	R 	RANGE	2010-01-01 00:00:00.000
+sale_date_part_func	65536	R 	RANGE	2010-02-01 00:00:00.000
+sale_date_part_func	65536	R 	RANGE	2010-03-01 00:00:00.000
+sale_date_part_func	65536	R 	RANGE	2010-04-01 00:00:00.000
+sale_date_part_func	65536	R 	RANGE	2010-05-01 00:00:00.000
+sale_date_part_func	65536	R 	RANGE	2010-06-01 00:00:00.000
+sale_date_part_func	65536	R 	RANGE	2010-07-01 00:00:00.000
+sale_date_part_func	65536	R 	RANGE	2010-08-01 00:00:00.000
+sale_date_part_func	65536	R 	RANGE	2010-09-01 00:00:00.000
+
+
+
+-- 查看分区表 sale_data 每个分区的数据分布情况
+select partition = $partition.sale_date_part_func(sale_date)
+      ,rows      = count(*)
+      ,minval    = min(sale_date)
+      ,maxval    = max(sale_date)
+  from dbo.sale_data
+ group by $partition.sale_date_part_func(sale_date)
+ order by partition
+go
+
+
+partition	rows	minval	maxval
+2	3	2010-01-01 10:00:00.000	2010-01-21 10:00:00.000
+3	3	2010-02-01 10:00:00.000	2010-02-21 10:00:00.000
+4	3	2010-03-01 10:00:00.000	2010-03-21 10:00:00.000
+10	3	2010-09-01 10:00:00.000	2010-09-21 10:00:00.000
+
+结果显示  分区函数中 项目被删除， 但是数据不受影响。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+--当删除了一个分区，也同时删除了该分区中所有的数据。
+mysql> ALTER TABLE sale_data DROP PARTITION p201010;
+Query OK, 0 rows affected (0.22 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

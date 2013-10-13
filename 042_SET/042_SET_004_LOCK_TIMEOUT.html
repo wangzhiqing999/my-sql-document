@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库会话的基本参数设置 SET - 锁定超时设置 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库会话的基本参数设置 SET </h1>
+
+
+<h2> 锁定超时设置  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SET LOCK_TIMEOUT timeout_period
+
+参数
+timeout_period
+
+在 Microsoft SQL Server 返回锁定错误前经过的毫秒数。
+值为 -1（默认值）时表示没有超时期限（即无限期等待）。
+当锁等待超过超时值时，将返回错误。值为 0 时表示根本不等待，一遇到锁就返回消息。 
+
+备注
+在连接开始时，该设置的值为 -1。设置更改后，新设置在其余的连接时间里一直有效。
+SET LOCK_TIMEOUT 的设置是在执行或运行时设置，而不是在分析时设置。
+READPAST 锁提示为该 SET 选项提供了另一种方式。
+CREATE DATABASE、ALTER DATABASE 和 DROP DATABASE 语句不使用 SET LOCK_TIMEOUT 设置。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+
+
+mysql> show variables like '%timeout%' ;
++----------------------------+----------+
+| Variable_name              | Value    |
++----------------------------+----------+
+| connect_timeout            | 10       |
+| delayed_insert_timeout     | 300      |
+| innodb_lock_wait_timeout   | 50       |
+| innodb_rollback_on_timeout | OFF      |
+| interactive_timeout        | 28800    |
+| lock_wait_timeout          | 31536000 |
+| net_read_timeout           | 30       |
+| net_write_timeout          | 60       |
+| slave_net_timeout          | 3600     |
+| wait_timeout               | 28800    |
++----------------------------+----------+
+10 rows in set (0.00 sec)
+
+
+
+
+connect_timeout:
+在获取链接时，等待握手的超时时间，只在登录时有效，登录成功这个参数就不管事了。主要是为了防止网络不佳时应用重连导致连接数涨太快，一般默认即可。
+
+
+delayed_insert_timeout:
+这是为MyISAM INSERT DELAY设计的超时参数，在INSERT DELAY中止前等待INSERT语句的时间。
+
+
+
+
+innodb_lock_wait_timeout  
+就是事务遇到锁等待时的Query超时时间。
+跟死锁不一样，InnoDB一旦检测到死锁立刻就会回滚代价小的那个事务，
+锁等待是没有死锁的情况下一个事务持有另一个事务需要的锁资源，被回滚的肯定是请求锁的那个Query。
+例子 SQL 参考  事务处理 多用户间锁的处理 - 简单锁定  的部分，
+
+
+innodb_rollback_on_timeout
+这个参数关闭或不存在的话遇到超时只回滚事务最后一个Query，打开的话事务遇到超时就回滚整个事务。
+
+
+
+interactive_timeout:
+参数含义：服务器关闭交互式连接前等待活动的秒数。交互式客户端定义为在mysql_real_connect()中使用CLIENT_INTERACTIVE选项的客户端。
+参数默认值：28800秒（8小时）
+
+
+net_read_timeout / net_write_timeout:
+这个参数只对TCP/IP链接有效，分别是数据库等待接收客户端发送网络包和发送网络包给客户端的超时时间，
+这是在Activity状态下的线程才有效的参数
+
+
+slave_net_timeout:
+这是Slave判断主机是否挂掉的超时设置，在设定时间内依然没有获取到Master的回应就人为Master挂掉了
+
+
+wait_timeout:
+参数含义：服务器关闭非交互连接之前等待活动的秒数。
+在线程启动时，根据全局wait_timeout值或全局interactive_timeout值初始化会话wait_timeout值，
+取决于客户端类型(由mysql_real_connect()的连接选项CLIENT_INTERACTIVE定义)。
+参数默认值：28800秒（8小时）
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

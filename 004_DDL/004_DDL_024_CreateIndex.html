@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - 创建普通索引 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 创建普通索引 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> CREATE INDEX idx_test4_val ON test_create_tab4(val);
+
+Index created.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => CREATE INDEX idx_test4_val ON test_create_tab4(val);
+DB20000I  SQL 命令成功完成。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> CREATE INDEX idx_test4_val ON test_create_tab4(val);
+2> go
+
+
+
+<hr/>
+基于视图的索引.
+
+CREATE TABLE Test_Unique (
+ id   int identity(1, 1) NOT NULL, -- 系统自增主键
+ my_code varchar(10),     -- 编号
+ my_name varchar(10),
+ status  bit        -- 状态 (1有效，0无效)
+ CONSTRAINT PK_Test_Unique PRIMARY KEY(id)
+);
+GO
+
+-- 创建一个 视图，仅仅包含 my_code 不为空，且 status = 1 的情况.
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE VIEW v_Test_Unique_useable
+WITH SCHEMABINDING
+AS
+SELECT
+  id, my_code, my_name, status
+FROM
+  dbo.Test_Unique
+WHERE
+  my_code IS NOT NULL
+  AND status = 1;
+GO
+
+
+-- 为这个 有效数据的视图， 创建一个 唯一性索引.
+CREATE UNIQUE CLUSTERED INDEX idx_Test_Unique_id
+  ON v_Test_Unique_useable(my_code);
+GO
+
+
+<hr/>
+注：不是所有视图，都能创建索引的。
+某些视图如果包含 UNION 之类的语句， 那么创建的时候，将报错：
+
+无法对视图 'test.dbo.v_all_pguid' 创建 索引，因为其中包含一个或多个 UNION、INTER
+SECT 或 EXCEPT 运算符。如果将查询作为原始视图的 UNION、INTERSECT 或 EXCEPT 运算
+符的输入，请考虑为每个这样的查询创建一个单独的索引视图。
+
+
+
+些视图如果包含 DISTINCT 的语句， 那么创建的时候，将报错：
+
+无法对视图 "test.dbo.v_table1_ab" 创建 索引，因为其中包含 DISTINCT 关键字。请考
+虑将 DISTINCT 从视图中删除或不对视图进行索引。另外，还可以考虑将 DISTINCT 替换为
+ GROUP BY 或 COUNT_BIG(*)，以在对列分组时模拟 DISTINCT。
+ 
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> CREATE INDEX idx_test4_val ON test_create_tab4(val);
+    -> //
+Query OK, 1 row affected (0.17 sec)
+Records: 1  Duplicates: 0  Warnings: 0
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+sqlite> CREATE INDEX idx_test2_val ON test_tab2(val);
+sqlite>
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# CREATE INDEX idx_test4_val ON test_create_tab4(val);
+CREATE INDEX
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

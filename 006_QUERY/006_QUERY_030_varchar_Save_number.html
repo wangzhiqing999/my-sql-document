@@ -1,0 +1,310 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - varchar 字段存储数字 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> varchar 字段存储 数字类型情况下的查询问题  </h2>
+
+
+
+<pre><code>
+
+某些情况下。
+存在有一个表中的某一列， 数据类型是 varchar.
+其中有可能存储数字， 也有可能存储文本信息。
+
+
+而当查询的时候， 有时候需要按照 数字的方式来查询。
+
+测试表/数据如下：
+
+CREATE TABLE test_varchar_save_num(
+  id  varchar(10)
+);
+
+
+INSERT INTO test_varchar_save_num VALUES( '1');
+INSERT INTO test_varchar_save_num VALUES( '15');
+INSERT INTO test_varchar_save_num VALUES( '20');
+INSERT INTO test_varchar_save_num VALUES( '50');
+INSERT INTO test_varchar_save_num VALUES( '1B');
+INSERT INTO test_varchar_save_num VALUES( '2A');
+INSERT INTO test_varchar_save_num VALUES( '1 ');
+INSERT INTO test_varchar_save_num VALUES( '2 ');
+INSERT INTO test_varchar_save_num VALUES( ' 1');
+INSERT INTO test_varchar_save_num VALUES( ' 2');
+INSERT INTO test_varchar_save_num VALUES( 'ABC');
+
+
+要求查询  id 范围， 在 10~30 之间的数据.
+
+
+</code></pre>
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+<h3> 无视数据类型的写法. （ORA-01722: 无效数字） </h3>
+
+SELECT
+  *
+FROM
+  test_varchar_save_num
+WHERE
+  id BETWEEN 10 AND 30;
+
+ERROR:
+ORA-01722: 无效数字
+
+
+<h3> 数字参数修改为 varchar 的写法.  （结果数据不正确） </h3>
+
+SELECT
+  *
+FROM
+  test_varchar_save_num
+WHERE
+  id BETWEEN '10' AND '30';
+
+ID
+--------------------
+15
+20
+1B
+2A
+2
+
+
+<h3> 使用正则表达式 + to_number 的写法（ORA-01722: 无效数字） </h3>
+
+SELECT
+  *
+FROM
+  test_varchar_save_num
+WHERE
+  REGEXP_LIKE(id,'(^[+-]?\d{0,}\.?\d{0,}$)')
+  AND to_number(id) BETWEEN  10 AND 30;
+
+ERROR:
+ORA-01722: 无效数字
+
+
+
+<h3> 使用 正则表达式子查询 +  主查询 to_number 的写法（ORA-01722: 无效数字）  </h3>
+
+SELECT
+  *
+FROM
+  (
+  SELECT
+    *
+  FROM
+    test_varchar_save_num
+  WHERE
+    REGEXP_LIKE(id,'(^[+-]?\d{0,}\.?\d{0,}$)') 
+  ) subQuery
+WHERE 
+  to_number(id) BETWEEN  10 AND 30;
+
+ERROR:
+ORA-01722: 无效数字
+
+
+
+<h3> 使用 case when ， 将非数字的，转化为 null 的写法  （完成处理）  </h3>
+
+SELECT
+  *
+FROM
+  test_varchar_save_num
+WHERE
+  CASE WHEN REGEXP_LIKE(id,'(^[+-]?\d{0,}\.?\d{0,}$)')  THEN  to_number(id) 
+       ELSE  NULL  END  BETWEEN  10 AND 30;
+
+ID
+--------------------
+15
+20
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+<h3> 无视数据类型的写法. （失败） </h3>
+
+SELECT
+  *
+FROM
+  test_varchar_save_num
+WHERE
+  id BETWEEN 10 AND 30;
+
+
+id
+----------
+消息 245，级别 16，状态 1，服务器 EDWARDPC\SQLEXPRESS，第 1 行
+在将 varchar 值 '1B' 转换成数据类型 int 时失败。
+15
+20
+消息 245，级别 16，状态 1，服务器 EDWARDPC\SQLEXPRESS，第 1 行
+在将 varchar 值 '1B' 转换成数据类型 int 时失败。
+
+
+
+
+<h3> 数字参数修改为 varchar 的写法.  （结果数据不正确） </h3>
+
+SELECT
+  *
+FROM
+  test_varchar_save_num
+WHERE
+  id BETWEEN '10' AND '30';
+
+id
+----------
+15
+20
+1B
+2A
+2
+
+(5 行受影响)
+
+
+
+
+<h3> 使用 ISNUMERIC  + cast 的写法（完成处理） </h3>
+
+SELECT
+  *
+FROM
+  test_varchar_save_num
+WHERE
+  ISNUMERIC(id) = 1
+  AND cast(id as int) BETWEEN 10 AND 30;
+
+id
+----------
+15
+20
+
+(2 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+<h3> 无视数据类型的写法. （居然直接通过了...... ^_^） </h3>
+
+SELECT
+  *
+FROM
+  test_varchar_save_num
+WHERE
+  id BETWEEN 10 AND 30;
+
+
++------+
+| id   |
++------+
+| 15   |
+| 20   |
++------+
+2 rows in set (0.00 sec)
+  
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

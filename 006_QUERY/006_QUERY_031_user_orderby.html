@@ -1,0 +1,226 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 用户自定义排序 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2>  用户自定义排序  </h2>
+
+
+
+<pre><code>
+
+-- 例如某些特定的情况下， 数字是用汉字的方式处理的， 但是排序要求 按数字大小排序
+CREATE TABLE test_user_orderby (
+  chinese_number  VARCHAR(30)
+);
+
+
+INSERT INTO test_user_orderby VALUES('一');
+INSERT INTO test_user_orderby VALUES('二');
+INSERT INTO test_user_orderby VALUES('三');
+INSERT INTO test_user_orderby VALUES('四');
+INSERT INTO test_user_orderby VALUES('五');
+INSERT INTO test_user_orderby VALUES('六');
+INSERT INTO test_user_orderby VALUES('七');
+INSERT INTO test_user_orderby VALUES('八');
+INSERT INTO test_user_orderby VALUES('九');
+INSERT INTO test_user_orderby VALUES('零');
+
+
+
+</code></pre>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SELECT
+  *
+FROM
+  test_user_orderby
+ORDER BY
+  translate(chinese_number, '一二三四五六七八九零', '1234567890');
+
+CHINESE_NUMBER
+------------------------------------------------------------
+零
+一
+二
+三
+四
+五
+六
+七
+八
+九
+
+已选择10行。
+
+
+
+注： 此处理方式， 适用于 排列组合比较少的情况下使用。 （例如上面这种， 只有10个汉字的情况）
+
+数据量大的情况下， 不宜适用这种处理方式。 （例如要处理 两位数，或者三位数之类的， 需要额外一张表进行处理了）
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SELECT
+  *
+FROM
+  test_user_orderby
+ORDER BY
+  CASE  WHEN chinese_number = '一' THEN 1
+		WHEN chinese_number = '二' THEN 2
+		WHEN chinese_number = '三' THEN 3
+		WHEN chinese_number = '四' THEN 4
+		WHEN chinese_number = '五' THEN 5
+		WHEN chinese_number = '六' THEN 6
+		WHEN chinese_number = '七' THEN 7
+		WHEN chinese_number = '八' THEN 8
+		WHEN chinese_number = '九' THEN 9
+		WHEN chinese_number = '零' THEN 0 END;
+GO
+
+
+chinese_number
+------------------------------
+零
+一
+二
+三
+四
+五
+六
+七
+八
+九
+
+(10 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL </td>
+    <td>
+<pre><code>
+
+
+MySQL 可以使用 FIND_IN_SET 函数， 来完成相关排序的处理.
+
+
+SELECT
+  *
+FROM
+  test_user_orderby
+ORDER BY
+  FIND_IN_SET(chinese_number, '零,一,二,三,四,五,六,七,八,九');
+
+
++----------------+
+| chinese_number |
++----------------+
+| 零             |
+| 一             |
+| 二             |
+| 三             |
+| 四             |
+| 五             |
+| 六             |
+| 七             |
+| 八             |
+| 九             |
++----------------+
+10 rows in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

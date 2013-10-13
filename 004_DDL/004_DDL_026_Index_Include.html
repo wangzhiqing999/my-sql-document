@@ -1,0 +1,224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - SQL Server 索引中的 INCLUDE </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> SQL Server 索引中的 INCLUDE </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+测试表
+
+CREATE TABLE TestDoc(
+  id 			INT identity(1, 1),
+  createDate  	DATETIME,
+  owner			VARCHAR(10),
+  docInfo		TEXT,
+  PRIMARY KEY NONCLUSTERED (id)
+);
+go
+
+
+测试数据
+-- 首先插入 36500*5 = 182500 条数据.
+DECLARE
+  @i AS INT,
+  @myDate AS DATETIME;
+BEGIN
+  SET @i = 0;
+  SET @myDate = CONVERT(DATETIME, '1949.10.01', 102);
+  WHILE @i &lt; 36500
+  BEGIN
+    SET @i = @i + 1;
+    INSERT INTO TestDoc
+        VALUES ( DATEADD(dd, @i, @myDate), '张三', NULL);
+    INSERT INTO TestDoc
+        VALUES ( DATEADD(dd, @i, @myDate), '李四', NULL);
+    INSERT INTO TestDoc
+        VALUES ( DATEADD(dd, @i, @myDate), '王五', NULL);
+    INSERT INTO TestDoc
+        VALUES ( DATEADD(dd, @i, @myDate), '赵六', NULL);
+    INSERT INTO TestDoc
+        VALUES ( DATEADD(dd, @i, @myDate), 'Admin', NULL);
+  END;
+END
+Go
+
+普通索引
+CREATE NONCLUSTERED INDEX idx_TestDoc ON TestDoc(createDate);
+
+
+SET SHOWPLAN_TEXT ON
+GO
+SELECT
+    owner, createDate
+  FROM
+    TestDoc
+  WHERE
+    createDate &gt;= CONVERT(DATETIME, '2008.01.01', 102)
+    AND createDate &lt; CONVERT(DATETIME, '2008.02.01', 102);
+GO
+SET SHOWPLAN_TEXT OFF
+GO
+
+
+StmtText
+----------
+
+SELECT
+    owner, createDate
+  FROM
+    TestDoc
+  WHERE
+    createDate &lt;= CONVERT(DATETIME, '2008.01.01', 102)
+    AND createDate &lt; CONVERT(DATETIME, '2008.02.01', 102);
+
+(1 行受影响)
+
+StmtText
+----------
+  |--Nested Loops(Inner Join, OUTER REFERENCES:([Bmk1000], [Expr1007]) WITH UNORDERED PREFETCH)
+       |--Index Seek(OBJECT:([test].[dbo].[TestDoc].[idx_TestDoc]), SEEK:([test].[dbo].[TestDoc].[createDate] &gt;= '2008-01-01 00:00:00.000' AND [test].[dbo].[TestDoc].[createDate] &lt; '2008-02-01 00:00:00.000') ORDERED FORWARD)
+       |--RID Lookup(OBJECT:([test].[dbo].[TestDoc]), SEEK:([Bmk1000]=[Bmk1000]) LOOKUP ORDERED FORWARD)
+
+(3 行受影响)
+
+
+带有 INCLUDE 的索引
+
+DROP INDEX idx_TestDoc ON TestDoc;
+go
+
+CREATE NONCLUSTERED INDEX idx_TestDoc 
+  ON TestDoc(createDate)
+  Include(owner) ;
+go
+
+重建索引之后的查询计划
+
+StmtText
+----------
+
+SELECT
+    owner, createDate
+  FROM
+    TestDoc
+  WHERE
+    createDate &gt;= CONVERT(DATETIME, '2008.01.01', 102)
+    AND createDate &lt; CONVERT(DATETIME, '2008.02.01', 102);
+
+(1 行受影响)
+
+StmtText
+----------
+  |--Index Seek(OBJECT:([test].[dbo].[TestDoc].[idx_TestDoc]), SEEK:([test].[dbo].[TestDoc].[createDate] &gt;= CONVERT(datetime,[@1],102) AND [test].[dbo].[TestDoc].[createDate] &lt; CONVERT(datetime,[@2],102)) ORDERED FORWARD)
+
+(1 行受影响)
+
+
+原理：
+默认情况下的索引，只包含一个 createDate 的数据与 行ID的数据。
+也就是当 WHERE createDate 的条件，去索引那里定位到一定范围的数据以后，
+还要根据索引中的行ID，回到表那里，去找相应的行。
+
+使用 INCLUDE 的索引，索引还是有createDate 的数据与 行ID的数据，
+但是还包含了 owner 的信息。这个 owner 不参与排序的处理。
+当 WHERE createDate 的条件，去索引那里定位到一定范围的数据以后。
+然后看到 SELECT 中， 只有 owner, createDate 两列，createDate 是索引，
+已经获取到了，owner作为索引的附加数据，包含在索引信息中了。那么，可以不毕再去表那里，定位相应的行了。
+
+
+用途：
+当 SELECT 中的字段不多，希望检索的过程中，通过直接使用完索引，就可以完成结果的。
+主要是当根据索引，检索到的数据，很分散的时候，如果通过行ID去表中取数据，需要多次读取不同的数据块的时候，这个时候，使用 INCLUDE ，可以提升一些性能。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

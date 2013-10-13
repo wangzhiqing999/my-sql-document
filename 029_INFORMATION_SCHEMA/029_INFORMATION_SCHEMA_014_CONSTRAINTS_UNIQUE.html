@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典表 - 约束-唯一  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典表 </h1>
+
+
+<h2> 约束-唯一  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SELECT
+  tab.name AS [表名],
+  idx.name AS [约束名称],
+  col.name AS [约束列名]
+FROM
+  sys.indexes idx
+    JOIN sys.index_columns idxCol 
+      ON (idx.object_id = idxCol.object_id 
+          AND idx.index_id = idxCol.index_id 
+          AND idx.is_unique_constraint = 1)
+    JOIN sys.tables tab
+      ON (idx.object_id = tab.object_id)
+    JOIN sys.columns col
+      ON (idx.object_id = col.object_id
+          AND idxCol.column_id = col.column_id);
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+SELECT
+  pg_constraint.conname AS "约束名",
+  tab.relname AS "表名称",
+  idx.indkey AS "列索引"
+FROM
+  pg_constraint
+    JOIN pg_class tab
+	  ON ( pg_constraint.conrelid = tab.oid )
+	JOIN pg_index idx
+	  ON ( pg_constraint.conindid = idx.indexrelid )
+WHERE
+  pg_constraint.contype = 'u'
+  AND pg_constraint.connamespace = (SELECT pg_namespace.oid FROM pg_namespace WHERE nspname = 'public');
+
+
+    约束名    |   表名称    | 列索引
+--------------+-------------+--------
+ t_unique_id2 | test_main2  | 1
+ t_unique     | test_unique | 2 3
+(2 行记录)
+
+
+注：
+pg_constraint.contype
+  c = check constraint, 
+  f = foreign key constraint, 
+  p = primary key constraint, 
+  u = unique constraint, 
+  t = constraint trigger, 
+  x = exclusion constraint
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库会话的基本参数设置 SET  - XML方式查看查询计划 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库会话的基本参数设置 SET </h1>
+
+
+<h2>  XML方式查看查询计划 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SET SHOWPLAN_XML { ON | OFF }
+ 
+备注
+SET SHOWPLAN_XML 的设置是在执行或运行时设置的，而不是在分析时设置的。
+如果 SET SHOWPLAN_XML 为 ON，则 SQL Server 将在不执行语句的情况下返回每个语句的执行信息。Transact-SQL 语句不被执行。如果将此选项设置为 ON，则将返回有关所有后续 Transact-SQL 语句的信息，直到该选项被设置为 OFF 为止。例如，如果在 SET SHOWPLAN_XML 为 ON 时执行 CREATE TABLE 语句，则 SQL Server 将从涉及同一个表的后续 SELECT 语句返回错误信息：指定的表不存在。因此，对此表的后续引用将失败。如果 SET SHOWPLAN_XML 为 OFF，则 SQL Server 将执行语句，但不生成报表。
+SET SHOWPLAN_XML 可以为应用程序（如sqlcmd 实用工具）返回 nvarchar(max) 类型的输出，其中的 XML 输出随后将由其他工具用来显示和处理查询计划信息。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

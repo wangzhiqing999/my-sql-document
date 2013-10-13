@@ -1,0 +1,190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - UNION ALL-合并且不去除重复记录 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2>  UNION ALL-合并且不去除重复记录 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT * FROM union_tab_1
+  2  UNION ALL
+  3  SELECT * FROM union_tab_2;
+
+        ID VAL
+---------- --------------------
+         1 A
+         2 B
+         3 C
+         1 A
+         1 A
+         2 B
+         4 D
+
+7 rows selected.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => SELECT * FROM union_tab_1
+db2 (cont.) => UNION ALL
+db2 (cont.) => SELECT * FROM union_tab_2;
+
+ID          VAL
+----------- ----------
+          1 A
+          1 A
+          2 B
+          4 D
+          1 A
+          2 B
+          3 C
+
+  7 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT * FROM union_tab_1
+2> UNION ALL
+3> SELECT * FROM union_tab_2;
+4> go
+id          val
+----------- ----------
+          1 A
+          2 B
+          3 C
+          1 A
+          1 A
+          2 B
+          4 D
+
+(7 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT * FROM union_tab_1
+    -> UNION ALL
+    -> SELECT * FROM union_tab_2
+    -> //
++------+------+
+| id   | val  |
++------+------+
+|    1 | A    |
+|    2 | B    |
+|    3 | C    |
+|    1 | A    |
+|    1 | A    |
+|    2 | B    |
+|    4 | D    |
++------+------+
+7 rows in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+SELECT * FROM union_tab_1
+UNION ALL
+SELECT * FROM union_tab_2;
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# SELECT * FROM union_tab_1
+Test-# UNION ALL
+Test-# SELECT * FROM union_tab_2;
+ id | val
+----+-----
+  1 | A
+  2 | B
+  3 | C
+  1 | A
+  1 | A
+  2 | B
+  4 | D
+(7 行记录)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

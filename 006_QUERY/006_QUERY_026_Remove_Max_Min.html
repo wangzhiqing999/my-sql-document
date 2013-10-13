@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 去掉一个最高分，去掉一个最低分 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2>  去掉一个最高分，去掉一个最低分  </h2>
+
+
+<pre><code>
+
+-- 评分
+CREATE TABLE test_grade (
+  studnet_name  varchar(10),
+  teacher_name  varchar(10),
+  grade  INT
+);
+
+INSERT INTO test_grade VALUES( '张三',  '赵老师',  100);
+INSERT INTO test_grade VALUES( '张三',  '钱老师',  100);
+INSERT INTO test_grade VALUES( '张三',  '孙老师',  90);
+INSERT INTO test_grade VALUES( '张三',  '李老师',  90);
+INSERT INTO test_grade VALUES( '张三',  '周老师',  60);
+INSERT INTO test_grade VALUES( '张三',  '吴老师',  60);
+INSERT INTO test_grade VALUES( '张三',  '郑老师',  90);
+INSERT INTO test_grade VALUES( '张三',  '王老师',  90);
+
+INSERT INTO test_grade VALUES( '李四',  '赵老师',  100);
+INSERT INTO test_grade VALUES( '李四',  '钱老师',  99);
+INSERT INTO test_grade VALUES( '李四',  '孙老师',  98);
+INSERT INTO test_grade VALUES( '李四',  '李老师',  60);
+INSERT INTO test_grade VALUES( '李四',  '周老师',  60);
+INSERT INTO test_grade VALUES( '李四',  '吴老师',  98);
+INSERT INTO test_grade VALUES( '李四',  '郑老师',  99);
+INSERT INTO test_grade VALUES( '李四',  '王老师',  100);
+
+INSERT INTO test_grade VALUES( '王五',  '赵老师',  100);
+INSERT INTO test_grade VALUES( '王五',  '钱老师',  99);
+INSERT INTO test_grade VALUES( '王五',  '孙老师',  98);
+INSERT INTO test_grade VALUES( '王五',  '李老师',  97);
+INSERT INTO test_grade VALUES( '王五',  '周老师',  96);
+INSERT INTO test_grade VALUES( '王五',  '吴老师',  95);
+INSERT INTO test_grade VALUES( '王五',  '郑老师',  94);
+INSERT INTO test_grade VALUES( '王五',  '王老师',  50);
+
+INSERT INTO test_grade VALUES( '赵六',  '赵老师',  60);
+INSERT INTO test_grade VALUES( '赵六',  '钱老师',  91);
+INSERT INTO test_grade VALUES( '赵六',  '孙老师',  92);
+INSERT INTO test_grade VALUES( '赵六',  '李老师',  93);
+INSERT INTO test_grade VALUES( '赵六',  '周老师',  94);
+INSERT INTO test_grade VALUES( '赵六',  '吴老师',  95);
+INSERT INTO test_grade VALUES( '赵六',  '郑老师',  96);
+INSERT INTO test_grade VALUES( '赵六',  '王老师',  100);
+
+</code></pre>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+SELECT
+  studnet_name,
+  MIN(grade) AS "去掉一个最低分",
+  MAX(grade) AS "去掉一个最高分",
+  SUM(grade) -MIN(grade)-MAX(grade) AS "最后得分",
+  (SUM(grade) -MIN(grade)-MAX(grade)) / (COUNT(*) - 2)  AS  "最后平均"
+FROM
+  test_grade
+GROUP BY
+  studnet_name;
+
+
+STUDNET_NAME         去掉一个最低分 去掉一个最高分   最后得分   最后平均
+-------------------- -------------- -------------- ---------- ----------
+张三                             60            100        520 86.6666667
+王五                             50            100        579       96.5
+赵六                             60            100        561       93.5
+李四                             60            100        554 92.3333333
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+With MyCTE AS(
+SELECT
+  ROW_NUMBER() OVER(PARTITION BY studnet_name ORDER BY grade) AS ascNO,
+  ROW_NUMBER() OVER(PARTITION BY studnet_name ORDER BY grade DESC) AS descNO,
+  studnet_name,
+  grade
+FROM
+  test_grade
+)
+SELECT
+  studnet_name ,
+  SUM(CASE WHEN ascNO=1 THEN grade ELSE 0 END) AS [去掉一个最低分],
+  SUM(CASE WHEN descNO=1 THEN grade ELSE 0 END) AS [去掉一个最高分],
+  SUM( CASE WHEN  ascNO!=1 AND descNO!=1 THEN grade ELSE 0 END ) AS [最后得分],
+  AVG(CASE WHEN  ascNO!=1 AND descNO!=1 THEN grade ELSE NULL END)  AS  [最后平均]
+FROM
+  MyCTE
+GROUP BY
+  studnet_name;
+GO
+
+
+studnet_name 去掉一个最低分     去掉一个最高分     最后得分        最后平均
+------------ ----------- ----------- ----------- -----------
+李四                    60         100         554          92
+王五                    50         100         579          96
+张三                    60         100         520          86
+赵六                    60         100         561          93
+警告: 聚合或其他 SET 操作消除了 Null 值。
+
+
+<hr/>
+上面这个写法，写得有点复杂了...
+
+
+
+SELECT
+  studnet_name,
+  MIN(grade) AS [去掉一个最低分],
+  MAX(grade) AS [去掉一个最高分],
+  SUM(grade) -MIN(grade)-MAX(grade) AS [最后得分],
+  (SUM(grade) -MIN(grade)-MAX(grade)) / (COUNT(*) - 2)  AS  [最后平均]
+FROM
+  test_grade
+GROUP BY
+  studnet_name;
+
+
+studnet_name 去掉一个最低分     去掉一个最高分     最后得分        最后平均
+------------ ----------- ----------- ----------- -----------
+李四                    60         100         554          92
+王五                    50         100         579          96
+张三                    60         100         520          86
+赵六                    60         100         561          93
+
+(4 行受影响)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

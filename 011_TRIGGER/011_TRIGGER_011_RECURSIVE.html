@@ -1,0 +1,380 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 触发器 - 递归触发器 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 触发器 </h1>
+
+
+<h2> 递归触发器  </h2>
+
+测试此处时，先删除其它的触发器
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT * FROM test_trigger_table;
+
+        ID NAME                        VAL
+---------- -------------------- ----------
+         1 A
+         2 B
+         3 C
+         4 D
+         5 E
+
+CREATE OR REPLACE TRIGGER AfterDeleteTest
+  AFTER DELETE ON test_trigger_table
+BEGIN
+	-- 递归 触发 AfterDeleteTest 触发器.
+	-- 请注意:
+	-- 对于语句级的触发器
+	-- 尽管 where id > 100
+	-- 一行数据也不会更新
+	-- 但是还是会 触发语句级的触发器
+    DELETE FROM test_trigger_table WHERE id > 100;
+END;
+/
+
+
+SQL> delete from test_trigger_table where id = 1;
+delete from test_trigger_table where id = 1
+            *
+ERROR 位于第 1 行:
+ORA-00036: 超过递归 SQL 级别的最大值 50
+ORA-06512: 在 "TEST.AFTERDELETETEST", line 8
+ORA-04088: 触发器 'TEST.AFTERDELETETEST' 执行过程中出错
+ORA-06512: 在 "TEST.AFTERDELETETEST", line 8
+ORA-04088: 触发器 'TEST.AFTERDELETETEST' 执行过程中出错
+ORA-06512: 在 "TEST.AFTERDELETETEST", line 8
+ORA-04088: 触发器 'TEST.AFTERDELETETEST' 执行过程中出错
+ORA-06512: 在 "TEST.AFTERDELETETEST", line 8
+ORA-04088: 触发器 'TEST.AFTERDELETETEST' 执行过程中出错
+ORA-06512: 在 "TEST.AFTERDELETETEST", line 8
+ORA-04088: 触发器 'TEST.AFTERDELETETEST' 执行过程中出错
+ORA-06512: 在 "TEST.AFTERDELETETEST", line 8
+ORA-04088: 触发器 'TEST.AFTERDELETETEST' 执行过程中出错
+ORA-06512: 在 "TEST.AFTERDELETETEST", line 8
+ORA-04088: 触发器 'TEST.AFTERDELETETEST' 执行过程中出错
+ORA-06512: 在 "TEST.AFTERDELETETEST", line 8
+ORA-04088: 触发器 'TEST.AFTERDELETETEST' 执行过程中出错
+ORA-06512: 在 "TEST.AFTERDELETETEST", line 8
+ORA-04088: 触发器 'TEST.AFTERDELETETEST' 执行过程中出错
+ORA-06512: 在 "TEST.AFTERDELETETEST", line 8
+ORA-04088: 触发器 'TEST.AFTER
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+
+
+1> SELECT * FROM test_trigger_table;
+2> go
+id          name       val
+----------- ---------- -----------
+          1 A                 NULL
+          2 B                 NULL
+          3 C                 NULL
+          4 D                 NULL
+          5 E                 NULL
+
+(5 行受影响)
+
+1> CREATE TRIGGER AfterDeleteTest
+2>   ON test_trigger_table
+3>   FOR DELETE
+4> AS
+5> DECLARE
+6>   @OldID INT;
+7> BEGIN
+8>   PRINT('AFTER DELETE');
+9>   SELECT @OldID = id FROM deleted;
+10>   PRINT('Old ID = ' + STR(@OldID) );
+11>
+12>   -- 递归 触发 AfterDeleteTest 触发器.
+13>   DELETE FROM test_trigger_table WHERE id = @OldID + 1;
+14> END
+15> go
+1> DELETE FROM test_trigger_table WHERE id = 1;
+2> go
+AFTER DELETE
+Old ID =          1
+
+(1 行受影响)
+
+1> select * from test_trigger_table;
+2> go
+id          name       val
+----------- ---------- -----------
+          3 C                 NULL
+          4 D                 NULL
+          5 E                 NULL
+
+(3 行受影响)
+
+注意：这个时候，触发器没有被递归触发
+
+1> truncate table test_trigger_table;
+2> go
+1> INSERT INTO test_trigger_table(id, name) VALUES (1, 'A');
+2> INSERT INTO test_trigger_table(id, name) VALUES (2, 'B');
+3> INSERT INTO test_trigger_table(id, name) VALUES (3, 'C');
+4> INSERT INTO test_trigger_table(id, name) VALUES (4, 'D');
+5> INSERT INTO test_trigger_table(id, name) VALUES (5, 'E');
+6> go
+
+配置数据库参数，允许递归触发
+1> EXEC sp_dboption 'test', 'recursive triggers', true
+2> go
+
+1>  DELETE FROM test_trigger_table WHERE id = 1;
+2> go
+AFTER DELETE
+Old ID =          1
+AFTER DELETE
+Old ID =          2
+AFTER DELETE
+Old ID =          3
+AFTER DELETE
+Old ID =          4
+AFTER DELETE
+Old ID =          5
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+AFTER DELETE
+
+消息 217，级别 16，状态 1，服务器 GMJ-PC\SQLEXPRESS，过程 AfterDeleteTest，第 13
+ 行
+超出了存储过程、函数、触发器或视图的最大嵌套层数(最大层数为 32)。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+-- 清除Log日志表
+Test=# truncate table log_table;
+TRUNCATE TABLE
+
+
+
+-- 创建 触发器函数.
+CREATE OR REPLACE FUNCTION TrRecursiveTest()  RETURNS trigger AS $tr_recursive_test$
+BEGIN
+  -- 插入数据到日志表， 目的，检查递归了多少次.
+  INSERT INTO log_table VALUES ( 'TrRecursiveTest Exec !'); 
+  -- 请注意:
+  -- 对于语句级的触发器
+  -- 尽管 where id > 100
+  -- 一行数据也不会更新
+  -- 但是还是会 触发语句级的触发器
+  DELETE FROM test_trigger_table WHERE id > 100;
+
+  -- 语句级的触发器函数， 将忽略返回值，因此这里简单返回 NULL.
+  RETURN NULL;
+END;
+$tr_recursive_test$ LANGUAGE plpgsql;
+
+
+-- 定义触发器.
+CREATE TRIGGER tr_recursive_test 
+  BEFORE DELETE ON test_trigger_table
+  FOR EACH STATEMENT EXECUTE 
+  PROCEDURE TrRecursiveTest();
+
+
+Test=# select  * FROM test_trigger_table;
+ id | name | val
+----+------+-----
+  1 | ABC  |
+  2 | DEF  |
+  1 | ABC  |
+  2 | DEF  |
+  1 | ABC  |
+(5 行记录)
+
+
+
+
+
+-- 测试执行
+delete from test_trigger_table where id = 1;
+
+
+屏幕上将大量闪现
+PL/pgSQL function trrecursivetest() line 9 at SQL语句
+SQL 语句 "DELETE FROM test_trigger_table WHERE id > 100"
+PL/pgSQL function trrecursivetest() line 9 at SQL语句
+SQL 语句 "DELETE FROM test_trigger_table WHERE id > 100"
+PL/pgSQL function trrecursivetest() line 9 at SQL语句
+SQL 语句 "DELETE FROM test_trigger_table WHERE id > 100"
+PL/pgSQL function trrecursivetest() line 9 at SQL语句
+SQL 语句 "DELETE FROM test_trigger_table WHERE id > 100"
+PL/pgSQL function trrecursivetest() line 9 at SQL语句
+
+
+Test=# select  * FROM test_trigger_table;
+ id | name | val
+----+------+-----
+  1 | ABC  |
+  2 | DEF  |
+  1 | ABC  |
+  2 | DEF  |
+  1 | ABC  |
+(5 行记录)
+
+
+理论上应该是溢出了， 最后也就回滚了删除 id=1 的处理。
+
+
+Test=# select count(1) FROM log_table;
+ count
+-------
+     0
+(1 行记录)
+
+
+因为回滚了， 所以 日志表里面， 也没有数据。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

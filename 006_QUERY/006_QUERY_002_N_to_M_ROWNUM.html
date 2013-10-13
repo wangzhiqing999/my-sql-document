@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 前面N条到N+M条（使用 ROWNUM方案） </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2>  前面N条到N+M条（使用 ROWNUM方案）  </h2>
+
+要求 查询 SALE_REPORT 表中，每日销售金额(SALE_MONEY)合计最大的10条数据，要求按从大到小，取第11条到第20条。（无视 SALE_ITEM 字段）
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SELECT 
+  *
+FROM
+  (
+  SELECT 
+    ROWNUM AS NO,
+    A.SALE_DATE,
+    A.SUM_MONEY
+  FROM
+    (
+    SELECT
+      SALE_DATE,
+      SUM(SALE_MONEY) AS SUM_MONEY
+    FROM
+      SALE_REPORT
+    GROUP BY
+      SALE_DATE
+    ORDER BY
+      SUM(SALE_MONEY) DESC
+    ) A
+  ) B
+WHERE  
+  B.NO BETWEEN 11 AND 20
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+SELECT
+  *
+FROM
+  (
+  SELECT
+    ROW_NUMBER() OVER (ORDER BY SUM(SALE_MONEY) DESC) AS NO,
+    SALE_DATE,
+    SUM(SALE_MONEY) AS SUM_MONEY
+  FROM
+    SALE_REPORT
+  GROUP BY
+    SALE_DATE
+  ) B
+WHERE
+  B.NO BETWEEN 11 AND 20
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SELECT
+  *
+FROM
+  (
+  SELECT
+    ROW_NUMBER() OVER (ORDER BY SUM(SALE_MONEY) DESC) AS NO,
+    SALE_DATE,
+    SUM(SALE_MONEY) AS SUM_MONEY
+  FROM
+    SALE_REPORT
+  GROUP BY
+    SALE_DATE
+  ) B
+WHERE
+  B.NO BETWEEN 11 AND 20
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+SELECT
+  *
+FROM
+  (
+  SELECT
+    ROW_NUMBER() OVER (ORDER BY SUM(SALE_MONEY) DESC) AS NO,
+    SALE_DATE,
+    SUM(SALE_MONEY) AS SUM_MONEY
+  FROM
+    SALE_REPORT
+  GROUP BY
+    SALE_DATE
+  ) B
+WHERE
+  B.NO BETWEEN 11 AND 20;
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

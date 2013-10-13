@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 简单复制一列 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2>  简单复制一列  </h2>
+
+
+
+<pre><code>
+
+将A表中的字段a复制到B表中的字段b，并替换掉字段b的所有数据
+
+-- A 表.
+CREATE TABLE A (id  INT   PRIMARY  KEY,   a  varchar(6) );
+INSERT INTO A VALUES(1,   'a1');
+INSERT INTO A VALUES(3,   'a3');
+INSERT INTO A VALUES(5,   'a5');
+INSERT INTO A VALUES(7,   'a7');
+INSERT INTO A VALUES(9,   'a9');
+
+
+-- B 表.
+CREATE TABLE B (id  INT   PRIMARY  KEY,   b  varchar(6) );
+INSERT INTO B VALUES(2,   'b2');
+INSERT INTO B VALUES(4,   'b4');
+INSERT INTO B VALUES(6,   'b6');
+INSERT INTO B VALUES(8,   'b8');
+INSERT INTO B VALUES(0,   'b0');
+
+
+-- A 表 与 B 表的主键， 没有任何关系。
+-- 把 A 表的  a  复制到  B 表的 b 上面去，  别的字段不修改。
+
+
+
+
+
+</code></pre>
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+
+replace into  B (id, B) 
+SELECT
+  TB.ID,
+  TA.A
+FROM
+(
+SELECT
+  @rownumA:=@rownumA+1 AS NO,
+  ID,
+  a
+FROM
+  (SELECT @rownumA:=0) r,
+  A
+) TA  JOIN
+( 
+SELECT
+  @rownumB:=@rownumB+1 AS NO,
+  ID,
+  b
+FROM
+  (SELECT @rownumB:=0) r,
+  B
+) TB  
+WHERE
+  TA.NO = TB.NO;
+
+  
+-- 数据核对：
+mysql> select * FROM B;
++----+------+
+| id | b    |
++----+------+
+|  2 | a1   |
+|  4 | a3   |
+|  6 | a5   |
+|  8 | a7   |
+|  0 | a9   |
++----+------+
+5 rows in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

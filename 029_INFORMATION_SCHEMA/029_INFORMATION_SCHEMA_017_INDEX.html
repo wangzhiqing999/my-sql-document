@@ -1,0 +1,342 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典表 - 索引 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典表 </h1>
+
+
+<h2> 索引  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+-- 创建一个表, 主键是 id
+CREATE TABLE test_idx (
+  id  int,
+  name varchar2(10),
+  PRIMARY KEY (id)
+);
+
+-- 在 name 字段上面，创建一个 索引， 
+CREATE INDEX idx_name ON test_idx(name);
+
+
+
+-- 在 id 与  name 字段上面，创建一个 索引
+-- 本索引，纯粹为了测试  数据字典表中的 数据
+-- 实际应用中，请不要像这种方式创建索引。
+CREATE INDEX idx_idname ON test_idx(id, name);
+
+
+COLUMN "索引名称" FORMAT A15
+COLUMN "索引类型" FORMAT A15
+COLUMN "唯一" FORMAT A15
+
+SELECT
+  index_name  AS  "索引名称",
+  index_type  AS  "索引类型",
+  UNIQUENESS  AS  "唯一"
+FROM
+  user_indexes  idx
+WHERE
+  idx.table_name = 'TEST_IDX';
+
+
+索引名称        索引类型        唯一
+--------------- --------------- ---------------
+SYS_C0014960    NORMAL          UNIQUE
+IDX_NAME        NORMAL          NONUNIQUE
+IDX_IDNAME      NORMAL          NONUNIQUE
+
+
+
+
+COLUMN "索引名称" FORMAT A15
+COLUMN "列名" FORMAT A15
+
+SELECT
+  index_name  AS  "索引名称",
+  column_name  AS  "列名",
+  column_position  AS  "位置"
+FROM
+  user_ind_columns  idxCol
+WHERE
+  idxCol.table_name = 'TEST_IDX';
+
+
+索引名称        列名                  位置
+--------------- --------------- ----------
+SYS_C0014960    ID                       1
+IDX_NAME        NAME                     1
+IDX_IDNAME      ID                       1
+IDX_IDNAME      NAME                     2
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+-- 创建一个表, 主键是 id
+CREATE TABLE test_idx (
+  id  int  not  null,
+  name varchar(10),
+  PRIMARY KEY (id)
+);
+
+
+-- 在 name 字段上面，创建一个 索引， 
+CREATE INDEX idx_name ON test_idx(name);
+
+
+
+-- 在 id 与  name 字段上面，创建一个 索引
+-- 本索引，纯粹为了测试  数据字典表中的 数据
+-- 实际应用中，请不要像这种方式创建索引。
+CREATE INDEX idx_idname ON test_idx(id, name);
+
+
+
+
+SELECT
+  name  AS  "索引名称",
+  COLNAMES  AS  "索引列",
+  UNIQUERULE  AS  "唯一",
+  USER_DEFINED  AS "用户定义",
+  SYSTEM_REQUIRED  AS  "系统需要"
+FROM 
+  SYSIBM.SYSINDEXES
+WHERE
+  TBNAME = 'TEST_IDX';
+
+
+查询结果：
+SQL130327154508590	+ID			P	0	1
+IDX_NAME			+NAME		D	1	0
+IDX_IDNAME			+ID+NAME	D	1	0
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+-- 创建一个表, 主键是 id
+CREATE TABLE test_idx (
+  id  int,
+  name varchar(10),
+  PRIMARY KEY (id)
+);
+
+-- 在 name 字段上面，创建一个 索引， 
+CREATE INDEX idx_name ON test_idx(name);
+go
+
+
+-- 在 id 与  name 字段上面，创建一个 索引
+-- 本索引，纯粹为了测试  数据字典表中的 数据
+-- 实际应用中，请不要像这种方式创建索引。
+CREATE INDEX idx_idname ON test_idx(id, name);
+go
+
+
+-- 查询
+SELECT
+  name  AS  [索引名],
+  index_id   AS  [索引编号],
+  type_desc  AS  [索引类型],
+  is_unique  AS  [是否唯一],
+  is_primary_key AS  [是否主键]
+FROM
+  sys.indexes
+WHERE
+  object_id = ( 
+    SELECT object_id 
+	FROM sys.tables 
+	WHERE name = 'test_idx');
+GO
+
+
+索引名	索引编号	索引类型	是否唯一	是否主键
+PK__test_idx__3213E83F531856C7	1	CLUSTERED	1	1
+idx_name	2	NONCLUSTERED	0	0
+idx_idname	3	NONCLUSTERED	0	0
+
+
+SELECT
+  col.name AS 列名,
+  typ.name as 数据类型,
+  col.is_nullable  AS 是否允许非空
+FROM
+  sys.columns col 
+	left join sys.types typ 
+		on (col.system_type_id = typ.system_type_id 
+			AND col.user_type_id = typ.user_type_id)
+WHERE
+  col.object_id = ( 
+    SELECT object_id 
+	FROM sys.tables 
+	WHERE name = 'test_idx');
+
+列名	数据类型	是否允许非空
+id	int	0
+name	varchar	1
+
+
+
+-- 查询
+SELECT
+  idx.name  AS  [索引名],
+  idx.index_id   AS  [索引编号],
+  idx.type_desc  AS  [索引类型],
+  idx.is_unique  AS  [是否唯一],
+  idx.is_primary_key AS  [是否主键],
+  col.name AS 索引列名,
+  idxCol.index_column_id  AS  索引列顺序
+FROM
+  sys.indexes  idx
+	JOIN  sys.index_columns  idxCol
+		ON (idx.object_id = idxCol.object_id
+			AND idx.index_id = idxCol.index_id)
+	JOIN  sys.columns col 
+		ON (idx.object_id = col.object_id
+            AND idxCol.index_column_id = col.column_id)
+WHERE
+  idx.object_id = ( 
+    SELECT object_id 
+	FROM sys.tables 
+	WHERE name = 'test_idx');
+
+索引名	索引编号	索引类型	是否唯一	是否主键	索引列名	索引列顺序
+PK__test_idx__3213E83F531856C7	1	CLUSTERED	1	1	id	1
+idx_name	2	NONCLUSTERED	0	0	id	1
+idx_idname	3	NONCLUSTERED	0	0	id	1
+idx_idname	3	NONCLUSTERED	0	0	name	2
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+SELECT
+  tab.relname AS "表名称",
+  idx.relname AS "索引名称",
+  pg_index.indkey AS "索引列"
+FROM
+  pg_index 
+    JOIN pg_class tab
+	  ON ( tab.oid = pg_index.indrelid )
+	JOIN pg_class idx
+	  ON ( idx.oid = pg_index.indexrelid )
+WHERE
+  tab.relnamespace = (SELECT pg_namespace.oid FROM pg_namespace WHERE nspname = 'public');
+
+
+      表名称      |       索引名称        | 索引列
+------------------+-----------------------+--------
+ test_create_tab1 | test_create_tab1_pkey | 1
+ test_create_tab4 | test_create_tab4_pkey | 1
+ MR_DEPT          | MR_DEPT_pkey          | 1
+ test_tab2        | pk_test_tab           | 1
+ test_main        | test_main_pkey        | 1
+ test_sub         | test_sub_pkey         | 1
+ test_sub2        | test_sub2_pkey        | 1
+ test_main2       | t_unique_id2          | 1
+ test_unique      | t_unique              | 2 3
+ test_create_tab4 | idx_test4_val         | 2
+ test_main        | idx_testmain          | 0
+ testtopn         | testtopn_pkey         | 1
+ test_tree        | test_tree_pkey        | 1
+ mr_dept          | mr_dept_pkey          | 1
+ test_main_class  | test_main_class_pkey  | 1
+ test_sub_student | test_sub_student_pkey | 1
+(16 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

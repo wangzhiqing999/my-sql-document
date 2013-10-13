@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 其他函数 - 取得 GUID号  SYS_GUID / NEWID </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 其他函数 </h1>
+
+
+<h2> 取得 GUID号  SYS_GUID / NEWID  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT SYS_GUID() FROM DUAL;
+
+SYS_GUID()
+--------------------------------
+727997912F054C7C81604C552FC3D7AE
+
+SQL> /
+
+SYS_GUID()
+--------------------------------
+2B0F8287C7A941FA8E16F9636E3CACA5
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+这个函数，还是不能保证百分之百唯一。
+
+
+db2 => SELECT  generate_unique() AS GUID  FROM SYSIBM.SYSDUMMY1;
+
+GUID
+-----------------------------
+x'20121219093913038191000000'
+
+  1 条记录已选择。
+
+db2 => SELECT  generate_unique() AS GUID  FROM SYSIBM.SYSDUMMY1;
+
+GUID
+-----------------------------
+x'20121219093914604825000000'
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT NEWID()
+2> go
+
+------------------------------------
+13D79F41-D088-4F12-8FAE-359112F0486D
+
+(1 行受影响)
+1> SELECT NEWID()
+2> go
+
+------------------------------------
+954C83E2-137D-4692-842D-477ECFEBF890
+
+(1 行受影响)
+
+
+注：在 SQL Server 当中，可以通过
+SELECT TOP N FROM table ORDER BY newid() 
+进行随机获取表的前N行数据。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT UUID();
++--------------------------------------+
+| UUID()                               |
++--------------------------------------+
+| dd6a331c-dde8-11df-adb1-3e82d1946e6c |
++--------------------------------------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+sqlite> select lower(hex(randomblob(16)));
+lower(hex(randomblob(16)))
+cf798fd012f3f6a4b5bb30d4047b42d4
+
+sqlite> select lower(hex(randomblob(16)));
+lower(hex(randomblob(16)))
+4e164561dc3e48653b66478b9b37011e
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

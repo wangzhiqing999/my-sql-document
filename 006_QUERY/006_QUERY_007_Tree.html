@@ -1,0 +1,823 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 树形结构 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> 树形结构  </h2>
+
+
+
+
+树形结构统一使用下面的测试表与测试数据
+
+<pre><code>
+
+CREATE TABLE test_tree (
+  test_id   INT  NOT NULL,
+  pid       INT,
+  test_val  VARCHAR(10),
+  PRIMARY KEY (test_id)
+);
+
+
+INSERT INTO test_tree VALUES(1, NULL,   '.NET');
+INSERT INTO test_tree VALUES(2, 1,      'C#');
+INSERT INTO test_tree VALUES(3, 1,      'J#');
+INSERT INTO test_tree VALUES(4, 1,      'ASP.NET');
+INSERT INTO test_tree VALUES(5, 1,      'VB.NET');
+
+INSERT INTO test_tree VALUES(6, NULL,   'J2EE');
+INSERT INTO test_tree VALUES(7, 6,      'EJB');
+INSERT INTO test_tree VALUES(8, 6,      'Servlet');
+INSERT INTO test_tree VALUES(9, 6,      'JSP');
+
+INSERT INTO test_tree VALUES(10, NULL,  'Database');
+INSERT INTO test_tree VALUES(11, 10,    'DB2');
+INSERT INTO test_tree VALUES(12, 10,    'MySQL');
+INSERT INTO test_tree VALUES(13, 10,    'Oracle');
+INSERT INTO test_tree VALUES(14, 10,    'SQL Server');
+
+
+INSERT INTO test_tree VALUES(15, 13,    'PL/SQL');
+INSERT INTO test_tree VALUES(16, 15,    'Function');
+INSERT INTO test_tree VALUES(17, 15,    'Procedure');
+INSERT INTO test_tree VALUES(18, 15,    'Package');
+INSERT INTO test_tree VALUES(19, 15,    'Cursor');
+
+INSERT INTO test_tree VALUES(20, 14,    'T-SQL');
+
+
+
+</code></pre>
+
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+使用 START WITH  CONNECT BY 语句实现树状查询
+
+<pre><code>
+
+
+<h3> 通过根节点 向下查询子节点 </h3>
+
+SELECT
+  LPAD(' ', 2*(LEVEL-1)) || test_val AS test_val
+FROM
+  test_tree
+START WITH
+  test_id IN (1, 6, 10)
+CONNECT BY PRIOR test_id = pid;
+
+
+TEST_VAL
+-----------------------------------------------------------
+
+.NET
+  C#
+  J#
+  ASP.NET
+  VB.NET
+J2EE
+  EJB
+  Servlet
+  JSP
+Database
+  DB2
+
+TEST_VAL
+-----------------------------------------------------------
+
+  MySQL
+  Oracle
+    PL/SQL
+      Function
+      Procedure
+      Package
+      Cursor
+  SQL Server
+    T-SQL
+
+20 rows selected.
+
+
+SQL> SELECT
+  2    LEVEL,
+  3    test_id,
+  4    test_val
+  5  FROM
+  6    test_tree
+  7  START WITH
+  8    test_id IN (1, 6, 10)
+  9  CONNECT BY PRIOR test_id = pid;
+
+     LEVEL    TEST_ID TEST_VAL
+---------- ---------- --------------------
+         1          1 .NET
+         2          2 C#
+         2          3 J#
+         2          4 ASP.NET
+         2          5 VB.NET
+         1          6 J2EE
+         2          7 EJB
+         2          8 Servlet
+         2          9 JSP
+         1         10 Database
+         2         11 DB2
+
+     LEVEL    TEST_ID TEST_VAL
+---------- ---------- --------------------
+         2         12 MySQL
+         2         13 Oracle
+         3         15 PL/SQL
+         4         16 Function
+         4         17 Procedure
+         4         18 Package
+         4         19 Cursor
+         2         14 SQL Server
+         3         20 T-SQL
+
+20 rows selected.
+
+
+
+
+
+<h4> 如果同一个父节点下的 数据， 需要作排序  </h4>
+
+通过 ORDER SIBLINGS BY  语句进行设置.
+
+SELECT
+  LEVEL,
+  test_id,
+  test_val
+FROM
+  test_tree
+START WITH
+  test_id IN (1, 6, 10)
+CONNECT BY PRIOR test_id = pid
+ORDER SIBLINGS BY test_val;
+
+     LEVEL    TEST_ID TEST_VAL
+---------- ---------- --------------------
+         1          1 .NET
+         2          4 ASP.NET
+         2          2 C#
+         2          3 J#
+         2          5 VB.NET
+         1         10 Database
+         2         11 DB2
+         2         12 MySQL
+         2         13 Oracle
+         3         15 PL/SQL
+         4         19 Cursor
+
+     LEVEL    TEST_ID TEST_VAL
+---------- ---------- --------------------
+         4         16 Function
+         4         18 Package
+         4         17 Procedure
+         2         14 SQL Server
+         3         20 T-SQL
+         1          6 J2EE
+         2          7 EJB
+         2          9 JSP
+         2          8 Servlet
+
+已选择20行。
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+使用 CTE 处理 与 SQL Server 的区别在于：
+
+1、列名是递归公共表表达式所必需的。
+2、不能包括 ON子句的显式连接。
+
+
+
+
+db2 => WITH StepCTE
+db2 (cont.) =>  (test_id,
+db2 (cont.) =>   pid,
+db2 (cont.) =>   test_val,
+db2 (cont.) =>   Lev)
+db2 (cont.) => AS
+db2 (cont.) => (
+db2 (cont.) => SELECT
+db2 (cont.) =>   test_id,
+db2 (cont.) =>   pid,
+db2 (cont.) =>   test_val,
+db2 (cont.) =>   1 as Lev
+db2 (cont.) => FROM
+db2 (cont.) =>   test_tree
+db2 (cont.) => WHERE
+db2 (cont.) =>   test_id IN (1,6,10)
+db2 (cont.) => UNION ALL
+db2 (cont.) => SELECT
+db2 (cont.) =>   T.test_id,
+db2 (cont.) =>   T.pid,
+db2 (cont.) =>   T.test_val,
+db2 (cont.) =>   CTE.Lev + 1
+db2 (cont.) => FROM
+db2 (cont.) =>   test_tree T , StepCTE CTE
+db2 (cont.) => WHERE
+db2 (cont.) =>   T.pid = CTE.test_id
+db2 (cont.) => )
+db2 (cont.) => SELECT
+db2 (cont.) =>   test_id, pid, test_val, Lev
+db2 (cont.) => FROM StepCTE;
+
+TEST_ID     PID         TEST_VAL   LEV
+----------- ----------- ---------- -----------
+SQL0347W  递归公共表表达式 "WZQ.STEPCTE" 可能包含无限循环。  SQLSTATE=01605
+
+          1           - .NET                 1
+          6           - J2EE                 1
+         10           - Database             1
+          2           1 C#                   2
+          3           1 J#                   2
+          4           1 ASP.NET              2
+          5           1 VB.NET               2
+          7           6 EJB                  2
+          8           6 Servlet              2
+          9           6 JSP                  2
+         11          10 DB2                  2
+         12          10 MySQL                2
+         13          10 Oracle               2
+         14          10 SQL Server           2
+         15          13 PL/SQL               3
+         20          14 T-SQL                3
+         16          15 Function             4
+         17          15 Procedure            4
+         18          15 Package              4
+         19          15 Cursor               4
+
+  已选择 20 条记录，打印 1 条警告消息。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+使用 Common Table Expression (CTE) 来实现 递归调用。
+能够计算出正确的 Level ， 但是显示顺序还是略有问题。
+
+
+1> WITH StepCTE
+2> AS
+3> (
+4> SELECT
+5>   test_id,
+6>   pid,
+7>   test_val,
+8>   1 as Lev
+9> FROM
+10>   test_tree
+11> WHERE
+12>   test_id IN (1,6,10)
+13> UNION ALL
+14> SELECT
+15>   T.test_id,
+16>   T.pid,
+17>   T.test_val,
+18>   CTE.Lev + 1
+19> FROM
+20>   test_tree T INNER JOIN StepCTE CTE
+21>   ON T.pid = CTE.test_id
+22> )
+23> SELECT
+24>   test_id, pid, test_val, Lev
+25> FROM StepCTE;
+26> go
+test_id     pid         test_val   Lev
+----------- ----------- ---------- -----------
+          1        NULL .NET                 1
+          6        NULL J2EE                 1
+         10        NULL Database             1
+         11          10 DB2                  2
+         12          10 MySQL                2
+         13          10 Oracle               2
+         14          10 SQL Server           2
+         20          14 T-SQL                3
+         15          13 PL/SQL               3
+         16          15 Function             4
+         17          15 Procedure            4
+         18          15 Package              4
+         19          15 Cursor               4
+          7           6 EJB                  2
+          8           6 Servlet              2
+          9           6 JSP                  2
+          2           1 C#                   2
+          3           1 J#                   2
+          4           1 ASP.NET              2
+          5           1 VB.NET               2
+
+(20 行受影响)
+
+
+
+在了解到, 最大Level 为4的情况下，对原有的 SQL 语句，做一定修改。
+
+
+
+WITH StepCTE
+AS
+(
+SELECT
+  test_id,
+  pid,
+  test_val,
+  1 as Lev,
+  ROW_NUMBER() OVER(ORDER BY (SELECT 1))  * 1000000 AS [seq]
+FROM
+  test_tree
+WHERE
+  test_id IN (1,6,10)
+UNION ALL
+SELECT
+  T.test_id,
+  T.pid,
+  T.test_val,
+  CTE.Lev + 1,
+  case
+    when CTE.[Lev] = 1 then CTE.[seq] + ROW_NUMBER() OVER(ORDER BY (SELECT 1)) * 10000
+    when CTE.[Lev] = 2 then CTE.[seq] + ROW_NUMBER() OVER(ORDER BY (SELECT 1)) * 100
+    when CTE.[Lev] = 3 then CTE.[seq] + ROW_NUMBER() OVER(ORDER BY (SELECT 1))
+    else CTE.[seq] + ROW_NUMBER() OVER(ORDER BY (SELECT 1))
+  end as [seq]
+FROM
+  test_tree T INNER JOIN StepCTE CTE
+  ON T.pid = CTE.test_id
+)
+SELECT
+  test_id, pid, test_val, Lev
+FROM
+  StepCTE
+ORDER BY
+  [seq]
+
+
+
+结果已经排序得比较正常了
+
+test_id     pid         test_val   Lev
+----------- ----------- ---------- -----------
+          1        NULL .NET                 1
+          2           1 C#                   2
+          3           1 J#                   2
+          4           1 ASP.NET              2
+          5           1 VB.NET               2
+          6        NULL J2EE                 1
+          7           6 EJB                  2
+          8           6 Servlet              2
+          9           6 JSP                  2
+         10        NULL Database             1
+         11          10 DB2                  2
+         12          10 MySQL                2
+         13          10 Oracle               2
+         15          13 PL/SQL               3
+         16          15 Function             4
+         17          15 Procedure            4
+         18          15 Package              4
+         19          15 Cursor               4
+         14          10 SQL Server           2
+         20          14 T-SQL                3
+
+(20 行受影响)
+
+
+
+
+最后再修改一下，让结果更加直观一些：
+
+WITH StepCTE
+AS
+(
+SELECT
+  test_id,
+  pid,
+  test_val,
+  1 as Lev,
+  ROW_NUMBER() OVER(ORDER BY (SELECT 1))  * 1000000 AS [seq]
+FROM
+  test_tree
+WHERE
+  test_id IN (1,6,10)
+UNION ALL
+SELECT
+  T.test_id,
+  T.pid,
+  T.test_val,
+  CTE.Lev + 1,
+  case
+    when CTE.[Lev] = 1 then CTE.[seq] + ROW_NUMBER() OVER(ORDER BY (SELECT 1)) * 10000
+    when CTE.[Lev] = 2 then CTE.[seq] + ROW_NUMBER() OVER(ORDER BY (SELECT 1)) * 100
+    when CTE.[Lev] = 3 then CTE.[seq] + ROW_NUMBER() OVER(ORDER BY (SELECT 1))
+    else CTE.[seq] + ROW_NUMBER() OVER(ORDER BY (SELECT 1))
+  end as [seq]
+FROM
+  test_tree T INNER JOIN StepCTE CTE
+  ON T.pid = CTE.test_id
+)
+SELECT
+  test_id,
+  pid,
+  CASE WHEN Lev
+ = 1 THEN [test_val] ELSE '' END  AS  一级,
+  CASE WHEN Lev
+ = 2 THEN [test_val] ELSE '' END  AS  二级,
+  CASE WHEN Lev
+ = 3 THEN [test_val] ELSE '' END  AS  三级,
+  CASE WHEN Lev
+ = 4 THEN [test_val] ELSE '' END  AS  四级
+FROM
+  StepCTE
+ORDER BY
+  [seq]
+
+
+
+test_id     pid         一级         二级         三级         四级
+----------- ----------- ---------- ---------- ---------- ----------
+          1        NULL .NET
+          2           1            C#
+          3           1            J#
+          4           1            ASP.NET
+          5           1            VB.NET
+          6        NULL J2EE
+          7           6            EJB
+          8           6            Servlet
+          9           6            JSP
+         10        NULL Database
+         11          10            DB2
+         12          10            MySQL
+         13          10            Oracle
+         15          13                       PL/SQL
+         16          15                                  Function
+         17          15                                  Procedure
+         18          15                                  Package
+         19          15                                  Cursor
+         14          10            SQL Server
+         20          14                       T-SQL
+
+(20 行受影响)
+
+
+
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+不直接支持 递归类的 SQL 查询处理。
+只有视情况，选择处理方式。
+对于 最大层数明确，且层数不大的，可以通过 LEFT JOIN 自行处理。
+
+
+下面的例子，是知道了最大深度为 4 的情况下的处理
+
+
+SELECT
+  lv1.test_val,
+  lv2.test_val,
+  lv3.test_val,
+  lv4.test_val
+FROM
+  test_tree lv1
+    LEFT JOIN test_tree lv2
+      ON (lv1.test_id = lv2.pid)
+    LEFT JOIN test_tree lv3
+      ON (lv2.test_id = lv3.pid)
+    LEFT JOIN test_tree lv4
+      ON (lv3.test_id = lv4.pid)
+WHERE
+  lv1.pid is NULL;
+
+
++----------+------------+----------+-----------+
+| test_val | test_val   | test_val | test_val  |
++----------+------------+----------+-----------+
+| .NET     | C#         | NULL     | NULL      |
+| .NET     | J#         | NULL     | NULL      |
+| .NET     | ASP.NET    | NULL     | NULL      |
+| .NET     | VB.NET     | NULL     | NULL      |
+| J2EE     | EJB        | NULL     | NULL      |
+| J2EE     | Servlet    | NULL     | NULL      |
+| J2EE     | JSP        | NULL     | NULL      |
+| Database | DB2        | NULL     | NULL      |
+| Database | MySQL      | NULL     | NULL      |
+| Database | Oracle     | PL/SQL   | Function  |
+| Database | Oracle     | PL/SQL   | Procedure |
+| Database | Oracle     | PL/SQL   | Package   |
+| Database | Oracle     | PL/SQL   | Cursor    |
+| Database | SQL Server | T-SQL    | NULL      |
++----------+------------+----------+-----------+
+14 rows in set (0.00 sec)
+
+
+
+SELECT
+  1 AS  Level,
+  lv1.test_val
+FROM
+  test_tree lv1
+WHERE
+  lv1.pid is NULL
+UNION ALL
+SELECT
+  2 AS  Level,
+  lv2.test_val
+FROM
+  test_tree lv1
+    JOIN test_tree lv2
+      ON (lv1.test_id = lv2.pid)
+WHERE
+  lv1.pid is NULL
+UNION ALL
+SELECT
+  3 AS  Level,
+  lv3.test_val
+FROM
+  test_tree lv1
+    JOIN test_tree lv2
+      ON (lv1.test_id = lv2.pid)
+    JOIN test_tree lv3
+      ON (lv2.test_id = lv3.pid)
+WHERE
+  lv1.pid is NULL
+UNION ALL
+SELECT
+  4 AS  Level,
+  lv4.test_val
+FROM
+  test_tree lv1
+    JOIN test_tree lv2
+      ON (lv1.test_id = lv2.pid)
+    JOIN test_tree lv3
+      ON (lv2.test_id = lv3.pid)
+    JOIN test_tree lv4
+      ON (lv3.test_id = lv4.pid)
+WHERE
+  lv1.pid is NULL;
+
+
++-------+------------+
+| Level | test_val   |
++-------+------------+
+|     1 | .NET       |
+|     1 | J2EE       |
+|     1 | Database   |
+|     2 | C#         |
+|     2 | J#         |
+|     2 | ASP.NET    |
+|     2 | VB.NET     |
+|     2 | EJB        |
+|     2 | Servlet    |
+|     2 | JSP        |
+|     2 | DB2        |
+|     2 | MySQL      |
+|     2 | Oracle     |
+|     2 | SQL Server |
+|     3 | PL/SQL     |
+|     3 | T-SQL      |
+|     4 | Function   |
+|     4 | Procedure  |
+|     4 | Package    |
+|     4 | Cursor     |
++-------+------------+
+20 rows in set (0.01 sec)
+
+
+
+<hr/>
+
+在不确定树型结构的最大深度的情况下, 可以通过额外创建一个函数, 来进行辅助的处理.
+
+DELIMITER //
+
+create function groupLst(rootid varchar(25)) 
+returns varchar(1000)
+begin 
+  declare idStr VARCHAR(1000); 
+  declare chID VARCHAR(1000); 
+  
+  set max_sp_recursion_depth=225;
+  set idStr = ''; 
+  set chID =rootid; 
+
+  while chID is not null do
+    set idStr = concat(idStr,',',chID);
+    select group_concat(test_id) into chID from test_tree where FIND_IN_SET(pid, chID)>0;
+  end while;
+  return idStr;
+end;
+//
+
+DELIMITER ;
+
+
+
+SELECT
+  *
+FROM
+  test_tree
+WHERE
+  FIND_IN_SET(test_id, groupLst(1))>0;
+
++---------+------+----------+
+| test_id | pid  | test_val |
++---------+------+----------+
+|       1 | NULL | .NET     |
+|       2 |    1 | C#       |
+|       3 |    1 | J#       |
+|       4 |    1 | ASP.NET  |
+|       5 |    1 | VB.NET   |
++---------+------+----------+
+5 rows in set (0.02 sec)
+
+
+
+
+SELECT
+  *
+FROM
+  test_tree
+WHERE
+  FIND_IN_SET(test_id, groupLst(10))>0;
+
++---------+------+------------+
+| test_id | pid  | test_val   |
++---------+------+------------+
+|      10 | NULL | Database   |
+|      11 |   10 | DB2        |
+|      12 |   10 | MySQL      |
+|      13 |   10 | Oracle     |
+|      14 |   10 | SQL Server |
+|      15 |   13 | PL/SQL     |
+|      16 |   15 | Function   |
+|      17 |   15 | Procedure  |
+|      18 |   15 | Package    |
+|      19 |   15 | Cursor     |
+|      20 |   14 | T-SQL      |
++---------+------+------------+
+11 rows in set (0.02 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+与 DB2 的区别
+需要在 With 后面，加一个 recursive 关键字。
+否则会提示错误。
+
+
+WITH recursive StepCTE
+ (test_id,
+  pid,
+  test_val,
+  Lev)
+AS
+(
+SELECT
+  test_id,
+  pid,
+  test_val,
+  1 as Lev
+FROM
+  test_tree
+WHERE
+  test_id IN (1,6,10)
+UNION ALL
+SELECT
+  T.test_id,
+  T.pid,
+  T.test_val,
+  CTE.Lev + 1
+FROM
+  test_tree T , StepCTE CTE
+WHERE
+  T.pid = CTE.test_id
+)
+SELECT
+  test_id, pid, test_val, Lev
+FROM StepCTE;
+
+
+
+ test_id | pid |  test_val  | lev
+---------+-----+------------+-----
+       1 |     | .NET       |   1
+       6 |     | J2EE       |   1
+      10 |     | Database   |   1
+       2 |   1 | C#         |   2
+       3 |   1 | J#         |   2
+       4 |   1 | ASP.NET    |   2
+       5 |   1 | VB.NET     |   2
+       7 |   6 | EJB        |   2
+       8 |   6 | Servlet    |   2
+       9 |   6 | JSP        |   2
+      11 |  10 | DB2        |   2
+      12 |  10 | MySQL      |   2
+      13 |  10 | Oracle     |   2
+      14 |  10 | SQL Server |   2
+      15 |  13 | PL/SQL     |   3
+      20 |  14 | T-SQL      |   3
+      16 |  15 | Function   |   4
+      17 |  15 | Procedure  |   4
+      18 |  15 | Package    |   4
+      19 |  15 | Cursor     |   4
+(20 行记录)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

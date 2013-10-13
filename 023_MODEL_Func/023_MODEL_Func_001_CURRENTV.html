@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> MODEL查询函数 - CURRENTV() 取当前行 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> MODEL查询函数 </h1>
+
+
+<h2>  CURRENTV() 取当前行 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+-- 本查询用于在 每一行上，增加一列（上月销售合计）
+-- 这里与前面不同点有以下几点：
+-- 1.CTE 当中，增加了一列 0 AS prev_sum_money
+-- 2.月的处理，由 TO_CHAR(SALE_DATE, 'MM') 变为 EXTRACT(MONTH FROM SALE_DATE)
+-- 3.在于 MEASURES 中有 2 列数据.也就是可以有2个数组，分别为 sum_money 与 prev_sum_money
+-- 4.使用了 FOR 语句，遍历数组从2月到12月
+-- 5.使用了 CURRENTV() 函数，取得当前数组索引，然后用来-1。从而获取 上月销售合计.
+With cte AS
+(
+SELECT
+  EXTRACT(MONTH FROM SALE_DATE) AS month,
+  SUM(sale_money) AS sum_money,
+  0 AS prev_sum_money
+FROM
+  sale_report
+GROUP BY
+  EXTRACT(MONTH FROM SALE_DATE)
+)
+SELECT 
+  *
+FROM cte 
+MODEL 
+  DIMENSION BY (month)  -- 按照 月 为 维度
+  MEASURES(sum_money, prev_sum_money) -- 数组的数据为 sum_money, prev_sum_money
+  ( 
+    prev_sum_money[FOR month FROM 2 TO 12 INCREMENT 1]
+      = sum_money[CURRENTV() - 1]
+  )
+ORDER BY
+  month;
+
+
+     MONTH  SUM_MONEY PREV_SUM_MONEY
+---------- ---------- --------------
+         1      62806              0
+         2      56714          62806
+         3      62868          56714
+         4      60855          62868
+         5      62930          60855
+         6      60915          62930
+         7      62992          60915
+         8      63023          62992
+         9      61005          63023
+        10      63085          61005
+        11      61065          63085
+
+     MONTH  SUM_MONEY PREV_SUM_MONEY
+---------- ---------- --------------
+        12      63147          61065
+
+已选择12行。
+
+
+
+
+
+-- 在前面的基础上，增加年的字段.
+-- 然后再维度中，增加 年的 维度.
+With cte AS
+(
+SELECT
+  EXTRACT(YEAR FROM SALE_DATE) AS year,
+  EXTRACT(MONTH FROM SALE_DATE) AS month,
+  SUM(sale_money) AS sum_money,
+  0 AS prev_sum_money
+FROM
+  sale_report
+GROUP BY
+  EXTRACT(YEAR FROM SALE_DATE),
+  EXTRACT(MONTH FROM SALE_DATE)
+)
+SELECT 
+  *
+FROM cte 
+MODEL 
+  DIMENSION BY (year, month)  -- 按照 年，月 为 维度
+  MEASURES(sum_money, prev_sum_money) -- 数组的数据为 sum_money, prev_sum_money
+  ( 
+    prev_sum_money[2009, FOR month FROM 2 TO 12 INCREMENT 1]
+      = sum_money[CURRENTV(), CURRENTV() - 1]
+  )
+ORDER BY
+  month;
+
+
+      YEAR      MONTH  SUM_MONEY PREV_SUM_MONEY
+---------- ---------- ---------- --------------
+      2009          1      62806              0
+      2009          2      56714          62806
+      2009          3      62868          56714
+      2009          4      60855          62868
+      2009          5      62930          60855
+      2009          6      60915          62930
+      2009          7      62992          60915
+      2009          8      63023          62992
+      2009          9      61005          63023
+      2009         10      63085          61005
+      2009         11      61065          63085
+
+      YEAR      MONTH  SUM_MONEY PREV_SUM_MONEY
+---------- ---------- ---------- --------------
+      2009         12      63147          61065
+
+已选择12行。
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,392 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 外键约束 - 自关联 DELETE CASCADE </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 外键约束 </h1>
+
+
+<h2> 自关联 DELETE CASCADE  </h2>
+
+
+<pre><code>
+
+-- 创建自关联测试表. ID 是主键.  pID 是父节点
+CREATE TABLE test_self (
+  id    INT   NOT NULL,
+  pid   INT,
+  value   VARCHAR(10),
+  PRIMARY KEY(id)  
+);
+
+
+INSERT INTO test_self VALUES(1, NULL,   '.NET');
+INSERT INTO test_self VALUES(2, 1,      'C#');
+INSERT INTO test_self VALUES(3, 1,      'J#');
+INSERT INTO test_self VALUES(4, 1,      'ASP.NET');
+INSERT INTO test_self VALUES(5, 1,      'VB.NET');
+
+INSERT INTO test_self VALUES(6, NULL,   'J2EE');
+INSERT INTO test_self VALUES(7, 6,      'EJB');
+INSERT INTO test_self VALUES(8, 6,      'Servlet');
+INSERT INTO test_self VALUES(9, 6,      'JSP');
+
+INSERT INTO test_self VALUES(10, NULL,  'Database');
+INSERT INTO test_self VALUES(11, 10,    'DB2');
+INSERT INTO test_self VALUES(12, 10,    'MySQL');
+INSERT INTO test_self VALUES(13, 10,    'Oracle');
+INSERT INTO test_self VALUES(14, 10,    'SQL Server');
+
+
+INSERT INTO test_self VALUES(15, 13,    'PL/SQL');
+INSERT INTO test_self VALUES(16, 15,    'Function');
+INSERT INTO test_self VALUES(17, 15,    'Procedure');
+INSERT INTO test_self VALUES(18, 15,    'Package');
+INSERT INTO test_self VALUES(19, 15,    'Cursor');
+
+INSERT INTO test_self VALUES(20, 14,    'T-SQL');
+
+
+
+
+ALTER TABLE test_self
+  ADD CONSTRAINT fk_test_self
+    FOREIGN KEY (pid)  REFERENCES test_self(id) ON DELETE CASCADE;
+
+
+
+</code></pre>
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> ALTER TABLE test_self
+  2    ADD CONSTRAINT fk_test_self
+  3      FOREIGN KEY (pid)  REFERENCES test_self(id) ON DELETE CASCADE;
+
+表已更改。
+
+
+
+
+-- 测试 级联删除 层次为 1层的. (预期结果是 id=1,2,3,4,5 的被删除. )
+SQL> DELETE FROM test_self WHERE ID = 1;
+
+已删除 1 行。
+
+-- 数据核对.
+SQL> select * from test_self;
+
+        ID        PID VALUE
+---------- ---------- --------------------
+         6            J2EE
+         7          6 EJB
+         8          6 Servlet
+         9          6 JSP
+        10            Database
+        11         10 DB2
+        12         10 MySQL
+        13         10 Oracle
+        14         10 SQL Server
+        15         13 PL/SQL
+        16         15 Function
+
+        ID        PID VALUE
+---------- ---------- --------------------
+        17         15 Procedure
+        18         15 Package
+        19         15 Cursor
+        20         14 T-SQL
+
+已选择15行。
+
+
+
+
+-- 测试 级联删除 层次为 多层的. (预期结果是 id=10 与 10以后 的被删除. )
+SQL> DELETE FROM test_self WHERE ID = 10;
+
+已删除 1 行。
+
+SQL> select * from test_self;
+
+        ID        PID VALUE
+---------- ---------- --------------------
+         6            J2EE
+         7          6 EJB
+         8          6 Servlet
+         9          6 JSP
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => ALTER TABLE test_self
+db2 (cont.) =>   ADD CONSTRAINT fk_test_self
+db2 (cont.) =>     FOREIGN KEY (pid)  REFERENCES test_self(id) ON DELETE CASCADE;
+DB20000I  SQL 命令成功完成。
+
+
+
+-- 测试 级联删除 层次为 1层的. (预期结果是 id=1,2,3,4,5 的被删除. )
+db2 => DELETE FROM test_self WHERE ID = 1;
+DB20000I  SQL 命令成功完成。
+
+
+-- 数据核对.
+db2 => select * from test_self;
+
+ID          PID         VALUE
+----------- ----------- ----------
+          6           - J2EE
+          7           6 EJB
+          8           6 Servlet
+          9           6 JSP
+         10           - Database
+         11          10 DB2
+         12          10 MySQL
+         13          10 Oracle
+         14          10 SQL Server
+         15          13 PL/SQL
+         16          15 Function
+         17          15 Procedure
+         18          15 Package
+         19          15 Cursor
+         20          14 T-SQL
+
+  15 条记录已选择。
+
+
+-- 测试 级联删除 层次为 多层的. (预期结果是 id=10 与 10以后 的被删除. )
+
+db2 => DELETE FROM test_self WHERE ID = 10;
+DB20000I  SQL 命令成功完成。
+db2 => select * from test_self;
+
+ID          PID         VALUE
+----------- ----------- ----------
+          6           - J2EE
+          7           6 EJB
+          8           6 Servlet
+          9           6 JSP
+
+  4 条记录已选择。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+
+1> ALTER TABLE test_self
+2>   ADD CONSTRAINT fk_test_self
+3>     FOREIGN KEY (pid)  REFERENCES test_self(id) ON DELETE CASCADE;
+4> go
+消息 1785，级别 16，状态 1，服务器 EDWARDPC\SQLEXPRESS，第 1 行
+将 FOREIGN KEY 约束 'fk_test_self' 引入表 'test_self' 可能会导致循环或多重级联路
+径。请指定 ON DELETE NO ACTION 或 ON UPDATE NO ACTION，或修改其他 FOREIGN KEY 约
+束。
+消息 1750，级别 16，状态 1，服务器 EDWARDPC\SQLEXPRESS，第 1 行
+无法创建约束。请参阅前面的错误消息。
+
+
+结果： 不支持！
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> ALTER TABLE test_self
+    ->   ADD CONSTRAINT fk_test_self
+    ->     FOREIGN KEY (pid)  REFERENCES test_self(id) ON DELETE CASCADE;
+Query OK, 20 rows affected (0.05 sec)
+Records: 20  Duplicates: 0  Warnings: 0
+
+
+-- 测试 级联删除 层次为 1层的. (预期结果是 id=1,2,3,4,5 的被删除. )
+mysql> DELETE FROM test_self WHERE ID = 1;
+Query OK, 1 row affected (0.07 sec)
+
+
+-- 数据核对.
+mysql> select * from test_self;
++----+------+------------+
+| id | pid  | value      |
++----+------+------------+
+|  6 | NULL | J2EE       |
+|  7 |    6 | EJB        |
+|  8 |    6 | Servlet    |
+|  9 |    6 | JSP        |
+| 10 | NULL | Database   |
+| 11 |   10 | DB2        |
+| 12 |   10 | MySQL      |
+| 13 |   10 | Oracle     |
+| 14 |   10 | SQL Server |
+| 15 |   13 | PL/SQL     |
+| 16 |   15 | Function   |
+| 17 |   15 | Procedure  |
+| 18 |   15 | Package    |
+| 19 |   15 | Cursor     |
+| 20 |   14 | T-SQL      |
++----+------+------------+
+15 rows in set (0.00 sec)
+
+
+
+-- 测试 级联删除 层次为 多层的. (预期结果是 id=10 与 10以后 的被删除. )
+mysql> DELETE FROM test_self WHERE ID = 10;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select * from test_self;
++----+------+---------+
+| id | pid  | value   |
++----+------+---------+
+|  6 | NULL | J2EE    |
+|  7 |    6 | EJB     |
+|  8 |    6 | Servlet |
+|  9 |    6 | JSP     |
++----+------+---------+
+4 rows in set (0.00 sec)
+
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+Test=# ALTER TABLE test_self
+Test-#   ADD CONSTRAINT fk_test_self
+Test-#     FOREIGN KEY (pid)  REFERENCES test_self(id) ON DELETE CASCADE;
+ALTER TABLE
+
+
+
+-- 测试 级联删除 层次为 1层的. (预期结果是 id=1,2,3,4,5 的被删除. )
+DELETE FROM test_self WHERE ID = 1;
+
+
+-- 数据核对.
+Test=# select * from test_self;
+ id | pid |   value
+----+-----+------------
+  6 |     | J2EE
+  7 |   6 | EJB
+  8 |   6 | Servlet
+  9 |   6 | JSP
+ 10 |     | Database
+ 11 |  10 | DB2
+ 12 |  10 | MySQL
+ 13 |  10 | Oracle
+ 14 |  10 | SQL Server
+ 15 |  13 | PL/SQL
+ 16 |  15 | Function
+ 17 |  15 | Procedure
+ 18 |  15 | Package
+ 19 |  15 | Cursor
+ 20 |  14 | T-SQL
+(15 行记录)
+
+
+-- 测试 级联删除 层次为 多层的. (预期结果是 id=10 与 10以后 的被删除. )
+Test=# DELETE FROM test_self WHERE ID = 10;
+DELETE 1
+
+
+Test=# select * from test_self;
+ id | pid |  value
+----+-----+---------
+  6 |     | J2EE
+  7 |   6 | EJB
+  8 |   6 | Servlet
+  9 |   6 | JSP
+(4 行记录)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

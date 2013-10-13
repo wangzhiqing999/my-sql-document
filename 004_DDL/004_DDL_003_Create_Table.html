@@ -1,0 +1,291 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - 创建表 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 创建表 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> CREATE TABLE test_create_tab (
+  2    id   INT,
+  3    val  VARCHAR(10)
+  4  );
+
+Table created.
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => CREATE TABLE test_create_tab (
+db2 (cont.) =>   id   INT,
+db2 (cont.) =>   val  VARCHAR(10)
+db2 (cont.) => );
+DB20000I  SQL 命令成功完成。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+-- 如果当前数据库中,已经存在有表 test_create_tab, 那么先删除掉.
+IF EXISTS ( SELECT 1 FROM sys.tables WHERE name = 'test_create_tab')
+  DROP TABLE test_create_tab
+GO
+
+
+CREATE TABLE test_create_tab (
+  id   INT,
+  val  VARCHAR(10)
+);
+GO
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+
+show create table 用于查看建表语句
+
+<pre><code>
+
+mysql> CREATE TABLE test_create_tab (
+    ->   id   INT,
+    ->   val  VARCHAR(10)
+    -> );
+    -> //
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> show create table test_create_tab  //
++-----------------+-------------------------------------------------------------
+------------------------------------------------------------------------+
+| Table           | Create Table
+                                                                        |
++-----------------+-------------------------------------------------------------
+------------------------------------------------------------------------+
+| test_create_tab | CREATE TABLE `test_create_tab` (
+  `id` int(11) DEFAULT NULL,
+  `val` varchar(10) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 |
++-----------------+-------------------------------------------------------------
+------------------------------------------------------------------------+
+1 row in set (0.00 sec)
+
+
+
+
+
+
+-- 创建表的时候, 指定字符集.
+CREATE  TABLE  test_tab (
+    id   	INT  AUTO_INCREMENT,
+    value1  varchar(20),
+	value2  nvarchar(20),
+	PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+-- create table IF NOT EXISTS  用于 "如果不存在,才创建"
+create table IF NOT EXISTS viewmes (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+  ip VARCHAR(20) DEFAULT '192.168.1.1',
+  num INT UNSIGNED
+);
+Query OK, 0 rows affected (0.03 sec)
+
+
+mysql> insert into viewmes (num) values( 100);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> create table IF NOT EXISTS viewmes (
+    ->   id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+    ->   ip VARCHAR(20) DEFAULT '192.168.1.1',
+    ->   num INT UNSIGNED
+    -> );
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from viewmes;
++----+-------------+------+
+| id | ip          | num  |
++----+-------------+------+
+|  1 | 192.168.1.1 |  100 |
++----+-------------+------+
+1 row in set (0.00 sec)
+
+
+
+-- DROP TABLE IF EXISTS 用于 "如果存在，才删除"
+DROP TABLE IF EXISTS viewmes;
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# CREATE TABLE test_create_tab (
+Test(#   id   INT,
+Test(#   val  VARCHAR(10)
+Test(# );
+CREATE TABLE
+Test=#
+
+
+Test=# \d test_create_tab;
+    资料表 "public.test_create_tab"
+ 栏位 |         型别          | 修饰词
+------+-----------------------+--------
+ id   | integer               |
+ val  | character varying(10) |
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+
+通过
+> db.createCollection("my_test_tab",{capped:true,size:100000})
+{ "ok" : 1 }
+创建一个表.
+
+
+通过 show collections 查询当前数据库有哪些表.
+> show collections
+my_test_tab
+mycoll
+system.indexes
+
+
+
+也可以直接 通过 插入数据的方式， 创建一个表.
+db.my_test_user.insert(
+  { name: "Edward",
+    age: 35,
+	tel:123456789
+  }
+)
+
+
+> show collections
+my_test_tab
+my_test_user
+mycoll
+system.indexes
+
+
+
+
+
+删除表的处理方式: 
+
+书本上面描述的处理方法， 执行报错了， 估计是软件版本升级的问题.
+> db.drop_collection("my_test_tab");
+Fri Oct 11 11:04:45.204 TypeError: Property 'drop_collection' of object test is not a function
+
+
+> db.my_test_tab.drop();
+true
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+</table>
+
+
+
+
+
+
+</body>
+
+
+</html>

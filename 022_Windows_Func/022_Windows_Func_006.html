@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 窗口函数 - LAG/LEAD </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 窗口函数 </h1>
+
+
+<h2> LAG/LEAD  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+LAG 为取当前行的 前 n 行的数据
+LEAD为取当前行的 后 n 行的数据
+
+SELECT
+  student_name,
+  SUM(grade) AS AllGrade,
+  LAG(SUM(grade), 2)
+    OVER(ORDER BY student_name) AS "前2个",
+  LEAD(SUM(grade), 2)
+    OVER(ORDER BY student_name) AS "后2个"
+FROM
+  test_course
+GROUP BY
+  student_name;
+
+
+STUDENT_NA   ALLGRADE      前2个      后2个
+---------- ---------- ---------- ----------
+丙                145                   120
+丁                125                   100
+庚                120        145        185
+己                100        125        185
+甲                185        120        165
+奎                185        100        105
+壬                165        185        140
+戊                105        185        165
+辛                140        165
+乙                165        105
+
+已选择10行。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+SELECT
+  student_name,
+  SUM(grade) AS AllGrade,
+  LAG(SUM(grade), 2)
+    OVER(ORDER BY student_name) AS "前2个",
+  LEAD(SUM(grade), 2)
+    OVER(ORDER BY student_name) AS "后2个"
+FROM
+  test_course
+GROUP BY
+  student_name;
+
+
+ student_name | allgrade | 前2个 | 后2个
+--------------+----------+-------+-------
+ 丙           |      145 |       |   120
+ 丁           |      125 |       |   100
+ 庚           |      120 |   145 |   185
+ 己           |      100 |   125 |   185
+ 甲           |      185 |   120 |   165
+ 奎           |      185 |   100 |   105
+ 壬           |      165 |   185 |   140
+ 戊           |      105 |   185 |   165
+ 辛           |      140 |   165 |
+ 乙           |      165 |   105 |
+(10 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

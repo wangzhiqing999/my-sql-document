@@ -1,0 +1,319 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 树形结构 - 由叶子节点查询到根节点 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> 树形结构 - 由叶子节点查询到根节点  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+
+
+<pre><code>
+
+使用 START WITH  CONNECT BY 语句实现树状查询
+
+请注意那个 “PRIOR” 的位置。
+
+-- 从根向下查询子.
+CONNECT BY  PRIOR test_id = pid;
+
+-- 从子向上查询根.
+CONNECT BY  test_id = PRIOR pid;
+
+
+
+SELECT
+  LPAD(' ', 2*(LEVEL-1)) || test_val AS test_val
+FROM
+  test_tree
+START WITH
+  test_id IN (20)
+CONNECT BY  test_id = PRIOR pid;
+
+
+TEST_VAL
+-------------------
+T-SQL
+  SQL Server
+    Database
+
+
+
+<hr/>
+<h3> 通过 MODEL 查询 每个节点的顶级根节点 </h3>
+
+SELECT
+  ROOT_ID,
+  test_id,
+  pid,
+  test_val,
+  MyLevel
+FROM
+  test_tree
+MODEL
+  DIMENSION BY (test_id)  -- 维度
+  MEASURES(pid as ROOT_ID, pid, test_val, 0 as MyLevel) -- 数组的数据
+  RULES AUTOMATIC ORDER
+  (
+    -- 如果本行数据的 pid 是 null
+    -- 那么 本行的 根节点 = 自己.
+    -- 否则， 本行的 根节点 = 父节点的根节点.
+    ROOT_ID[ANY] = PRESENTNNV(
+        pid[CURRENTV()],
+        ROOT_ID[pid[CURRENTV()]],
+        CV(test_id)),
+	-- 如果本行数据的 pid 是 null
+	-- 那么本行为顶级节点. Level = 1
+	-- 否则， 本行的层次 为父节点的层次 + 1
+	MyLevel[ANY] = PRESENTNNV(
+        pid[CURRENTV()],
+        MyLevel[pid[CURRENTV()]] + 1,
+        1)
+  )
+ORDER BY
+  test_id;
+
+
+   ROOT_ID    TEST_ID        PID TEST_VAL                MYLEVEL
+---------- ---------- ---------- -------------------- ----------
+         1          1            .NET                          1
+         1          2          1 C#                            2
+         1          3          1 J#                            2
+         1          4          1 ASP.NET                       2
+         1          5          1 VB.NET                        2
+         6          6            J2EE                          1
+         6          7          6 EJB                           2
+         6          8          6 Servlet                       2
+         6          9          6 JSP                           2
+        10         10            Database                      1
+        10         11         10 DB2                           2
+
+   ROOT_ID    TEST_ID        PID TEST_VAL                MYLEVEL
+---------- ---------- ---------- -------------------- ----------
+        10         12         10 MySQL                         2
+        10         13         10 Oracle                        2
+        10         14         10 SQL Server                    2
+        10         15         13 PL/SQL                        3
+        10         16         15 Function                      4
+        10         17         15 Procedure                     4
+        10         18         15 Package                       4
+        10         19         15 Cursor                        4
+        10         20         14 T-SQL                         3
+
+已选择20行。
+
+
+
+<hr/>
+<h3> 简单通过 CONNECT_BY_ROOT 查询 每个节点的顶级根节点 </h3>
+
+SELECT
+  LEVEL,
+  test_id,
+  test_val,
+  CONNECT_BY_ROOT test_id as ROOT_ID,
+  CONNECT_BY_ROOT test_val as ROOT_NAME
+FROM
+  test_tree
+START WITH
+  pid IS NULL
+CONNECT BY PRIOR test_id = pid;
+
+
+     LEVEL    TEST_ID TEST_VAL                ROOT_ID ROOT_NAME
+---------- ---------- -------------------- ---------- --------------------
+         1          1 .NET                          1 .NET
+         2          2 C#                            1 .NET
+         2          3 J#                            1 .NET
+         2          4 ASP.NET                       1 .NET
+         2          5 VB.NET                        1 .NET
+         1          6 J2EE                          6 J2EE
+         2          7 EJB                           6 J2EE
+         2          8 Servlet                       6 J2EE
+         2          9 JSP                           6 J2EE
+         1         10 Database                     10 Database
+         2         11 DB2                          10 Database
+
+     LEVEL    TEST_ID TEST_VAL                ROOT_ID ROOT_NAME
+---------- ---------- -------------------- ---------- --------------------
+         2         12 MySQL                        10 Database
+         2         13 Oracle                       10 Database
+         3         15 PL/SQL                       10 Database
+         4         16 Function                     10 Database
+         4         17 Procedure                    10 Database
+         4         18 Package                      10 Database
+         4         19 Cursor                       10 Database
+         2         14 SQL Server                   10 Database
+         3         20 T-SQL                        10 Database
+
+已选择20行。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+<h3> 查询 每个节点的顶级根节点 </h3>
+
+
+WITH StepCTE
+AS
+(
+SELECT
+  test_id  AS ROOT_ID,
+  test_id,
+  test_val,
+  1 as Lev
+FROM
+  test_tree
+WHERE
+  pid is null
+UNION ALL
+SELECT
+  CTE.ROOT_ID,
+  T.test_id,
+  T.test_val,
+  CTE.Lev + 1
+FROM
+  test_tree T INNER JOIN StepCTE CTE
+  ON T.pid = CTE.test_id
+)
+SELECT
+  ROOT_ID, test_id, test_val, Lev
+FROM
+  StepCTE
+ORDER BY
+  ROOT_ID, Lev
+;
+go
+
+
+
+ROOT_ID     test_id     test_val   Lev
+----------- ----------- ---------- -----------
+          1           1 .NET                 1
+          1           2 C#                   2
+          1           3 J#                   2
+          1           4 ASP.NET              2
+          1           5 VB.NET               2
+          6           6 J2EE                 1
+          6           7 EJB                  2
+          6           8 Servlet              2
+          6           9 JSP                  2
+         10          10 Database             1
+         10          11 DB2                  2
+         10          12 MySQL                2
+         10          13 Oracle               2
+         10          14 SQL Server           2
+         10          20 T-SQL                3
+         10          15 PL/SQL               3
+         10          16 Function             4
+         10          17 Procedure            4
+         10          18 Package              4
+         10          19 Cursor               4
+
+(20 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

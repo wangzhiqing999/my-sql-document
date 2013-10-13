@@ -1,0 +1,228 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 更新N条到N+M条</title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> 更新N条到N+M条  </h2>
+
+
+<pre><code>
+
+
+
+CREATE TABLE testTopNM (
+  id  int PRIMARY KEY,
+  val varchar(10)
+);
+
+
+INSERT INTO testTopNM VALUES ( 1,  'TEST001' );
+INSERT INTO testTopNM VALUES ( 2,  'TEST002' );
+INSERT INTO testTopNM VALUES ( 3,  'TEST003' );
+INSERT INTO testTopNM VALUES ( 4,  'TEST004' );
+INSERT INTO testTopNM VALUES ( 5,  'TEST005' );
+INSERT INTO testTopNM VALUES ( 6,  'TEST006' );
+INSERT INTO testTopNM VALUES ( 7,  'TEST007' );
+INSERT INTO testTopNM VALUES ( 8,  'TEST008' );
+INSERT INTO testTopNM VALUES ( 9,  'TEST009' );
+INSERT INTO testTopNM VALUES (10,  'TEST010' );
+
+
+
+要求， 把  TEST  替换为  TOP.
+
+但是仅仅替换  从第4行开始， 共更新3行。
+
+也就是更新 4，5，6 这3行
+
+
+
+</code></pre>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+-- 错误的写法。
+SQL> update 
+  2    testTopNM
+  3  set 
+  4    val = replace(val, 'TEST', 'TOP')
+  5  WHERE
+  6    rownum between 4 and 6;
+
+已更新0行。
+
+
+
+
+-- 因为 查询条件里面，不能写  rownum between 4 and 6
+-- 因此， 只能条件里面写 rownum &lt;=6  然后赋值的地方写 case when 了.
+update 
+  testTopNM
+set 
+  val = CASE WHEN rownum &lt; 4 THEN val
+             ELSE  replace(val, 'TEST', 'TOP')  END
+WHERE
+  rownum &lt;=6;
+
+已更新6行。
+
+
+-- 核对数据
+SQL> SELECT * FROM testTopNM;
+
+        ID VAL
+---------- --------------------
+         1 TEST001
+         2 TEST002
+         3 TEST003
+         4 TOP004
+         5 TOP005
+         6 TOP006
+         7 TEST007
+         8 TEST008
+         9 TEST009
+        10 TEST010
+
+已选择10行。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+update 
+  top (6) testTopNM
+set 
+  val =  CASE WHEN ROW_NUMBER() OVER(ORDER BY(SELECT 1)) &lt; 4 THEN val
+              ELSE replace(val, 'TEST', 'TOP')  END;
+
+消息 4108，级别 15，状态 1，服务器 TEST_PC\SQLEXPRESS，第 4 行
+开窗函数只能出现在 SELECT 或 ORDER BY 子句中。
+
+
+使用 ROW_NUMBER() , 模拟 Oracle 的那种处理方式， 失败了.
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+-- 查询没有问题.
+mysql> select * from testTopNM LIMIT 3,3;
++----+---------+
+| id | val     |
++----+---------+
+|  4 | TEST004 |
+|  5 | TEST005 |
+|  6 | TEST006 |
++----+---------+
+3 rows in set (0.00 sec)
+
+
+
+
+-- 更新好像是失败了.
+mysql> update
+    ->   testTopNM
+    -> set
+    ->   val = replace(val, 'TEST', 'TOP')
+    -> LIMIT 3, 3;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that
+corresponds to your MySQL server version for the right syntax to use near ' 3' a
+t line 5
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 其他函数 - 条件判断函数 DECODE </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 其他函数 </h1>
+
+
+<h2>  条件判断函数 DECODE  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+DECODE 限制最大25个参数
+
+SQL> SELECT
+  2    DECODE(GROUPING(sale_item), 1, 'ALL', sale_item) AS iten,
+  3    SUM(sale_money) AS money
+  4  FROM
+  5    sale_report
+  6  GROUP BY
+  7    ROLLUP(sale_item);
+
+ITEN        MONEY
+------ ----------
+A          733285
+B            2382
+C            5738
+ALL        741405
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+与 Oracle 相同
+
+SELECT
+  DECODE(GROUPING(sale_item), 1, 'ALL', sale_item) AS iten,
+  SUM(sale_money) AS money
+FROM
+  sale_report
+GROUP BY
+  ROLLUP(sale_item);
+
+ITEN MONEY
+---- ---------------------------------
+ALL                          741405.00
+A                            733285.00
+B                              2382.00
+C                              5738.00
+
+  4 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+SQL Server 中
+可以使用 CASE WHEN 来解决 SELECT 语句中 条件判断的问题。
+
+
+1> SELECT
+2>   CASE
+3>     WHEN GROUPING(sale_item) = 1
+4>       THEN '总'
+5>     ELSE
+6>       sale_item
+7>   END AS item,
+8>   SUM(sale_money) [money]
+9> FROM
+10>   sale_report
+11> GROUP BY
+12>   sale_item WITH ROLLUP;
+13> go
+item money
+---- ----------------------------------------
+A                                   733285.00
+B                                     2382.00
+C                                     5738.00
+总                                   741405.00
+
+(4 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT IF(1>2, 2, 3) A;
++---+
+| A |
++---+
+| 3 |
++---+
+1 row in set (0.00 sec)
+
+mysql> SELECT
+    ->   CASE WHEN 1 > 2 THEN 2
+    ->     ELSE 3
+    ->   END A;
++---+
+| A |
++---+
+| 3 |
++---+
+1 row in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

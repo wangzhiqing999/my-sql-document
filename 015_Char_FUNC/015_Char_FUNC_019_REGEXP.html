@@ -1,0 +1,465 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 字符函数 - 正则表达式检索 REGEXP_LIKE  /  REGEXP  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 字符函数 </h1>
+
+
+<h2> 正则表达式检索 REGEXP_LIKE  /  REGEXP  </h2>
+
+
+
+<pre><code>
+
+测试表
+
+CREATE TABLE test_reg_like ( a varchar(20) );
+
+INSERT INTO test_reg_like VALUES('ABC');
+INSERT INTO test_reg_like VALUES('A12');
+INSERT INTO test_reg_like VALUES('12a12');
+
+
+
+
+
+</code></pre>
+
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+3个参数
+第一个是输入的字符串
+第二个是正则表达式
+第三个是取值范围：
+i：大小写不敏感；
+c：大小写敏感；
+n：点号 . 不匹配换行符号；
+m：多行模式；
+x：扩展模式，忽略正则表达式中的空白字符。
+
+
+
+
+全部测试数据
+SQL> SELECT * FROM test_reg_like;
+A
+----------------------------------------
+ABC
+A12
+12a12
+
+匹配字母A的
+SQL> SELECT
+  2    *
+  3  FROM
+  4    test_reg_like
+  5  WHERE
+  6    REGEXP_LIKE(a, 'A');
+A
+----------------------------------------
+ABC
+A12
+
+匹配字母A的 （大小写不敏感）
+SQL> SELECT
+  2    *
+  3  FROM
+  4    test_reg_like
+  5  WHERE
+  6    REGEXP_LIKE(a, 'A', 'i');
+A
+----------------------------------------
+ABC
+A12
+12a12
+
+匹配字母A 后面跟1个或多个数字的 （大小写不敏感）
+SQL> SELECT
+  2    *
+  3  FROM
+  4    test_reg_like
+  5  WHERE
+  6    REGEXP_LIKE(a, 'A\d+', 'i');
+A
+----------------------------------------
+A12
+12a12
+
+匹配字母A开头，数字结尾的
+SQL> SELECT
+  2    *
+  3  FROM
+  4    test_reg_like
+  5  WHERE
+  6    REGEXP_LIKE(a, '^A.+\d$');
+A
+----------------------------------------
+A12
+
+
+
+
+
+
+<hr/>
+
+
+CREATE TABLE test_phone (
+	phone_number  varchar(20)
+);
+
+INSERT INTO test_phone
+SELECT '13812345678' FROM  dual  UNION ALL
+SELECT '13812345566' FROM  dual  UNION ALL
+SELECT '13812345656' FROM  dual  UNION ALL
+SELECT '13812345556' FROM  dual  UNION ALL
+SELECT '13812346666' FROM  dual  UNION ALL
+SELECT '13855661234' FROM  dual  UNION ALL
+SELECT '13856562345' FROM  dual  UNION ALL
+SELECT '13855563456' FROM  dual  UNION ALL
+SELECT '13866665678' FROM  dual  UNION ALL
+SELECT '13866669876' FROM  dual  UNION ALL
+SELECT '13866668765' FROM  dual  UNION ALL
+SELECT '13866668998' FROM  dual  UNION ALL
+SELECT '13866667997' FROM  dual;
+
+
+--  AAAA 结尾的
+--  算法：先 REVERSE 转置， 然后要求 开头的数字 ^(\d)  后面3个都一样 \1\1\1
+SELECT
+  *
+FROM
+  test_phone
+WHERE
+  REGEXP_LIKE(REVERSE(phone_number), '^(\d)\1\1\1');
+
+PHONE_NUMBER
+----------------------------------------
+13812346666
+
+
+
+--  AABB 结尾的
+--  算法：先 REVERSE 转置， 然后要求 开头的数字 ^(\d) 后面1个一样 \1   然后再匹配一个 ([^\1])，后面再1个一样 \2
+SELECT
+  *
+FROM
+  test_phone
+WHERE
+  REGEXP_LIKE(REVERSE(phone_number), '^(\d)\1([^\1])\2')
+  AND NOT REGEXP_LIKE(REVERSE(phone_number), '^(\d)\1\1\1');
+
+PHONE_NUMBER
+----------------------------------------
+13812345656
+
+
+
+--  ABAB 结尾的
+--  算法：先 REVERSE 转置， 然后要求 开头的数字 ^(\d)(\d) 后面2个一样 \1\2
+SELECT
+  *
+FROM
+  test_phone
+WHERE
+  REGEXP_LIKE(REVERSE(phone_number), '^(\d)(\d)\1\2')
+  AND NOT REGEXP_LIKE(REVERSE(phone_number), '^(\d)\1\1\1');
+
+PHONE_NUMBER
+----------------------------------------
+13812345656
+
+
+-- ABBA 结尾的.
+--  算法：先 REVERSE 转置， 然后要求 开头的数字 ^(\d)([^\1]) 后面2个一样 \2\1
+SELECT
+  *
+FROM
+  test_phone
+WHERE
+  REGEXP_LIKE(REVERSE(phone_number), '^(\d)([^\1])\2\1')
+  AND NOT REGEXP_LIKE(REVERSE(phone_number), '^(\d)\1\1\1');
+
+PHONE_NUMBER
+----------------------------------------
+13866668998
+13866667997
+
+
+-- 连续递减数字  ABCD 的
+-- 属于列出所有排列组合的处理机制
+SELECT
+  *
+FROM
+  test_phone
+WHERE
+  REGEXP_LIKE(phone_number,  '(9876|8765|7654|6543|5432|4321|3210)$');
+
+PHONE_NUMBER
+----------------------------------------
+13866669876
+13866668765
+
+
+-- 连续递增数字  ABCD 的
+-- 属于列出所有排列组合的处理机制
+SELECT
+  *
+FROM
+  test_phone
+WHERE
+  REGEXP_LIKE(REVERSE(phone_number),  '^(9876|8765|7654|6543|5432|4321|3210)');
+  
+PHONE_NUMBER
+----------------------------------------
+13812345678
+13855661234
+13856562345
+13855563456
+13866665678
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+mysql> SELECT * FROM test_reg_like;
++-------+
+| A     |
++-------+
+| ABC   |
+| A12   |
+| 12a12 |
++-------+
+3 rows in set (0.00 sec)
+
+
+匹配字母A的
+mysql> SELECT * FROM test_reg_like WHERE A regexp 'A';
++-------+
+| A     |
++-------+
+| ABC   |
+| A12   |
+| 12a12 |
++-------+
+3 rows in set (0.00 sec)
+
+匹配字母A 后面跟1个或多个数字的
+mysql> SELECT * FROM test_reg_like WHERE A regexp 'A[0-9]+';
++-------+
+| A     |
++-------+
+| A12   |
+| 12a12 |
++-------+
+2 rows in set (0.00 sec)
+
+匹配字母A开头，数字结尾的
+mysql> SELECT * FROM test_reg_like WHERE A regexp '^A.*[0-9]$';
++------+
+| A    |
++------+
+| A12  |
++------+
+1 row in set (0.00 sec)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+<h3>SIMILAR TO 正则表达式</h3>
+
+匹配字母A的
+SELECT * FROM test_reg_like WHERE A SIMILAR TO '%A%';
+
+Test=# SELECT * FROM test_reg_like WHERE A SIMILAR TO '%A%';
+  a
+-----
+ ABC
+ A12
+(2 行记录)
+
+
+
+匹配字母A 后面跟1个或多个数字的
+Test=# SELECT * FROM test_reg_like WHERE  A SIMILAR TO  '%A[0-9]+%';
+  a
+-----
+ A12
+(1 行记录)
+
+
+匹配 字母A或者a  后面跟1个或多个数字的
+Test=# SELECT * FROM test_reg_like WHERE  A SIMILAR TO  '%(A|a)[0-9]+%';
+   a
+-------
+ A12
+ 12a12
+(2 行记录)
+
+
+
+
+<hr/>
+
+<h3>POSIX  正则表达式</h3>
+
+匹配字母A的
+Test=# SELECT * FROM test_reg_like WHERE A ~ 'A';
+  a
+-----
+ ABC
+ A12
+(2 行记录)
+
+
+
+匹配字母A的 （大小写不敏感）
+Test=# SELECT * FROM test_reg_like WHERE A ~* 'A';
+   a
+-------
+ ABC
+ A12
+ 12a12
+(3 行记录)
+
+
+
+匹配字母A 后面跟1个或多个数字的 （大小写不敏感）
+Test=# SELECT * FROM test_reg_like WHERE A ~* 'A\d+';
+   a
+-------
+ A12
+ 12a12
+(2 行记录)
+
+
+
+匹配字母A开头，数字结尾的
+Test=# SELECT * FROM test_reg_like WHERE A ~* '^A.+\d$';
+  a
+-----
+ A12
+(1 行记录)
+
+
+注：
+
+正则表达式匹配操作符
+
+<table>
+<tr>
+  <td>操作符</td><td>描述</td><td>例子</td>
+</tr>
+<tr>
+  <td>~</td><td>匹配正则表达式，大小写相关</td><td>'thomas' ~ '.*thomas.*'</td>
+</tr>
+<tr>
+  <td>~*</td><td>匹配正则表达式，大小写无关</td><td>'thomas' ~* '.*Thomas.*'</td>
+</tr>
+<tr>
+  <td>!~</td><td>不匹配正则表达式，大小写相关</td><td>'thomas' !~ '.*Thomas.*'</td>
+</tr>
+<tr>
+  <td>!~*</td><td>不匹配正则表达式，大小写无关</td><td>'thomas' !~* '.*vadim.*'</td>
+</tr>
+</table>
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

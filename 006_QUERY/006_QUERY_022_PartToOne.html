@@ -1,0 +1,238 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 区间段拆分明细行</title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2>  区间段拆分明细行  </h2>
+
+
+
+<pre><code>
+
+CREATE TABLE test_part (
+	course_name		varchar(10),
+	course_times	varchar(10)
+);
+
+INSERT INTO test_part VALUES('大英', '1-2');
+INSERT INTO test_part VALUES('高数', '3-4');
+INSERT INTO test_part VALUES('物理', '5-6');
+INSERT INTO test_part VALUES('体育', '7-8');
+INSERT INTO test_part VALUES('测试', '1-8');
+
+</code></pre>
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SELECT DISTINCT
+  t.course_name,
+  m.NO
+FROM
+  test_part t
+    JOIN  (select rownum AS NO from user_objects where rownum &lt; 10)  m
+	  ON(
+	    TO_NUMBER(SUBSTR(t.course_times, 1, INSTR (t.course_times, '-') -1 )) &lt;= m.NO
+		AND TO_NUMBER(SUBSTR(t.course_times,  INSTR(t.course_times, '-', -1) + 1)) &gt;= m.NO
+	  )
+ORDER BY
+  NO;
+
+
+
+COURSE_NAME             NO
+--------------- ----------
+大英                     1
+测试                     1
+大英                     2
+测试                     2
+测试                     3
+高数                     3
+测试                     4
+高数                     4
+测试                     5
+物理                     5
+测试                     6
+
+COURSE_NAME             NO
+--------------- ----------
+物理                     6
+体育                     7
+测试                     7
+体育                     8
+测试                     8
+
+已选择16行。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+SELECT DISTINCT
+  t.course_name,
+  m.number
+FROM
+  test_part t
+    JOIN  master..spt_values  m
+	  ON(
+	    Convert(int, LEFT(t.course_times, CHARINDEX ('-', t.course_times) -1 )) &lt;= m.number
+		AND Convert(int, REVERSE(LEFT(REVERSE(t.course_times), CHARINDEX ('-', REVERSE(t.course_times)) -1 ))) &gt;= m.number
+	  );
+
+
+course_name number
+----------- -----------
+测试                    1
+测试                    2
+测试                    3
+测试                    4
+测试                    5
+测试                    6
+测试                    7
+测试                    8
+大英                    1
+大英                    2
+高数                    3
+高数                    4
+体育                    7
+体育                    8
+物理                    5
+物理                    6
+
+(16 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+-- 最大节数
+CREATE TABLE rownum (
+  id  INT
+);
+
+INSERT INTO rownum
+SELECT 1 UNION ALL
+SELECT 2 UNION ALL
+SELECT 3 UNION ALL
+SELECT 4 UNION ALL
+SELECT 5 UNION ALL
+SELECT 6 UNION ALL
+SELECT 7 UNION ALL
+SELECT 8;
+
+
+
+SELECT
+  t.course_name,
+  rownum.id
+FROM
+  test_part t
+	JOIN rownum
+	ON (rownum.id &gt;= CAST(SUBSTRING_INDEX(t.course_times, '-', 1) as SIGNED)
+		AND rownum.id &lt;= CAST(REVERSE(SUBSTRING_INDEX(REVERSE(t.course_times),  '-',  1)) as SIGNED));
+
+
++-------------+------+
+| course_name | id   |
++-------------+------+
+| 大英        |    1 |
+| 测试        |    1 |
+| 大英        |    2 |
+| 测试        |    2 |
+| 高数        |    3 |
+| 测试        |    3 |
+| 高数        |    4 |
+| 测试        |    4 |
+| 物理        |    5 |
+| 测试        |    5 |
+| 物理        |    6 |
+| 测试        |    6 |
+| 体育        |    7 |
+| 测试        |    7 |
+| 体育        |    8 |
+| 测试        |    8 |
++-------------+------+
+16 rows in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

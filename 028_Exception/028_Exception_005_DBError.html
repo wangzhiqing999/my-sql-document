@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 异常处理 - 自定义错误-与数据库错误关联 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 异常处理 </h1>
+
+
+<h2> 自定义错误-与数据库错误关联  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> DECLARE
+  2    p_test_val  INT;
+  3    -- 测试异常.
+  4    e_test_exception EXCEPTION;
+  5    PRAGMA EXCEPTION_INIT(e_test_exception, -01476);
+  6  BEGIN
+  7
+  8    -- 导致一个 除零错误
+  9    p_test_val := 1024 / 0;
+ 10
+ 11    EXCEPTION
+ 12      WHEN e_test_exception THEN
+ 13        dbms_output.put_line('Test User Error !');
+ 14      WHEN OTHERS THEN
+ 15        dbms_output.put_line('OTHERS Error!');
+ 16  END;
+ 17  /
+Test User Error !
+
+PL/SQL procedure successfully completed.
+
+
+<hr/>
+
+测试   ORA-01403: 未找到数据  异常的处理.
+
+CREATE TABLE test_Data_Not_Found (
+	id		INT,
+	val		VARCHAR2(10)
+);
+
+INSERT INTO test_Data_Not_Found (id, val) VALUES(1, 'A');
+INSERT INTO test_Data_Not_Found (id, val) VALUES(2, 'B');
+
+
+create or replace function Get_Test_Value( p_id  test_Data_Not_Found.id%type )
+RETURN test_Data_Not_Found.val%type
+IS
+  -- 返回值.
+  v_result  test_Data_Not_Found.val%type;
+  -- ORA-01403: 未找到数据 异常.
+  e_data_Not_Found_exception EXCEPTION;
+  PRAGMA EXCEPTION_INIT(e_data_Not_Found_exception, 100);
+BEGIN
+  
+  -- 查询.
+  SELECT
+    val  INTO  v_result
+  FROM
+    test_Data_Not_Found
+  WHERE
+    id = p_id;
+  
+  -- 返回.
+  RETURN v_result;
+
+  EXCEPTION
+    WHEN e_data_Not_Found_exception THEN
+		-- 捕获到异常后， 输出调试信息，然后再将异常抛出.
+        dbms_output.put_line('未能检索到 ID = ' || TO_CHAR(p_id) || ' 的数据 !');
+		RAISE e_data_Not_Found_exception;
+END;
+/
+
+
+简单 SQL 查询的时候， 如果数据不存在， 也不会发生异常.
+
+SQL> select Get_Test_Value(1) from dual;
+
+GET_TEST_VALUE(1)
+--------------------------------------------------------------------------------
+A
+
+SQL> select Get_Test_Value(5) from dual;
+
+GET_TEST_VALUE(5)
+--------------------------------------------------------------------------------
+
+
+
+作为代码执行的时候， 将会导致异常。
+
+SQL> DECLARE
+  2    v_tmp  varchar2(10);
+  3  BEGIN
+  4    v_tmp := Get_Test_Value(5);
+  5  END;
+  6  /
+未能检索到 ID = 5 的数据 !
+DECLARE
+*
+ERROR 位于第 1 行:
+ORA-01403: 未找到数据
+ORA-06512: 在 "TEST.GET_TEST_VALUE", line 26
+ORA-01403: 未找到数据
+ORA-06512: 在 line 4
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => BEGIN
+db2 (cont.) =>   -- 定义一个异常类型 SQLSTATE '80000' .
+db2 (cont.) =>   DECLARE divZero CONDITION FOR SQLSTATE '80000';
+db2 (cont.) =>
+db2 (cont.) =>   -- 如果 divZero 异常触发了，将其 重定向到 SQLSTATE '22012'
+db2 (cont.) =>   DECLARE CONTINUE HANDLER
+db2 (cont.) =>   FOR
+db2 (cont.) =>   divZero
+db2 (cont.) =>   RESIGNAL SQLSTATE '22012';
+db2 (cont.) =>
+db2 (cont.) =>   -- 触发异常.
+db2 (cont.) =>   SIGNAL divZero;
+db2 (cont.) => END
+db2 (cont.) => @
+DB21034E  该命令被当作 SQL 语句来处理，因为它是无效的“命令行处理器”命令。在
+SQL 处理期间，它返回：
+SQL0438N  应用程序发生错误或警告，其诊断文本为：""。  SQLSTATE=22012
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

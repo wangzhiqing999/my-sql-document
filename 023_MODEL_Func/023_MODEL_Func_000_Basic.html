@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> MODEL查询函数 - 基本语法 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> MODEL查询函数 </h1>
+
+
+<h2>  基本语法  </h2>
+
+
+
+
+<pre><code>
+
+MODEL 语法：
+[<global reference options>]
+[<reference models>]
+[MAIN <main-name>]
+  [PARTITION BY (<cols>)]
+  DIMENSION BY (<cols>)
+  MEASURES (<cols>)
+  [<reference options>]
+  [RULES]  <rule options>
+  (<rule>, <rule>,.., <rule>)
+
+  <global reference options> ::= <reference options> <ret-opt>
+   <ret-opt> ::= RETURN {ALL|UPDATED} ROWS
+  <reference options> ::=
+  [IGNORE NAV | [KEEP NAV]
+  [UNIQUE DIMENSION | UNIQUE SINGLE REFERENCE]
+  <rule options> ::=
+  [UPDATE | UPSERT | UPSERT ALL]
+  [AUTOMATIC ORDER | SEQUENTIAL ORDER]
+  [ITERATE (<number>)  [UNTIL <condition>]]
+  <reference models> ::= REFERENCE ON <ref-name> ON (<query>)
+  DIMENSION BY (<cols>) MEASURES (<cols>) <reference options>
+
+
+首先说明必须的选项：
+MODEL  关键字
+DIMENSION BY 维度
+MEASURES 指定作为数组的列
+
+RULES 可选：对数组进行各种操作的描述。
+
+-- 原有的 SQL，查询每个月的销售额.
+With cte AS
+(
+SELECT
+  TO_CHAR(SALE_DATE, 'MM') AS month,
+  SUM(sale_money) AS sum_money
+FROM
+  sale_report
+GROUP BY
+  TO_CHAR(SALE_DATE, 'MM')
+)
+SELECT * 
+FROM cte 
+ORDER BY month;
+
+MO  SUM_MONEY
+-- ----------
+01      62806
+02      56714
+03      62868
+04      60855
+05      62930
+06      60915
+07      62992
+08      63023
+09      61005
+10      63085
+11      61065
+
+MO  SUM_MONEY
+-- ----------
+12      63147
+
+已选择12行。
+
+
+
+-- 使用 MODEL 语句，实现类似 UNION ALL 操作的处理。
+-- 在原有SQL的 每个月的销售额 的基础上，进一步追加 每个季度 与 全年的销售额。
+With cte AS
+(
+SELECT
+  TO_CHAR(SALE_DATE, 'MM') AS month,
+  SUM(sale_money) AS sum_money
+FROM
+  sale_report
+GROUP BY
+  TO_CHAR(SALE_DATE, 'MM')
+)
+SELECT * 
+FROM cte 
+MODEL 
+  DIMENSION BY (month)  -- 按照 月 为 维度
+  MEASURES(sum_money)   -- 数组的数据为 sum_money
+  RULES( 
+    sum_money['Q1'] = sum_money['01']+sum_money['02']+sum_money['03'],
+    sum_money['Q2'] = sum_money['04']+sum_money['05']+sum_money['06'],
+    sum_money['Q3'] = sum_money['07']+sum_money['08']+sum_money['09'],
+    sum_money['Q4'] = sum_money['10']+sum_money['11']+sum_money['12'],
+    sum_money['YY'] = sum_money['Q1']+sum_money['Q2']+sum_money['Q3']+sum_money['Q4']
+  )
+ORDER BY
+  month;
+
+MO  SUM_MONEY
+-- ----------
+01      62806
+02      56714
+03      62868
+04      60855
+05      62930
+06      60915
+07      62992
+08      63023
+09      61005
+10      63085
+11      61065
+
+MO  SUM_MONEY
+-- ----------
+12      63147
+Q1     182388
+Q2     184700
+Q3     187020
+Q4     187297
+YY     741405
+
+已选择17行。
+
+
+
+
+-- 上一个SQL, 用 + 用的太多了。
+-- 这里用 SUM()[BETWEEN和AND] 返回特定范围内的数据单元
+-- 这里用 SUM()[ IN ] 返回特定范围内的数据单元
+With cte AS
+(
+SELECT
+  TO_CHAR(SALE_DATE, 'MM') AS month,
+  SUM(sale_money) AS sum_money
+FROM
+  sale_report
+GROUP BY
+  TO_CHAR(SALE_DATE, 'MM')
+)
+SELECT * 
+FROM cte 
+MODEL 
+  DIMENSION BY (month)  -- 按照 月 为 维度
+  MEASURES(sum_money)   -- 数组的数据为 sum_money
+  ( 
+    sum_money['Q1'] = SUM(sum_money)[month BETWEEN '01' AND'03'],
+    sum_money['Q2'] = SUM(sum_money)[month BETWEEN '04' AND'06'],
+    sum_money['Q3'] = SUM(sum_money)[month BETWEEN '07' AND'09'],
+    sum_money['Q4'] = SUM(sum_money)[month BETWEEN '10' AND'12'],
+    sum_money['YY'] = SUM(sum_money)[month IN ('Q1', 'Q2', 'Q3', 'Q4')]
+  )
+ORDER BY
+  month;
+
+结果同上，就不重复复制粘贴了。
+
+
+
+</code></pre>
+
+
+
+
+
+
+
+
+
+</body>
+
+
+</html>

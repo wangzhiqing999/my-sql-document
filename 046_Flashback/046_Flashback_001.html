@@ -1,0 +1,275 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 错误恢复 - Flashback Query </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 错误恢复 </h1>
+
+
+<h2>  Flashback Query </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> CREATE TABLE test_fb_table (
+  2    ID   int,
+  3    VAL  VARCHAR2(10)
+  4  );
+Table created.
+SQL> INSERT INTO test_fb_table  VALUES (1, 'TEST');
+1 row created.
+SQL> commit;
+Commit complete.
+
+假如 数据被错误的删除/更新
+需要检索某个时间点上，表原有的数据。
+SQL> SELECT TO_CHAR(sysdate, 'yyyy-mm-dd hh24:mi:ss') FROM dual;
+TO_CHAR(SYSDATE,'YYYY-MM-DDHH24:MI:SS'
+--------------------------------------
+2010-11-07 13:01:37
+
+这里删除掉数据。
+SQL> delete from test_fb_table;
+1 row deleted.
+SQL> commit;
+Commit complete.
+
+确认数据已经被删除。
+SQL> select * from test_fb_table;
+no rows selected
+
+
+方法一：
+这里检索出，指定时间点上，指定表的数据情况。
+SQL> select * from test_fb_table
+  2    AS OF TIMESTAMP TO_TIMESTAMP('2010-11-07 13:01:37',
+  3      'yyyy-mm-dd hh24:mi:ss');
+        ID VAL
+---------- --------------------
+         1 TEST
+
+
+方法二：
+使用 dbms_flashback下面的方法来切换。
+SQL> conn system
+Enter password:
+Connected.
+SQL> select * from hr.test_fb_table;
+no rows selected
+SQL> execute dbms_flashback.enable_at_time(-
+> TO_TIMESTAMP('2010-11-07 13:01:37','yyyy-mm-dd hh24:mi:ss'));
+PL/SQL procedure successfully completed.
+SQL> select * from hr.test_fb_table;
+        ID VAL
+---------- --------------------
+         1 TEST
+SQL> execute dbms_flashback.disable;
+PL/SQL procedure successfully completed.
+SQL> select * from hr.test_fb_table;
+no rows selected
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+没有 Flashback Query
+
+有可以恢复到指定时间点的处理功能。
+
+
+<h3>前提条件</h3>
+
+-- 将 数据库的恢复模式（Recovery mode）设置为  “完整（Full）”
+-- 此操作可以在  SQL Server Management Studio 中， 选择数据库， 鼠标右键， 属性后，在 选项 标签中进行设置。
+USE [master]
+GO
+ALTER DATABASE [test] SET RECOVERY FULL WITH NO_WAIT
+GO
+
+
+-- 完整备份数据库
+backup database test to disk='e:\test_20130704.dat'
+GO
+已为数据库 'test'，文件 'Test' (位于文件 1 上)处理了 376 页。
+已为数据库 'test'，文件 'Test_log' (位于文件 1 上)处理了 3 页。
+BACKUP DATABASE 成功处理了 379 页，花费 1.151 秒(2.571 MB/秒)。
+
+
+
+<h3> 测试数据. </h3>
+
+
+USE [test]
+GO
+
+
+-- 创建测试表
+CREATE TABLE test_br_table (
+  ID   int,
+  VAL  VARCHAR(10),
+  PRIMARY KEY(ID)
+);
+GO
+
+
+INSERT INTO test_br_table  VALUES (1, 'TEST1');
+INSERT INTO test_br_table  VALUES (2, 'TEST2');
+INSERT INTO test_br_table  VALUES (3, 'TEST3');
+GO
+
+
+SELECT GETDATE()
+GO
+
+-----------------------
+2013-07-04 16:44:12.393
+
+(1 行受影响)
+
+
+-- 假设误操作， 删除所有的数据了.
+DELETE FROM test_br_table
+GO
+
+(3 行受影响)
+
+
+
+
+
+
+<h3> 恢复  </h3>
+
+USE [master]
+GO
+
+-- <span class="KeyInfo">步骤1</span>. 备份当前数据库的事务日志：
+BACKUP LOG [Test] TO disk= N'e:\test_log' WITH NORECOVERY
+GO
+
+已为数据库 'Test'，文件 'Test_log' (位于文件 1 上)处理了 9 页。
+BACKUP LOG 成功处理了 9 页，花费 0.046 秒(1.486 MB/秒)。
+
+
+
+-- <span class="KeyInfo">步骤2</span>. 恢复一个误删除之前的完全备份：
+RESTORE DATABASE [Test] FROM DISK = N'e:\test_20130704.dat' WITH NORECOVERY,  REPLACE
+GO
+
+已为数据库 'Test'，文件 'Test' (位于文件 1 上)处理了 376 页。
+已为数据库 'Test'，文件 'Test_log' (位于文件 1 上)处理了 3 页。
+RESTORE DATABASE 成功处理了 379 页，花费 0.828 秒(3.574 MB/秒)。
+
+
+-- <span class="KeyInfo">步骤3</span>. 将数据库恢复至误删除之前的时间点：
+RESTORE LOG [Test] FROM  DISK = N'e:\test_log' WITH  STOPAT = N'2013-07-04 16:44:12.393' , RECOVERY
+GO
+
+已为数据库 'Test'，文件 'Test' (位于文件 1 上)处理了 0 页。
+已为数据库 'Test'，文件 'Test_log' (位于文件 1 上)处理了 9 页。
+RESTORE LOG 成功处理了 9 页，花费 0.013 秒(5.258 MB/秒)。
+
+
+
+<h3> 核对数据. </h3>
+
+use [Test]
+GO
+
+
+SELECT * FROM test_br_table
+GO
+
+ID          VAL
+----------- ----------
+          1 TEST1
+          2 TEST2
+          3 TEST3
+
+(3 行受影响)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

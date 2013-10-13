@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> MODEL查询函数 - IGNORE NAV 选项 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> MODEL查询函数 </h1>
+
+
+<h2>  IGNORE NAV 选项  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+-- 本例子用于演示 IGNORE NAV
+-- IGNORE NAV的返回值如下：
+-- 空值或缺失数字值时返回0。
+-- 空值或缺失字符串值时返回空字符串。
+-- 空值或缺失日期值时返回01-JAN-2000。
+-- 其他所有数据库类型时返回空值。
+-- KEEP NAV对空值或缺失数字值返回空值。注意默认条件下使用KEEP NAV。
+
+With cte AS
+(
+SELECT
+  EXTRACT(YEAR FROM SALE_DATE) AS year,
+  EXTRACT(MONTH FROM SALE_DATE) AS month,
+  SUM(sale_money) AS sum_money,
+  0 AS prev_sum_money
+FROM
+  sale_report
+WHERE 
+  EXTRACT(YEAR FROM SALE_DATE) = 2010
+GROUP BY
+  EXTRACT(YEAR FROM SALE_DATE),
+  EXTRACT(MONTH FROM SALE_DATE)
+)
+SELECT 
+  *
+FROM cte 
+MODEL IGNORE NAV
+  DIMENSION BY (year, month)  -- 按照 年，月 为 维度
+  MEASURES(sum_money, prev_sum_money) -- 数组的数据为 sum_money, prev_sum_money
+  ( 
+    prev_sum_money[2010, FOR month FROM 2 TO 12 INCREMENT 1]
+      = sum_money[CURRENTV(), CURRENTV() - 1]
+  )
+ORDER BY
+  year,
+  month;
+
+
+      YEAR      MONTH  SUM_MONEY PREV_SUM_MONEY
+---------- ---------- ---------- --------------
+      2010          2         20              0
+      2010          3                        20
+      2010          4                         0
+      2010          5         50              0
+      2010          6                        50
+      2010          7                         0
+      2010          8         80              0
+      2010          9                        80
+      2010         10                         0
+      2010         11        110              0
+      2010         12                       110
+
+已选择11行。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

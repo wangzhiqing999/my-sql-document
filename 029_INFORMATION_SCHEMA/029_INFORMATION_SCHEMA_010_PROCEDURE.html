@@ -1,0 +1,212 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典表 - 存储过程 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典表 </h1>
+
+
+<h2>  存储过程 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    OBJECT_NAME, PROCEDURE_NAME
+  3  FROM
+  4    USER_PROCEDURES;
+
+OBJECT_NAME                    PROCEDURE_NAME
+------------------------------ ---------------
+HELLOWORLDFUNC
+HELLOWORLD2
+PKG_HELLOWORLD                 GETHELLOWORLD
+STUFF
+HELLOWORLD4
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+SELECT
+  *
+FROM
+  SYSCAT.PROCEDURES  
+WHERE
+  PROCNAME = 'HELLOWORLD';
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+select 
+  pro.name  AS  ProcedureName,
+  c.text AS CreateProcedureSQL
+from 
+  sys.procedures pro LEFT OUTER JOIN
+     dbo.syscomments c ON pro.object_id = c.id
+
+<hr/>
+存储过程的参数.
+
+
+SELECT 
+  [name]  ,[parameter_id]
+FROM 
+  [sys].[parameters]
+WHERE
+  [object_id] = (SELECT [object_id] FROM [sys].[procedures] WHERE [name]='存储过程的名称');
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+INFORMATION_SCHEMA.ROUTINES 视图包含了存储过程与函数的信息。
+
+mysql> SELECT
+    ->   ROUTINE_NAME,
+    ->   ROUTINE_TYPE,
+    ->   EXTERNAL_LANGUAGE
+    -> FROM
+    ->   INFORMATION_SCHEMA.ROUTINES;
++------------------+--------------+-------------------+
+| ROUTINE_NAME     | ROUTINE_TYPE | EXTERNAL_LANGUAGE |
++------------------+--------------+-------------------+
+| CreateReportData | PROCEDURE    | NULL              |
+| divided          | PROCEDURE    | NULL              |
+| dysql2           | PROCEDURE    | NULL              |
+| HelloWorld       | PROCEDURE    | NULL              |
+| HelloWorld1      | PROCEDURE    | NULL              |
+| HelloWorld2      | PROCEDURE    | NULL              |
+| HelloWorld4      | FUNCTION     | NULL              |
+| p1               | PROCEDURE    | NULL              |
+| REMOVE_T         | PROCEDURE    | NULL              |
+| TestCursor       | PROCEDURE    | NULL              |
+| TestException    | PROCEDURE    | NULL              |
+| TestIfElse       | PROCEDURE    | NULL              |
+| TestIterateLeave | PROCEDURE    | NULL              |
+| TestLoop         | PROCEDURE    | NULL              |
+| TestRepeat       | PROCEDURE    | NULL              |
+| TestWhile        | PROCEDURE    | NULL              |
++------------------+--------------+-------------------+
+16 rows in set (0.06 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+SELECT
+  pg_proc.proname AS "函数名称",
+  pg_type.typname AS "返回值数据类型",
+  pg_proc.pronargs AS "参数个数"
+FROM
+  pg_proc
+    JOIN pg_type
+	  ON (pg_proc.prorettype = pg_type.oid)
+WHERE
+  pg_type.typname = 'void'
+  AND pronamespace = (SELECT pg_namespace.oid FROM pg_namespace WHERE nspname = 'public');
+
+
+
+
+     函数名称      | 返回值数据类型 | 参数个数
+-------------------+----------------+----------
+ helloworld1       | void           |        1
+ firsttest         | void           |        0
+ testifelse        | void           |        1
+ testloop          | void           |        0
+ testwhile         | void           |        0
+ testfor           | void           |        0
+ testexitcontinue  | void           |        0
+ initquerytestdata | void           |        0
+ helloworld3       | void           |        2
+ helloworld3       | void           |        1
+ helloworld3       | void           |        3
+ helloworld20      | void           |        1
+(12 行记录)
+
+
+  
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

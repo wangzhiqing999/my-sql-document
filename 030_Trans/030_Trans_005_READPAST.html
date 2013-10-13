@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 事务处理 - SQL Server (READPAST) </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 事务处理 </h1>
+
+
+<h2> SQL Server (READPAST)  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+UPDATE的例子
+
+会话1：
+1> select * from test_main;
+2> go
+id          value
+----------- ----------
+          1 ONE
+          2 TWO
+          3 Three
+          4 FOUR
+
+(4 行受影响)
+1> BEGIN TRANSACTION
+2> go
+
+会话2：
+1> select * from test_main WITH (readpast)
+2> go
+id          value
+----------- ----------
+          1 ONE
+          2 TWO
+          3 Three
+
+(3 行受影响)
+
+会话3：
+1> select * from test_main with(nolock);
+2> go
+id          value
+----------- ----------
+          1 ONE
+          2 TWO
+          3 Three
+          4 FOUR-4
+
+(4 行受影响)
+
+SELECT …  WITH (readpast)
+使当前会话的查询，不受其它会话的事务所阻塞。
+但是对于发生修改的，就忽略掉了。
+
+
+
+
+
+
+
+INSERT 的例子
+
+会话1：
+1> select * from test_main;
+2> go
+id          value
+----------- ----------
+          1 ONE
+          2 TWO
+          3 Three
+          4 FOUR
+
+(4 行受影响)
+1> BEGIN TRANSACTION
+2> go
+1> INSERT INTO test_main VALUES(5, 'Five')
+2> go
+
+(1 行受影响)
+
+会话2：
+1> select * from test_main WITH (readpast)
+2> go
+id          value
+----------- ----------
+          1 ONE
+          2 TWO
+          3 Three
+          4 FOUR
+
+(4 行受影响)
+
+会话3：
+1> select * from test_main with(nolock);
+2> go
+id          value
+----------- ----------
+          1 ONE
+          2 TWO
+          3 Three
+          4 FOUR
+          5 Five
+
+(5 行受影响)
+
+什么时候使用 WITH (readpast) ？
+我个人认为是：
+
+对于 SELECT 后，如果有记录，才更新的，可以尝试使用。
+而且这个无记录，不影响其它操作的，才可以。
+如果是 SELECT 后，如果无记录，才操作的，就不适合了。
+
+例如：飞机预定座位，有个可用座位表，字段分别为“航班、日期、座位号、预定乘客ID”。
+当你去检索 “可预定的座位的时候”，可能是 
+SELECT * FROM 座位表 WHERE 航班=@输入的航班号 AND预定乘客ID IS NULL
+那么假如同一时刻，某个乘客的预定操作的事务，正进行了一半。可能已经把座位的信息更新了，还在更新别的数据。
+那么这个时候，那个正在被预定的座位，对我来说，是不可见的。
+假如前面那个事务回滚了，那么我这里重新检索一下，又能够重新检索到这个座位。
+
+又例如：一个仓储系统的库存表，假如你要做出入库操作的话，这里就不适合用 WITH (readpast) 了。
+比如这个仓库里面，有种芯片，库存是100个的， 前一个事务，刚刚出库了10个， 事务还没有提交，正在执行别的表的操作。
+你现在是做一个生产的操作，需要从仓库里面，出库1个底板，5个电容，1个芯片。结果去 WITH (readpast)  一下，发现这种芯片，仓库里面找不到了，问题就麻烦了。
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

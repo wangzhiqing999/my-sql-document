@@ -1,0 +1,137 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 队列处理 - 基础知识 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 队列处理 </h1>
+
+
+<h2>  基础知识 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SQL Server Service Broker
+服务体系结构
+
+消息类型 — 定义应用程序间交换的消息的名称。还可以选择是否验证消息。
+
+约定 — 指定给定会话中的消息方向和消息类型。
+
+队列 — 存储消息。
+       此存储机制使服务间可以进行异步通信。Service Broker 队列还有其他优点，比如自动锁定同一个会话组中的消息。
+
+服务 — 是可寻址的会话端点。
+       Service Broker 消息从一个服务发送到另一个服务。
+	   服务指定一个队列来保存消息，还指定一些约定，
+	   约定指明该服务可作为“目标”。约定向服务提供一组定义完善的消息类型。
+
+ 
+
+ 
+
+处理的先决条件.
+
+USE master;
+GO
+
+ALTER DATABASE 目标数据库
+      SET ENABLE_BROKER;
+GO
+
+
+-- 如果上面的操作执行后，长时间无反应，有死机的嫌疑，尝试下面的语句。
+ALTER DATABASE 目标数据库 SET NEW_BROKER WITH ROLLBACK IMMEDIATE;
+GO
+ALTER DATABASE 目标数据库 SET ENABLE_BROKER;
+GO
+
+
+USE 目标数据库;
+GO
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

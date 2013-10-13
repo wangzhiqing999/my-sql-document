@@ -1,0 +1,292 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典类函数 -  列属性 COLUMNPROPERTY  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典类函数 </h1>
+
+
+<h2> 列属性 COLUMNPROPERTY  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+COLUMNPROPERTY ( id , column , property ) 
+
+参数
+id 
+一个表达式，其中包含表或过程的标识符 (ID)。
+column 
+一个表达式，其中包含列或参数的名称。
+property 
+一个表达式，其中包含要为 id 返回的信息，可以为下列值之一。
+
+
+
+<table>
+<tr>
+  <td>值</td><td>说明</td><td>返回的值</td>
+</tr>
+<tr>
+  <td>AllowsNull </td><td> 允许空值。</td>
+  <td> 1 = TRUE
+0 = FALSE
+NULL = 输入无效。</td>
+</tr>
+<tr>
+  <td>ColumnId </td><td> 对应于 sys.columns.column_id 的列 ID 值。</td>
+  <td>
+ 列 ID
+注意： 
+查询多列时，列 ID 值的序列中可能出现间隔。</td>
+</tr>
+<tr>
+  <td>FullTextTypeColumn </td><td>
+ 表中的 TYPE COLUMN，其中包含 column 的文档类型信息。</td><td>
+ 列的全文 TYPE COLUMN 的 ID，作为此属性的第二个参数传递。</td>
+</tr>
+<tr>
+  <td>IsComputed  </td><td> 列是计算列。</td>
+  <td> 1 = TRUE
+0 = FALSE
+NULL = 输入无效。</td>
+</tr>
+<tr>
+  <td>IsCursorType </td><td> 过程参数类型为 CURSOR。</td>
+  <td> 1 = TRUE
+0 = FALSE
+NULL = 输入无效。</td>
+</tr>
+
+<tr>
+  <td>IsDeterministic </td><td> 列是确定性列。此属性只适用于计算列和视图列。</td>
+  <td> 1 = TRUE
+ 0 = FALSE
+NULL = 输入无效。非计算列或视图列。</td>
+</tr>
+
+<tr>
+  <td>IsFulltextIndexed </td><td> 列已经注册为全文索引。</td>
+  <td> 1 = TRUE
+0 = FALSE
+NULL = 输入无效。</td>
+</tr>
+
+<tr>
+  <td>IsIdentity </td><td> 列使用 IDENTITY 属性。</td>
+  <td> 1 = TRUE
+0 = FALSE 
+NULL = 输入无效。</td>
+</tr>
+
+
+<tr>
+  <td>IsIdNotForRepl </td><td> 列检查 IDENTITY_INSERT 设置。
+如果指定了 IDENTITY NOT FOR REPLICATION，
+则不检查 IDENTITY_INSERT 设置。</td>
+  <td> 1 = TRUE
+0 = FALSE
+NULL = 输入无效。</td>
+</tr>
+
+
+
+<tr>
+  <td>IsIndexable </td><td> 可以对列进行索引。</td>
+  <td> 1 = TRUE
+0 = FALSE
+NULL = 输入无效。</td>
+</tr>
+
+
+<tr>
+  <td>IsOutParam </td><td> 过程参数是输出参数。</td>
+  <td> 1 = TRUE
+0 = FALSE NULL = 输入无效。</td>
+</tr>
+
+
+<tr>
+  <td>IsPrecise </td><td> 列是精确列。此属性只适用于确定性列。</td>
+  <td> 1 = TRUE
+0 = FALSE 
+NULL = 输入无效。不是确定性列</td>
+</tr>
+
+
+<tr>
+  <td>IsRowGuidCol </td><td> 列具有 uniqueidentifier 数据类型，并且定义了 ROWGUIDCOL 属性。</td>
+  <td> 1 = TRUE
+0 = FALSE
+NULL = 输入无效。</td>
+</tr>
+
+
+<tr>
+  <td>IsSystemVerified </td><td> 列的确定性和精度属性可以使用 数据库引擎 验证。
+此属性只应用于计算列和视图中的列。</td>
+  <td>1 = TRUE
+0 = FALSE
+NULL = 输入无效。</td>
+</tr>
+
+
+<tr>
+  <td>IsXmlIndexable </td><td> 可以在 XML 索引中使用 XML 列。</td>
+  <td> 1 = TRUE
+0 = FALSE
+NULL = 输入无效。</td>
+</tr>
+
+
+<tr>
+  <td>Precision </td><td> 列或参数的数据类型的长度。</td>
+  <td>指定的列数据类型的长度
+-1 = xml 或大值类型
+NULL = 输入无效。</td>
+</tr>
+
+
+
+<tr>
+  <td>Scale </td><td> 列或参数的数据类型的小数位数。</td>
+  <td>小数位数
+NULL = 输入无效。</td>
+</tr>
+
+
+<tr>
+  <td>SystemDataAccess </td>
+  <td>列是由访问 SQL Server 的系统目录或虚拟系统表中数据的函数派生的。
+  此属性只应用于计算列和视图中的列。</td>
+  <td> 1 = TRUE（指示只读访问。）
+0 = FALSE
+NULL = 输入无效。</td>
+</tr>
+
+
+<tr>
+  <td>UserDataAccess </td>
+  <td>列是由访问储存于 SQL Server 本地实例的用户表中数据的函数派生的。
+ 此属性只应用于计算列和视图中的列。 </td>
+ <td>1 = TRUE（指示只读访问。）
+0 = FALSE
+NULL = 输入无效。</td>
+</tr>
+
+
+<tr>
+  <td>UsesAnsiTrim </td>
+  <td> 第一次创建表时，ANSI_PADDING 设置为 ON。
+  此属性仅应用于列或者 char 或 varchar 类型的参数。</td>
+  <td> 1= TRUE
+0= FALSE
+NULL = 输入无效。</td>
+</tr>
+
+
+<tr>
+  <td>IsSparse </td><td> 列为稀疏列。有关详细信息，请参阅使用稀疏列。</td>
+  <td> 1= TRUE
+0= FALSE
+NULL = 输入无效。</td>
+</tr>
+
+
+<tr>
+  <td>IsColumnSet </td><td> 列为列集。有关详细信息，请参阅使用列集。</td>
+  <td> 1= TRUE
+0= FALSE
+NULL = 输入无效。</td>
+</tr>
+</table>
+ 
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

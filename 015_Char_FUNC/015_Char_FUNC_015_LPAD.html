@@ -1,0 +1,195 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 字符函数 - 左边字符填充 LPAD </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 字符函数 </h1>
+
+
+<h2>  左边字符填充 LPAD </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+第3个参数不写，默认为空格
+<pre><code>
+
+SQL> SELECT LPAD('Ora', 8) A,
+  2         LPAD('Ora', 8, '*') B,
+  3         LPAD('Ora', 8, 'xyz') C
+  4  FROM
+  5    dual;
+
+A                B                C
+---------------- ---------------- ----------------
+     Ora         *****Ora         xyzxyOra
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+没有这个函数
+但是 单个字符的，可以通过REPLICATE 与 RIGHT的组合来实现
+多个字符的，处理起来，略为复杂。
+
+1> SELECT
+2>   RIGHT( REPLICATE(' ', 8) + 'Ora', 8) AS A,
+3>   RIGHT( REPLICATE('*', 8) + 'Ora', 8) AS B,
+4>   LEFT( REPLICATE('xyz', 8), 8 - Len('Ora'))
+5>     + 'Ora' AS C
+6> go
+A           B           C
+----------- ----------- -------------
+     Ora    *****Ora    xyzxyOra
+
+(1 行受影响)
+
+
+
+CREATE FUNCTION LPAD(
+  @BaseStr VARCHAR(10),
+  @Size    INT,
+  @PadChar VARCHAR(10) = ' '
+)
+RETURNS VARCHAR(100)
+AS
+BEGIN
+  DECLARE @returnVal VARCHAR(100);
+  IF LEN(@PadChar) = 0
+    SET @returnVal =
+      RIGHT(REPLICATE(' ', @Size) + @BaseStr, @Size);
+  ELSE IF LEN(@PadChar) = 1
+    SET @returnVal =
+      RIGHT(REPLICATE(@PadChar, @Size) + @BaseStr, @Size);
+  ELSE
+    SET @returnVal =
+      LEFT(
+        REPLICATE(@PadChar, @Size / LEN(@PadChar)),
+        @Size - LEN(@BaseStr)) + @BaseStr;
+  RETURN @returnVal;
+END
+go
+
+1>
+2> SELECT
+3>   dbo.LPAD('Ora', 8, ' ') A,
+4>   dbo.LPAD('Ora', 8, '*') B,
+5>   dbo.LPAD('Ora', 8, 'xyz') C
+6> go
+A                     B                         C
+     Ora              *****Ora                   xyzxyOra
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+
+必须写满3个参数
+
+<pre><code>
+
+mysql> SELECT
+    ->        LPAD('Ora', 8, '*') B,
+    ->        LPAD('Ora', 8, 'xyz') C
+    -> //
++----------+----------+
+| B        | C        |
++----------+----------+
+| *****Ora | xyzxyOra |
++----------+----------+
+1 row in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# SELECT LPAD('Ora', 8) A,
+Test-#     LPAD('Ora', 8, '*') B,
+Test-#     LPAD('Ora', 8, 'xyz') C;
+    a     |    b     |    c
+----------+----------+----------
+      Ora | *****Ora | xyzxyOra
+(1 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

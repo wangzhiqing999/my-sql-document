@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 事务处理 - SQL Server (nolock) </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 事务处理 </h1>
+
+
+<h2> SQL Server (nolock)  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+UPDATE的例子
+
+
+会话1：
+1> select * from test_main;
+2> go
+id          value
+----------- ----------
+          1 ONE
+          2 TWO
+          3 Three
+          4 FOUR
+
+(4 行受影响)
+1> BEGIN TRANSACTION
+2> go
+1> UPDATE test_main SET value = 'FOUR-4' WHERE id = 4
+2> go
+
+(1 行受影响)
+
+会话2：
+1> select * from test_main
+2> go
+卡死，等待中……
+
+会话3:
+1> select * from test_main WITH (nolock)
+2> go
+id          value
+----------- ----------
+          1 ONE
+          2 TWO
+          3 Three
+          4 FOUR-4
+
+(4 行受影响)
+1> select * from test_main (nolock)
+2> go
+id          value
+----------- ----------
+          1 ONE
+          2 TWO
+          3 Three
+          4 FOUR-4
+
+(4 行受影响)
+
+SELECT …  WITH (nolock)
+SELECT …  (nolock) 
+使当前会话的查询，不受其它会话的事务所阻塞。
+但是这样做，就读取了其它事务的 “修改后未提交的”数据。
+也就是允许“READ UNCOMMITTED”
+
+
+
+
+
+
+INSERT 的例子
+
+
+会话1：
+1> select * from test_main;
+2> go
+id          value
+----------- ----------
+          1 ONE
+          2 TWO
+          3 Three
+          4 FOUR
+
+(4 行受影响)
+1> BEGIN TRANSACTION
+2> go
+1> INSERT INTO test_main VALUES(5, 'Five')
+2> go
+
+(1 行受影响)
+
+会话2：
+1> select * from test_main
+2> go
+卡死，等待中……
+
+
+会话3:
+1> select * from test_main (nolock)
+2> go
+id          value
+----------- ----------
+          1 ONE
+          2 TWO
+          3 Three
+          4 FOUR
+          5 Five
+
+(5 行受影响)
+1> select * from test_main  WHERE value LIKE 'O%'
+2> go
+卡死，等待中……
+
+
+什么时候使用 WITH (nolock) ？
+我个人认为是：
+当你需要从一个频繁插入/更新的表中，读取不发生变化的历史记录的时候。
+
+例如一个仓储管理系统，有个叫 出入库日志的表。
+系统运行的时候，不断有新的日志信息在往这个表插入数据。
+那些操作肯定是带事务处理的。
+什么仓库表啊，库存表啊，一大堆操作的。
+
+而你只需要查看上个月的出入库日志报表。不希望被上面的那些事务所阻塞。
+那么可以使用 WITH (nolock)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

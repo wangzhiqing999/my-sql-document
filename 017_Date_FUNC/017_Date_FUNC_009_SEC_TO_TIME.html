@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 日期函数 - 时间/秒转换 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 日期函数 </h1>
+
+
+<h2> 时间/秒转换  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+-- 秒  to  时间.
+select 
+  CAST(dateadd(ss, 5, 0)  as time) Result5,
+  CAST(dateadd(ss, 70, 0)  as time) Result70,
+  CAST(dateadd(ss, 3601, 0)  as time) Result3601;
+GO
+
+Result5                Result70               Result3601
+---------------------- ---------------------- ----------------------
+      00:00:05.0000000       00:01:10.0000000       01:00:01.0000000
+
+(1 行受影响)
+
+
+
+-- 时间 to 秒.
+SELECT
+  DATEDIFF(ss, CAST('00:00:00' AS time), CAST('00:00:05' AS time)) Result5,
+  DATEDIFF(ss, CAST('00:00:00' AS time), CAST('00:01:10' AS time)) Result70,
+  DATEDIFF(ss, CAST('00:00:00' AS time), CAST('01:00:01' AS time)) Result3601;
+GO
+
+Result5     Result70    Result3601
+----------- ----------- -----------
+          5          70        3601
+
+(1 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT SEC_TO_TIME (3600);
++--------------------+
+| SEC_TO_TIME (3600) |
++--------------------+
+| 01:00:00           |
++--------------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT TIME_TO_SEC('00:01:00') A;
++----+
+| A  |
++----+
+| 60 |
++----+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+通过 时间 + 秒的方式， 来实现   秒  转换为 时间.
+
+Test=# select time '00:00:00' + interval '3600 second';
+ ?column?
+----------
+ 01:00:00
+(1 行记录)
+
+
+Test=# select time '00:00:00' + interval '5000 second';
+ ?column?
+----------
+ 01:23:20
+(1 行记录)
+
+
+<hr/>
+
+
+通过 时*3600+分*60+秒 ， 来实现  时间 转换为 秒.
+
+
+Test=# SELECT
+Test-#   EXTRACT(HOUR from time '01:00:00') * 3600
+Test-#   + EXTRACT(MINUTE  from time '01:00:00') * 60
+Test-#   + EXTRACT(SECOND  from time '01:00:00');
+ ?column?
+----------
+     3600
+(1 行记录)
+
+
+
+Test=# SELECT
+Test-#   EXTRACT(HOUR from time '01:23:20') * 3600
+Test-#   + EXTRACT(MINUTE  from time '01:23:20') * 60
+Test-#   + EXTRACT(SECOND  from time '01:23:20');
+ ?column?
+----------
+     5000
+(1 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

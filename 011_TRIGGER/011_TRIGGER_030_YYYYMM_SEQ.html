@@ -1,0 +1,274 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 触发器 - 自定义流水号： 年月+流水 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 触发器 </h1>
+
+
+<h2>  自定义流水号 ： 年月+流水 </h2>
+
+
+<pre><code>
+序号生成规则:
+  年(系统时间年)+月(系统时间月,两位)+4位序列号(从0001开始)
+
+例如:
+  第一条记录2013060001,第二条记录2013060002,第三条记录2013060003
+  下一个月.第一条记录2013070001,第二条记录2013070002,第三条记录2013070003
+
+
+-- 测试表结构.
+CREATE TABLE test_ym_seq (
+  test_code   VARCHAR(10),
+  test_value  INT
+);
+
+
+</code></pre>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+<h4> 使用逐行触发器 </h4>
+
+CREATE OR REPLACE TRIGGER tr_InsertTest_ym_seq  
+BEFORE INSERT ON test_ym_seq 
+FOR EACH ROW
+DECLARE
+  v_rowCount  INT;
+BEGIN
+  -- 查询行数
+  SELECT 
+    COUNT(1) INTO v_rowCount
+  FROM 
+    test_ym_seq
+  WHERE
+    test_code LIKE TO_CHAR(sysdate, 'YYYYMM') || '%';
+
+  -- 递增处理.
+  v_rowCount := v_rowCount + 1;
+  -- 设置流水.
+  :new.test_code := TO_CHAR(sysdate, 'YYYYMM')  ||  TRIM(TO_CHAR(v_rowCount, '0000'));
+
+END;
+/
+
+SQL> INSERT INTO test_ym_seq(test_value) VALUES(1);
+
+已创建 1 行。
+
+SQL> INSERT INTO test_ym_seq(test_value) VALUES(2);
+
+已创建 1 行。
+
+SQL> INSERT INTO test_ym_seq(test_value) VALUES(3);
+
+已创建 1 行。
+
+SQL> 
+SQL> 
+SQL> INSERT INTO test_ym_seq(test_value)
+  2  SELECT 4 FROM dual  UNION ALL
+  3  SELECT 5 FROM dual  UNION ALL
+  4  SELECT 6 FROM dual;
+INSERT INTO test_ym_seq(test_value)
+            *
+ERROR 位于第 1 行:
+ORA-04091: 表 TEST.TEST_YM_SEQ 发生了变化, 触发器/函数不能读它
+ORA-06512: 在 "TEST.TR_INSERTTEST_YM_SEQ", line 5
+ORA-04088: 触发器 'TEST.TR_INSERTTEST_YM_SEQ' 执行过程中出错
+
+
+SQL> SELECT * FROM test_ym_seq;
+
+TEST_CODE            TEST_VALUE
+-------------------- ----------
+2013060000                    1
+2013060001                    2
+2013060002                    3
+
+
+假如系统不存在那种，一次插入多行数据的情况， 可以采用上面的方法。
+代码比较简单。
+
+<hr/>
+
+<h4> 使用逐语句触发器 </h4>
+
+
+CREATE OR REPLACE TRIGGER tr_InsertTest_ym_seq  AFTER INSERT ON test_ym_seq
+DECLARE
+  v_rowCount  INT;
+  v_lineData  test_ym_seq%ROWTYPE;
+  CURSOR c_A IS SELECT * FROM test_ym_seq WHERE test_code  is  null  FOR UPDATE;  
+BEGIN
+  -- 打开游标.
+  OPEN c_A;
+  LOOP
+    -- 填充数据.
+    FETCH c_A INTO v_lineData;
+    -- 假如没有检索到数据，结束循环处理
+    Exit when c_A%NOTFOUND;
+
+    -- 查询行数
+    SELECT 
+      COUNT(1) INTO v_rowCount
+	FROM 
+      test_ym_seq
+    WHERE
+      test_code LIKE TO_CHAR(sysdate, 'YYYYMM') || '%';
+
+    -- 更新.
+    UPDATE
+      test_ym_seq
+    SET 
+      test_code = TO_CHAR(sysdate, 'YYYYMM')  ||  TRIM(TO_CHAR(v_rowCount, '0000'))
+    WHERE 
+       CURRENT OF c_A;  
+  END LOOP;
+  -- 关闭游标
+  CLOSE c_A;
+END;
+/
+
+
+truncate table test_ym_seq;
+
+
+INSERT INTO test_ym_seq(test_value) VALUES(1);
+INSERT INTO test_ym_seq(test_value) VALUES(2);
+INSERT INTO test_ym_seq(test_value) VALUES(3);
+
+
+INSERT INTO test_ym_seq(test_value)
+SELECT 4 FROM dual  UNION ALL
+SELECT 5 FROM dual  UNION ALL
+SELECT 6 FROM dual;
+
+
+
+
+SQL> SELECT * FROM test_ym_seq;
+
+TEST_CODE            TEST_VALUE
+-------------------- ----------
+2013060000                    1
+2013060001                    2
+2013060002                    3
+2013060003                    4
+2013060004                    5
+2013060005                    6
+
+已选择6行。
+
+
+
+<hr/>
+
+使用触发器，能够解决 这种  年月+流水 的问题。
+但是由于处理过程中，要 SELECT COUNT， 这将导致并发的问题。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

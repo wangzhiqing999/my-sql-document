@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> MODEL查询函数 - REFERENCE语句 与 CV函数 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> MODEL查询函数 </h1>
+
+
+<h2> REFERENCE语句 与 CV函数  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+-- 下面是 REFERENCE 与 CV 的例子。
+-- 首先主查询的 GROUP BY 调整为 按物品分组
+-- 结果只有3行数据
+-- 其中的 tax_cte 用于表示3种物品的税收 分别为 0.10/0.13/0.17
+-- REFERENCE 可以理解为在前面的查询结果的基础上，再进一步在 MODEL 这个级别上，进行维度关联的处理。
+-- 例子中基于 tax_cte ，指定了 sale_item 为维度，数值为 per
+-- 在主的数据处理中，tax_money[ANY] = sum_money[CV(sale_item)] * item_ref.per[CV(sale_item)]
+-- ANY 意味着全部都要处理
+-- CV(sale_item) 表示当前维度的 sale_item
+With cte AS
+(
+SELECT
+  sale_item,
+  SUM(sale_money) AS sum_money,
+  0	AS tax_money
+FROM
+  sale_report
+WHERE
+  EXTRACT(YEAR FROM	SALE_DATE) = 2009
+GROUP BY
+  sale_item
+),
+tax_cte AS (
+  SELECT 'B' AS sale_item,  0.13 AS per FROM dual UNION ALL
+  SELECT 'C' AS sale_item,  0.17 AS per FROM dual
+)
+SELECT
+  *
+FROM cte
+MODEL
+  REFERENCE item_ref ON (SELECT sale_item, per FROM tax_cte)
+    DIMENSION BY (sale_item)  -- 按照 物品 为维度
+    MEASURES (per)  -- 数组的数据为 per
+    IGNORE NAV -- 忽略空(显示为初始数据).
+  MAIN conversion
+  DIMENSION	BY (sale_item)  -- 按照 物品 为维度
+  MEASURES(sum_money, tax_money) -- 数组的数据为 sum_money, prev_sum_money
+  RULES
+  (
+	tax_money[ANY] = sum_money[CV(sale_item)] * item_ref.per[CV(sale_item)]
+  )
+ORDER BY
+  sale_item;
+  
+SA  SUM_MONEY  TAX_MONEY
+-- ---------- ----------
+A      733285          0
+B        2382     309.66
+C        5738     975.46
+
+注意， 由于 A 物品在 tax_cte 没有数据，且 IGNORE NAV， 因此结果为 0
+如果删除 IGNORE NAV，结果为：
+
+SA  SUM_MONEY  TAX_MONEY
+-- ---------- ----------
+A      733285
+B        2382     309.66
+C        5738     975.46
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

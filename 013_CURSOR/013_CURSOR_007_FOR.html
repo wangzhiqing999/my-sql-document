@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 游标处理 - FOR的使用 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 游标处理 </h1>
+
+
+<h2>  FOR的使用 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+
+使用 FOR 可以避免定义多个变量。
+	
+<pre><code>
+
+DECLARE
+  -- 定义游标.
+  CURSOR c_test_main IS
+    SELECT id, value FROM test_main;
+BEGIN
+  FOR test_rec IN c_test_main
+  LOOP
+    dbms_output.put_line(test_rec.value);
+  END LOOP;
+END;
+/
+
+
+
+<hr/>
+如果再偷懒一点的话, 可以直接写
+
+BEGIN
+  FOR test_rec IN (SELECT id, value FROM test_main)
+  LOOP
+    dbms_output.put_line(test_rec.value);
+  END LOOP;
+END;
+/
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => TRUNCATE TABLE output_debug IMMEDIATE@
+DB20000I  SQL 命令成功完成。
+
+db2 => BEGIN
+db2 (cont.) =>   -- 游标处理.
+db2 (cont.) =>   FOR V1 AS c_test_main CURSOR FOR
+db2 (cont.) =>       SELECT id, value FROM test_main
+db2 (cont.) =>   DO
+db2 (cont.) =>     INSERT INTO output_debug VALUES(V1.value);
+db2 (cont.) =>   END FOR;
+db2 (cont.) => END
+db2 (cont.) => @
+DB20000I  SQL 命令成功完成。
+
+
+db2 => SELECT * FROM output_debug@
+DATA
+----------------------------------------
+ONE1
+TWO1
+  2 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+-- 清空日志表.
+Test=# truncate table log_table;
+TRUNCATE TABLE
+
+
+
+CREATE OR REPLACE FUNCTION TestCursorFor() RETURNS void AS
+$$
+DECLARE
+  -- 定义存储数据的变量.
+  v_main_data RECORD;
+BEGIN
+
+  FOR v_main_data IN SELECT id, value FROM test_main LOOP
+	-- 每一行的实际操作.
+    INSERT INTO log_table VALUES (v_main_data.value);
+  END LOOP; 
+
+END;
+$$
+LANGUAGE plpgsql;
+
+
+
+
+Test=# SELECT TestCursorFor();
+ testcursorfor
+---------------
+
+(1 行记录)
+
+
+Test=# select * from log_table;
+ log_text
+----------
+ ONE1
+ TWO1
+ FOUR1
+(3 行记录)
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 序列号 - 修改序列号 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 序列号 </h1>
+
+
+<h2> 修改序列号  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+ALTER SEQUENCE test_sequence2
+  increment by 2    -- 每次递增2
+  nomaxvalue      -- 没有最大值
+  minvalue 1       -- 最小值=1
+  NOCYCLE;
+
+
+SQL> SELECT test_sequence2.nextval  FROM dual;
+
+   NEXTVAL
+----------
+        23
+
+SQL> SELECT test_sequence2.nextval  FROM dual;
+
+   NEXTVAL
+----------
+        25
+
+注：
+To restart the sequence at a different number, you must drop and re-create it.
+如果要变更序列号的 当前数值， 必须先删除序列号， 然后再重建。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+-- 下一个序列号
+Test=# SELECT nextval ('test_sequence2');
+ nextval
+---------
+       2
+(1 行记录)
+
+
+-- 重至 序列号的当前值为 100
+Test=# ALTER SEQUENCE test_sequence2 RESTART WITH 100;
+ALTER SEQUENCE
+
+
+-- 下一个序列号
+Test=# SELECT nextval ('test_sequence2');
+ nextval
+---------
+     100
+(1 行记录)
+
+
+注：
+为了避免并发的事务从同一个序列获取数值的时候被阻塞住，ALTER SEQUENCE 操作从来不会回滚； 修改马上生效并且不能恢复。
+
+ALTER SEQUENCE 将不会立即影响后端的 nextval 结果，除了当前的之外， 因为它又已经缓冲了的序列号。
+它们只有再使用光所有已经缓冲的数值之后才能意识到改变了的序列参数。当前后端将立即被影响。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 队列处理 - HelloWorld 2 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 队列处理 </h1>
+
+
+<h2>  HelloWorld 2 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+Hello World 内部激活的例子
+
+-- 专门用于处理消息的存储过程.
+CREATE PROCEDURE SayHelloQueueProc
+AS
+BEGIN
+  -- 接收句柄.
+  DECLARE @RecvReqDlgHandle UNIQUEIDENTIFIER;
+  -- 接收到的数据.
+  DECLARE @RecvReqMsg NVARCHAR(100);
+  -- 接收到的数据类型名称.
+  DECLARE @RecvReqMsgName sysname;
+  -- 循环处理.
+  WHILE (1=1)
+  BEGIN
+    -- 开始事务处理.
+    BEGIN TRANSACTION;
+    -- 尝试从 SayHelloReceiveQueue 队列 接收消息.
+    WAITFOR
+    ( RECEIVE TOP(1)
+        @RecvReqDlgHandle = conversation_handle,
+        @RecvReqMsg       = message_body,
+        @RecvReqMsgName   = message_type_name
+      FROM SayHelloReceiveQueue
+    ), TIMEOUT 5000;
+
+    -- 判断有没有获取到消息.
+    IF (@@ROWCOUNT = 0)
+    BEGIN
+      -- 如果没有接收到消息
+      -- 回滚事务.
+      ROLLBACK TRANSACTION;
+      -- 跳出循环.
+      BREAK;
+    END
+
+    -- 如果接收到的消息类型名为 SayHelloMessage
+    -- 那么进行处理.
+    IF @RecvReqMsgName = N'SayHelloMessage'
+    BEGIN
+      -- 定义准备用于返回的消息.
+      DECLARE @ReplyMsg NVARCHAR(100);
+      -- 简单设置.
+      SELECT @ReplyMsg = '~' + @RecvReqMsg + '~';
+-- 调试输出.
+PRINT '我接收到:' + @RecvReqMsg + "； 我将反馈：" + @ReplyMsg;
+
+       -- 发送反馈消息.
+       SEND ON CONVERSATION @RecvReqDlgHandle
+         MESSAGE TYPE
+           [SayHelloMessage]
+              (@ReplyMsg);
+       END CONVERSATION @RecvReqDlgHandle;
+    END;
+    -- 提交事务.
+    COMMIT TRANSACTION;
+  END
+END
+GO
+
+ 
+
+-- 更改目标队列以指定内部激活
+-- 也就是当有消息发送到 SayHelloReceiveQueue 队列的时候.
+-- 自动调用 SayHelloQueueProc 存储过程 进行处理.
+ALTER QUEUE SayHelloReceiveQueue
+  WITH ACTIVATION
+    ( STATUS = ON,
+      PROCEDURE_NAME = SayHelloQueueProc,
+      MAX_QUEUE_READERS = 10,
+      EXECUTE AS SELF
+    );
+GO
+
+
+-- 由于消息已经处于自动处理的方式。
+-- 测试发送 并 接收.
+BEGIN
+  -- 定义发送的句柄.
+  DECLARE @InitDlgHandle UNIQUEIDENTIFIER;
+
+  -- 定义变量.
+  DECLARE @MyMessage NVARCHAR(100);
+  -- 设置发送消息的内容.
+  SET @MyMessage = N'Hello World!'
+
+  -- 开始事务处理.
+  BEGIN TRANSACTION;
+  -- 定义消息发送处理.
+  BEGIN DIALOG @InitDlgHandle
+    FROM SERVICE  -- 定义发送服务.
+      SayHelloSendService
+    TO SERVICE    -- 定义接收服务.
+      N'SayHelloReceiveService'
+    ON CONTRACT   -- 定义使用的约定
+      SayHelloContract
+    WITH  -- 不加密.
+      ENCRYPTION = OFF;
+  -- 发送消息.
+  SEND ON CONVERSATION @InitDlgHandle
+    MESSAGE TYPE
+      [SayHelloMessage]
+        ( @MyMessage );
+-- 输出接收到的消息.
+PRINT '我发送了：' + @MyMessage;
+  -- 提交事务.
+  COMMIT TRANSACTION;
+
+
+  -- 等待 5 秒.
+  WAITFOR DELAY '00:00:05';
+
+
+  DECLARE @RecvReplyMsg NVARCHAR(100);
+  DECLARE @RecvReplyDlgHandle UNIQUEIDENTIFIER;
+  -- 开始事务处理.
+  BEGIN TRANSACTION;
+  -- 尝试从 SayHelloReceiveQueue 队列 接收消息.
+  WAITFOR
+  ( RECEIVE TOP(1)
+    @RecvReplyDlgHandle = conversation_handle,
+    @RecvReplyMsg = message_body
+    FROM SayHelloSendQueue
+  ), TIMEOUT 1000;
+  END CONVERSATION @RecvReplyDlgHandle;
+-- 输出接收到的消息.
+PRINT '我接收到反馈：' + @RecvReplyMsg;
+  -- 提交事务.
+  COMMIT TRANSACTION;
+
+END
+GO
+
+我发送了：Hello World!
+
+(1 行受影响)
+我接收到反馈：~Hello World!~
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

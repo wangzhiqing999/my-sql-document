@@ -1,0 +1,281 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 触发器 - 嵌套触发器 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 触发器 </h1>
+
+
+<h2> 嵌套触发器  </h2>
+
+测试此处时，先删除其它的触发器
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+
+这里的 INSERT 触发器。 调用了 UPDATE 语句， 导致了 UPDATE 触发器的触发。
+
+<pre><code>
+
+db2 => truncate TABLE log_table IMMEDIATE
+DB20000I  SQL 命令成功完成。
+db2 => truncate TABLE test_trigger_table IMMEDIATE
+DB20000I  SQL 命令成功完成。
+
+db2 => CREATE TRIGGER AfterUpdateTest \
+db2 (cont.) => AFTER UPDATE ON test_trigger_table \
+db2 (cont.) => REFERENCING NEW_TABLE AS inserted \
+db2 (cont.) => for each statement \
+db2 (cont.) => BEGIN ATOMIC \
+db2 (cont.) =>   INSERT INTO log_table SELECT 'U_' || name FROM inserted; \
+db2 (cont.) => END
+DB20000I  SQL 命令成功完成。
+
+db2 => CREATE TRIGGER AfterInsertTest \
+db2 (cont.) => AFTER INSERT ON test_trigger_table \
+db2 (cont.) => REFERENCING NEW_TABLE AS inserted \
+db2 (cont.) => for each statement \
+db2 (cont.) => BEGIN ATOMIC \
+db2 (cont.) =>   INSERT INTO log_table SELECT 'I_' || name FROM inserted; \
+db2 (cont.) =>   UPDATE test_trigger_table \
+db2 (cont.) =>   SET val = 100 \
+db2 (cont.) =>   WHERE id IN (SELECT id FROM inserted); \
+db2 (cont.) => END
+DB20000I  SQL 命令成功完成。
+
+db2 => INSERT INTO test_trigger_table(id, name) VALUES (1, 'ABC')
+DB20000I  SQL 命令成功完成。
+db2 => select * from test_trigger_table
+
+ID          NAME       VAL
+----------- ---------- -----------
+          1 ABC                100
+
+  1 条记录已选择。
+
+db2 => select * from  log_table
+
+LOG_TEXT
+------------------------------
+I_ABC
+U_ABC
+
+  2 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+	
+
+这里的 INSERT 触发器。 调用了 UPDATE 语句， 导致了 UPDATE 触发器的触发。
+
+
+<pre><code>
+
+
+Nested  triggers 的设置： 
+其指令如下： 
+EXEC   sp_configure       'nested_triggers',    1(0)      
+RECONFIGURE           WITH        OVERRIDE     
+Nested    triggers:     1  : 设置嵌套开启 ；0  : 设置嵌套关闭
+
+
+
+1> CREATE TRIGGER AfterUpdateTest
+2>   ON test_trigger_table
+3>   FOR UPDATE
+4> AS
+5> DECLARE
+6>   @OldName VARCHAR(10),
+7>   @NewName VARCHAR(10);
+8> BEGIN
+9>   PRINT('AFTER UPDATE');
+10>   SELECT @NewName = name FROM inserted;
+11>   SELECT @OldName = name FROM deleted;
+12>   PRINT('Old Name = ' + @OldName);
+13>   PRINT('New Name = ' + @NewName);
+14> END;
+15> go
+1>
+2>
+3>
+4> CREATE TRIGGER AfterInsertTest
+5>   ON test_trigger_table
+6>   FOR INSERT
+7> AS
+8> DECLARE
+9>   @Id   INT,
+10>   @Name VARCHAR(10);
+11> BEGIN
+12>   PRINT('BEFORE INSERT');
+13>   SELECT @Id = id, @Name = name FROM INSERTED;
+14>   PRINT('New Name = ' + @Name);
+15>   UPDATE test_trigger_table SET val = 100 WHERE id=@Id;
+16> END;
+17> go
+1>
+2> INSERT INTO test_trigger_table(id, name) VALUES (1, 'ABC');
+3> go
+BEFORE INSERT
+New Name = ABC
+AFTER UPDATE
+Old Name = ABC
+New Name = ABC
+
+(1 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+-- 清除Log日志表
+Test=# truncate table log_table;
+TRUNCATE TABLE
+
+
+
+
+
+
+这里的 INSERT 触发器。 调用了 UPDATE 语句， 导致了 UPDATE 触发器的触发。 
+
+
+-- 创建 触发器函数.
+CREATE OR REPLACE FUNCTION TrNestedInsertTest()  RETURNS trigger AS $tr_nested_i_test$
+BEGIN
+  -- 插入日志表
+  INSERT INTO log_table VALUES ( 'INSERT ！' ); 
+  -- 更新 目标表， 准备 导致 UPDATE 触发器执行.
+  UPDATE  test_trigger_table  SET  val = val + 1;
+  -- 语句级的触发器函数， 将忽略返回值，因此这里简单返回 NULL.
+  RETURN NULL;
+END;
+$tr_nested_i_test$ LANGUAGE plpgsql;
+
+
+-- 创建 触发器函数.
+CREATE OR REPLACE FUNCTION TrNestedUpdateTest()  RETURNS trigger AS $tr_nested_u_test$
+BEGIN
+  -- 插入日志表
+  INSERT INTO log_table VALUES ( 'UPDATE ！' ); 
+  -- 语句级的触发器函数， 将忽略返回值，因此这里简单返回 NULL.
+  RETURN NULL;
+END;
+$tr_nested_u_test$ LANGUAGE plpgsql;
+
+
+
+-- 定义 insert 触发器.
+CREATE TRIGGER tr_nested_i_test 
+  BEFORE INSERT ON test_trigger_table
+  FOR EACH STATEMENT EXECUTE 
+  PROCEDURE TrNestedInsertTest();
+
+-- 定义 update 触发器.
+CREATE TRIGGER tr_nested_u_test 
+  BEFORE INSERT ON test_trigger_table
+  FOR EACH STATEMENT EXECUTE 
+  PROCEDURE TrNestedUpdateTest();
+
+
+-- 测试执行.
+Test=# INSERT INTO test_trigger_table(id, name) VALUES (1, 'ABC');
+INSERT 0 1
+Test=#
+
+--  验证触发器执行结果.
+Test=# select * from log_table;
+ log_text
+-----------
+ INSERT ！
+ UPDATE ！
+(2 行记录)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

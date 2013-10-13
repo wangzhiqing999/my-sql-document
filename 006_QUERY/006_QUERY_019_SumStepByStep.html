@@ -1,0 +1,262 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 逐步累计 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> 逐步累计  </h2>
+
+
+
+<pre><code>
+
+测试数据.
+
+CREATE TABLE temp (
+  year    INT,  
+  salary  INT
+);
+
+INSERT INTO temp VALUES(2000, 1000);
+INSERT INTO temp VALUES(2001, 2000);
+INSERT INTO temp VALUES(2002, 3000);
+INSERT INTO temp VALUES(2003, 4000);
+
+
+预期要求结果：
+
+year	salary 
+2000	1000
+2001	3000
+2002	6000
+2003	10000
+
+
+
+<hr/>
+
+CREATE TABLE test_AddSub (
+  year     INT,
+  Sub_Val  INT,
+  Add_val  INT
+);
+
+
+INSERT INTO test_AddSub VALUES(2000, 0,  1000);
+INSERT INTO test_AddSub VALUES(2001, 0,  2000);
+INSERT INTO test_AddSub VALUES(2002, 0,  3000);
+INSERT INTO test_AddSub VALUES(2003, 0,  4000);
+INSERT INTO test_AddSub VALUES(2004, 1000,  0);
+INSERT INTO test_AddSub VALUES(2005, 2000,  0);
+INSERT INTO test_AddSub VALUES(2006, 3000,  0);
+INSERT INTO test_AddSub VALUES(2007, 4000,  0);
+
+
+预期要求结果：
+year        Sub_Val     Add_val     Result
+2000           0        1000        1000
+2001           0        2000        3000
+2002           0        3000        6000
+2003           0        4000       10000
+2004        1000           0        9000
+2005        2000           0        7000
+2006        3000           0        4000
+2007        4000           0           0
+
+
+</code></pre>
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SELECT  
+  year,
+  SUM(salary) OVER(ORDER BY year ROWS UNBOUNDED PRECEDING) AS salary
+FROM
+  temp;
+
+
+      YEAR     SALARY
+---------- ----------
+      2000       1000
+      2001       3000
+      2002       6000
+      2003      10000
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SELECT  
+  year,
+  (SELECT SUM(salary) FROM temp  t2  WHERE t2.year &lt;= temp.year) AS salary
+FROM
+  temp;
+
+
+year	salary
+2000	1000
+2001	3000
+2002	6000
+2003	10000
+
+
+
+
+<hr/>
+
+SELECT
+  year, Sub_Val, Add_val,  
+  (SELECT SUM(Add_val - Sub_Val) FROM test_AddSub  t2  WHERE t2.year &lt;= test_AddSub.year) AS Result
+FROM
+  test_AddSub;
+GO
+
+year        Sub_Val     Add_val     Result
+----------- ----------- ----------- -----------
+2000           0        1000        1000
+2001           0        2000        3000
+2002           0        3000        6000
+2003           0        4000       10000
+2004        1000           0        9000
+2005        2000           0        7000
+2006        3000           0        4000
+2007        4000           0           0
+
+(8 行受影响)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+SELECT
+  year,
+  @SumSalary:=@SumSalary + salary AS salary
+FROM
+  temp,
+  (SELECT @SumSalary:=0) s
+ORDER BY
+  year;
+
++------+--------+
+| year | salary |
++------+--------+
+| 2000 |   1000 |
+| 2001 |   3000 |
+| 2002 |   6000 |
+| 2003 |  10000 |
++------+--------+
+4 rows in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+写法同 SQL Server
+
+SELECT  
+  year,
+  (SELECT SUM(salary) FROM temp  t2  WHERE t2.year &lt;= temp.year) AS salary
+FROM
+  temp;
+
+ year | salary
+------+--------
+ 2000 |   1000
+ 2001 |   3000
+ 2002 |   6000
+ 2003 |  10000
+(4 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

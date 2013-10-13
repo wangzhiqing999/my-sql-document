@@ -1,0 +1,458 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 事务处理 - 简单的正常提交-异常回滚 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 事务处理 </h1>
+
+
+<h2>  简单的正常提交-异常回滚 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> select * from test_main;
+
+        ID VALUE
+---------- --------------------
+         2 TWO
+         3 THREE
+         1 ONE
+
+SQL> BEGIN
+  2    -- 插入2条同样的数据，使主键重复，引发错误后回滚事务.
+  3    INSERT INTO test_main(id, value) VALUES (4, 'FOUR');
+  4    INSERT INTO test_main(id, value) VALUES (4, 'FOUR');
+  5    COMMIT;
+  6    EXCEPTION
+  7      WHEN OTHERS THEN
+  8        dbms_output.put_line('Error Code = ' || TO_CHAR(SQLCODE) );
+  9        dbms_output.put_line('Error Message = ' || SQLERRM );
+ 10        -- 回滚事务
+ 11        ROLLBACK;
+ 12  END;
+ 13  /
+
+PL/SQL procedure successfully completed.
+
+SQL> select * from test_main;
+
+        ID VALUE
+---------- --------------------
+         2 TWO
+         3 THREE
+         1 ONE
+
+SQL>
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+DB2 中， 要启用事务处理的时候， 需要做一些前期准备工作
+
+首先 db2命令行下，执行：list command options
+
+
+db2 => list command options@
+
+     命令行处理器选项设置
+
+ 后端进程等待时间（秒）        (DB2BQTIME) = 1
+ 连接至后端的重试次数           (DB2BQTRY) = 60
+ 请求队列等待时间（秒）        (DB2RQTIME) = 5
+ 输入队列等待时间（秒）        (DB2IQTIME) = 5
+ 命令选项                     (DB2OPTIONS) =
+
+  选项   描述                                      当前设置
+ ------  ----------------------------------------  ---------------
+   -a    显示 SQLCA                                OFF
+   -c    自动落实                                  ON
+   -d    检索并显示 XML 声明                       OFF
+   -e    显示 SQLCODE/SQLSTATE                     OFF
+   -f    读取输入文件                              OFF
+   -i    显示 XML 数据并带有缩进                   OFF
+   -l    将命令记录到历史记录文件中                OFF
+   -m    显示受影响的行数                          OFF
+   -n    除去换行字符                              OFF
+   -o    显示输出                                  ON
+   -p    显示交互式输入提示符                      ON
+   -q    保留空格和换行符                          OFF
+   -r    将输出保存到报告文件                      OFF
+   -s    在命令出错时停止执行                      OFF
+   -t    设置语句终止字符                          ON
+   -v    回传当前命令                              OFF
+   -w    显示 FETCH/SELECT 警告消息                ON
+   -x    不打印列标题                              OFF
+   -z    将所有输出保存到输出文件                  OFF
+
+
+请注意那个
+   -c    自动落实                                  ON
+英文版本显示为
+   -c    Auto-Commit                                ON
+
+也就是默认情况下， 是自动提交的。
+
+使用下面的命令来查看设置： 
+
+执行命令： 
+update command options using c off@
+
+
+db2 => update command options using c off@
+DB20000I  UPDATE COMMAND OPTIONS 命令成功完成。
+
+
+再次执行：list command options 查询
+
+
+db2 => list command options@
+
+     命令行处理器选项设置
+
+ 后端进程等待时间（秒）        (DB2BQTIME) = 1
+ 连接至后端的重试次数           (DB2BQTRY) = 60
+ 请求队列等待时间（秒）        (DB2RQTIME) = 5
+ 输入队列等待时间（秒）        (DB2IQTIME) = 5
+ 命令选项                     (DB2OPTIONS) =
+
+  选项   描述                                      当前设置
+ ------  ----------------------------------------  ---------------
+   -a    显示 SQLCA                                OFF
+   -c    自动落实                                  OFF
+   ...
+   
+自动落实(Auto-Commit) 已经被设置为 OFF 了。
+
+
+
+db2 => select * from test_main@
+
+ID          VALUE
+----------- ----------
+          1 ONE
+          2 TWO
+
+  2 条记录已选择。
+  
+  
+
+
+BEGIN
+  -- 定义 异常处理.  
+  P1: BEGIN ATOMIC
+    -- 定义错误处理
+    -- 如果发生错误，结束处理，并回滚前面做的处理。
+    DECLARE UNDO HANDLER
+    FOR
+    SQLEXCEPTION
+    BEGIN
+      -- 异常处理
+      
+    END;
+    -- 插入2条同样的数据，使主键重复，引发错误后回滚事务.
+    INSERT INTO test_main(id, value) VALUES (4, 'FOUR');
+    INSERT INTO test_main(id, value) VALUES (4, 'FOUR');  
+  END P1;
+END
+@
+
+
+执行完毕后
+
+db2 => select * from test_main@
+
+ID          VALUE
+----------- ----------
+          1 ONE
+          2 TWO
+
+  2 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1>
+2> select * from test_main
+3> go
+id          value
+----------- ----------
+          1 ONE
+          2 TWO
+          3 THREE
+
+(3 行受影响)
+1> BEGIN TRY
+2>   -- SQL Server 需要显示的定义 开始一个事务.
+3>   BEGIN TRANSACTION;
+4>   -- 插入2条同样的数据，使主键重复，引发错误后回滚事务.
+5>   INSERT INTO test_main(id, value) VALUES (4, 'FOUR');
+6>   INSERT INTO test_main(id, value) VALUES (4, 'FOUR');
+7>   -- 执行成功后，需要提交事务.
+8>   COMMIT;
+9> END TRY
+10> BEGIN CATCH
+11>   PRINT('Main.错误代码 = ' + STR(ERROR_NUMBER()));
+12>   PRINT('Main.错误严重级别 = ' + STR(ERROR_SEVERITY()));
+13>   PRINT('Main.错误状态代码 = ' + STR(ERROR_STATE()));
+14>   PRINT('Main.错误信息 = ' + ERROR_MESSAGE());
+15>   -- 回滚事务
+16>   ROLLBACK;
+17> END CATCH
+18>
+19> go
+
+(1 行受影响)
+Main.错误代码 =       2627
+Main.错误严重级别 =         14
+Main.错误状态代码 =          1
+Main.错误信息 = 违反了 PRIMARY KEY 约束 'PK__test_main__47DBAE45'。不能在对象 'd
+bo.test_main' 中插入重复键。
+1> select * from test_main;
+2> go
+id          value
+----------- ----------
+          1 ONE
+          2 TWO
+          3 THREE
+
+(3 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+默认情况下，MySQL采用autocommit模式运行。这意味着，当执行更新表的语句之后，MySQL立刻把更新存储到磁盘中。
+
+事务安全型的存储引擎（如InnoDB, BDB或NDB簇），
+使用以下语句禁用autocommit模式：
+SET AUTOCOMMIT=0;
+
+
+使用START TRANSACTION，autocommit仍然被禁用，直到COMMIT或ROLLBACK结束事务为止。然后autocommit模式恢复到原来的状态。
+
+
+
+mysql> select * from test_main //
++----+-------+
+| id | value |
++----+-------+
+|  1 | ONE   |
+|  2 | TWO   |
+|  3 | THREE |
++----+-------+
+3 rows in set (0.00 sec)
+
+mysql> START TRANSACTION;
+    -> //
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO test_main VALUES(4, 'FOUR') //
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO test_main VALUES(4, 'FOUR') //
+ERROR 1062 (23000): Duplicate entry '4' for key 'PRIMARY'
+
+mysql> ROLLBACK//
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select * from test_main //
++----+-------+
+| id | value |
++----+-------+
+|  1 | ONE   |
+|  2 | TWO   |
+|  3 | THREE |
++----+-------+
+3 rows in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+注： 
+函数和触发器过程总是在一个由外层查询建立起来的事务里执行 
+--- 它们无法开始或者提交事务，因为 PostgreSQL 没有嵌套事务．
+
+
+Test=# select * from test_main;
+ id |  value
+----+----------
+  1 | ONE1
+  2 | TWO1
+  4 | FOUR1
+ 11 | ONEONE
+ 12 | ONETWO
+ 13 | ONETHREE
+(6 行记录)
+
+
+
+
+CREATE OR REPLACE FUNCTION TestSimpleTrans() RETURNS void AS
+$$
+BEGIN
+  -- 插入2条同样的数据，使主键重复，引发错误后回滚事务.
+  INSERT INTO test_main(id, value) VALUES (100, '100');
+  INSERT INTO test_main(id, value) VALUES (100, '100');
+END;
+$$
+LANGUAGE plpgsql;
+
+
+Test=# select TestSimpleTrans();
+错误:  重复键违反唯一约束"test_main_pkey"
+描述:  键值"(id)=(100)" 已经存在
+背景:  SQL 语句 "INSERT INTO test_main(id, value) VALUES (100, '100')"
+PL/pgSQL function testsimpletrans() line 5 at SQL语句
+Test=# select * from test_main;
+ id |  value
+----+----------
+  1 | ONE1
+  2 | TWO1
+  4 | FOUR1
+ 11 | ONEONE
+ 12 | ONETWO
+ 13 | ONETHREE
+(6 行记录)
+
+
+PostgreSQL 当中， 单个存储过程，会自己管理事务。
+一旦数据发生异常， 会自动回滚掉。
+
+
+也可以通过自己写 RAISE EXCEPTION 抛出异常， 实现事务的回滚.
+
+
+CREATE OR REPLACE FUNCTION TestSimpleTrans() RETURNS void AS
+$$
+BEGIN
+  INSERT INTO test_main(id, value) VALUES (100, '100');
+  -- 手动抛出异常.
+  RAISE EXCEPTION '用户 % 执行过程异常！', user;
+END;
+$$
+LANGUAGE plpgsql;
+
+Test=# select TestSimpleTrans();
+错误:  用户 postgres 执行过程异常！
+Test=# select * from test_main;
+ id |  value
+----+----------
+  1 | ONE1
+  2 | TWO1
+  4 | FOUR1
+ 11 | ONEONE
+ 12 | ONETWO
+ 13 | ONETHREE
+(6 行记录)
+
+
+
+<hr/>
+
+也可以通过 BEGIN;  来开始一个事务，  COMMIT; 结束一个.
+
+
+Test=# BEGIN;
+BEGIN
+Test=# INSERT INTO test_main(id, value) VALUES (100, '100');
+INSERT 0 1
+Test=# INSERT INTO test_main(id, value) VALUES (100, '100');
+错误:  重复键违反唯一约束"test_main_pkey"
+描述:  键值"(id)=(100)" 已经存在
+Test=# SELECT * FROM test_main;
+错误:  当前事务被终止, 事务块结束之前的查询被忽略
+Test=# ROLLBACK;
+ROLLBACK
+Test=# SELECT * FROM test_main;
+ id |  value
+----+----------
+  1 | ONE1
+  2 | TWO1
+  4 | FOUR1
+ 11 | ONEONE
+ 12 | ONETWO
+ 13 | ONETHREE
+(6 行记录)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

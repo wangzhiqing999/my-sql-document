@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据类型-字符类型 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据类型 </h1>
+
+
+<h2> 字符类型 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+CHAR	定长字符串，最长2000字节
+NCHAR	定长字符串，存储的数据为 NLS字符
+VARCHAR2	变长字符串，最长4000字节
+NVARCHAR2	变长字符串，存储的数据为 NLS字符
+
+LONG	最大存储2G字符数据 不推荐使用（改用CLOB）
+CLOB	Oracle 9i 及以前，最大4G字符数据 Oracle10g 最大4G*数据库块大小的字符数据
+NCLOB	基本同CLOB，就是存储的数据为NLS
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+CHAR 或 CHARACTER 用来存储最多 254 字节的固定长度的字符串。
+例如，制造商可以给零件分配一个 8 字符长度的标识符，
+因此这些标识符在数据库中存储为 CHAR(8) 类型的列。 
+
+
+VARCHAR 用来存储可变长度的字符串。
+例如，制造商用不同长度的标识符表示大量零件，因此这些标识符存储为 VARCHAR(100) 类型的列。
+VARCHAR 列的最大长度为 32,672 字节。在数据库中，VARCHAR 数据只占用恰好所需的空间。 
+
+
+下面的数据类型用来存储双字节字符串：
+
+GRAPHIC 用来存储固定长度的双字节字符串。GRAPHIC 列的最大长度是 127 个字符。 
+
+VARGRAPHIC 用来存储可变长度的双字节字符串。VARGRAPHIC 列的最大长度是 16,336 个字符。 
+
+DB2 还提供了存储非常长的字符串数据的数据类型。
+所有长字符串数据类型都具有相似的特征。
+首先，在数据库中此数据在物理上并没有与行数据存储在一起，
+这意味着需要进行额外处理才能访问此数据。
+长数据类型的长度最大可以定义为 2GB。但是，需要的空间只是实际使用的空间。 
+
+长数据类型有： 
+LONG VARCHAR 
+CLOB（字符大对象） 
+LONG VARGRAPHIC 
+DBCLOB（双字节字符大对象） 
+BLOB（二进制大对象） 
+BLOB(integer) 表示具有指定最大长度（以字节计）的二进制大对象字符串。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+char	定长，最大8000
+varchar	变长  SQL Server2005后 可以通过 varchar(MAX)来允许最大存储2G的数据
+text	最多存储有2G字符
+nchar	定长，最大4000国际化字符
+nvarchar	变长。
+ntext	最多存储有1G 国际化字符
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+CHAR
+这是CHAR(1)的同义词。
+
+[NATIONAL] VARCHAR(M) [BINARY]
+变长字符串。M 表示最大列长度。M的范围是0到65,535。
+(VARCHAR的最大实际长度由最长的行的大小和使用的字符集确定。最大有效长度是65,532字节）。
+注释：MySQL 5.1遵从标准SQL规范，并且不删除VARCHAR值的尾部空格。
+VARCHAR是字符VARYING的简写。
+BINARY属性是指定列的字符集的二元 校对规则的简写。排序和比较基于数值字符值。
+VARCHAR保存时用一个字节或两个字节长的前缀+数据。如果VARCHAR列声明的长度大于255，长度前缀是两个字节。
+
+BINARY(M)
+BINARY类型类似于CHAR类型，但保存二进制字节字符串而不是非二进制字符串。
+
+VARBINARY(M)
+VARBINARY类型类似于VARCHAR类型，但保存二进制字节字符串而不是非二进制字符串。
+
+TINYBLOB
+最大长度为255(28–1)字节的BLOB列。
+
+TINYTEXT
+最大长度为255(28–1)字符的TEXT列。
+
+BLOB[(M)]
+最大长度为65,535(216–1)字节的BLOB列。
+可以给出该类型的可选长度M。如果给出，
+则MySQL将列创建为最小的但足以容纳M字节长的值的BLOB类型。
+
+TEXT[(M)]
+最大长度为65,535(216–1)字符的TEXT列。
+可以给出可选长度M。则MySQL将列创建为最小的但足以容纳M字符长的值的TEXT类型。
+
+MEDIUMBLOB
+最大长度为16,777,215(224–1)字节的BLOB列。
+
+MEDIUMTEXT
+最大长度为16,777,215(224–1)字符的TEXT列。
+
+LONGBLOB
+最大长度为4,294,967,295或4GB(232–1)字节的BLOB列。
+LONGBLOB列的最大有效(允许的)长度取决于客户端/服务器协议中配置最大包大小和可用的内存。
+
+LONGTEXT
+最大长度为4,294,967,295或4GB(232–1)字符的TEXT列。
+LONGTEXT列的最大有效(允许的)长度取决于客户端/服务器协议中配置最大包大小和可用的内存。
+
+ENUM('value1','value2',...)
+枚举类型。只能有一个值的字符串，
+从值列'value1'，'value2'，...，NULL中或特殊 ''错误值中选出。
+ENUM列最多可以有65,535个截然不同的值。ENUM值在内部用整数表示。
+
+SET('value1','value2',...)
+一个设置。字符串对象可以有零个或多个值，
+每个值必须来自列值'value1'，'value2'，...SET列最多可以有64个成员。SET值在内部用整数表示。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+CHARACTER(20)
+VARCHAR(255)
+VARYING CHARACTER(255)
+NCHAR(55)
+NATIVE CHARACTER(70)
+NVARCHAR(100)
+TEXT
+CLOB
+
+内部都按照 TEXT 来处理。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+名字	描述
+character varying(n), varchar(n)	变长，有长度限制
+character(n), char(n)	定长,不足补空白
+text
+
+
+名字	存储空间	描述
+"char"	1 字节	单字节内部类型
+name	64 字节	用于对象名的内部类型
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

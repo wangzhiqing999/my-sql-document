@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数学函数 - 正弦 SIN </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数学函数 </h1>
+
+
+<h2> 正弦 SIN  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT SIN(0), SIN(60*3.14159265359/180) FROM dual;
+
+    SIN(0) SIN(60*3.14159265359/180)
+---------- -------------------------
+         0                .866025404
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => SELECT SIN(0), SIN(60*3.14159265359/180)
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+1                        2
+------------------------ ------------------------
+  +0.00000000000000E+000   +8.66025403784473E-001
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT SIN(0), SIN(60*3.14159265359/180)
+2> go
+
+------------------------ ------------------------
+                       0      0.86602540378447279
+
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+SIN(X) 
+返回X 正弦，其中 X 在弧度中被给定。 
+mysql> SELECT SIN(PI());
+        -> 1.2246063538224e-16
+mysql> SELECT ROUND(SIN(PI()));
+        -> 0
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# SELECT SIN(0), SIN(60*3.14159265359/180);
+ sin |        sin
+-----+-------------------
+   0 | 0.866025403784473
+(1 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

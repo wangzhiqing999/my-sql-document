@@ -1,0 +1,278 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 外键约束 - 关于非主键的外键设置 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 外键约束 </h1>
+
+
+<h2> 关于非主键的外键设置  </h2>
+
+
+
+
+<pre><code>
+
+-- 创建测试主表.  无主键.
+CREATE TABLE test_main2 (
+  id      INT   NOT  NULL,
+  value   VARCHAR(10)
+);
+
+
+-- 创建测试子表. 
+CREATE TABLE test_sub2 (
+  id      INT   NOT  NULL,
+  main_id INT,
+  value   VARCHAR(10),
+  PRIMARY KEY(id)  
+);
+
+
+-- 插入测试主表数据.
+INSERT INTO test_main2(id, value) VALUES (1, 'ONE');
+INSERT INTO test_main2(id, value) VALUES (2, 'TWO');
+
+-- 插入测试子表数据.
+INSERT INTO test_sub2(id, main_id, value) VALUES (1, 1, 'ONEONE');
+INSERT INTO test_sub2(id, main_id, value) VALUES (2, 2, 'TWOTWO');
+
+
+
+
+</code></pre>
+
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> ALTER TABLE test_sub2
+  2     ADD CONSTRAINT main_id_cons2
+  3     FOREIGN KEY (main_id)
+  4     REFERENCES  test_main2(id);
+   REFERENCES  test_main2(id)
+                          *
+第 4 行出现错误:
+ORA-02270: 此列列表的唯一或主键不匹配
+
+默认情况下，无法创建外键
+需要创建 unique 约束
+
+SQL> ALTER TABLE test_main2
+  2     ADD CONSTRAINTS t_unique_id2
+  3         UNIQUE (id);
+
+表已更改。
+
+unique 约束创建完毕后，外键创建成功。
+
+SQL> ALTER TABLE test_sub2
+  2     ADD CONSTRAINT main_id_cons2
+  3     FOREIGN KEY (main_id)
+  4     REFERENCES  test_main2(id);
+
+表已更改。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => ALTER TABLE test_sub2
+db2 (cont.) =>   ADD CONSTRAINT main_id_cons2
+db2 (cont.) =>     FOREIGN KEY (main_id)
+db2 (cont.) =>       REFERENCES  test_main2(id);
+DB21034E  该命令被当作 SQL 语句来处理，因为它是无效的“命令行处理器”命令。在
+SQL 处理期间，它返回：
+SQL0573N  在约束 "MAIN_ID_CONS2" 的引用子句中指定的列列表不标识父表或昵称
+"WZQ.TEST_MAIN2" 的唯一约束。  SQLSTATE=42890
+
+db2 => ALTER TABLE test_main2
+db2 (cont.) =>   ADD UNIQUE (id);
+DB20000I  SQL 命令成功完成。
+
+db2 => ALTER TABLE test_sub2
+db2 (cont.) =>   ADD CONSTRAINT main_id_cons2
+db2 (cont.) =>     FOREIGN KEY (main_id)
+db2 (cont.) =>       REFERENCES  test_main2(id);
+DB20000I  SQL 命令成功完成。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> ALTER TABLE test_sub2
+2>    ADD CONSTRAINT main_id_cons2
+3>    FOREIGN KEY (main_id)
+4>    REFERENCES  test_main2(id);
+5> go
+消息 1776，级别 16，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+在被引用表 'test_main2' 中没有与外键 'main_id_cons2' 中的引用列列表匹配的主键或候选键。
+消息 1750，级别 16，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+无法创建约束。请参阅前面的错误消息。
+
+默认情况下，无法创建外键
+需要创建 unique 约束
+1> ALTER TABLE test_main2
+2>   ADD UNIQUE (id);
+3> go
+
+unique 约束创建完毕后，外键创建成功。
+
+1> ALTER TABLE test_sub2
+2>    ADD CONSTRAINT main_id_cons2
+3>    FOREIGN KEY (main_id)
+4>    REFERENCES  test_main2(id);
+5> go
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> ALTER TABLE test_sub2
+    ->    ADD CONSTRAINT main_id_cons2
+    ->    FOREIGN KEY (main_id)
+    ->    REFERENCES  test_main2(id);
+ERROR 1005 (HY000): Can't create table 'test.#sql-608_1' (errno: 150)
+
+默认情况下，无法创建外键
+需要创建 unique 约束
+mysql> ALTER TABLE test_main2
+    ->   CHANGE COLUMN id id INT UNIQUE;
+Query OK, 2 rows affected (0.17 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+unique 约束创建完毕后，外键创建成功。
+mysql> ALTER TABLE test_sub2
+    ->    ADD CONSTRAINT main_id_cons2
+    ->    FOREIGN KEY (main_id)
+    ->    REFERENCES  test_main2(id);
+Query OK, 2 rows affected (0.14 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# ALTER TABLE test_sub2
+Test-#   ADD CONSTRAINT main_id_cons2
+Test-#     FOREIGN KEY (main_id)
+Test-#       REFERENCES  test_main2(id);
+错误:  没有唯一约束与关联表 "test_main2" 给定的键值匹配
+
+
+默认情况下，无法创建外键
+需要创建 unique 约束
+
+
+Test=# ALTER TABLE test_main2
+Test-#   ADD CONSTRAINT t_unique_id2 UNIQUE (id);
+注意:  ALTER TABLE / ADD UNIQUE 将要为表 "test_main2" 创建隐含索引 "t_unique_id2"
+ALTER TABLE
+
+unique 约束创建完毕后，外键创建成功。
+
+Test=# ALTER TABLE test_sub2
+Test-#   ADD CONSTRAINT main_id_cons2
+Test-#     FOREIGN KEY (main_id)
+Test-#       REFERENCES  test_main2(id);
+ALTER TABLE
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+
+<h2> 小结 </h2> 
+
+<p>
+Oracle 、DB2、SQL Sercer、PostgreSQL 在 外键约束上的处理，基本一致，语法上没有太大差异。
+</p>
+
+<p>
+MySQL 稍微有些细节上的设置
+</p>
+
+<p>
+SQLite  只能在创建表的同时，创建外键。
+</p>
+
+
+
+
+</body>
+
+
+</html>

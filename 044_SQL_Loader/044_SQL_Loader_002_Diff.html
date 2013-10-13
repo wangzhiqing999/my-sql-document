@@ -1,0 +1,393 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 大容量导入/导出操作 - 数据文件结构与表结构不匹配情况下的导入 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 大容量导入/导出操作 </h1>
+
+
+<h2>  数据文件结构与表结构不匹配情况下的导入 </h2>
+
+
+<pre><code>
+
+
+数据文件比目标表少字段
+create table test_main5(id int, pid int, value varchar(10));
+
+数据文件比目标表多字段
+create table test_main6(value varchar(10));
+
+</code></pre>
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+创建一个 控制文件test_main5.ctl，内容如下：
+LOAD DATA
+INTO TABLE test_main5
+FIELDS TERMINATED BY WHITESPACE
+(ID, VALUE)
+
+D:\temp>sqlldr userid=test/test123 control=test_main5.ctl data=test_main_c.dat
+SQL*Loader: Release 10.2.0.1.0 - Production on 星期日 3月 13 15:26:56 2011
+Copyright (c) 1982, 2005, Oracle.  All rights reserved.
+达到提交点 - 逻辑记录计数 2
+
+
+创建一个 控制文件test_main6.ctl，内容如下：
+LOAD DATA
+INTO TABLE test_main6
+FIELDS TERMINATED BY WHITESPACE
+(ID filler, VALUE)
+
+注意：这里的 filler关键字，意思是允许你映射一个输入记录中的一列，但是不把它放到数据库的表里面去。
+
+D:\temp>sqlldr userid=test/test123 control=test_main6.ctl data=test_main_c.dat
+SQL*Loader: Release 10.2.0.1.0 - Production on 星期日 3月 13 15:27:02 2011
+Copyright (c) 1982, 2005, Oracle.  All rights reserved.
+达到提交点 - 逻辑记录计数 2
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+按非 XML 格式化文件处理：
+首先导出表的格式文件
+
+创建非 XML 格式化文件
+bcp [Test].[dbo].[test_main5] format nul -f test_main5.fmt -c -T -S "localhost\SQLEXPRESS"
+9.0
+3
+1       SQLCHAR             0       12      "\t"     1     id             ""
+2       SQLCHAR             0       12      "\t"     2     pid            ""
+3       SQLCHAR             0       10      "\r\n"   3     value          Chinese_PRC_CI_AS
+
+
+配置文件的格式：
+第一行，为数据库版本
+第二行，为列的数量
+后面的行依次为列的信息
+第一列，为文件中的顺序
+第二列，为文件中的数据类型
+第三列，为前缀长度
+第四列，为数据长度
+第五列，为终止符号
+第六列，为数据库中表的列的顺序
+第七列，为数据库中表的列名
+第八列，为数据库列排列规则
+
+
+修改后的文件 test_main5.fmt
+9.0
+2
+1       SQLCHAR             0       12      "\t"     1     id             ""
+2       SQLCHAR             0       10      "\r\n"   3     value          Chinese_PRC_CI_AS
+
+
+BCP 使用指定格式文件导入
+BCP [Test].[dbo].[test_main5] in test_main_c.dat -f test_main5.fmt -T -S "localhost\SQLEXPRESS"
+
+BULK INSERT 使用指定格式文件导入
+BULK INSERT test_main5 
+   FROM 'E:\Temp\test_main_c.dat' 
+   WITH (
+      FORMATFILE = 'E:\Temp\test_main5.fmt'
+   );
+
+
+修改后的文件 test_main6.fmt
+9.0
+2
+1       SQLCHAR       0       12      "\t"     0     -             ""
+2       SQLCHAR       0       10      "\r\n"   1     value          Chinese_PRC_CI_AS
+
+BCP 使用指定格式文件导入
+BCP [Test].[dbo].[test_main6] in test_main_c.dat -f test_main6.fmt -T -S "localhost\SQLEXPRESS"
+
+
+BULK INSERT 使用指定格式文件导入
+BULK INSERT test_main6
+   FROM 'E:\Temp\test_main_c.dat' 
+   WITH (
+      FORMATFILE = 'E:\Temp\test_main6.fmt'
+   );
+
+
+<hr/>
+按 XML 格式化文件处理：
+
+-- 创建 XML 格式化文件
+bcp [Test].[dbo].[test_main5] format nul -f test_main5.xml -c -x -T -S "localhost\SQLEXPRESS"
+
+&lt;?xml version="1.0"?&gt;
+&lt;BCPFORMAT xmlns="http://schemas.microsoft.com/sqlserver/2004/bulkload/format" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
+&lt;RECORD&gt;
+ &lt;FIELD ID="1" xsi:type="CharTerm" TERMINATOR="\t" MAX_LENGTH="12"/&gt;
+ &lt;FIELD ID="2" xsi:type="CharTerm" TERMINATOR="\t" MAX_LENGTH="12"/&gt;
+ &lt;FIELD ID="3" xsi:type="CharTerm" TERMINATOR="\r\n" MAX_LENGTH="10" COLLATION="Chinese_PRC_CI_AS"/&gt;
+&lt;/RECORD&gt;
+&lt;ROW&gt;
+ &lt;COLUMN SOURCE="1" NAME="id" xsi:type="SQLINT"/&gt;
+ &lt;COLUMN SOURCE="2" NAME="pid" xsi:type="SQLINT"/&gt;
+ &lt;COLUMN SOURCE="3" NAME="value" xsi:type="SQLVARYCHAR"/&gt;
+&lt;/ROW&gt;
+&lt;/BCPFORMAT&gt;
+
+&lt;RECORD&gt; 说明数据文件中存储的数据
+每一&lt;RECORD&gt; 元素包含一个或多个&lt;FIELD&gt; 元素。这些元素与数据文件中的字段相对应。
+
+&lt;ROW&gt; 说明在将数据从文件导入 SQL Server 表中时，如何构造数据文件中的数据行。
+&lt;ROW&gt; 元素包含一组&lt;COLUMN&gt; 元素。这些元素与表列相对应。
+
+
+修改后的文件 test_main5.xml
+&lt;?xml version="1.0"?&gt;
+&lt;BCPFORMAT xmlns="http://schemas.microsoft.com/sqlserver/2004/bulkload/format" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
+&lt;RECORD&gt;
+ &lt;FIELD ID="1" xsi:type="CharTerm" TERMINATOR="\t" MAX_LENGTH="12"/&gt;
+ &lt;FIELD ID="2" xsi:type="CharTerm" TERMINATOR="\r\n" MAX_LENGTH="10" COLLATION="Chinese_PRC_CI_AS"/&gt;
+&lt;/RECORD&gt;
+&lt;ROW&gt;
+ &lt;COLUMN SOURCE="1" NAME="id" xsi:type="SQLINT"/&gt;
+ &lt;COLUMN SOURCE="2" NAME="value" xsi:type="SQLVARYCHAR"/&gt;
+&lt;/ROW&gt;
+&lt;/BCPFORMAT&gt;
+
+由于目标表有3列，而源数据有2列
+使用 XML格式文件 方式导入，需要创建一个只有2列的视图
+CREATE view v_test_main5 AS
+  SELECT id, value FROM test_main5;
+
+
+BCP 使用指定格式文件导入
+BCP [Test].[dbo].[v_test_main5] in test_main_c.dat -f test_main5.xml -T -S "localhost\SQLEXPRESS"
+
+BULK INSERT 使用指定格式文件导入
+BULK INSERT v_test_main5
+   FROM 'E:\Temp\test_main_c.dat' 
+   WITH (
+      FORMATFILE = 'E:\Temp\test_main5.xml'
+   );
+
+修改后的文件 test_main6.xml
+&lt;?xml version="1.0"?&gt;
+&lt;BCPFORMAT xmlns="http://schemas.microsoft.com/sqlserver/2004/bulkload/format" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
+ &lt;RECORD&gt;
+  &lt;FIELD ID="1" xsi:type="CharTerm" TERMINATOR="\t" MAX_LENGTH="12"/&gt;
+  &lt;FIELD ID="2" xsi:type="CharTerm" TERMINATOR="\r\n" MAX_LENGTH="10" COLLATION="Chinese_PRC_CI_AS"/&gt;
+ &lt;/RECORD&gt;
+ &lt;ROW&gt;
+  &lt;COLUMN SOURCE="2" NAME="value" xsi:type="SQLVARYCHAR"/&gt;
+ &lt;/ROW&gt;
+&lt;/BCPFORMAT&gt;
+
+BCP 使用指定格式文件导入
+BCP [Test].[dbo].[test_main6] in test_main_c.dat -f test_main6.xml -T -S "localhost\SQLEXPRESS"
+
+BULK INSERT 使用指定格式文件导入
+BULK INSERT test_main6
+   FROM 'E:\Temp\test_main_c.dat' 
+   WITH (
+      FORMATFILE = 'E:\Temp\test_main6.xml'
+   );
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+导出
+mysql> INSERT INTO test_main
+    -> SELECT 1, 'A' UNION ALL
+    -> SELECT 2, 'B' UNION ALL
+    -> SELECT 3, 'C';
+Query OK, 3 rows affected (0.01 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql>
+mysql> select id, value
+    -> INTO OUTFILE 'f:/test_main.txt'
+    -> FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY ''''
+    -> LINES TERMINATED BY '\n'
+    -> FROM test_main;
+Query OK, 3 rows affected (0.01 sec)
+
+
+导入
+数据文件比目标表少字段
+
+mysql> LOAD DATA INFILE 'f:/test_main.txt'
+    -> INTO TABLE test_main5
+    -> FIELDS TERMINATED BY ','
+    -> OPTIONALLY ENCLOSED BY ''''
+    -> (id, value)
+    -> SET pid = -1;
+Query OK, 3 rows affected (0.00 sec)
+Records: 3  Deleted: 0  Skipped: 0  Warnings: 0
+
+mysql> select * from test_main5;
++------+------+-------+
+| id   | pid  | value |
++------+------+-------+
+|    1 |   -1 | A     |
+|    2 |   -1 | B     |
+|    3 |   -1 | C     |
++------+------+-------+
+3 rows in set (0.00 sec)
+
+数据文件比目标表多字段
+
+mysql> LOAD DATA INFILE 'f:/test_main.txt'
+    -> INTO TABLE test_main6
+    -> FIELDS TERMINATED BY ','
+    -> OPTIONALLY ENCLOSED BY ''''
+    -> (@dummy, value);
+Query OK, 3 rows affected (0.00 sec)
+Records: 3  Deleted: 0  Skipped: 0  Warnings: 0
+
+mysql> select * from test_main6;
++-------+
+| value |
++-------+
+| A     |
+| B     |
+| C     |
++-------+
+3 rows in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# select * from test_main;
+ id |  value
+----+----------
+ 11 | ONEONE
+ 12 | ONETWO
+ 13 | ONETHREE
+  4 | FOUR - 4
+  2 | Two-5
+  1 | One-5
+(6 行记录)
+
+
+
+-- 导出.
+Test=# COPY test_main TO 'F:\PostgreSQL\test_main.txt';
+COPY 6
+
+
+-- 导入
+-- 数据文件比目标表少字段
+Test=# COPY test_main5(id, value) FROM 'F:\PostgreSQL\test_main.txt';
+COPY 6
+Test=# select * from test_main5;
+ id | pid |  value
+----+-----+----------
+ 11 |     | ONEONE
+ 12 |     | ONETWO
+ 13 |     | ONETHREE
+  4 |     | FOUR - 4
+  2 |     | Two-5
+  1 |     | One-5
+(6 行记录)
+
+
+注：
+如果声明了一个字段列表，COPY 将只在文件和表之间拷贝声明的字段的数据。 
+如果表中有任何不在字段列表里的字段，那么 COPY FROM 将为那些字段插入缺省值。
+
+
+-- 导入
+-- 数据文件比目标表多字段
+
+TODO: 暂时没有找到相关资料.
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数学函数 - 以10为底的对数 LOG10 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数学函数 </h1>
+
+
+<h2> 以10为底的对数 LOG10  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => SELECT
+db2 (cont.) =>   LOG10(1000), LOG10(258)
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+1                        2
+------------------------ ------------------------
+  +3.00000000000000E+000   +2.41161970596323E+000
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT LOG10(1000), LOG10(258)
+2> go
+
+------------------------ ------------------------
+                       3       2.4116197059632301
+
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+LOG10(X) 
+返回X的基数为10的对数。
+mysql> SELECT LOG10(2);
+        -> 0.30102999566398
+mysql> SELECT LOG10(100);
+        -> 2
+mysql> SELECT LOG10(-100);
+        -> NULL
+LOG10(X)相当于LOG(10,X)。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+Test=# SELECT LOG(1000), LOG(258);
+ log |       log
+-----+------------------
+   3 | 2.41161970596323
+(1 行记录)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典表 - 表备注说明信息 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典表 </h1>
+
+
+<h2>  表备注说明信息 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SELECT
+  TABLE_NAME,
+  TABLE_TYPE,
+  COMMENTS
+FROM
+  USER_TAB_COMMENTS;
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+SELECT
+  name  AS  "表名",
+  remarks  AS  "备注"
+FROM
+  SYSIBM.SYSTABLES
+WHERE
+  -- 数据库表用T表示;数据库视图用V表示 
+  type = 'T'
+  and  name = 'MR_DEPT';
+
+
+或者
+
+select
+  tabname  AS  "表名",
+  remarks  AS  "备注"
+from
+  syscat.tables   
+where   
+  tabschema = current schema
+  and  tabname = 'MR_DEPT';
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+select top 1000
+  ROW_NUMBER() OVER (ORDER BY a.object_id) AS No, 
+  a.name AS 表名,
+  isnull(g.[value],'-') AS 说明
+from
+  sys.tables a left join sys.extended_properties g
+  on (a.object_id = g.major_id AND g.minor_id = 0)
+
+No 表名 说明
+1 test_table 测试表
+2 test_main -
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+SELECT 
+  table_name  AS  `表名`, 
+  table_type  AS  `类型`, 
+  engine      AS  `引擎`, 
+  table_comment  AS  `备注`
+FROM 
+  information_schema.tables
+WHERE 
+  table_schema = 'test'
+ORDER BY 
+  table_name DESC;
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+CREATE TABLE MR_DEPT (
+ DEPT_ID INT NOT NULL ,
+ PARENT_ID INT,
+ DEPT_NAME CHAR(20) NOT NULL ,
+ STATUS INT DEFAULT 1 NOT NULL ,
+PRIMARY KEY (DEPT_ID)
+);
+
+
+COMMENT ON TABLE MR_DEPT IS '部门表';
+COMMENT ON COLUMN MR_DEPT.DEPT_ID IS '部门编号';
+COMMENT ON COLUMN MR_DEPT.PARENT_ID IS '上级部门编号';
+COMMENT ON COLUMN MR_DEPT.DEPT_NAME IS '部门名';
+COMMENT ON COLUMN MR_DEPT.STATUS IS '状态';
+
+
+
+SELECT
+  schemaname,
+  tablename,
+  tableowner,
+  d.description
+FROM
+  pg_tables t
+    JOIN pg_class c
+	  ON (t.tablename = c.relname)
+    LEFT JOIN pg_description d
+	  ON (d.objoid  = c.oid  AND  objsubid = 0) 
+WHERE
+  t.tablename = 'mr_dept';
+
+
+ schemaname | tablename | tableowner | description
+------------+-----------+------------+-------------
+ public     | mr_dept   | postgres   | 部门表
+(1 行记录)
+
+
+注：
+pg_description 表的 objsubid列：
+For a comment on a table column, this is the column number 
+(the objoid and classoid refer to the table itself). 
+
+For all other object types, this column is zero.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

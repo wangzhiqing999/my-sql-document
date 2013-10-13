@@ -1,0 +1,312 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 分组随机获取数据的处理 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> 分组随机获取数据的处理  </h2>
+
+
+
+<pre><code>
+
+测试表与测试数据。
+
+CREATE TABLE test_order_by_rand (group_code varchar(10), name varchar(10));
+
+INSERT INTO test_order_by_rand VALUES('水果', '苹果');
+INSERT INTO test_order_by_rand VALUES('水果', '梨子');
+INSERT INTO test_order_by_rand VALUES('水果', '香蕉');
+INSERT INTO test_order_by_rand VALUES('水果', '桃子');
+INSERT INTO test_order_by_rand VALUES('水果', '菠萝');
+
+INSERT INTO test_order_by_rand VALUES('蔬菜', '萝卜');
+INSERT INTO test_order_by_rand VALUES('蔬菜', '白菜');
+INSERT INTO test_order_by_rand VALUES('蔬菜', '蘑菇');
+INSERT INTO test_order_by_rand VALUES('蔬菜', '毛豆');
+INSERT INTO test_order_by_rand VALUES('蔬菜', '青椒');
+
+INSERT INTO test_order_by_rand VALUES('坚果', '核桃');
+INSERT INTO test_order_by_rand VALUES('坚果', '榛子');
+INSERT INTO test_order_by_rand VALUES('坚果', '杏仁');
+INSERT INTO test_order_by_rand VALUES('坚果', '花生');
+INSERT INTO test_order_by_rand VALUES('坚果', '开心果');
+
+
+预期目标， 按照 group_code 进行分组， 每个分组内， 进行随机获取数据.
+
+</code></pre>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+
+<pre><code>
+
+SELECT
+  group_code, name
+FROM
+(
+SELECT
+  group_code,
+  name,
+  row_number() over(partition by group_code order by dbms_random.value) AS NO
+FROM
+  test_order_by_rand
+) WHERE no &lt;= 3;
+
+
+
+GROUP_CODE           NAME
+-------------------- --------------------
+坚果                 榛子
+坚果                 花生
+坚果                 开心果
+水果                 桃子
+水果                 梨子
+水果                 菠萝
+蔬菜                 毛豆
+蔬菜                 白菜
+蔬菜                 青椒
+
+已选择9行。
+
+SQL> /
+
+GROUP_CODE           NAME
+-------------------- --------------------
+坚果                 杏仁
+坚果                 核桃
+坚果                 花生
+水果                 香蕉
+水果                 菠萝
+水果                 苹果
+蔬菜                 萝卜
+蔬菜                 青椒
+蔬菜                 蘑菇
+
+已选择9行。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+
+
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SELECT
+  group_code, name
+FROM
+(
+SELECT
+  group_code,
+  name,
+  row_number() over(partition by group_code order by  newid()) AS NO
+FROM
+  test_order_by_rand
+) subQuery
+WHERE no &lt;= 3;
+
+
+
+执行结果1：
+group_code name
+---------- ----------
+坚果         榛子
+坚果         开心果
+坚果         核桃
+蔬菜         白菜
+蔬菜         萝卜
+蔬菜         蘑菇
+水果         菠萝
+水果         梨子
+水果         桃子
+
+(9 行受影响)
+
+
+
+执行结果2：
+group_code name
+---------- ----------
+坚果         杏仁
+坚果         花生
+坚果         开心果
+蔬菜         毛豆
+蔬菜         白菜
+蔬菜         青椒
+水果         梨子
+水果         桃子
+水果         香蕉
+
+(9 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+SELECT
+  group_code,
+  name
+FROM
+(
+SELECT
+  CASE 
+    WHEN @cn != group_code THEN @rownum:= 1 
+    ELSE @rownum:= @rownum + 1  
+    END AS No,
+  group_code,
+  @cn := group_code AS group_code,
+  name
+FROM
+  (SELECT @rownum:=0) r,
+  (SELECT @cn:= '') p,
+  (SELECT * FROM test_order_by_rand order by group_code, rand()) tmp
+)  subQuery
+WHERE
+  No &lt;= 3
+ORDER BY
+  group_code;
+
+这里套了2层子查询， 其中的
+(SELECT * FROM test_order_by_rand order by group_code, rand()) tmp  
+用于实现， 针对每一个  group_code 进行分组， 下属的 name 的数据， 进行随机排序
+
+
+其中的
+(......)  subQuery
+用于实现， 针对 前面的 按 group_code 分组， name 随机排序后的数据。
+模拟一个  row_number() over(partition by group_code) 的处理
+
+
+最后的 No &lt;= 3 用于限制， 每一个 group_code 下面， 显示多少行.
+
+
+
+
+执行结果1：
++------------+--------+
+| group_code | name   |
++------------+--------+
+| 水果       | 苹果   |
+| 水果       | 香蕉   |
+| 水果       | 梨子   |
+| 蔬菜       | 青椒   |
+| 蔬菜       | 白菜   |
+| 蔬菜       | 蘑菇   |
+| 坚果       | 核桃   |
+| 坚果       | 花生   |
+| 坚果       | 开心果 |
++------------+--------+
+9 rows in set (0.00 sec)
+
+
+
+执行结果2：
++------------+--------+
+| group_code | name   |
++------------+--------+
+| 水果       | 梨子   |
+| 水果       | 苹果   |
+| 水果       | 菠萝   |
+| 蔬菜       | 青椒   |
+| 蔬菜       | 白菜   |
+| 蔬菜       | 蘑菇   |
+| 坚果       | 杏仁   |
+| 坚果       | 核桃   |
+| 坚果       | 开心果 |
++------------+--------+
+9 rows in set (0.01 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+ 
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

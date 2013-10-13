@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库会话的基本参数设置 SET - 死锁优先级设置 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库会话的基本参数设置 SET </h1>
+
+
+<h2>  死锁优先级设置 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SET DEADLOCK_PRIORITY { LOW | NORMAL | HIGH | &lt; numeric-priority &gt; | @deadlock_var | @deadlock_intvar }
+<numeric-priority> ::= { -10 | -9 | -8 | ?| 0 | ?| 8 | 9 | 10 }
+ 
+
+参数
+LOW 
+指定如果当前会话发生死锁，并且死锁链中涉及的其他会话的死锁优先级设置为 NORMAL 或 HIGH 或大于 -5 的整数值，则当前会话将成为死锁牺牲品。如果其他会话的死锁优先级设置为小于 -5 的整数值，则当前会话将不会成为死锁牺牲品。此参数还指定如果其他会话的死锁优先级设置为 LOW 或 -5，则当前会话将可能成为死锁牺牲品。
+
+NORMAL 
+指定如果死锁链中涉及的其他会话的死锁优先级设置为 HIGH 或大于 0 的整数值，则当前会话将成为死锁牺牲品，但如果其他会话的死锁优先级设置为 LOW 或小于 0 的整数值，则当前会话将不会成为死锁牺牲品。它还指定如果其他会话的死锁优先级设置为 NORMAL 或 0，则当前会话将可能成为死锁牺牲品。NORMAL 为默认优先级。
+
+HIGH
+指定如果死锁链中涉及的其他会话的死锁优先级设置为大于 5 的整数值，则当前会话将成为死锁牺牲品，或者如果其他会话的死锁优先级设置为 HIGH 或 5，则当前会话可能成为死锁牺牲品。
+
+&lt; 数值优先级 &gt; 
+用以提供 21 个死锁优先级别的整数值范围（-10 到 10）。它指定如果死锁链中涉及的其他会话以更高的死锁优先级值运行，则当前会话将成为死锁牺牲品，但如果其他会话以低于当前会话的死锁优先级值运行，则当前会话不会成为死锁牺牲品。它还指定如果其他会话以相同于当前会话的死锁优先级值运行，则当前会话可能成为死锁牺牲品。LOW 对应于 -5、NORMAL 对应于 0 以及 HIGH 对应于 5。
+
+@deadlock_var
+指定死锁优先级的字符变量。此变量必须设置为“LOW”、“NORMAL”或“HIGH”中的一个值。而且必须足够大以保存整个字符串。
+
+@deadlock_intvar
+指定死锁优先级的整数变量。此变量必须设置为 -10 到 10 范围中的一个整数值。
+
+备注
+当两个会话同时等待访问由其他会话锁定的资源时，便会发生死锁。当 SQL Server 实例检测到两个会话发生死锁时，将选择其中一个会话作为死锁牺牲品来解决死锁。此牺牲品的当前事务将回滚，且死锁错误消息 1205 返回客户端。这样可释放由该会话所控制的所有锁，从而允许其他会话继续进行。
+将哪个会话选为死锁牺牲品取决于每个会话的死锁优先级：
+如果两个会话的死锁优先级相同，则 SQL Server 实例将回滚开销较低的会话选为死锁牺牲品。例如，如果两个会话都将其死锁优先级设置为 HIGH，则此实例便将它估计回滚开销较低的会话选为牺牲品。
+如果会话的死锁优先级不同，则将死锁优先级最低的会话选为死锁牺牲品。
+SET DEADLOCK_PRIORITY 是在执行或运行时设置，而不是在分析时设置。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

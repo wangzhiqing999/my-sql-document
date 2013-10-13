@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 存储过程 - 指定参数名称调用 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 存储过程 </h1>
+
+
+<h2> 指定参数名称调用  </h2>
+
+此部分使用 “参数默认值”那一小节的存储过程。
+用于说明当最后2个参数是有默认的时候，如何跳过中间那个。
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> BEGIN
+  2    HelloWorld3('Edward');
+  3    HelloWorld3('Edward', p_val1 => ' Good Night,');
+  4    HelloWorld3('Edward', p_val1 => ' Good Night,', p_val2 => 'Bye');
+  5    HelloWorld3('Edward', p_val2 => ' HeiHei ');
+  6  END;
+  7  /
+Hello Edward Good Moning, Nice to Meet you!
+Hello Edward Good Night, Nice to Meet you!
+Hello Edward Good Night,Bye!
+Hello Edward Good Moning, HeiHei !
+
+PL/SQL procedure successfully completed.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> DECLARE @RC int;
+2> BEGIN
+3>   EXECUTE @RC = HelloWorld3 'Edward';
+4>   PRINT @RC;
+5>   EXECUTE @RC = HelloWorld3 'Edward', @Val1=' Good Night,';
+6>   PRINT @RC;
+7>   EXECUTE @RC = HelloWorld3 'Edward', @Val1=' Good Night,', @Val2=' Bye';
+8>   PRINT @RC;
+9>   EXECUTE @RC = HelloWorld3 'Edward', @Val2=' HeiHei ';
+10>   PRINT @RC;
+11> END
+12> go
+Hello Edward Good Moning, Nice to Meet you!
+0
+Hello Edward Good Night, Nice to Meet you!
+0
+Hello Edward Good Night, Bye!
+0
+Hello Edward Good Moning, HeiHei !
+0
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+通过 重载 方式实现的 “默认值”， 要跳过中间那个， 太麻烦了......
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

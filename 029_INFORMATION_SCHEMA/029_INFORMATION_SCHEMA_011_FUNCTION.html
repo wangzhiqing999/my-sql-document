@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典表 - 函数 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典表 </h1>
+
+
+<h2>  函数 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+函数 存储过程 包 共用一个字典表
+
+SQL> SELECT
+  2    OBJECT_NAME, PROCEDURE_NAME
+  3  FROM
+  4    USER_PROCEDURES;
+
+OBJECT_NAME                    PROCEDURE_NAME
+------------------------------ ---------------
+HELLOWORLDFUNC
+HELLOWORLD2
+PKG_HELLOWORLD                 GETHELLOWORLD
+STUFF
+HELLOWORLD4
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+SELECT
+  funcname  AS  "函数名称"
+FROM
+  SYSCAT.FUNCTIONS  
+WHERE
+  funcname = 'HELLOWORLD4';
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SELECT 
+    o.name AS FunctionName, 
+    c.text AS CreateFunctionSQL
+FROM 
+  dbo.sysobjects o LEFT OUTER JOIN
+     dbo.syscomments c ON o.id = c.id
+WHERE 
+  o.xtype IN ('IF', 'TF', 'FN') 
+   AND (OBJECTPROPERTY(o.id, N'IsMSShipped') = 0)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+INFORMATION_SCHEMA.ROUTINES 视图包含了存储过程与函数的信息。
+请去参考上面 函数的部分。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+SELECT
+  pg_proc.proname AS "函数名称",
+  pg_type.typname AS "返回值数据类型",
+  pg_proc.pronargs AS "参数个数"
+FROM
+  pg_proc
+    JOIN pg_type
+	  ON (pg_proc.prorettype = pg_type.oid)
+WHERE
+  pg_type.typname != 'void'
+  AND pronamespace = (SELECT pg_namespace.oid FROM pg_namespace WHERE nspname = 'public');
+
+
+
+      函数名称      | 返回值数据类型 | 参数个数
+--------------------+----------------+----------
+ gettestmain2       | test_main      |        1
+ gettestmain        | test_main      |        1
+ gettestmain3       | test_main      |        1
+ helloworld4        | varchar        |        0
+ trinserttest       | trigger        |        0
+ trupdatetest       | trigger        |        0
+ trdeletetest       | trigger        |        0
+ triudtest          | trigger        |        0
+ trstatementtest    | trigger        |        0
+ trnestedinserttest | trigger        |        0
+ trnestedupdatetest | trigger        |        0
+ trrecursivetest    | trigger        |        0
+ trrecursivetest2   | trigger        |        0
+ trinsertdetail     | trigger        |        0
+ trupdatetestwhen   | trigger        |        0
+ trupdatetestof     | trigger        |        0
+(16 行记录)
+
+
+
+注： 返回值类型为 trigger 的， 就是触发器函数.
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

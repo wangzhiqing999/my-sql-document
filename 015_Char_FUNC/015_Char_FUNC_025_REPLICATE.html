@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 字符函数 - 重复 REPLICATE </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 字符函数 </h1>
+
+
+<h2> 重复 REPLICATE </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+没有这个函数
+单个字符可用 LPAD / RPAD 替代处理
+多个字符处理起来，略为复杂
+
+SQL> SELECT
+  2    TRIM( LPAD(' ', 11, 'A') ) AS A,
+  3    TRIM( RPAD(' ', 11, 'B') ) AS B,
+  4    SUBSTR(
+  5      TRIM(
+  6        LPAD(' ', 11 * LENGTH('Sql'), 'Sql')), 
+  7        1, 10 * LENGTH('Sql')) AS C
+  8  FROM 
+  9    dual;
+
+A          B          C
+---------- ---------- ------------------------------
+AAAAAAAAAA BBBBBBBBBB SqlSqlSqlSqlSqlSqlSqlSqlSqlSql
+
+
+注：
+TRIM(LPAD(' ', 11, 'A') )   相当于   REPLICATE('A', 10)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => SELECT REPEAT('DB2', 3)
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+---------
+
+DB2DB2DB2
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT REPLICATE ('Sql', 10) A
+2> go
+A
+------------------------------
+SqlSqlSqlSqlSqlSqlSqlSqlSqlSql
+
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+REPEAT(str,count) 
+返回一个由重复的字符串str 组成的字符串，字符串str的数目等于count 。 
+若 count &lt;= 0,则返回一个空字符串。若str 或 count 为 NULL，则返回 NULL 。
+
+mysql> SELECT REPEAT('MySQL', 3);
+        -> 'MySQLMySQLMySQL'
+
+mysql> SELECT REPEAT ('ABC', 3) //
++-------------------+
+| REPEAT ('ABC', 3) |
++-------------------+
+| ABCABCABC         |
++-------------------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# SELECT repeat ('Sql', 10) A;
+               a
+--------------------------------
+ SqlSqlSqlSqlSqlSqlSqlSqlSqlSql
+(1 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

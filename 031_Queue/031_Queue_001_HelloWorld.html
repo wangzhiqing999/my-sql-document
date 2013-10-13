@@ -1,0 +1,237 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 队列处理 - HelloWorld </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 队列处理 </h1>
+
+
+<h2> HelloWorld  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+-- 创建 SayHelloMessage 消息类型.
+-- 该消息类型，不做数据验证的处理.
+CREATE MESSAGE TYPE SayHelloMessage
+    VALIDATION = None;
+GO
+
+-- 创建 约定 SayHelloContract
+-- 定义了，发送/接收方.
+-- 都是用这个消息类型.
+CREATE CONTRACT SayHelloContract (
+  SayHelloMessage SENT BY ANY
+);
+GO
+
+
+-- 创建发送/接收队列
+CREATE QUEUE SayHelloSendQueue;
+CREATE QUEUE SayHelloReceiveQueue;
+GO
+
+
+-- 创建发起方服务 SayHelloSendService
+-- 该服务使用 SayHelloSendQueue 队列
+-- 由于未指定约定名称，因而其他服务不可将此服务用作目标服务。
+CREATE SERVICE SayHelloSendService
+  ON QUEUE SayHelloSendQueue;
+GO
+
+
+-- 创建目标服务 SayHelloReceiveService
+-- 该服务使用 SayHelloReceiveQueue 队列
+-- 使用 SayHelloContract 约定
+CREATE SERVICE SayHelloReceiveService
+  ON QUEUE SayHelloReceiveQueue
+    ([SayHelloContract]);
+GO
+
+ 
+
+-- 测试发送.
+BEGIN
+  -- 定义发送的句柄.
+  DECLARE @InitDlgHandle UNIQUEIDENTIFIER;
+
+  -- 定义变量.
+  DECLARE @MyMessage NVARCHAR(100);
+  -- 设置发送消息的内容.
+  SET @MyMessage = N'Hello World!'
+
+  -- 开始事务处理.
+  BEGIN TRANSACTION;
+  -- 定义消息发送处理.
+  BEGIN DIALOG @InitDlgHandle
+    FROM SERVICE  -- 定义发送服务.
+      SayHelloSendService
+    TO SERVICE    -- 定义接收服务.
+      N'SayHelloReceiveService'
+    ON CONTRACT   -- 定义使用的约定
+      SayHelloContract
+    WITH  -- 不加密.
+      ENCRYPTION = OFF;
+  -- 发送消息.
+  SEND ON CONVERSATION @InitDlgHandle
+    MESSAGE TYPE
+      [SayHelloMessage]
+        ( @MyMessage );
+-- 输出接收到的消息.
+PRINT '我发送了：' + @MyMessage;
+  -- 提交事务.
+  COMMIT TRANSACTION;
+END
+GO
+
+
+-- 测试接收，处理，并反馈.
+BEGIN
+  -- 接收句柄.
+  DECLARE @RecvReqDlgHandle UNIQUEIDENTIFIER;
+  -- 接收到的数据.
+  DECLARE @RecvReqMsg NVARCHAR(100);
+  -- 接收到的数据类型名称.
+  DECLARE @RecvReqMsgName sysname;
+  -- 开始事务处理.
+  BEGIN TRANSACTION;
+  -- 尝试从 SayHelloReceiveQueue 队列 接收消息.
+  WAITFOR
+  ( RECEIVE TOP(1)
+      @RecvReqDlgHandle = conversation_handle,
+      @RecvReqMsg       = message_body,
+      @RecvReqMsgName   = message_type_name
+    FROM SayHelloReceiveQueue
+  ),  TIMEOUT 1000;
+
+  -- 如果接收到的消息类型名为 SayHelloMessage
+  -- 那么进行处理.
+  IF @RecvReqMsgName = N'SayHelloMessage'
+  BEGIN
+    -- 定义准备用于返回的消息.
+    DECLARE @ReplyMsg NVARCHAR(100);
+    -- 简单设置.
+    SELECT @ReplyMsg = '~' + @RecvReqMsg + '~';
+-- 调试输出.
+PRINT '我接收到:' + @RecvReqMsg + "； 我将反馈：" + @ReplyMsg;
+    -- 发送反馈消息.
+    SEND ON CONVERSATION @RecvReqDlgHandle
+      MESSAGE TYPE
+        [SayHelloMessage]
+          (@ReplyMsg);
+    END CONVERSATION @RecvReqDlgHandle;
+  END;
+  -- 提交事务.
+  COMMIT TRANSACTION;
+END
+GO
+
+ 
+
+-- 测试获取处理结果.
+BEGIN
+  DECLARE @RecvReplyMsg NVARCHAR(100);
+  DECLARE @RecvReplyDlgHandle UNIQUEIDENTIFIER;
+  -- 开始事务处理.
+  BEGIN TRANSACTION;
+  -- 尝试从 SayHelloReceiveQueue 队列 接收消息.
+  WAITFOR
+  ( RECEIVE TOP(1)
+    @RecvReplyDlgHandle = conversation_handle,
+    @RecvReplyMsg = message_body
+    FROM SayHelloSendQueue
+  ), TIMEOUT 1000;
+  END CONVERSATION @RecvReplyDlgHandle;
+-- 输出接收到的消息.
+PRINT '我接收到反馈：' + @RecvReplyMsg;
+  -- 提交事务.
+  COMMIT TRANSACTION;
+END
+GO
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

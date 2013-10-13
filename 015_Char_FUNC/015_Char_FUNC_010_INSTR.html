@@ -1,0 +1,309 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 字符函数 - 字符串搜索 INSTR / POSSTR / CHARINDEX / LOCATE </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 字符函数 </h1>
+
+
+<h2>  字符串搜索 INSTR / POSSTR / CHARINDEX / LOCATE / position </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+4参数：
+被检索字符串
+检索的字符串
+哪里开始(默认1)
+找第几个（默认1）
+
+从哪里开始为负数的话，表示从后面向前找。
+
+
+
+SQL> SELECT
+  2    INSTR('easy come, easy go, so easy!', 'easy') A,
+  3    INSTR('easy come, easy go, so easy!', 'easy', 3) B,
+  4    INSTR('easy come, easy go, so easy!', 'easy', 3, 2) C,
+  5    INSTR('easy come, easy go, so easy!', 'easy', -1) D,
+  6    INSTR('easy come, easy go, so easy!', 'easy', -1, 2) E
+  7  FROM
+  8    dual;
+
+         A          B          C          D          E
+---------- ---------- ---------- ---------- ----------
+         1         12         24         24         12
+
+SELECT
+  INSTR('Test 中文 easy', 'easy') A,
+  INSTR('Test 中文 easy', '中文') B,
+  INSTR(N'Test 中文 easy', N'easy') NA,
+  INSTR(N'Test 中文 easy', N'中文') NB
+FROM
+  dual;
+
+         A          B         NA         NB
+---------- ---------- ---------- ----------
+         9          6          9          6
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+DB2 POSSTR只支持从第一个字符开始找第一个
+LOCATE支持从指定位置开始找
+
+
+
+
+
+db2 => SELECT
+db2 (cont.) =>   POSSTR('easy come, easy go, so easy!', 'easy') A
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+A
+-----------
+          1
+
+  1 条记录已选择。
+
+
+SELECT
+  POSSTR('Test 中文 easy', 'easy') A,
+  POSSTR('Test 中文 easy', '中文') B,
+  POSSTR(N'Test 中文 easy', N'easy') NA,
+  POSSTR(N'Test 中文 easy', N'中文') NB
+FROM
+  SYSIBM.SYSDUMMY1;
+
+A           B           NA          NB
+----------- ----------- ----------- -----------
+         13           6           9           6
+
+  1 条记录已选择。
+
+
+db2 => SELECT
+db2 (cont.) =>   LOCATE ('easy', 'easy come, easy go, so easy!', 2) A,
+db2 (cont.) =>   LOCATE ('easy', 'easy come, easy go, so easy!') B
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+A           B
+----------- -----------
+         12           1
+
+  1 条记录已选择。
+
+注意：DB2 中，如果 LOCATE 函数的第三个参数，是小于等于零的，将报错。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+3参数
+检索字符串
+被检索字符串
+哪里开始(默认1)
+从哪里开始为负数的话 = 1
+
+
+1> SELECT
+2>   CHARINDEX('easy', 'easy come, easy go, so easy!') A,
+3>   CHARINDEX('easy', 'easy come, easy go, so easy!', 3) B,
+4>   CHARINDEX('easy', 'easy come, easy go, so easy!', -1) C
+5> go
+A           B           C
+----------- ----------- -----------
+          1          12           1
+
+
+SELECT
+  CHARINDEX('easy', 'Test 中文 easy') A,
+  CHARINDEX('中文', 'Test 中文 easy') B,
+  CHARINDEX(N'easy', N'Test 中文 easy') NA,
+  CHARINDEX(N'中文', N'Test 中文 easy') NB
+go
+
+
+A           B           NA          NB
+----------- ----------- ----------- -----------
+          9           6           9           6
+
+(1 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+MySQL INSTR只支持从第一个字符开始找第一个
+
+LOCATE支持从指定位置开始找
+
+从哪里开始为负数的话 = 找不到
+
+
+mysql> SELECT
+    ->   INSTR('easy come, easy go, so easy!', 'easy') A
+    -> //
++---+
+| A |
++---+
+| 1 |
++---+
+1 row in set (0.00 sec)
+
+mysql> SELECT
+    ->   LOCATE ('easy', 'easy come, easy go, so easy!', 2) A,
+    ->   LOCATE ('easy', 'easy come, easy go, so easy!', -1) B;
++----+---+
+| A  | B |
++----+---+
+| 12 | 0 |
++----+---+
+1 row in set (0.00 sec)
+
+
+SELECT
+  INSTR('Test 中文 easy', 'easy') A,
+  INSTR('Test 中文 easy', '中文') B,
+  INSTR(N'Test 中文 easy', N'easy') NA,
+  INSTR(N'Test 中文 easy', N'中文') NB;
+
++----+---+----+----+
+| A  | B | NA | NB |
++----+---+----+----+
+| 11 | 6 | 11 |  6 |
++----+---+----+----+
+1 row in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+
+sqlite> SELECT
+   ...>         INSTR('easy come, easy go, so easy!', 'easy') A,
+   ...>         INSTR('easy come, easy go, so easy!', 'go') B;
+A|B
+1|17
+
+
+sqlite> SELECT
+   ...>   INSTR('Test 中文 easy', 'easy') A,
+   ...>   INSTR('Test 中文 easy', '中文') B;
+11|6
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+position ( 查询关键字 in  字符串 )
+
+Test=# SELECT
+Test-#   position('easy' in 'easy come, easy go, so easy!') A,
+Test-#   position('easy' in 'Test 中文 easy') B,
+Test-#   position('中文' in 'Test 中文 easy') C;
+ a | b | c
+---+---+---
+ 1 | 9 | 6
+(1 行记录)
+
+
+strpos (字符串,   查询关键字)
+
+Test=# SELECT
+Test-#   strpos('easy come, easy go, so easy!', 'easy') A,
+Test-#   strpos('Test 中文 easy', 'easy') B,
+Test-#   strpos('Test 中文 easy', '中文') C;
+ a | b | c
+---+---+---
+ 1 | 9 | 6
+(1 行记录)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

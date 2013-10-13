@@ -1,0 +1,211 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库系统参数 - 查询系统参数 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库系统参数 </h1>
+
+
+<h2>  查询系统参数  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+列出全部参数
+SQL> show parameter
+
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+O7_DICTIONARY_ACCESSIBILITY          boolean     FALSE
+active_instance_count                integer
+…… 这里省略掉具体的内容 ……
+utl_file_dir                         string
+workarea_size_policy                 string      AUTO
+
+模糊检索参数
+SQL> show parameter format
+
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+log_archive_format                   string      ARC%S_%R.%T
+nls_date_format                      string
+nls_time_format                      string
+nls_time_tz_format                   string
+nls_timestamp_format                 string
+nls_timestamp_tz_format              string
+star_transformation_enabled          string      FALSE
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+列出全部参数
+1> sp_configure
+2> go
+
+name                                minimum     maximum     config_value run_value
+----------------------------------- ----------- ----------- ------------ -----------
+Ad Hoc Distributed Queries                    0           1            1           1
+affinity I/O mask                   -2147483648  2147483647            0           0
+…… 这里省略掉具体的内容 ……
+Web Assistant Procedures                      0           1            0           0
+xp_cmdshell                                   0           1            0           0
+
+模糊检索参数
+1> sp_configure Memory
+2> go
+消息 15124，级别 16，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，过程 sp_configure，第 58 行
+配置选项 'Memory' 不是唯一的。
+
+duplicate_options
+-----------------------------------
+index create memory (KB)
+min memory per query (KB)
+min server memory (MB)
+max server memory (MB)
+
+精确查询参数
+1> sp_configure [index create memory (KB)]
+2> go
+name                                minimum     maximum     config_value run_value
+----------------------------------- ----------- ----------- ------------ -----------
+index create memory (KB)                    704  2147483647            0           0
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+列出全部参数
+mysql> show variables;
++-----------------------------------------+---------------------------------------------------------
+--------------------------------------------------+
+| Variable_name                           | Value
+                                                  |
++-----------------------------------------+---------------------------------------------------------
+--------------------------------------------------+
+| auto_increment_increment                | 1
+                                                  |
+| auto_increment_offset                   | 1
+                                                  |
+…… 这里省略掉具体的内容 ……
+
+| version_compile_machine                 | ia32
+                                                  |
+| version_compile_os                      | Win32
+                                                  |
+| wait_timeout                            | 28800
+                                                  |
+| warning_count                           | 1
+                                                  |
++-----------------------------------------+---------------------------------------------------------
+--------------------------------------------------+
+276 rows in set, 1 warning (0.00 sec)
+
+
+模糊检索参数
+mysql> show variables like '%cache%';
++------------------------------+------------+
+| Variable_name                | Value      |
++------------------------------+------------+
+| binlog_cache_size            | 32768      |
+| have_query_cache             | YES        |
+| key_cache_age_threshold      | 300        |
+| key_cache_block_size         | 1024       |
+| key_cache_division_limit     | 100        |
+| max_binlog_cache_size        | 4294963200 |
+| query_cache_limit            | 1048576    |
+| query_cache_min_res_unit     | 4096       |
+| query_cache_size             | 0          |
+| query_cache_type             | ON         |
+| query_cache_wlock_invalidate | OFF        |
+| table_definition_cache       | 256        |
+| table_open_cache             | 256        |
+| thread_cache_size            | 8          |
++------------------------------+------------+
+14 rows in set (0.00 sec)
+
+
+mysql> show variables like 'server_id';
++---------------+-------+
+| Variable_name | Value |
++---------------+-------+
+| server_id     | 0     |
++---------------+-------+
+1 row in set (0.03 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

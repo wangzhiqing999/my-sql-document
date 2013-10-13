@@ -1,0 +1,208 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - UNION-合并且去除重复记录 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2>  UNION-合并且去除重复记录  </h2>
+
+这里的SQL，使用以下的测试表，与测试数据
+
+<pre><code>
+
+
+CREATE TABLE union_tab_1 (
+  id   INT,
+  val  VARCHAR(10)
+);
+
+CREATE TABLE union_tab_2 (
+  id   INT,
+  val  VARCHAR(10)
+);
+
+INSERT INTO union_tab_1 VALUES(1, 'A');
+INSERT INTO union_tab_1 VALUES(2, 'B');
+INSERT INTO union_tab_1 VALUES(3, 'C');
+
+
+INSERT INTO union_tab_2 VALUES(1, 'A');
+INSERT INTO union_tab_2 VALUES(1, 'A');
+INSERT INTO union_tab_2 VALUES(2, 'B');
+INSERT INTO union_tab_2 VALUES(4, 'D');
+
+
+
+
+</code></pre>
+
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT * FROM union_tab_1
+  2  UNION
+  3  SELECT * FROM union_tab_2;
+
+        ID VAL
+---------- --------------------
+         1 A
+         2 B
+         3 C
+         4 D
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => SELECT * FROM union_tab_1
+db2 (cont.) => UNION
+db2 (cont.) => SELECT * FROM union_tab_2;
+
+ID          VAL
+----------- ----------
+          1 A
+          2 B
+          3 C
+          4 D
+
+  4 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT * FROM union_tab_1
+2> UNION
+3> SELECT * FROM union_tab_2
+4> go
+id          val
+----------- ----------
+          1 A
+          2 B
+          3 C
+          4 D
+
+(4 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT * FROM union_tab_1
+    -> UNION
+    -> SELECT * FROM union_tab_2
+    -> //
++------+------+
+| id   | val  |
++------+------+
+|    1 | A    |
+|    2 | B    |
+|    3 | C    |
+|    4 | D    |
++------+------+
+4 rows in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+SELECT * FROM union_tab_1
+UNION
+SELECT * FROM union_tab_2;
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# SELECT * FROM union_tab_1
+Test-# UNION
+Test-# SELECT * FROM union_tab_2;
+ id | val
+----+-----
+  1 | A
+  3 | C
+  4 | D
+  2 | B
+(4 行记录)
+
+
+Test=#
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

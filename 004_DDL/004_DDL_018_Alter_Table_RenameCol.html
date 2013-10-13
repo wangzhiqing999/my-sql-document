@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - 修改表 - 修改列名 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 修改表 - 修改列名 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> ALTER TABLE test_tab
+  2    RENAME COLUMN val TO val2;
+
+Table altered.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => ALTER TABLE test_tab
+db2 (cont.) =>   RENAME COLUMN val TO val2;
+DB20000I  SQL 命令成功完成。
+
+db2 => select * from test_tab;
+
+ID          NAME       AGE         VAL2
+----------- ---------- ----------- ----------
+
+  0 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+调用 EXECUTE sp_rename 来进行 对数据库表中，列名的变更。
+
+<pre><code>
+
+1> BEGIN TRANSACTION
+2> SET QUOTED_IDENTIFIER ON
+3> SET ARITHABORT ON
+4> SET NUMERIC_ROUNDABORT OFF
+5> SET CONCAT_NULL_YIELDS_NULL ON
+6> SET ANSI_NULLS ON
+7> SET ANSI_PADDING ON
+8> SET ANSI_WARNINGS ON
+9> COMMIT
+10> BEGIN TRANSACTION
+11> GO
+1> EXECUTE sp_rename N'dbo.test_tab.val', N'Tmp_val2', 'COLUMN'
+2> GO
+注意: 更改对象名的任一部分都可能会破坏脚本和存储过程。
+1> EXECUTE sp_rename N'dbo.test_tab.Tmp_val2', N'val2', 'COLUMN'
+2> GO
+注意: 更改对象名的任一部分都可能会破坏脚本和存储过程。
+1> COMMIT
+2> go
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+
+使用 CHANGE COLUMN 来修改列的名字，还必须 设置 列的数据类型
+
+<pre><code>
+
+mysql> desc test_tab
+    -> //
++-------+-------------+------+-----+---------+-------+
+| Field | Type        | Null | Key | Default | Extra |
++-------+-------------+------+-----+---------+-------+
+| id    | int(11)     | NO   | PRI | 0       |       |
+| name  | varchar(10) | YES  |     | NULL    |       |
+| age   | int(11)     | YES  |     | NULL    |       |
+| val   | varchar(10) | YES  |     | NULL    |       |
++-------+-------------+------+-----+---------+-------+
+4 rows in set (0.00 sec)
+
+mysql> ALTER TABLE test_tab
+    ->   CHANGE COLUMN val val2 VARCHAR(10); //
+Query OK, 0 rows affected (0.13 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> desc test_tab
+    -> //
++-------+-------------+------+-----+---------+-------+
+| Field | Type        | Null | Key | Default | Extra |
++-------+-------------+------+-----+---------+-------+
+| id    | int(11)     | NO   | PRI | 0       |       |
+| name  | varchar(10) | YES  |     | NULL    |       |
+| age   | int(11)     | YES  |     | NULL    |       |
+| val2  | varchar(10) | YES  |     | NULL    |       |
++-------+-------------+------+-----+---------+-------+
+4 rows in set (0.02 sec)
+
+mysql>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+不支持
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+语法 同 Oracle、DB2
+
+Test=# ALTER TABLE test_tab  RENAME COLUMN val TO val2;
+ALTER TABLE
+
+
+Test=# \d test_tab;
+       资料表 "public.test_tab"
+ 栏位 |         型别          | 修饰词
+------+-----------------------+--------
+ id   | integer               | 非空
+ name | character varying(10) |
+ age  | integer               |
+ val2 | character varying(10) |
+索引：
+    "pk_test_tab" PRIMARY KEY, btree (id)
+检查约束限制
+    "test_tab_age_check" CHECK (age > 0 AND age < 150)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 游标处理 - 测试表、数据 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 游标处理 </h1>
+
+
+<h2> 测试表、数据 </h2>
+
+游标处理，使用前面外键约束的 test_main 表，测试3条数据。
+
+<pre><code>
+
+
+
+CREATE TABLE test_main (
+  id      INT,
+  value   VARCHAR(10),
+  PRIMARY KEY(id)  
+);
+
+INSERT INTO test_main(id, value) VALUES (1, 'ONE');
+INSERT INTO test_main(id, value) VALUES (2, 'TWO');
+INSERT INTO test_main(id, value) VALUES (3, 'THREE');
+
+
+
+</code></pre>
+  
+
+
+
+</body>
+
+
+</html>

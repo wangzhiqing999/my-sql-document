@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 安全函数 - 取得用户会话信息 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 安全函数 </h1>
+
+
+<h2>  取得用户会话信息  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+SELECT  'CLIENT_INFO'  	AS  Param,   USERENV('CLIENT_INFO')	AS  VALUE   FROM  dual   UNION  ALL
+SELECT  'ISDBA'  		AS  Param,   USERENV('ISDBA')  		AS  VALUE   FROM  dual   UNION  ALL
+SELECT  'LANG'  		AS  Param,   USERENV('LANG')  		AS  VALUE   FROM  dual   UNION  ALL
+SELECT  'LANGUAGE'  	AS  Param,   USERENV('LANGUAGE')  	AS  VALUE   FROM  dual   UNION  ALL
+SELECT  'TERMINAL'  	AS  Param,   USERENV('TERMINAL')  	AS  VALUE   FROM  dual;
+
+PARAM
+----------------------
+VALUE
+-----------------------------------
+CLIENT_INFO
+
+
+ISDBA
+FALSE
+
+LANG
+ZHS
+
+
+PARAM
+----------------------
+VALUE
+-----------------------------------
+LANGUAGE
+SIMPLIFIED CHINESE_CHINA.AL32UTF8
+
+TERMINAL
+EDWARDPC
+
+
+
+
+
+SQL> SELECT  'ENTRYID'    AS  Param,   USERENV('ENTRYID')   AS  VALUE   FROM  dual   UNION  ALL
+  2  SELECT  'SID'     AS  Param,   USERENV('SID')    AS  VALUE   FROM  dual   UNION  ALL
+  3  SELECT  'SESSIONID'   AS  Param,   USERENV('SESSIONID')   AS  VALUE   FROM  dual;
+
+
+PARAM                   VALUE
+------------------ ----------
+ENTRYID                     0
+SID                        27
+SESSIONID                4983
+
+
+
+注：
+
+USERENV('SID')  用于获取当前会话的 session  ID。
+也可用下面的方式获取。
+
+
+SQL> select sid from v$mystat where rownum=1;
+
+       SID
+----------
+        27
+
+
+
+SQL> SELECT  SID, AUDSID FROM v$SESSION  WHERE  sid = 27;
+
+       SID     AUDSID
+---------- ----------
+        27       4983
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

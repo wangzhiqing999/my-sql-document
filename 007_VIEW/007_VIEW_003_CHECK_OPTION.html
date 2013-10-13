@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 视图 - 约束可更新视图 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 视图 </h1>
+
+
+<h2>  约束可更新视图 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> CREATE VIEW
+  2    v_sale_report_x
+  3  AS
+  4    SELECT
+  5      *
+  6    FROM
+  7      sale_report
+  8    WHERE
+  9      sale_item = 'X'
+ 10  WITH CHECK OPTION;
+
+View created.
+
+SQL> INSERT INTO v_sale_report_x (
+  2    sale_date, sale_item, sale_money
+  3  ) VALUES (
+  4    TO_DATE('2012.02.02', 'YYYY.MM.DD'), 'X', 1
+  5  );
+
+1 row created.
+
+SQL>
+SQL>
+SQL> INSERT INTO v_sale_report_x (
+  2    sale_date, sale_item, sale_money
+  3  ) VALUES (
+  4    TO_DATE('2012.02.02', 'YYYY.MM.DD'), 'Y', 1
+  5  );
+INSERT INTO v_sale_report_x (
+            *
+ERROR at line 1:
+ORA-01402: view WITH CHECK OPTION where-clause violation
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => CREATE VIEW
+db2 (cont.) =>   v_sale_report_x
+db2 (cont.) => AS
+db2 (cont.) =>   SELECT
+db2 (cont.) =>     *
+db2 (cont.) =>   FROM
+db2 (cont.) =>     sale_report
+db2 (cont.) =>   WHERE
+db2 (cont.) =>     sale_item = 'X'
+db2 (cont.) => WITH CHECK OPTION;
+DB20000I  SQL 命令成功完成。
+
+db2 => INSERT INTO v_sale_report_x (
+db2 (cont.) =>   sale_date, sale_item, sale_money
+db2 (cont.) => ) VALUES (
+db2 (cont.) =>   TO_DATE('2012.02.02', 'YYYY.MM.DD'), 'X', 1
+db2 (cont.) => );
+DB20000I  SQL 命令成功完成。
+db2 =>
+db2 =>
+db2 => INSERT INTO v_sale_report_x (
+db2 (cont.) =>   sale_date, sale_item, sale_money
+db2 (cont.) => ) VALUES (
+db2 (cont.) =>   TO_DATE('2012.02.02', 'YYYY.MM.DD'), 'Y', 1
+db2 (cont.) => );
+DB21034E  该命令被当作 SQL 语句来处理，因为它是无效的“命令行处理器”命令。在
+SQL 处理期间，它返回：
+SQL0161N  插入或更新操作的结果行不符合视图定义。  SQLSTATE=44000
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> CREATE VIEW
+2>   v_sale_report_x
+3> AS
+4>   SELECT
+5>     *
+6>   FROM
+7>     sale_report
+8>   WHERE
+9>     sale_item = 'X'
+10> WITH CHECK OPTION;
+11> go
+
+1> INSERT INTO v_sale_report_x (
+2>   sale_date, sale_item, sale_money
+3> ) VALUES (
+4>    CONVERT(DATETIME, '2012-02-02 01:00:00', 120), 'X', 1
+5> );
+6> go
+
+(1 行受影响)
+
+1> INSERT INTO v_sale_report_x (
+2>   sale_date, sale_item, sale_money
+3> ) VALUES (
+4>    CONVERT(DATETIME, '2012-02-02 01:00:00', 120), 'Y', 1
+5> );
+6> go
+消息 550，级别 16，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+试图进行的插入或更新已失败，原因是目标视图或者目标视图所跨越的某一视图指定了 WIT
+H CHECK OPTION，而该操作的一个或多个结果行又不符合 CHECK OPTION 约束。
+语句已终止。
+1>
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> CREATE VIEW
+    ->   v_sale_report_x
+    -> AS
+    ->   SELECT
+    ->     *
+    ->   FROM
+    ->     sale_report
+    ->   WHERE
+    ->     sale_item = 'X'
+    -> WITH CHECK OPTION;
+    -> //
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> INSERT INTO v_sale_report_x (
+    ->   sale_date, sale_item, sale_money
+    -> ) VALUES (
+    ->   STR_TO_DATE('2012.02.02', '%Y.%m.%d'), 'X', 1
+    -> );
+    -> //
+Query OK, 1 row affected (0.03 sec)
+
+mysql> INSERT INTO v_sale_report_x (
+    ->   sale_date, sale_item, sale_money
+    -> ) VALUES (
+    ->   STR_TO_DATE('2012.02.02', '%Y.%m.%d'), 'Y', 1
+    -> );
+    -> //
+ERROR 1369 (HY000): CHECK OPTION failed 'test.v_sale_report_x'
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+默认只读， 不可修改
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+默认只读， 不可修改
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

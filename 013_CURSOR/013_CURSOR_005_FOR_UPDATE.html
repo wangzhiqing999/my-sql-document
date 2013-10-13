@@ -1,0 +1,307 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 游标处理 - 用于更新的游标 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 游标处理 </h1>
+
+
+<h2>  用于更新的游标 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> DECLARE
+  2    v_id    INT;
+  3    v_value VARCHAR(10);
+  4    -- 定义游标.
+  5    CURSOR c_test_main IS
+  6      SELECT id, value FROM test_main
+  7      FOR UPDATE;
+  8  BEGIN
+  9    -- 打开游标.
+ 10    OPEN c_test_main;
+ 11    -- 填充数据.
+ 12    FETCH c_test_main INTO v_id, v_value;
+ 13    -- 假如检索到了数据，才处理.
+ 14    WHILE c_test_main%FOUND LOOP
+ 15      -- 输出调试.
+ 16      dbms_output.put_line(v_value);
+ 17      -- 更新数据.
+ 18      UPDATE 
+ 19        test_main
+ 20      SET
+ 21        value = value || '1'
+ 22      WHERE 
+ 23        CURRENT OF c_test_main;
+ 24      -- 填充下一条数据.
+ 25      FETCH c_test_main INTO v_id, v_value;
+ 26    END LOOP;
+ 27    -- 关闭游标
+ 28    CLOSE c_test_main;
+ 29  END;
+ 30  /
+
+PL/SQL 过程已成功完成。
+
+SQL> 
+SQL> select * from test_main;
+
+        ID VALUE
+---------- ----------
+         1 ONE1
+         2 TWO1
+         3 THREE1
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+BEGIN
+  -- 暂存变量.
+  DECLARE  v_id    INT;
+  DECLARE  v_value VARCHAR(10);
+  DECLARE SQLCODE INT;
+  -- 定义游标.
+  -- with hold 选项。如果循环内有commit或rollback 保持该cursor不被关闭
+  DECLARE c_test_main CURSOR with hold FOR
+      SELECT id, value FROM test_main  for update;
+  -- 打开游标.
+  OPEN c_test_main;
+  MyLoop: LOOP
+    -- 填充数据.
+    FETCH c_test_main INTO v_id, v_value;
+    IF (SQLCODE = 0) THEN
+      -- 假如检索到了数据，修改 test_main 表.
+      UPDATE
+        test_main
+      SET
+        value = value || '1'
+      WHERE 
+        CURRENT OF c_test_main;
+    ELSE
+      -- 假如没有数据，跳出循环.
+      LEAVE MyLoop;
+    END IF;
+  END LOOP;
+  -- 关闭游标
+  CLOSE c_test_main;
+END
+@
+
+db2 => select * from test_main@
+
+ID          VALUE
+----------- ----------
+          1 ONE1
+          2 TWO1
+
+  2 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> DECLARE
+2>   @id    INT,  @value VARCHAR(10);
+3> BEGIN
+4>   -- 定义游标.
+5>   DECLARE c_test_main CURSOR FOR
+6>     SELECT id, value FROM test_main
+7>       FOR UPDATE;
+8>   -- 打开游标.
+9>   OPEN c_test_main;
+10>   -- 填充数据.
+11>   FETCH NEXT FROM c_test_main INTO @id, @value;
+12>   -- 假如检索到了数据，才处理.
+13>   WHILE @@fetch_status = 0
+14>   BEGIN
+15>     PRINT @value;
+16>     -- 更新数据.
+17>     UPDATE
+18>       test_main
+19>     SET
+20>       value = value + '1'
+21>     WHERE
+22>       CURRENT OF c_test_main;
+23>     -- 填充下一条数据.
+24>     FETCH NEXT FROM c_test_main INTO @id, @value;
+25>   END;
+26>   -- 关闭游标
+27>   CLOSE c_test_main;
+28>   -- 释放游标.
+29>   DEALLOCATE c_test_main;
+30> END;
+31> go
+ONE
+
+(1 行受影响)
+TWO
+Three
+FOUR
+1> SELECT * FROM test_main;
+2> go
+id          value
+----------- ----------
+          1 ONE1
+          2 TWO1
+          3 Three1
+          4 FOUR1
+
+(4 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+http://dev.mysql.com/doc/refman/5.7/en/cursors.html
+
+
+MySQL supports cursors inside stored programs. The syntax is as in embedded SQL. Cursors have these properties:
+Asensitive: The server may or may not make a copy of its result table
+Read only: Not updatable
+
+
+MySQL 游标  只读， 不可更新。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+CREATE OR REPLACE FUNCTION TestUpdateCursor() RETURNS void AS
+$$
+DECLARE
+  -- 定义游标.
+  c_test_main CURSOR FOR
+    SELECT id, value FROM test_main FOR UPDATE ;
+  -- 定义存储数据的变量.
+  v_main_data  test_main%ROWTYPE;
+
+BEGIN
+  -- 打开游标.
+  OPEN c_test_main;
+
+  LOOP  
+    -- 填充数据.
+    FETCH c_test_main INTO v_main_data;
+    -- 假如没有检索到数据，结束循环处理
+    Exit when NOT found;
+	
+	-- 游标每一行的实际操作.
+    
+	-- 更新数据.
+    UPDATE 
+      test_main
+    SET
+      value = value || '1'
+    WHERE 
+      CURRENT OF c_test_main;
+
+  END LOOP; 
+
+  
+  -- 关闭游标
+  CLOSE c_test_main;
+END;
+$$
+LANGUAGE plpgsql;
+
+
+
+Test=# select TestUpdateCursor();
+ testupdatecursor
+------------------
+
+(1 行记录)
+
+
+Test=# select * from test_main;
+ id | value
+----+-------
+  1 | ONE1
+  2 | TWO1
+  4 | FOUR1
+(3 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

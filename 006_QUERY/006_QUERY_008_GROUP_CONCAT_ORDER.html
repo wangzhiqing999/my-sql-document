@@ -1,0 +1,304 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 多行转一行 （指定排序顺序） </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+
+ 
+ 
+
+<h1> 查询 </h1>
+
+
+<h2> 多行转一行 （指定排序顺序）  </h2>
+
+
+
+<pre><code>
+
+
+CREATE TABLE TestTitle (
+  name   VARCHAR(10),
+  seq    INT,
+  title  VARCHAR(10)
+);
+ 
+INSERT INTO TestTitle VALUES ('张三', 3, '程序员');
+INSERT INTO TestTitle VALUES ('张三', 1, '系统管理员');
+INSERT INTO TestTitle VALUES ('张三', 2, '网络管理员');
+INSERT INTO TestTitle VALUES ('李四', 2, '项目经理');
+INSERT INTO TestTitle VALUES ('李四', 1, '系统分析员');
+ 
+这里要求 是， 合并后， 字符的顺序，是按照  seq  来排序的
+也就是最后的结果，希望是
+李四     系统分析员,项目经理
+张三     系统管理员,网络管理员,程序员
+ 
+
+
+</code></pre>
+
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+
+<pre><code>
+ 
+对于Oracle使用 WMSYS.WM_CONCAT 函数 的方式进行处理
+ 
+首先是 不排序的情况下，默认的查询结果：
+SQL> 
+SQL> SELECT
+  2    name,
+  3    WMSYS.WM_CONCAT(title) AS allTitle
+  4  FROM
+  5    TestTitle
+  6  GROUP BY
+  7    name;
+NAME
+----------
+ALLTITLE
+-------------------------------------------
+李四
+项目经理,系统分析员
+张三
+程序员,系统管理员,网络管理员
+
+ 
+然后是按照 seq   的顺序进行排列的查询结果：
+SQL> with myCTE AS
+  2  (
+  3    SELECT
+  4      name,
+  5      seq,
+  6      WMSYS.WM_CONCAT(title)
+  7          OVER(PARTITION BY  name   ORDER BY   seq) AS allTitle
+  8    FROM
+  9      TestTitle
+ 10  )
+ 11  SELECT
+ 12    name, allTitle
+ 13  FROM
+ 14    myCTE
+ 15  WHERE
+ 16    NOT EXISTS(
+ 17      SELECT 1
+ 18      FROM myCTE sub
+ 19      WHERE myCTE.name = sub.name
+ 20        AND myCTE.seq &lt; sub.seq
+ 21    );
+NAME
+----------
+ALLTITLE
+--------------------------------------------------------------
+李四
+系统分析员,项目经理
+张三
+系统管理员,网络管理员,程序员
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+
+使用 CTE 处理
+
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+
+可使用 FOR XML PATH 处理.
+也可使用 CTE 处理
+
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+	
+对于MySQL使用 GROUP_CONCAT 函数 的方式进行处理
+ 首先是 不排序的情况下，默认的查询结果：
+mysql> SELECT
+    ->   name,
+    ->   GROUP_CONCAT(title) AS allTitle
+    -> FROM
+    ->   TestTitle
+    -> GROUP BY
+    ->   name;
++------+------------------------------+
+| name | allTitle                     |
++------+------------------------------+
+| 李四 | 项目经理,系统分析员          |
+| 张三 | 程序员,系统管理员,网络管理员 |
++------+------------------------------+
+2 rows in set (0.00 sec)
+ 
+然后是按照 seq   的顺序进行排列的查询结果：
+mysql> SELECT
+    ->   name,
+    ->   GROUP_CONCAT(title) AS allTitle
+    -> FROM
+    ->   (
+    ->   SELECT
+    ->     name,
+    ->     title
+    ->   FROM
+    ->     TestTitle
+    ->   ORDER BY
+    ->     seq
+    ->   ) as subQuery
+    -> GROUP BY
+    ->   name;
++------+------------------------------+
+| name | allTitle                     |
++------+------------------------------+
+| 李四 | 系统分析员,项目经理          |
+| 张三 | 系统管理员,网络管理员,程序员 |
++------+------------------------------+
+2 rows in set (0.00 sec)
+ 
+ 
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+函数与 MySQL 相同
+<pre><code>
+
+SELECT
+  name,
+  GROUP_CONCAT(title) AS allTitle
+FROM
+  TestTitle
+GROUP BY
+  name;
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+SELECT
+  name,
+  array_to_string(ARRAY(SELECT unnest(array_agg(title))),',') AS allTitle
+FROM
+  (  
+  SELECT  
+    name,  
+    title  
+  FROM  
+    TestTitle  
+  ORDER BY  
+    seq  
+  ) as subQuery  
+GROUP BY
+  name;
+
+ name |           alltitle
+------+------------------------------
+ 李四 | 系统分析员,项目经理
+ 张三 | 系统管理员,网络管理员,程序员
+(2 行记录)
+
+
+
+或者
+
+SELECT
+  name,
+  string_agg(title,',') AS allTitle
+FROM
+  (  
+  SELECT  
+    name,  
+    title  
+  FROM  
+    TestTitle  
+  ORDER BY  
+    seq  
+  ) as subQuery  
+GROUP BY
+  name;
+
+ name |           alltitle
+------+------------------------------
+ 李四 | 系统分析员,项目经理
+ 张三 | 系统管理员,网络管理员,程序员
+(2 行记录)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

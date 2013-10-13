@@ -1,0 +1,369 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据类型-数字类型 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据类型 </h1>
+
+
+<h2> 数字类型 </h2>
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+基本类型为 NUMBER(P，S)
+P范围1到38
+S 范围 -84 到 127
+
+Oracle NUMBER类型能以极大的精度存储数值，具体来讲，精度可达38位。
+其底层数据格式类似一种“封包小数“表示。
+Oracle NUMBER类型是一种变长格式，长度为0～22字节。
+它可以存储小到10e-130、大到（但不包括）10e126的任何数值。这是目前最为常用的数值类型。
+
+
+
+
+以下为与ANSI SQL兼容而使用：
+
+FLOAT(b)浮点数  ：映射至NUMBER类型。
+REAL	单精度浮点数  ：映射至NUMBER类型。
+DOUBLE PRECISION	双精度浮点数  ：映射至NUMBER类型。
+NUMERIC(p,s)：  完全映射至NUMBER(p,s)。如果p未指定，则默认为38.
+DECIMAL(p,s)或DEC(p,s)	小数 ：完全映射至NUMBER(p,s)。如果p为指定，则默认为38.
+INTEGER或INT 整数 ：完全映射至NUMBER(38)类型。
+SMALLINT 小整数：完全映射至NUMBER(38)类型。
+
+
+
+BINARY_FLOAT 浮点数Oracle10g R1以后。6位精度，5字节
+BINARY_FLOAT：这是一种IEEE固有的单精度浮点数。
+它在磁盘上会占用5字节的存储空间：
+其中4个固定字节用于存储浮点数，另外还有一个长度字节。
+BINARY_FLOAT能存储有6为精度、范围在～±1038.53的数值。
+
+
+BINARY_DOUBLE浮点数Oracle10g R1以后，13位精度，9字节
+BINARY_DOUBLE：这是一种IEEE固有的双精度浮点数。
+它在磁盘上会占用9字节的存储空间：
+其中8个固定字节用于存储浮点数，还有一个长度字节。
+BINARY_DOUBLE能存储有12.位精度、范围在～±10308.25的数值。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+
+<p>
+整数：SMALLINT、INTEGER 和 BIGINT 用来存储整数。例如，库存数量可以定义为 INTEGER。SMALLINT 可以在 2 个字节中存储从 -32,768 到 32,767 的整数。INTEGER 可以在 4 个字节中存储从 -2,147,483,648 到 2,147,483,647 的整数。BIGINT 可以在 8 个字节中存储从 -9,223,372,036,854,775,808 到 9,223,372,036,854,775,807 的整数。 
+</p>
+
+<p>
+小数：DECIMAL 用来存储有小数部分的数字。要定义这个数据类型，需要指定精度 （p，表示总的位数）和小数位 （s，表示小数点右边的位数）。定义为 DECIMAL(10,2) 的列可以保存的金额最高可为 99999999.99。数据库中需要的存储空间依赖于精度，按照公式 p/2 +1 计算。所以 DECIMAL(10,2) 需要 10/2 + 1 （即 6）字节。 
+</p>
+
+
+<p>
+浮点数：REAL 和 DOUBLE 用来存储数字的近似值。例如，非常小或非常大的科学计量值可以定义为 REAL。REAL 可以定义为具有 1 到 24 位之间的长度，需要 4 字节的存储空间。DOUBLE 可以定义为具有 25 到 53 位之间的长度，需要 8 字节的存储空间。FLOAT 可以视为 REAL 或 DOUBLE 的同义词。
+</p>
+
+
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+bit	整型 其值只能是0、1或空值。
+
+bigint 长度为 8 个字节，存储从 –2^63 (-9,223,372,036,854,775,808) 到 2^63-1 (9,223,372,036,854,775,807) 的数字。 
+integer 或者 int 长度为 4 个字节，存储从 -2,147,483,648 到 2,147,483,647 的数字。
+smallint 长度为 2 个字节，存储从 -32,768 到 32,767 的数字。 
+tinyint 长度为 1 个字节，存储从 0 到 255 的数字。 
+
+
+numeric
+decimal	精确数值型 从-10 的38次方-1，到10的38次方-1
+money	数据类型用来表示钱和货币值。这种数据类型能存储从-9220亿到9220 亿之间的数据，精确到货币单位的万分之一
+smallmoney	存储从-214748.3648 到214748.3647 之间的数据，精确到货币单位的万分之一
+
+
+float	浮点数
+real	浮点数
+
+float 和 real 数据类型被称为近似数据类型。float 和 real 的使用遵循有关近似数值数据类型的 IEEE 754 规范。
+在 WHERE 子句搜索条件（特别是 = 和 &lt;&gt; 运算符）中，应避免使用 float 列或 real 列。float 列和 real 列最好只限于 &gt; 比较或 &lt; 比较。
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+BIT[(M)]
+位字段类型。M表示每个值的位数，范围为从1到64。如果M被省略， 默认为1。
+
+TINYINT[(M)] [UNSIGNED] [ZEROFILL]
+很小的整数。带符号的范围是-128到127。无符号的范围是0到255。
+
+BOOL，BOOLEAN
+是TINYINT(1)的同义词。zero值被视为假。非zero值视为真。
+在将来，将根据标准SQL引入完全布尔类型的处理。
+
+SMALLINT[(M)] [UNSIGNED] [ZEROFILL]
+小的整数。带符号的范围是-32768到32767。无符号的范围是0到65535。
+
+MEDIUMINT[(M)] [UNSIGNED] [ZEROFILL]
+中等大小的整数。带符号的范围是-8388608到8388607。无符号的范围是0到16777215。
+
+INT[(M)] [UNSIGNED] [ZEROFILL]
+普通大小的整数。带符号的范围是-2147483648到2147483647。无符号的范围是0到4294967295。
+
+INTEGER[(M)] [UNSIGNED] [ZEROFILL]
+这是INT的同义词。
+
+BIGINT[(M)] [UNSIGNED] [ZEROFILL]
+大整数。带符号的范围是-9223372036854775808到9223372036854775807。
+无符号的范围是0到18446744073709551615。
+应清楚BIGINT列的下述内容：
+使用带符号的BIGINT或DOUBLE值进行所有算法，因此除了位函数，
+不应使用大于9223372036854775807(63位)的无符号的大整数! 
+如果这样做，结果中的最后几位可能出错，这是由于将BIGINT值转换为DOUBLE进行四舍五入时造成的错误。
+
+MySQL可以在以下情况下处理BIGINT：
+当使用整数在一个BIGINT列保存大的无符号的值时。
+在MIN(col_name)或MAX(col_name)中，其中col_name指BIGINT列。
+使用操作符(+，-，*等等)并且两个操作数均为整数时。
+总是可以使用一个字符串在BIGINT列中保存严格整数值。
+在这种情况下，MySQL执行字符串-数字转换，其间不存在双精度表示。
+当两个操作数均为整数值时，-、+和* 操作符使用BIGINT算法。
+这说明如果乘两个大整数(或来自返回整数的函数)，当结果大于9223372036854775807时，会得到意想不到的结果。
+
+FLOAT[(M,D)] [UNSIGNED] [ZEROFILL]
+小(单精度)浮点数。允许的值是-3.402823466E+38到-1.175494351E-38、0和1.175494351E-38到3.402823466E+38。
+这些是理论限制，基于IEEE标准。实际的范围根据硬件或操作系统的不同可能稍微小些。
+M是小数纵位数，D是小数点后面的位数。如果M和D被省略，根据硬件允许的限制来保存值。
+单精度浮点数精确到大约7位小数位。
+如果指定UNSIGNED，不允许负值。
+使用浮点数可能会遇到意想不到的问题，
+因为在MySQL中的所有计算用双精度完成。参见A.5.7节，“解决与不匹配行有关的问题”。
+
+DOUBLE[(M,D)] [UNSIGNED] [ZEROFILL]
+普通大小(双精度)浮点数。
+允许的值是-1.7976931348623157E+308到-2.2250738585072014E-308、0
+和2.2250738585072014E-308到 1.7976931348623157E+308。
+这些是理论限制，基于IEEE标准。实际的范围根据硬件或操作系统的不同可能稍微小些。
+M是小数总位数，D是小数点后面的位数。如果M和D被省略，根据硬件允许的限制来保存值。双精度浮点数精确到大约15位小数位。
+如果指定UNSIGNED，不允许负值。
+
+DOUBLE PRECISION[(M,D)] [UNSIGNED] [ZEROFILL], REAL[(M,D)] [UNSIGNED] [ZEROFILL]
+为DOUBLE的同义词。除了：如果SQL服务器模式包括REAL_AS_FLOAT选项，REAL是FLOAT的同义词而不是DOUBLE的同义词。
+
+FLOAT(p) [UNSIGNED] [ZEROFILL]
+浮点数。p表示精度（以位数表示），
+但MySQL只使用该值来确定是否结果列的数据类型为FLOAT或DOUBLE。
+如果p为从0到24，数据类型变为没有M或D值的FLOAT。
+如果p为从25到53，数据类型变为没有M或D值的DOUBLE。
+结果列范围与本节前面描述的单精度FLOAT或双精度DOUBLE数据类型相同。
+FLOAT(p)语法与ODBC兼容。
+
+DECIMAL[(M[,D])] [UNSIGNED] [ZEROFILL]
+压缩的“严格”定点数。M是小数位数(精度)的总数，
+D是小数点(标度)后面的位数。小数点和(负数)的‘-’符号不包括在M中。
+如果D是0，则值没有小数点或分数部分。DECIMAL整数最大位数(M)为65。
+支持的十进制数的最大位数(D)是30。如果D被省略， 默认是0。如果M被省略， 默认是10。
+如果指定UNSIGNED，不允许负值。
+所有DECIMAL列的基本计算(+，-，*，/)用65位精度完成。
+
+DEC[(M[,D])] [UNSIGNED] [ZEROFILL], NUMERIC[(M[,D])] [UNSIGNED] [ZEROFILL], FIXED[(M[,D])] [UNSIGNED] [ZEROFILL]
+是DECIMAL的同义词。FIXED同义词适用于与其它服务器的兼容性。
+	
+</code></pre>
+	
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+INT
+INTEGER
+TINYINT
+SMALLINT
+MEDIUMINT
+BIGINT
+UNSIGNED BIG INT
+INT2
+INT8  
+内部都按照 INTEGER  来处理。
+
+
+
+REAL
+DOUBLE
+DOUBLE PRECISION
+FLOAT
+内部都按照 REAL  来处理。
+
+
+NUMERIC
+DECIMAL(10,5)
+BOOLEAN
+DATE
+DATETIME
+内部都按照 NUMERIC来处理。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+数值类型由2、4或8字节的整数以及4或8字节的浮点数和可选精度小数组成。 Table 8-2 列出了所有可用类型。
+
+Table 8-2. 数值类型
+<table border="1">
+<tr>
+  <td>名字</td><td>存储空间</td><td>描述</td><td>范围</td>
+</tr>
+<tr>
+  <td>smallint</td><td>2 字节</td><td>小范围整数</td><td>-32768 到 +32767</td>
+</tr>
+<tr>
+  <td>integer</td><td>4 字节</td><td>常用的整数</td><td>-2147483648 到 +2147483647</td>
+</tr>
+<tr>
+  <td>bigint</td><td>8 字节</td><td>大范围的整数</td><td>-9223372036854775808 到 9223372036854775807</td>
+</tr>
+<tr>
+  <td>decimal</td><td>变长</td><td>用户声明精度，精确</td><td>无限制</td>
+</tr>
+<tr>
+  <td>numeric</td><td>变长</td><td>用户声明精度，精确</td><td>无限制</td>
+</tr>
+<tr>
+  <td>real</td><td>4 字节</td><td>变精度，不精确</td><td>6 位十进制数字精度</td>
+</tr>
+<tr>
+  <td>double precision</td><td>8 字节</td><td>变精度，不精确</td><td>15 位十进制数字精度</td>
+</tr>
+<tr>
+  <td>serial</td><td>4 字节</td><td>自增整数</td><td>1 到 +2147483647</td>
+</tr>
+<tr>
+  <td>bigserial</td><td>8 字节</td><td>大范围的自增整数</td><td>1 到 9223372036854775807</td>
+</tr>
+</table>
+
+
+
+<hr/>
+
+Serial（序号）类型
+
+serial 和 bigserial 类型不是真正的类型， 只是为在表中设置唯一标识做的概念上的便利。
+（类似其它一些数据库中的 AUTO_INCREMENT 属性）。 
+
+
+在目前的实现中，下面一句话：
+CREATE TABLE tablename (
+	colname SERIAL
+);
+等价于声明下面几句话：
+
+CREATE SEQUENCE tablename_colname_seq;
+CREATE TABLE tablename(
+	colname integer DEFAULT nextval('tablename_colname_seq') NOT NULL
+);
+
+
+因此，我们就创建了一个整数字段并且把它的缺省数值安排为从一个序列发生器取值。 
+应用了一个 NOT NULL 约束以确保空值不会被明确地插入。 
+在大多数情况下你可能还希望附加一个 UNIQUE 或者 PRIMARY KEY 约束避免意外地插入重复的数值，但这个不是自动发生的。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+
+MongoDB 中有有3种数字类型
+（32位整数，64位整数，64位浮点数）
+
+
+JavaScript 中只有一种“数字”类型
+默认情况下，shell 中的数字都被 MongoDB 当作是双精度。
+
+
+</code></pre>
+    </td>
+  </tr>
+  
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

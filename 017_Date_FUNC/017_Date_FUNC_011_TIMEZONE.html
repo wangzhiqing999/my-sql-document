@@ -1,0 +1,262 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 日期函数 - 时区相关 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 日期函数 </h1>
+
+
+<h2>  时区相关  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+查看数据库时区
+SQL> SELECT DBTIMEZONE FROM DUAL;
+DBTIME
+------
++00:00
+
+
+ALTER SESSION SET TIME_ZONE = '-5:0';
+修改会话时区
+
+DATE 类型不包含时区信息
+TIMESTAMP类型包含时区信息
+
+SQL> SELECT 
+  2    SESSIONTIMEZONE, 
+  3    CURRENT_DATE,
+  4    CURRENT_TIMESTAMP,
+  5    SYSDATE
+  6  FROM 
+  7    DUAL;
+
+SESSIONTIMEZONE
+-----------------------------------------
+CURRENT_DATE
+-------------------
+CURRENT_TIMESTAMP
+-----------------------------------------
+SYSDATE
+-------------------
+-05:00
+2011-06-14 07:31:20
+14-6月 -11 07.31.19.593000 上午 -05:00
+2011-06-14 20:31:19
+
+
+FROM_TZ 用于为时间标记上时区信息。
+SQL> SELECT 
+  2    FROM_TZ(TIMESTAMP '2000-03-28 08:00:00', '3:00') 
+  3  FROM DUAL;
+
+FROM_TZ(TIMESTAMP'2000-03-2808:00:00','3:00')
+--------------------------------------------------------
+28-3月 -00 08.00.00.000000000 上午 +03:00
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+查看时区
+db2 => SELECT
+db2 (cont.) =>   current timezone
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+1
+--------
+  80000.
+
+  1 条记录已选择。
+
+
+时区计算调整
+db2 => SELECT
+db2 (cont.) =>   current timestamp,
+db2 (cont.) =>   current timestamp - current timezone
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+1                          2
+-------------------------- --------------------------
+2011-10-06-20.33.56.921000 2011-10-06-12.33.56.921000
+
+  1 条记录已选择。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SQL Server 2008 新增  SWITCHOFFSET 与 TODATETIMEOFFSET
+
+
+
+SWITCHOFFSET 更改 DATETIMEOFFSET 值的时区偏移量并保留 UTC 值。
+
+1> SELECT
+2>   '+8' AS [时区],
+3>   SYSDATETIMEOFFSET() AS [时间]
+4> UNION ALL
+5> SELECT
+6>   '+9' AS [时区],
+7>   SWITCHOFFSET(SYSDATETIMEOFFSET(), '+09:00') AS [时间]
+8> SELECT
+9>   '-8' AS [时区],
+10>   SWITCHOFFSET(SYSDATETIMEOFFSET(), '-08:00') AS [时间];
+11> go
+时区 时间
+-- ---------------------------------------------
++8            2011-05-23 13:21:14.5740028 +08:00
++9            2011-05-23 14:21:14.5740028 +09:00
+
+(2 行受影响)
+时区 时间
+-- ---------------------------------------------
+-8            2011-05-22 21:21:14.5740028 -08:00
+
+(1 行受影响)
+
+
+TODATETIMEOFFSET 将 datetime2 值转换为 datetimeoffset 值。datetime2 值被解释为指定 time_zone 的本地时间。
+
+1> SELECT
+2>   SYSDATETIME() AS [不带时区的时间],
+3>   TODATETIMEOFFSET( SYSDATETIME(), '+08:00') AS [+8时区的时间]
+4> go
+不带时区的时间                  +8时区的时间
+--------------------------      -----------------------------
+2011-05-23 13:14:25.6626145     2011-05-23 13:14:25.6626145 +08:00
+(1 行受影响)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+mysql> SELECT CONVERT_TZ (NOW(), '+8:00', '+9:00') A;
++---------------------+
+| A                   |
++---------------------+
+| 2010-10-22 22:10:18 |
++---------------------+
+1 row in set (0.00 sec)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+SELECT 
+	datetime('now') AS "零时区",
+	datetime('now', 'localtime') AS "本地时区";
+
+
+零时区|本地时区
+2012-12-19 06:18:18|2012-12-19 14:18:18
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+查看时区
+
+SELECT EXTRACT(timezone_hour FROM now()) AS "时区";
+ 时区
+------
+    8
+(1 行记录)
+
+
+
+SELECT 
+  NOW() AS "本时区当前时间",
+  NOW() AT TIME ZONE INTERVAL '09:00' AS "09时区的当前时间";
+
+       本时区当前时间       |    09时区的当前时间
+----------------------------+-------------------------
+ 2013-04-09 16:53:02.122+08 | 2013-04-09 17:53:02.122
+(1 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

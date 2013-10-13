@@ -1,0 +1,604 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 大小写敏感问题 - 表名字段名的例子 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 大小写敏感问题 </h1>
+
+
+<h2> 表名字段名的例子  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+Oracle 在创建表的时候， 如果不加双引号， 则 Oracle 后台自动将其转换为大写。
+
+
+CREATE TABLE  T1 (
+  T01  INT,
+  T02  INT
+);
+
+CREATE TABLE  t2 (
+  t01  INT,
+  t02  INT
+);
+
+SQL> select
+  2    TABLE_NAME
+  3  from
+  4    user_tables
+  5  where
+  6    TABLE_NAME in ('T1', 'T2');
+
+TABLE_NAME
+------------------------------------
+T1
+T2
+
+
+对于自动转换为大写的， 查询的时候，也是忽略大小写。
+
+SQL> SELECT COUNT(1) FROM T1;
+
+  COUNT(1)
+----------
+         0
+
+SQL> SELECT COUNT(1) FROM t2;
+
+  COUNT(1)
+----------
+         0
+
+
+通过在创建表的时候， 在字段上， 加 双引号， 来强制区分大小写
+
+
+
+CREATE TABLE  "T3" (
+  "T01"  INT,
+  "T02"  INT
+);
+
+CREATE TABLE  "t4" (
+  "t01"  INT,
+  "t02"  INT
+);
+
+
+SQL> select
+  2    TABLE_NAME
+  3  from
+  4    user_tables
+  5  where
+  6    TABLE_NAME in ('T3', 't4');
+
+TABLE_NAME
+-------------------------------------
+T3
+t4
+
+
+
+对于自定义区分大小写的， 查询的时候，如果全大写，则没有问题，如果存在小写，则需要查询的时候，也加双引号。
+
+
+SQL> SELECT COUNT(1) FROM T3;
+
+  COUNT(1)
+----------
+         0
+
+SQL> SELECT COUNT(1) FROM t4;
+SELECT COUNT(1) FROM t4
+                     *
+ERROR 位于第 1 行:
+ORA-00942: 表或视图不存在
+
+
+
+
+SQL> SELECT COUNT(1) FROM "t4";
+
+  COUNT(1)
+----------
+         0
+
+
+
+SQL> desc t4;
+ERROR:
+ORA-04043: 对象 t4 不存在
+
+
+SQL> desc "t4";
+ 名称                                      是否为空? 类型
+ ----------------------------------------- -------- -------------
+ t01                                                NUMBER(38)
+ t02                                                NUMBER(38)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => CREATE TABLE  T1 (
+db2 (cont.) =>   T01  INT,
+db2 (cont.) =>   T02  INT
+db2 (cont.) => );
+DB20000I  SQL 命令成功完成。
+db2 =>
+
+
+db2 => CREATE TABLE  t2 (
+db2 (cont.) =>   t01  INT,
+db2 (cont.) =>   t02  INT
+db2 (cont.) => );
+DB20000I  SQL 命令成功完成。
+db2 =>
+
+
+db2 => SELECT
+db2 (cont.) =>   name
+db2 (cont.) => FROM
+db2 (cont.) =>   SYSIBM.SYSTABLES
+db2 (cont.) => WHERE
+db2 (cont.) =>   name in ('T1', 'T2');
+
+NAME
+--------------------------------------------
+T1
+T2
+  2 条记录已选择。
+
+
+
+对于自动转换为大写的， 查询的时候，也是忽略大小写。
+
+
+db2 => SELECT COUNT(1) FROM t1;
+1
+-----------
+          0
+  1 条记录已选择。
+
+
+db2 => SELECT COUNT(1) FROM t2;
+1
+-----------
+          0
+  1 条记录已选择。
+
+
+
+通过在创建表的时候， 在字段上， 加 双引号， 来强制区分大小写
+
+
+db2 => CREATE TABLE  "T3" (
+db2 (cont.) =>   "T01"  INT,
+db2 (cont.) =>   "T02"  INT
+db2 (cont.) => );
+DB20000I  SQL 命令成功完成。
+
+
+db2 =>
+db2 => CREATE TABLE  "t4" (
+db2 (cont.) =>   "t01"  INT,
+db2 (cont.) =>   "t02"  INT
+db2 (cont.) => );
+DB20000I  SQL 命令成功完成。
+
+
+db2 => SELECT
+db2 (cont.) =>   name
+db2 (cont.) => FROM
+db2 (cont.) =>   SYSIBM.SYSTABLES
+db2 (cont.) => WHERE
+db2 (cont.) =>   name in ('T3', 't4');
+
+NAME
+
+--------------------------------------------------
+------------------------------------------------
+T3
+
+t4
+
+
+
+
+
+db2 =>  SELECT COUNT(1) FROM t3;
+1
+-----------
+          0
+  1 条记录已选择。
+
+
+db2 =>  SELECT COUNT(1) FROM t4;
+SQL0204N  "TEST.T4" 是一个未定义的名称。  SQLSTATE=42704
+
+
+db2 => SELECT COUNT(1) FROM "t4";
+1
+-----------
+          0
+  1 条记录已选择。
+
+
+
+基本逻辑与 Oracle 相同.
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+默认情况下，SQL Server 里面是不区分大小写的：
+
+E:\>sqlcmd -S "localhost\SQLEXPRESS"
+1> use test
+2> go
+已将数据库上下文更改为 'Test'。
+
+-- 建立一个 tab 的测试表， 表名称为全部小写
+1> CREATE TABLE [tab] ( id int )
+2> go
+
+
+1> select * from tab
+2> go
+id
+-----------
+
+(0 行受影响)
+1> select * from Tab
+2> go
+id
+-----------
+
+(0 行受影响)
+
+上面可以看出，默认情况下，
+select * from tab 与 select * from Tab 是一样的。
+因为不区分大小写
+
+
+下面设置  test 数据库，让其区分大小写
+alter database test  COLLATE  Chinese_PRC_CS_AS
+
+
+1> alter database test  COLLATE  Chinese_PRC_CS_AS
+2> go
+
+1> select * from tab
+2> go
+id
+-----------
+
+(0 行受影响)
+1> select * from Tab
+2> go
+消息 208，级别 16，状态 1，服务器 WANGZHIQING\SQLEXPRESS，第 1 行
+对象名 'Tab' 无效。
+
+
+设置数据库区分大小写以后，可以看到
+select * from Tab 的时候， SQL Server 无法识别 "Tab" 这个表了
+因为区分大小写了。
+
+
+下面恢复 test 数据库的设置，让其不区分大小写
+alter database test COLLATE Chinese_PRC_CI_AS
+
+1> alter database test COLLATE Chinese_PRC_CI_AS
+2> go
+
+
+1> select * from tab
+2> go
+id
+-----------
+
+(0 行受影响)
+1> select * from Tab
+2> go
+id
+-----------
+
+(0 行受影响)
+
+恩，一切又恢复正常了。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+Windows 环境下大小写不敏感
+
+CREATE TABLE tab (
+  id  INT AUTO_INCREMENT,
+  val VARCHAR(10),
+  PRIMARY KEY (id)
+);
+
+mysql> select * from tab;
+Empty set (0.00 sec)
+
+mysql> select * from Tab;
+Empty set (0.00 sec)
+
+mysql> select * from `Tab`;
+Empty set (0.00 sec)
+
+
+
+在MySQL中如何在硬盘上保存和使用表名和数据库名由lower_case_tables_name系统变量确定，
+可以在启动mysqld时设置。lower_case_tables_name可以采用下面的任一值：
+
+<table>
+  <tr>
+    <td>
+	值
+	</td>
+	<td>
+	含义
+	</td>
+  </tr>
+  <tr>
+    <td>0</td>
+	<td>
+	使用CREATE TABLE或CREATE DATABASE语句指定的大写和小写在硬盘上保存表名和数据库名。
+	名称比较对大小写敏感。在Unix系统中的默认设置即如此。
+	请注意如果在大小写不敏感的文件系统上用--lower-case-table-names=0强制设为0，
+	并且使用不同的大小写访问MyISAM表名，会导致索引破坏。
+	</td>
+  </tr>
+  <tr>
+    <td>1</td>
+	<td>
+	表名在硬盘上以小写保存，名称比较对大小写敏感。
+	MySQL将所有表名转换为小写以便存储和查找。
+	该行为也适合数据库名和表的别名。该值为Windows和Mac OS X系统中的默认值。
+	</td>
+  </tr>
+  <tr>
+    <td>2</td>
+	<td>
+	表名和数据库名在硬盘上使用CREATE TABLE或CREATE DATABASE语句指定的大小写进行保存，
+	但MySQL将它们转换为小写以便查找。名称比较对大小写敏感。
+	注释：只在对大小写不敏感的文件系统上适用! InnoDB表名以小写保存，例如lower_case_tables_name=1。
+	</td>
+  </tr>
+</table>
+
+	在Windows和Mac OS X中，lower_case_tables_name的 默认值是1。
+	如果只在一个平台上使用MySQL，通常不需要更改lower_case_tables_name变量。
+	然而，如果你想要在对大小写敏感不同的文件系统的平台之间转移表，会遇到困难。
+	例如，在Unix中，my_tables和MY_tables是两个不同的表，
+	但在Windows中，这两个表名相同。
+	要想避免由于数据库或表名的大小写造成的数据转移问题，可使用两个选项：
+
+    在任何系统中可以使用lower_case_tables_name=1。
+	使用该选项的不利之处是当使用SHOW TABLES或SHOW DATABASES时，看不出名字原来是用大写还是小写。
+
+    在Unix中使用lower_case_tables_name=0，在Windows中使用lower_case_tables_name=2。
+	这样了可以保留数据库名和表名的大小写。
+	不利之处是必须确保在Windows中查询总是用正确大小写引用数据库名和表名。如果将查询转移到Unix中，由于在Unix中大小写很重要，如果大小写不正确，它们不工作。
+
+	例外：如果你正使用InnoDB表，在任何平台上均应将lower_case_tables_name设置为1，以强制将名转换为小写。
+	请注意在Unix中将lower_case_tables_name设置为1之前，重启mysqld之前，必须先将旧的数据库名和表名转换为小写。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+PostgreSQL 在创建表的时候， 如果不加双引号， 则 PostgreSQL 后台自动将其转换为小写。
+
+CREATE TABLE  T1 (
+  T01  INT,
+  T02  INT
+);
+
+CREATE TABLE  t2 (
+  t01  INT,
+  t02  INT
+);
+
+
+SELECT
+  schemaname,
+  tablename,
+  tableowner
+FROM
+  pg_tables
+WHERE
+  tablename IN ('t1', 't2');
+
+ schemaname | tablename | tableowner
+------------+-----------+------------
+ public     | t1        | postgres
+ public     | t2        | postgres
+(2 行记录)
+
+
+
+对于自动转换为大写的， 查询的时候，也是忽略大小写。
+
+Test=# SELECT COUNT(1) FROM t1;
+ count
+-------
+     0
+(1 行记录)
+
+
+Test=# SELECT COUNT(1) FROM T2;
+ count
+-------
+     0
+(1 行记录)
+
+
+<hr/>
+通过在创建表的时候， 在字段上， 加 双引号， 来强制区分大小写
+
+CREATE TABLE  "T3" (
+  "T01"  INT,
+  "T02"  INT
+);
+
+CREATE TABLE  "t4" (
+  "t01"  INT,
+  "t02"  INT
+);
+
+
+SELECT
+  schemaname,
+  tablename,
+  tableowner
+FROM
+  pg_tables
+WHERE
+  tablename IN  ('T3', 't4');
+
+ schemaname | tablename | tableowner
+------------+-----------+------------
+ public     | t4        | postgres
+ public     | T3        | postgres
+(2 行记录)
+
+
+对于自定义区分大小写的， 
+查询的时候，如果全小写，则没有问题，
+如果存在大写，则需要查询的时候，也加双引号。
+
+
+Test=# SELECT COUNT(1) FROM T4;
+ count
+-------
+     0
+(1 行记录)
+
+
+Test=# SELECT COUNT(1) FROM t4;
+ count
+-------
+     0
+(1 行记录)
+
+
+Test=#
+Test=# SELECT COUNT(1) FROM T3;
+错误:  关系 "t3" 不存在
+第1行SELECT COUNT(1) FROM T3;
+                          ^
+Test=# SELECT COUNT(1) FROM t3;
+错误:  关系 "t3" 不存在
+第1行SELECT COUNT(1) FROM t3;
+
+
+Test=# SELECT COUNT(1) FROM "T3";
+ count
+-------
+     0
+(1 行记录)
+
+
+
+
+Test=# \d T3;
+没有找到任何名称为 "T3" 的关联。
+
+Test=# \d "T3";
+   资料表 "public.T3"
+ 栏位 |  型别   | 修饰词
+------+---------+--------
+ T01  | integer |
+ T02  | integer |
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

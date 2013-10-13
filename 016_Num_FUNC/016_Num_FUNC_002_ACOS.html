@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数学函数 - 反余弦 ACOS </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数学函数 </h1>
+
+
+<h2>  反余弦 ACOS </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT ACOS(-1), ACOS(0.5) FROM DUAL;
+
+  ACOS(-1)  ACOS(0.5)
+---------- ----------
+3.14159265 1.04719755
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => SELECT ACOS(-1), ACOS(0.5) FROM SYSIBM.SYSDUMMY1;
+
+1                        2
+------------------------ ------------------------
+  +3.14159265358979E+000   +1.04719755119660E+000
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT ACOS(-1), ACOS(0.5)
+2> go
+
+------------------------ ------------------------
+      3.1415926535897931       1.0471975511965979
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+ACOS(X) 
+返回X 反余弦, 即, 余弦是X的值。若X 不在-1到 1的范围之内，则返回 NULL 。
+mysql> SELECT ACOS(1);
+        -> 0
+mysql> SELECT ACOS(1.0001);
+        -> NULL
+mysql> SELECT ACOS(0);
+        -> 1.5707963267949
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+Test=# SELECT ACOS(-1), ACOS(0.5);
+       acos       |      acos
+------------------+-----------------
+ 3.14159265358979 | 1.0471975511966
+(1 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 其他函数 - 取指定位置的数据 ELT </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 其他函数 </h1>
+
+
+<h2> 取指定位置的数据 ELT  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+ELT(N,str1,str2,str3,...) 
+若N = 1，则返回值为  str1 ，若N = 2，则返回值为 str2 ，以此类推。   
+若N 小于1或大于参数的数目，则返回值为 NULL 。 ELT() 是  FIELD()的补数。
+
+
+mysql> SELECT ELT(1, 'ej', 'Heja', 'hej', 'foo') A;
++------+
+| A    |
++------+
+| ej   |
++------+
+1 row in set (0.00 sec)
+
+mysql>
+mysql> SELECT ELT(4, 'ej', 'Heja', 'hej', 'foo') A;
++------+
+| A    |
++------+
+| foo  |
++------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

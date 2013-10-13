@@ -1,0 +1,195 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - 创建索引 - 概述 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 创建索引 - 概述 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+索引种类：
+
+1、B*树索引
+  默认的“传统”索引
+  1.1、索引组织表
+  1.2、B*树聚簇索引
+  1.3、降序索引
+  1.4、反向键索引
+  当 通过索引访问表中很少的一部分数据 或者 处理表中的多行，可以只用索引而不用表 的情况下，可以创建 B*树索引
+
+2、位图索引
+  对于 相异基数 低的数据，采用位图索引较为合适
+
+3、位图联结索引
+
+4、基于函数的索引
+
+5、应用域索引
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+主键为聚集索引
+<pre><code>
+
+索引种类：
+1、聚集索引
+聚集索引确定表中数据的物理顺序。
+聚集索引类似于电话簿，后者按姓氏排列数据。
+由于聚集索引规定数据在表中的物理存储顺序，
+因此一个表只能包含一个聚集索引。
+但该索引可以包含多个列（组合索引），就像电话簿按姓氏和名字进行组织一样。
+
+聚集索引对于那些经常要搜索范围值的列特别有效。
+使用聚集索引找到包含第一个值的行后，便可以确保包含后续索引值的行在物理相邻。
+例如，如果应用程序执行的一个查询经常检索某一日期范围内的记录，
+则使用聚集索引可以迅速找到包含开始日期的行，然后检索表中所有相邻的行，
+直到到达结束日期。这样有助于提高此类查询的性能。
+同样，如果对从表中检索的数据进行排序时经常要用到某一列，
+则可以将该表在该列上聚集（物理排序），避免每次查询该列时都进行排序，从而节省成本。
+
+
+2、非聚集索引
+非聚集索引与课本中的索引类似。
+数据存储在一个地方，索引存储在另一个地方，
+索引带有指针指向数据的存储位置。索引中的项目按索引键值的顺序存储，
+而表中的信息按另一种顺序存储（这可以由聚集索引规定）。
+如果在表中未创建聚集索引，则无法保证这些行具有任何特定的顺序。
+
+聚集是物理排序。而非聚集是不用将表和视图进行物理排序。
+每个表或视图中最多有250个非聚集排序，或有249个非聚集排序和一个聚集排序。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+大多数MySQL索引(PRIMARY KEY、UNIQUE、INDEX和FULLTEXT)在B树中存储。
+只是空间列类型的索引使用R-树，并且MEMORY表还支持hash索引。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Synopsis
+
+CREATE [ UNIQUE ] INDEX name ON table [ USING method ]
+    ( { column | ( expression ) } [ opclass ] [, ...] )
+    [ TABLESPACE tablespace ]
+    [ WHERE predicate ]
+
+
+参数
+
+UNIQUE
+令系统检测当索引创建时（如果数据已经存在）和每次添加数据时表中是否有重复值。 如果插入或更新的值会导致重复的记录时将生成一个错误。
+
+name
+要创建的索引名。这里不能包含模式名； 索引总是在同一个模式中作为其父表创建的。
+
+table
+要索引的表名（可能有模式修饰）。
+
+method
+用于索引的方法的名字。可选的名字是 btree， hash，rtree，和 gist。缺省方法是 btree。
+
+column
+表的列/字段名。
+
+expression
+一个基于该表的一个或多个字段的表达式。 这个表达式通常必须带着圆括弧包围写出，如语法中显示那样。 不过，如果表达式有函数调用的形式，那么圆括弧可以省略。
+
+opclass
+一个关联的操作符表。
+
+tablespace
+创建索引所在的表空间。如果没有声明，则使用 default_tablespace 的表空间， 如果 default_tablespace 是空字串，则使用数据库的缺省表空间。
+
+predicate
+为一个部分索引定义约束表达式。
+	
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

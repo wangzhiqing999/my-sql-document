@@ -1,0 +1,211 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 报表方式显示 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> 报表方式显示  </h2>
+
+<pre><code>
+
+
+测试表与测试数据
+CREATE TABLE test_main (
+  id      INT,
+  value   VARCHAR(10),
+  PRIMARY KEY(id)  
+);
+
+
+-- 创建测试子表. 
+CREATE TABLE test_sub (
+  id      INT,
+  main_id INT,
+  value   VARCHAR(10),
+  PRIMARY KEY(id)  
+);
+
+
+-- 插入测试主表数据.
+INSERT INTO test_main(id, value) VALUES (1, 'ONE');
+INSERT INTO test_main(id, value) VALUES (2, 'TWO');
+
+-- 插入测试子表数据.
+INSERT INTO test_sub(id, main_id, value) VALUES (1, 1, 'A');
+INSERT INTO test_sub(id, main_id, value) VALUES (2, 1, 'B');
+INSERT INTO test_sub(id, main_id, value) VALUES (3, 1, 'C');
+INSERT INTO test_sub(id, main_id, value) VALUES (4, 2, 'D');
+INSERT INTO test_sub(id, main_id, value) VALUES (5, 2, 'E');
+INSERT INTO test_sub(id, main_id, value) VALUES (6, 2, 'F');
+
+
+要求
+主从表关联的时候,主表仅仅第一条记录显示,后面相同的情况下,不显示
+
+默认情况下
+---------- ----------
+ONE        A
+ONE        B
+ONE        C
+TWO        D
+TWO        E
+TWO        F
+
+
+希望查询结果能变为
+
+---------- ----------
+ONE        A
+           B
+           C
+TWO        D
+           E
+           F
+
+
+
+</code></pre>
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+思路
+首先, 根据主表的数据 分组显示 ROW_NUMBER
+然后，仅仅显示 ROW_NUMBER = 1 的主表数据， 其他的主表数据不显示
+
+实现
+第一步  根据主表的数据 分组显示 ROW_NUMBER
+SELECT
+  test_main.value,
+  test_sub.value,
+  ROW_NUMBER() OVER (PARTITION BY test_main.value ORDER BY test_sub.value)
+FROM
+  test_main,
+  test_sub
+WHERE
+  test_main.id = test_sub.main_id
+
+value      value
+---------- ---------- --------------------
+ONE        A                             1
+ONE        B                             2
+ONE        C                             3
+TWO        D                             1
+TWO        E                             2
+TWO        F                             3
+
+
+第二步  仅仅显示 ROW_NUMBER = 1 的主表数据， 其他的主表数据不显示
+
+
+SELECT
+  CASE WHEN
+    ROW_NUMBER() OVER (PARTITION BY test_main.value ORDER BY test_sub.value) = 1 THEN  test_main.value
+    ELSE ''
+  END  AS  Main_Value,
+  test_sub.value
+FROM
+  test_main,
+  test_sub
+WHERE
+  test_main.id = test_sub.main_id
+
+执行结果
+
+Main_Value value
+---------- ----------
+ONE        A
+           B
+           C
+TWO        D
+           E
+           F
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

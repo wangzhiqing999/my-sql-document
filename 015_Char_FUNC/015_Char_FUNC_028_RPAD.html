@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 字符函数 - 右边字符填充 RPAD  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 字符函数 </h1>
+
+
+<h2> 右边字符填充 RPAD  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT RPAD('Ora', 8) A,
+  2         RPAD('Ora', 8, '*') B,
+  3         RPAD('Ora', 8, 'xyz') C
+  4  FROM
+  5    dual;
+
+A                B                C
+---------------- ---------------- ----------------
+Ora              Ora*****         Oraxyzxy
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+没有这个函数
+但是 单个字符的，可以通过REPLICATE 与 LEFT的组合来实现
+多个字符的，处理起来，略为复杂。
+
+1> SELECT
+2>   LEFT('Ora' + REPLICATE(' ', 8), 8) AS A,
+3>   LEFT('Ora' + REPLICATE('*', 8), 8) AS B,
+4>   'Ora'
+5>     + LEFT(REPLICATE('xyz', 8), 8 - Len('Ora'))
+6>      AS C
+7> go
+A           B           C
+----------- ----------- -------------
+Ora         Ora*****    Oraxyzxy
+
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT
+    ->     RPAD('Ora', 8, '*') B,
+    ->     RPAD('Ora', 8, 'xyz') C
+    -> //
++----------+----------+
+| B        | C        |
++----------+----------+
+| Ora***** | Oraxyzxy |
++----------+----------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# SELECT
+Test-#   RPAD('Ora', 8) A,
+Test-#   RPAD('Ora', 8, '*') B,
+Test-#   RPAD('Ora', 8, 'xyz') C;
+    a     |    b     |    c
+----------+----------+----------
+ Ora      | Ora***** | Oraxyzxy
+(1 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

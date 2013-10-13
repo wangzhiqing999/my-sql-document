@@ -1,0 +1,354 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 异常处理 - 有异常处理时 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 异常处理 </h1>
+
+
+<h2> 有异常处理时  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> DECLARE
+  2    p_test_val  INT;
+  3  BEGIN
+  4    -- 导致一个 除零错误
+  5    p_test_val := 1024 / 0;
+  6    dbms_output.put_line(TO_CHAR(p_test_val));
+  7
+  8    EXCEPTION
+  9      WHEN OTHERS THEN
+ 10        -- 异常自己处理
+ 11        dbms_output.put_line('Exception Happen!');
+ 12  END;
+ 13  /
+Exception Happen!
+
+PL/SQL procedure successfully completed.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+TRUNCATE TABLE output_debug IMMEDIATE@
+
+BEGIN
+  -- 错误标志
+  DECLARE error_flag INT;
+  -- DB2 中，如果需要使用 sqlcode ，那么必须先 DECLARE 以后，才能使用。
+  DECLARE sqlcode  INT;
+  -- 定义错误处理
+  -- 如果发生错误，继续处理
+  -- 但是把标志位设置为 sqlcode
+  DECLARE CONTINUE HANDLER
+  FOR
+  SQLEXCEPTION SET error_flag=sqlcode;
+  -- 错误标志，首先设置为正常.
+  SET error_flag = 0;
+  -- 先更新.
+  UPDATE test_main SET value = 'Test1' WHERE id = 1;
+  -- 插入一行主键重复数据.
+  INSERT INTO test_main VALUES(1, 'PK');
+  INSERT INTO output_debug VALUES('执行结果:'|| TO_CHAR(error_flag));
+END
+@
+
+
+db2 => select * from test_main WHERE id = 1@
+
+ID          VALUE
+----------- ----------
+          1 Test1
+
+  1 条记录已选择。
+
+db2 => select * from output_debug@
+
+DATA
+-----------------------------------
+执行结果:-803
+
+  1 条记录已选择。
+
+
+TRUNCATE TABLE output_debug IMMEDIATE@
+
+BEGIN
+  -- DB2 中，如果需要使用 sqlcode ，那么必须先 DECLARE 以后，才能使用。
+  DECLARE sqlcode  INT;
+  -- 定义错误处理
+  -- 如果发生错误，结束处理
+  DECLARE EXIT HANDLER
+  FOR
+  SQLEXCEPTION 
+  BEGIN
+    -- 异常处理
+    INSERT INTO output_debug VALUES('出错啦！' || TO_CHAR(sqlcode));
+  END; 
+
+  -- 先更新.
+  UPDATE test_main SET value = 'Test2' WHERE id = 1;
+  -- 插入一行主键重复数据.
+  INSERT INTO test_main VALUES(1, 'PK');
+  INSERT INTO output_debug VALUES('本语句不会执行到！');
+END
+@
+
+db2 => select * from test_main WHERE id = 1@
+
+ID          VALUE
+----------- ----------
+          1 Test2
+
+  1 条记录已选择。
+
+db2 => select * from output_debug@
+
+DATA
+----------------------------------------
+出错啦！-803
+
+  1 条记录已选择。
+
+
+TRUNCATE TABLE output_debug IMMEDIATE@
+
+BEGIN
+  -- DB2 中，如果需要使用 sqlcode ，那么必须先 DECLARE 以后，才能使用。
+  DECLARE sqlcode  INT;
+
+P1: BEGIN ATOMIC
+  -- 定义错误处理
+  -- 如果发生错误，结束处理，并回滚前面做的处理。
+  DECLARE UNDO HANDLER
+  FOR
+  SQLEXCEPTION
+  BEGIN
+    -- 异常处理
+    INSERT INTO output_debug VALUES('出错啦！' || TO_CHAR(sqlcode));
+  END;
+
+  -- 先更新.
+  UPDATE test_main SET value = 'Test3' WHERE id = 1;
+  -- 插入一行主键重复数据.
+  INSERT INTO test_main VALUES(1, 'PK');
+  INSERT INTO output_debug VALUES('本语句不会执行到！');
+END P1;
+
+END
+@
+
+db2 => select * from test_main WHERE id = 1@
+ID          VALUE
+----------- ----------
+          1 Test2
+  1 条记录已选择。
+
+db2 => select * from output_debug@
+DATA
+----------------------------------------
+出错啦！-803
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> DECLARE
+2>   @test_val  INT;
+3> BEGIN TRY
+4>   -- 导致一个 除零错误
+5>   SET @test_val = 1024 / 0;
+6>   PRINT(STR(@test_val));
+7> END TRY
+8> BEGIN CATCH
+9>   PRINT('Exception Happen!');
+10> END CATCH
+11> go
+Exception Happen!
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> DELIMITER //
+mysql> DROP PROCEDURE IF EXISTS TestException //
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE PROCEDURE TestException()
+    -> BEGIN
+    ->
+    ->   -- 错误标志
+    ->   DECLARE error_flag INT;
+    ->
+    ->   -- 定义错误处理
+    ->   -- 如果发生错误，继续处理
+    ->   -- 但是把标志位设置为 1
+    ->   DECLARE CONTINUE HANDLER
+    ->   FOR
+    ->   SQLEXCEPTION SET error_flag=1;
+    ->
+    ->   -- 错误标志，首先设置为正常.
+    ->   SET error_flag = 0;
+    ->
+    ->   -- 主键重复
+    ->   INSERT INTO test_main VALUES(1, 'PK');
+    ->   SELECT error_flag;
+    -> END//
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> call TestException();
+    -> //
++------------+
+| error_flag |
++------------+
+|          1 |
++------------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.00 sec)
+
+
+mysql> DELIMITER //
+mysql> DROP PROCEDURE IF EXISTS TestException //
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CREATE PROCEDURE TestException()
+    -> BEGIN
+    ->
+    ->   -- 错误标志
+    ->   DECLARE error_flag INT;
+    ->
+    ->   -- 定义错误处理
+    ->   -- 如果发生错误，结束处理
+    ->   -- 但是把标志位设置为 1
+    ->   DECLARE EXIT  HANDLER
+    ->   FOR
+    ->   SQLEXCEPTION SET error_flag=1;
+    ->
+    ->   -- 错误标志，首先设置为正常.
+    ->   SET error_flag = 0;
+    ->
+    ->   -- 主键重复
+    ->   INSERT INTO test_main VALUES(1, 'PK');
+    ->   SELECT error_flag;
+    -> END//
+Query OK, 0 rows affected (0.00 sec)
+
+mysql>
+mysql>
+mysql> call TestException();
+    -> //
+Query OK, 0 rows affected (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+CREATE OR REPLACE FUNCTION TestException() RETURNS void AS
+$$
+DECLARE  
+  v_test_val    INT;
+BEGIN
+  -- 导致一个 除零错误.
+  v_test_val := 1024 / 0;
+  
+  EXCEPTION
+    WHEN division_by_zero THEN
+      -- 异常自己处理
+      RAISE NOTICE '捕获到系统发生除零错误！';
+END;
+$$
+LANGUAGE plpgsql;
+
+
+
+Test=# select TestException();
+注意:  捕获到系统发生除零错误！
+ testexception
+---------------
+
+(1 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> XML - value查询 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> XML </h1>
+
+
+<h2> value查询  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT
+2>   xCol.value ('(/book/@genre)[1]', 'varchar(50)'),
+3>   xCol.value ('(/book/title)[1]', 'varchar(50)'),
+4>   xCol.value ('(/book/@ISBN)[1]', 'varchar(50)')
+5> FROM
+6>   docs
+7> go
+
+
+-------------------------------------------------- -----------------------------
+--------------------- --------------------------------------------------
+security                                           Writing Secure Code
+                      0-7356-1588-2
+
+(1 行受影响)
+
+
+1>
+2> BEGIN
+3>   DECLARE @xdoc XML;
+4>   SELECT @xdoc = xCol FROM docs;
+5>
+6>   SELECT
+7>     t.c.value('(title)[1]'     ,'varchar(255)') v
+8>   FROM
+9>     @xdoc.nodes('/book') t(c);
+10> END
+11> go
+v
+
+---------------
+Writing Secure Code
+
+
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

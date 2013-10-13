@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 外键约束 - UPDATE CASCADE方式 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 外键约束 </h1>
+
+
+<h2>  UPDATE CASCADE方式 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+不支持
+
+<pre><code>
+
+SQL> ALTER TABLE test_sub
+  2      ADD CONSTRAINT main_id_cons
+  3        FOREIGN KEY (main_id) REFERENCES test_main 
+  4        ON UPDATE CASCADE;
+      ON UPDATE CASCADE
+         *
+第 4 行出现错误:
+ORA-00905: 缺失关键字
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+不支持
+<pre><code>
+
+db2 => ALTER TABLE test_sub
+db2 (cont.) =>   ADD CONSTRAINT main_id_cons
+db2 (cont.) =>     FOREIGN KEY (main_id)
+db2 (cont.) =>       REFERENCES test_main
+db2 (cont.) =>         ON UPDATE CASCADE;
+DB21034E  该命令被当作 SQL 语句来处理，因为它是无效的“命令行处理器”命令。在
+SQL 处理期间，它返回：
+SQL0104N  在 "ON UPDATE" 后面找到异常标记
+"CASCADE"。预期标记可能包括："RESTRICT, NO ACTION"。  SQLSTATE=42601
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+-- 创建外键(使用 ON UPDATE CASCADE 选项，更新主表的主键时候，同时更新子表外键)
+
+1> ALTER TABLE test_sub
+2>    ADD CONSTRAINT main_id_cons
+3>      FOREIGN KEY (main_id)  REFERENCES  test_main  ON UPDATE CASCADE;
+4> go
+
+-- 测试更新主表数据. 将成功地执行.
+1> UPDATE test_main SET id = 5 where id = 1
+2> go
+
+(1 行受影响)
+
+-- 检查 子表 数据是否被同步更新
+1> select * from test_sub
+2> go
+id          main_id     value
+----------- ----------- ----------
+          1           5 ONEONE
+          2           2 TWOTWO
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> ALTER TABLE test_sub
+    ->   ADD CONSTRAINT main_id_cons
+    ->   FOREIGN KEY (main_id)
+    ->   REFERENCES  test_main(id)
+    ->   ON UPDATE CASCADE;
+    -> //
+Query OK, 1 row affected (0.14 sec)
+Records: 1  Duplicates: 0  Warnings: 0
+
+mysql> UPDATE test_main SET id = 5 where id = 2
+    -> //
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from test_sub//
++----+---------+--------+
+| id | main_id | value  |
++----+---------+--------+
+|  2 |       5 | TWOTWO |
++----+---------+--------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+DROP TABLE test_sub;
+
+CREATE TABLE test_sub (
+  id      INT   PRIMARY KEY,
+  main_id INT   REFERENCES  test_main(id) ON UPDATE  CASCADE,
+  value   VARCHAR(10)
+);
+
+sqlite> INSERT INTO test_sub(id, main_id, value) VALUES (2, 2, 'TWOTWO');
+sqlite> UPDATE test_main SET id = 5 where id = 2;
+sqlite> select * from test_sub;
+2|5|TWOTWO
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# ALTER TABLE test_sub
+Test-#   ADD CONSTRAINT main_id_cons
+Test-#     FOREIGN KEY (main_id) REFERENCES test_main
+Test-#       ON UPDATE CASCADE;
+ALTER TABLE
+Test=#
+Test=# UPDATE test_main SET id = 5 where id = 2;
+UPDATE 1
+
+Test=#
+Test=# SELECT * FROM test_sub;
+ id | main_id | value
+----+---------+--------
+  2 |       5 | TWOTWO
+(1 行记录)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+<p>
+测试完毕后，删除 外键约束 
+ALTER TABLE test_sub DROP CONSTRAINT main_id_cons;
+</p>
+
+<p>
+注：MySQL使用下面这个语句删除外键约束
+ALTER TABLE test_sub DROP FOREIGN KEY  main_id_cons;
+</p>
+
+<p>
+注：SQLite 等下要重建表的， 就不折腾了。
+</p>
+
+
+</body>
+
+
+</html>

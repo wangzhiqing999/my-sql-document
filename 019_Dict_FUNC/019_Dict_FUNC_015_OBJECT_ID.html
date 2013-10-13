@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典类函数 - 返回对象标识  OBJECT_ID  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典类函数 </h1>
+
+
+<h2> 返回对象标识  OBJECT_ID  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+使用 OBJECT_ID 不能查询非架构范围内的对象（如 DDL 触发器）。
+对于在 sys.objects 目录视图中找不到的对象，需要通过查询适当的目录视图来获取该对象的标识号。
+例如，若要返回 DDL 触发器的对象标识号，
+请使用 SELECT OBJECT_ID FROM sys.triggers WHERE name = 'DatabaseTriggerLog'
+
+
+OBJECT_ID ( '[ database_name . [ schema_name ] . | schema_name . ] 
+    object_name' [ ,'object_type' ] )
+ 
+参数
+' object_name '
+要使用的对象。
+object_name 的数据类型为 varchar 或 nvarchar。
+如果 object_name 的数据类型为 varchar，
+则它将隐式转换为 nvarchar。可以选择是否指定数据库和架构名称。
+
+' object_type '
+架构范围的对象类型。
+object_type 的数据类型为 varchar 或 nvarchar。
+如果 object_type 的数据类型为 varchar，
+则它将隐式转换为 nvarchar。有关对象类型的列表，请参阅 sys.objects (Transact-SQL) 中的 type 列。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

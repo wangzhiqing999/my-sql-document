@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 其他函数 - PARSENAME </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 其他函数 </h1>
+
+
+<h2> PARSENAME  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+PARSENAME 
+返回对象名称的指定部分。可以检索的对象部分有对象名、所有者名称、数据库名称和服务器名称。
+
+注意： 
+PARSENAME 函数不指示指定名称的对象是否存在。PARSENAME 仅返回指定对象名称的指定部分。 
+
+
+
+
+
+PARSENAME ( 'object_name' , object_piece )
+
+'object_name'
+要检索其指定部分的对象的名称。object_name 的数据类型为 sysname。
+此参数是可选的限定对象名称。如果对象名称的所有部分都是限定的，
+则此名称可包含四部分：服务器名称、数据库名称、所有者名称以及对象名称。
+
+object_piece 
+要返回的对象部分。object_piece 的数据类型为 int 值，可以为下列值：
+1 = 对象名称
+2 = 架构名称
+3 = 数据库名称
+4 = 服务器名称
+
+
+1> select parsename('A.B.C.D', 1)
+2> go
+----------------------------------------
+----------------------------------------
+D
+
+
+(1 行受影响)
+1> select parsename('A.B.C.D', 2)
+2> go
+----------------------------------------
+----------------------------------------
+C
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

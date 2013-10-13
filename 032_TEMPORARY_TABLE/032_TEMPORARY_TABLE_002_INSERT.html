@@ -1,0 +1,375 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 临时表 - 插入数据-查询   </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 临时表 </h1>
+
+
+<h2> 插入数据-查询  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+对于基于事务的临时表，commit以后，临时表中的数据被清空。
+
+对于基于会话的临时表，断开连接后，临时表中的数据被清空。
+
+SQL> INSERT INTO temp_table_session(id, value) VALUES (1, 'ONE');
+1 row created.
+
+SQL> INSERT INTO temp_table_transaction(id, value) VALUES (1, 'ONE');
+1 row created.
+
+SQL>
+SQL> SELECT COUNT(1) FROM temp_table_session;
+  COUNT(1)
+----------
+         1
+
+SQL> SELECT COUNT(1) FROM temp_table_transaction;
+  COUNT(1)
+----------
+         1
+
+SQL> commit;
+Commit complete.
+
+SQL> SELECT COUNT(1) FROM temp_table_session;
+  COUNT(1)
+----------
+         1
+
+SQL> SELECT COUNT(1) FROM temp_table_transaction;
+  COUNT(1)
+----------
+         0
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+执行本测试以前， 先执行
+
+db2 => update command options using c off;
+DB20000I  UPDATE COMMAND OPTIONS 命令成功完成。
+db2 => list command options;
+
+     命令行处理器选项设置
+
+ 后端进程等待时间（秒）        (DB2BQTIME) = 1
+ 连接至后端的重试次数           (DB2BQTRY) = 60
+ 请求队列等待时间（秒）        (DB2RQTIME) = 5
+ 输入队列等待时间（秒）        (DB2IQTIME) = 5
+ 命令选项                     (DB2OPTIONS) =
+
+  选项   描述                                      当前设置
+ ------  ----------------------------------------  ---------------
+   -a    显示 SQLCA                                OFF
+   -c    自动落实                                  OFF
+
+确保 Auto Commit 已经关闭
+
+否则没法做测试了
+
+
+
+与 Oracle 一样。
+
+对于基于事务的临时表，commit以后，临时表中的数据被清空。
+
+对于基于会话的临时表，断开连接后，临时表中的数据被清空。
+
+
+db2 => INSERT INTO temp_table_session(id, value) VALUES (1, 'ONE');
+DB20000I  SQL 命令成功完成。
+db2 => INSERT INTO temp_table_transaction(id, value) VALUES (1, 'ONE');
+DB20000I  SQL 命令成功完成。
+db2 => SELECT COUNT(1) FROM temp_table_session;
+
+1
+-----------
+          1
+
+  1 条记录已选择。
+
+db2 => SELECT COUNT(1) FROM temp_table_transaction;
+
+1
+-----------
+          1
+
+  1 条记录已选择。
+
+db2 => commit;
+DB20000I  SQL 命令成功完成。
+db2 => SELECT COUNT(1) FROM temp_table_session;
+
+1
+-----------
+          1
+
+  1 条记录已选择。
+
+db2 => SELECT COUNT(1) FROM temp_table_transaction;
+
+1
+-----------
+          0
+
+  1 条记录已选择。
+
+db2 =>
+   
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+对于本地临时表，只能当前会话能检索到数据。其他会话无法检索。
+
+对于全局临时表，其他会话也能检索到这个表的数据。
+
+
+1> INSERT INTO #temp_table_local(id, value) VALUES (1, 'ONE');
+2> INSERT INTO ##temp_table_global(id, value) VALUES (1, 'ONE');
+3> go
+
+(1 行受影响)
+
+1> SELECT COUNT(1) FROM #temp_table_local;
+2> SELECT COUNT(1) FROM ##temp_table_global;
+3> go
+
+-----------
+          1
+
+(1 行受影响)
+
+-----------
+          1
+
+(1 行受影响)
+
+
+另外一个会话
+C:\Documents and Settings\wzq>sqlcmd -S "localhost\SQLEXPRESS"
+1> use stock
+2> go
+已将数据库上下文更改为 'Stock'。
+1> SELECT COUNT(1) FROM ##temp_table_global;
+2> go
+
+-----------
+          1
+
+(1 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+MySQL的临时表。登出后，自动被删除掉
+
+
+mysql> INSERT INTO temp_table(id, value) VALUES (1, 'ONE') //
+Query OK, 1 row affected (0.02 sec)
+
+mysql> select * from temp_table//
++------+-------+
+| id   | value |
++------+-------+
+|    1 | ONE   |
++------+-------+
+1 row in set (0.00 sec)
+
+mysql> exit
+Bye
+
+C:\Documents and Settings\wzq>mysql -u root -p
+Enter password: ********
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 2
+Server version: 5.1.50-community MySQL Community Server (GPL)
+
+Copyright (c) 2000, 2010, Oracle and/or its affiliates. All rights reserved.
+This software comes with ABSOLUTELY NO WARRANTY. This is free software,
+and you are welcome to modify and redistribute it under the GPL v2 license
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> use test
+Database changed
+mysql> select * from temp_table;
+ERROR 1146 (42S02): Table 'test.temp_table' doesn't exist
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+sqlite> INSERT INTO temp_table(id, value) VALUES (1, 'ONE');
+sqlite>  select * from temp_table;
+id|value
+1|ONE
+sqlite> .exit
+
+E:\SQLite\SQLite\Debug>sqlite test.db
+SQLite version 3.7.15 2012-12-12 13:36:53
+Enter ".help" for instructions
+Enter SQL statements terminated with a ";"
+sqlite>  select * from temp_table;
+Error: no such table: temp_table
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+  
+  
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+对于基于事务的临时表，commit以后，临时表中的数据被清空。
+
+对于基于会话的临时表，断开连接后，临时表中的数据被清空。
+
+
+
+Test=# INSERT INTO temp_table_session(id, value) VALUES (1, 'ONE');
+INSERT 0 1
+Test=# INSERT INTO temp_table_transaction(id, value) VALUES (1, 'ONE');
+INSERT 0 1
+
+Test=# SELECT COUNT(1) FROM temp_table_session;
+ count
+-------
+     1
+(1 行记录)
+
+
+Test=# SELECT COUNT(1) FROM temp_table_transaction;
+ count
+-------
+     0
+(1 行记录)
+
+
+<hr/>
+-- 使用手动的事务处理：
+
+Test=# BEGIN;
+BEGIN
+Test=# INSERT INTO temp_table_session(id, value) VALUES (2, 'TWO');
+INSERT 0 1
+Test=# INSERT INTO temp_table_transaction(id, value) VALUES (2, 'TWO');
+INSERT 0 1
+Test=# SELECT COUNT(1) FROM temp_table_session;
+ count
+-------
+     2
+(1 行记录)
+
+
+Test=# SELECT COUNT(1) FROM temp_table_transaction;
+ count
+-------
+     1
+(1 行记录)
+
+
+Test=# COMMIT;
+COMMIT
+Test=# SELECT COUNT(1) FROM temp_table_session;
+ count
+-------
+     2
+(1 行记录)
+
+
+Test=# SELECT COUNT(1) FROM temp_table_transaction;
+ count
+-------
+     0
+(1 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

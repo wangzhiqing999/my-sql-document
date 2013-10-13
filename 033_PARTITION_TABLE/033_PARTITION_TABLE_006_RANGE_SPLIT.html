@@ -1,0 +1,207 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 分区表 - RANGE分区-分区的拆分  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 分区表 </h1>
+
+
+<h2> RANGE分区-分区的拆分  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+下面的SQL，将 p2010Q1 分区，拆分为 P2009 与 P2010 两个分区
+
+SQL> ALTER TABLE sale_data 
+  2    SPLIT PARTITION P2010Q1 AT(TO_DATE('2010-01-01','YYYY-MM-DD')) 
+  3      INTO (PARTITION P2009,PARTITION P2010);
+表已更改。
+
+核对结果
+SQL> SELECT
+  2    partition_name, high_value
+  3  FROM
+  4    user_tab_partitions
+  5  WHERE
+  6    table_name = 'SALE_DATA';
+
+PARTITION_NAME
+------------------------------
+HIGH_VALUE
+--------------------------------------------------------------------------------
+P2009
+TO_DATE(' 2010-01-01 00:00:00', 'SYYYY-MM-DD HH24:MI:SS', 'NLS_CALENDAR=GREGORIA
+
+P2010
+TO_DATE(' 2010-04-01 00:00:00', 'SYYYY-MM-DD HH24:MI:SS', 'NLS_CALENDAR=GREGORIA
+
+P2010Q2
+TO_DATE(' 2010-07-01 00:00:00', 'SYYYY-MM-DD HH24:MI:SS', 'NLS_CALENDAR=GREGORIA
+
+
+PARTITION_NAME
+------------------------------
+HIGH_VALUE
+--------------------------------------------------------------------------------
+P2010Q3
+TO_DATE(' 2010-10-01 00:00:00', 'SYYYY-MM-DD HH24:MI:SS', 'NLS_CALENDAR=GREGORIA
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+分区的拆分
+== 等价于 分区的新增的操作。
+
+-- 为 分区架构 新增分区，指定存放位置。
+alter partition scheme sale_date_part_sche next used [primary]
+go
+
+alter partition function sale_date_part_func()
+split range( CONVERT(DATETIME, '2010-02-01 00:00:00', 120) )
+go
+
+
+--核对
+SELECT 
+  pf.[name],
+  pf.[function_id],
+  pf.[type],
+  pf.[type_desc],
+  pv.[value]
+FROM 
+  [sys].[partition_functions] pf 
+    JOIN [sys].[partition_range_values] pv
+      ON(pf.function_id = pv.function_id)
+WHERE
+  pf.[name] = 'sale_date_part_func'
+
+
+name	function_id	type	type_desc	value
+sale_date_part_func	65536	R 	RANGE	2010-01-01 00:00:00.000
+sale_date_part_func	65536	R 	RANGE	2010-02-01 00:00:00.000
+sale_date_part_func	65536	R 	RANGE	2010-04-01 00:00:00.000
+sale_date_part_func	65536	R 	RANGE	2010-07-01 00:00:00.000
+
+
+
+-- 查看分区表 sale_data 每个分区的数据分布情况
+select partition = $partition.sale_date_part_func(sale_date)
+      ,rows      = count(*)
+      ,minval    = min(sale_date)
+      ,maxval    = max(sale_date)
+  from dbo.sale_data
+ group by $partition.sale_date_part_func(sale_date)
+ order by partition
+go
+
+
+partition	rows	minval	maxval
+2	3	2010-01-01 10:00:00.000	2010-01-21 10:00:00.000
+3	6	2010-02-01 10:00:00.000	2010-03-21 10:00:00.000
+5	3	2010-09-01 10:00:00.000	2010-09-21 10:00:00.000
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+下面的SQL，将 p2010Q1 分区，拆分为 s2009 与 s2010 两个分区
+mysql> ALTER TABLE sale_data REORGANIZE PARTITION p2010Q1 INTO (
+    ->     PARTITION s2009 VALUES LESS THAN (201001),
+    ->     PARTITION s2010 VALUES LESS THAN (201004)
+    -> );
+Query OK, 0 rows affected (0.36 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+核对结果
+mysql> SHOW CREATE TABLE sale_data\G
+*************************** 1. row ***************************
+       Table: sale_data
+Create Table: CREATE TABLE `sale_data` (
+  `sale_date` datetime NOT NULL,
+  `sale_item` varchar(2) NOT NULL,
+  `sale_money` decimal(10,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+/*!50100 PARTITION BY RANGE (YEAR(sale_date)*100+MONTH(sale_date))
+(PARTITION s2009 VALUES LESS THAN (201001) ENGINE = InnoDB,
+ PARTITION s2010 VALUES LESS THAN (201004) ENGINE = InnoDB,
+ PARTITION p2010Q2 VALUES LESS THAN (201007) ENGINE = InnoDB,
+ PARTITION p2010Q3 VALUES LESS THAN (201010) ENGINE = InnoDB) */
+1 row in set (0.02 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

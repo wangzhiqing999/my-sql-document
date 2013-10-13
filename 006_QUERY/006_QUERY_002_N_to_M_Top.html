@@ -1,0 +1,271 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 前面N条到N+M条（使用TOP方案） </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> 前面N条到N+M条（使用TOP方案）  </h2>
+
+要求 查询 SALE_REPORT 表中，每日销售金额(SALE_MONEY)合计最大的10条数据，要求按从大到小，取第11条到第20条。（无视 SALE_ITEM 字段）
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+SELECT
+  top20.*
+FROM
+  (
+  SELECT
+    SALE_DATE,
+    SUM(SALE_MONEY) AS SUM_MONEY
+  FROM
+    SALE_REPORT
+  GROUP BY
+    SALE_DATE
+  ORDER BY
+    SALE_DATE DESC
+  fetch first 20 rows only
+  ) AS top20
+ORDER BY
+  top20.SALE_DATE ASC
+fetch first 10 rows only;
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SELECT
+  TOP 10
+  top20.*
+FROM
+  (
+  SELECT
+    TOP 20
+    SALE_DATE,
+    SUM(SALE_MONEY) AS SUM_MONEY
+  FROM
+    SALE_REPORT
+  GROUP BY
+    SALE_DATE
+  ORDER BY
+    SALE_DATE DESC
+  ) AS top20
+ORDER BY
+  top20.SALE_DATE ASC
+
+
+
+SQL Server 2012 新特性：
+
+ORDER BY 子句中
+
+OFFSET { integer_constant | offset_row_count_expression } { ROW | ROWS }
+[
+  FETCH { FIRST | NEXT } {integer_constant | fetch_row_count_expression } { ROW | ROWS } ONLY
+]
+
+FIRST 和 NEXT 是同义词，是为了与 ANSI 兼容而提供的。
+ROW 和 ROWS 是同义词，是为了与 ANSI 兼容而提供的。
+
+OFFSET ：指定开始从查询表达式返回行之前跳过的行数。 该值可以是大于或等于零的整数常量或表达式。
+FETCH ：指定在处理 OFFSET 子句后返回的行数。 该值可以是大于或等于 1 的整数常量或表达式。
+
+
+
+
+SELECT
+	SALE_DATE,
+	SUM(SALE_MONEY) AS SUM_MONEY
+FROM
+	SALE_REPORT
+GROUP BY
+    SALE_DATE
+ORDER BY
+	SALE_DATE DESC
+OFFSET
+	10 ROWS
+FETCH NEXT 10 ROWS ONLY;
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+SELECT
+  SALE_DATE,
+  SUM(SALE_MONEY) AS SUM_MONEY
+FROM
+  SALE_REPORT
+GROUP BY
+  SALE_DATE
+ORDER BY
+  SUM(SALE_MONEY) DESC
+LIMIT 10, 10
+
+
+
+<hr/>
+这个是参考 SQL Server 的 Top 20 里面，查询 Top 10 的写法。
+仅仅用于测试 可行性。
+没有使用的必要。
+
+SELECT
+  top20.*
+FROM
+  (
+  SELECT
+    SALE_DATE,
+    SUM(SALE_MONEY) AS SUM_MONEY
+  FROM
+    SALE_REPORT
+  GROUP BY
+    SALE_DATE
+  ORDER BY
+    SALE_DATE DESC
+  LIMIT 20
+  ) AS top20
+ORDER BY
+  top20.SALE_DATE ASC
+LIMIT 10;
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+SELECT
+  SALE_DATE,
+  SUM(SALE_MONEY) AS SUM_MONEY
+FROM
+  SALE_REPORT
+GROUP BY
+  SALE_DATE
+ORDER BY
+  SUM(SALE_MONEY) DESC
+LIMIT 2, 2;
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+SELECT
+  SALE_DATE,
+  SUM(SALE_MONEY) AS SUM_MONEY
+FROM
+  SALE_REPORT
+GROUP BY
+  SALE_DATE
+ORDER BY
+  SUM(SALE_MONEY) DESC
+LIMIT 10 OFFSET 10;
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+
+
+> db.SALE_REPORT.find().limit(3).skip(3)
+{ "_id" : ObjectId("52401bccc3093463b4f17eaa"), "SALE_DATE" : ISODate("2009-04-15T00:00:00Z"), "SALE_ITEM" : "A", "SALE_MONEY" : 4 }
+{ "_id" : ObjectId("52401bccc3093463b4f17eab"), "SALE_DATE" : ISODate("2009-05-15T00:00:00Z"), "SALE_ITEM" : "A", "SALE_MONEY" : 5 }
+{ "_id" : ObjectId("52401bccc3093463b4f17eac"), "SALE_DATE" : ISODate("2009-05-16T00:00:00Z"), "SALE_ITEM" : "A", "SALE_MONEY" : 6 }
+
+
+> db.SALE_REPORT.find().limit(3).skip(6)
+{ "_id" : ObjectId("52401bccc3093463b4f17ead"), "SALE_DATE" : ISODate("2009-01-15T00:00:00Z"), "SALE_ITEM" : "B", "SALE_MONEY" : 11 }
+{ "_id" : ObjectId("52401bccc3093463b4f17eae"), "SALE_DATE" : ISODate("2009-02-15T00:00:00Z"), "SALE_ITEM" : "B", "SALE_MONEY" : 12 }
+{ "_id" : ObjectId("52401bccc3093463b4f17eaf"), "SALE_DATE" : ISODate("2009-03-15T00:00:00Z"), "SALE_ITEM" : "B", "SALE_MONEY" : 13 }
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 游标处理 - BULK COLLECT使用 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 游标处理 </h1>
+
+
+<h2>  BULK COLLECT使用  </h2>
+
+
+本章节内容仅仅适用于 Oracle 数据库.
+
+BULK COLLECT在数据量很大的时候，能够显著提升性能。
+
+这里仅仅是语法上的演示。
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> SELECT INTO </td>
+    <td>
+<pre><code>
+
+SQL> DECLARE
+  2    TYPE test_value_type IS TABLE OF test_main.value%TYPE;
+  3    test_data test_value_type;
+  4  BEGIN
+  5    SELECT 
+  6      value
+  7      BULK COLLECT INTO test_data
+  8    FROM
+  9      test_main;
+ 10    FOR i IN 1..test_data.count
+ 11    LOOP
+ 12      dbms_output.put_line(test_data(i));
+ 13    END LOOP;
+ 14  END;
+ 15  /
+ONE
+TWO
+THREE
+
+PL/SQL 过程已成功完成。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> FETCH INTO </td>
+    <td>
+	
+LIMIT 后面的数字，意味着每一批加载多少数据。
+
+<pre><code>
+
+SQL> DECLARE
+  2    -- 定义类型.
+  3    TYPE test_type IS TABLE OF test_main%ROWTYPE;
+  4    test_data test_type;
+  5    -- 定义游标.
+  6    CURSOR c_test_main IS
+  7      SELECT id, value FROM test_main;
+  8  BEGIN
+  9    -- 打开游标.
+ 10    OPEN c_test_main;
+ 11    -- 开始循环
+ 12    LOOP
+ 13      -- 填充数据 批量填充，每次读取2条.
+ 14      FETCH c_test_main
+ 15        BULK COLLECT INTO test_data LIMIT 2;
+ 16  
+ 17      -- 调试输出.
+ 18      FOR i IN 1..test_data.count
+ 19      LOOP
+ 20        dbms_output.put_line(test_data(i).value);
+ 21      END LOOP;
+ 22  
+ 23      -- 当没有数据的时候，退出。
+ 24      EXIT WHEN c_test_main%NOTFOUND;
+ 25      
+ 26    END LOOP;
+ 27    -- 关闭游标.
+ 28    CLOSE c_test_main;
+ 29  END;
+ 30  /
+ONE
+TWO
+THREE
+
+PL/SQL 过程已成功完成。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> RETURNING INTO </td>
+    <td>
+<pre><code>
+
+SQL> CREATE TABLE test_main2 AS SELECT * FROM test_main;
+表已创建。
+SQL> DECLARE
+  2    -- 定义类型
+  3    TYPE test_id_type IS TABLE OF test_main2.id%TYPE;
+  4    test_id_data test_id_type;
+  5    -- 定义类型
+  6    TYPE test_value_type IS TABLE OF test_main2.value%TYPE;
+  7    test_value_data test_value_type;
+  8  BEGIN
+  9    -- 删除数据.
+ 10    DELETE FROM 
+ 11      test_main2
+ 12    RETURNING id, value
+ 13      BULK COLLECT INTO test_id_data, test_value_data;
+ 14    -- 提示删除的记录数.
+ 15    DBMS_OUTPUT.put_line ('Deleted ' || SQL%ROWCOUNT || ' rows:');
+ 16    -- 调试输出.
+ 17    FOR i IN test_id_data.FIRST..test_id_data.LAST
+ 18    LOOP
+ 19      dbms_output.put_line(test_value_data(i));
+ 20    END LOOP;
+ 21  END;
+ 22  /
+Deleted 3 rows:
+ONE
+TWO
+THREE
+
+PL/SQL 过程已成功完成。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> FORALL</td>
+    <td>
+FORALL
+用于批量插入/更新数据的时候，提升性能。
+
+<pre><code>
+
+SQL> DECLARE
+  2    -- 定义类型
+  3    TYPE test_id_type IS TABLE OF test_main.id%TYPE;
+  4    test_id_data test_id_type;
+  5    -- 定义类型
+  6    TYPE test_value_type IS TABLE OF test_main.value%TYPE;
+  7    test_value_data test_value_type;
+  8  BEGIN
+  9    
+ 10    -- 检索数据.
+ 11    SELECT id, value
+ 12      BULK COLLECT INTO test_id_data, test_value_data
+ 13    FROM
+ 14      test_main;
+ 15  
+ 16    -- 调试输出.
+ 17    FOR i IN 1..test_id_data.COUNT
+ 18    LOOP
+ 19      dbms_output.put_line(test_value_data(i));
+ 20    END LOOP;
+ 21    
+ 22    -- FORALL 插入
+ 23    FORALL i IN test_id_data.FIRST..test_id_data.LAST
+ 24      INSERT INTO test_main2 (id, value)
+ 25      VALUES ( test_id_data(i), test_value_data(i) );
+ 26    
+ 27  END;
+ 28  /
+ONE
+TWO
+THREE
+
+PL/SQL 过程已成功完成。
+
+SQL> select * from test_main2;
+
+        ID VALUE
+---------- ----------
+         1 ONE
+         2 TWO
+         3 THREE
+         1 ONE
+         2 TWO
+         3 THREE
+
+已选择6行。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td>  </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

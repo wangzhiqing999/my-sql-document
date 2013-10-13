@@ -1,0 +1,214 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - 修改表 - Check两列比较 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 修改表 - Check两列比较 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+ALTER TABLE test_tab_check
+  ADD CONSTRAINT test_tab_check_comp
+	CHECK (age > id);
+
+SQL> INSERT INTO test_tab_check (id, age) VALUES(2, 1);
+INSERT INTO test_tab_check (id, age) VALUES(2, 1)
+*
+ERROR 位于第 1 行:
+ORA-02290: 违反检查约束条件 (TEST.TEST_TAB_CHECK_COMP)
+
+
+SQL> INSERT INTO test_tab_check (id, age) VALUES(1, 2);
+
+已创建 1 行。
+
+
+
+<hr/>
+
+
+CREATE TABLE test_chk_case_when (
+  id   int,
+  name varchar(10),
+  sex  varchar(4),
+  age  int
+);
+
+
+-- 男生年龄小于23岁，女生年龄小于21岁。
+ALTER TABLE test_chk_case_when
+  ADD CONSTRAINT chk_test_sex_age
+	CHECK (
+	  CASE WHEN sex='男' AND age<23 THEN 1
+	       WHEN sex='女' AND age<21 THEN 1
+		   ELSE 0 END = 1
+	);
+
+
+SQL> INSERT INTO test_chk_case_when VALUES(1, '张三', '男', 22);
+已创建 1 行。
+
+
+SQL> INSERT INTO test_chk_case_when VALUES(2, '李四', '男', 23);
+INSERT INTO test_chk_case_when VALUES(2, '李四', '男', 23)
+*
+ERROR 位于第 1 行:
+ORA-02290: 违反检查约束条件 (TEST.CHK_TEST_SEX_AGE)
+
+
+
+SQL> INSERT INTO test_chk_case_when VALUES(3, '王五', '女', 20);
+已创建 1 行。
+
+
+SQL> INSERT INTO test_chk_case_when VALUES(4, '赵六', '女', 21);
+INSERT INTO test_chk_case_when VALUES(4, '赵六', '女', 21)
+*
+ERROR 位于第 1 行:
+ORA-02290: 违反检查约束条件 (TEST.CHK_TEST_SEX_AGE)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+ALTER TABLE test_tab_check
+  ADD CONSTRAINT test_tab_check_comp
+	CHECK (age > id);
+
+db2 => INSERT INTO test_tab_check (id, age) VALUES(2, 1);
+DB21034E  该命令被当作 SQL 语句来处理，因为它是无效的“命令行处理器”命令。在SQL 处理期间，它返回：
+SQL0545N  因为行不满足检查约束
+"TEST.TEST_TAB_CHECK.TEST_TAB_CHECK_COMP"，所以不允许所请求的操作。
+SQLSTATE=23513
+
+db2 => INSERT INTO test_tab_check (id, age) VALUES(1, 2);
+DB20000I  SQL 命令成功完成。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+ALTER TABLE test_tab_check
+  ADD CONSTRAINT test_tab_check_comp
+	CHECK (age > id);
+
+1> INSERT INTO test_tab_check (id, age) VALUES(2, 1);
+2> go
+消息 547，级别 16，状态 1，服务器 EDWARDPC\SQLEXPRESS，第 1 行
+INSERT 语句与 CHECK 约束"test_tab_check_comp"冲突。该冲突发生于数据库"test"，表"dbo.test_tab_check"。
+语句已终止。
+
+1> INSERT INTO test_tab_check (id, age) VALUES(1, 2);
+2> go
+
+(1 行受影响)
+
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# ALTER TABLE test_tab_check
+Test-#   ADD CONSTRAINT test_tab_check_comp
+Test-#  CHECK (age > id);
+ALTER TABLE
+
+Test=# INSERT INTO test_tab_check (id, age) VALUES(2, 1);
+错误:  关系 "test_tab_check" 的新列违反了检查约束 "test_tab_check_comp"
+描述:  失败, 行包含(2, null, null, 1, null).
+
+Test=# INSERT INTO test_tab_check (id, age) VALUES(1, 2);
+INSERT 0 1
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - 修改表 - 新增其他约束 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 修改表 - 新增其他约束 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> ALTER TABLE test_tab
+  2    ADD CONSTRAINT test_tab_age_check
+  3      CHECK (age &gt; 0 AND age &lt;   150);
+
+Table altered.
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => ALTER TABLE test_tab
+db2 (cont.) =>   ADD CONSTRAINT test_tab_age_check
+db2 (cont.) =>     CHECK (age &gt; 0 AND age &lt;   150);
+DB20000I  SQL 命令成功完成。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> ALTER TABLE test_tab
+2>   ADD CONSTRAINT test_tab_age_check CHECK (age &gt; 0 AND age &lt;   150);
+3> go
+
+1> ALTER TABLE test_tab
+2>   ADD CONSTRAINT
+3>      DF_test_tab_sex DEFAULT '男' FOR sex;
+4> go
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> ALTER TABLE test_tab
+    ->   ADD CONSTRAINT test_tab_age_check
+    ->     CHECK (age &gt; 0 AND age &lt; 150);
+    -> //
+Query OK, 0 rows affected (0.05 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+注：语法有效，但是目前的版本，没有实际的功能。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+不支持
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# ALTER TABLE test_tab
+Test-#   ADD CONSTRAINT test_tab_age_check
+Test-#     CHECK (age &gt; 0 AND age &lt; 150);
+ALTER TABLE
+Test=#
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

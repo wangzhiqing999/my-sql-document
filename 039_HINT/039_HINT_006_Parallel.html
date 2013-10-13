@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 提示 Hint - Parallel提示   </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 提示 Hint </h1>
+
+
+<h2>  Parallel提示 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+PARALLEL提示
+用于全表扫描的时候，并行处理
+必须和 FULL 一起使用，否则会被忽略
+
+SELECT /*+ FULL(hr_emp) PARALLEL(hr_emp, 5) */ last_name
+  FROM employees hr_emp;
+
+SELECT /*+ FULL(hr_emp) PARALLEL(hr_emp, DEFAULT) */ last_name
+  FROM employees hr_emp;
+
+NO_PARALLEL 提示
+不并行处理 （表比较小的时候）
+SELECT /*+ NO_PARALLEL(hr_emp) */ last_name
+  FROM employees hr_emp;
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+MAXDOP number
+对指定了 sp_configure 的 max degree of parallelism 配置选项的查询覆盖该选项。
+MAXDOP 查询提示可以超出用 sp_configure 配置的值。
+
+当使用 MAXDOP 查询提示时，所有和 max degree of parallelism 配置选项一起使用的语义规则均适用。
+有关详细信息，请参阅max degree of parallelism 选项。
+
+
+当 SQL Server 2005 在具有多个微处理器或 CPU 的计算机上运行时，它将为每个并行计划执行检测最佳并行度（即运行一个语句所使用的处理器数）。
+您可以使用 max degree of parallelism 选项来限制并行计划执行时所用的处理器数。
+如果默认值为 0，则使用所有可用的处理器。
+将 max degree of parallelism 设置为 1 以取消生成并行计划。
+将该值设置为大于 1 的数字（最大为 64）来限制执行单个查询时所用的最大处理器数。
+如果指定的值比可用的处理器数大，则使用实际可用数量的处理器。
+如果计算机只有一个处理器，则将忽略 max degree of parallelism 值。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

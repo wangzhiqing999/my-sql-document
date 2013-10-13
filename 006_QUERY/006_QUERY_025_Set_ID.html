@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 批量设置连续ID </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2>  批量设置连续ID  </h2>
+
+
+
+<pre><code>
+
+假设某个表， 新增了一列， 该列数据全部是 null.
+
+该列不是主键。且不允许使用数据库特有的  自增列的属性来设置
+（因为可能其它的列已经有自增了）
+
+现在需要批量更新这一列， 使得数字的顺序， 从某个指定的数值开始，依次递增下去.
+
+
+CREATE TABLE test_AA (
+	id  INT,
+	val varchar(6)
+);
+
+
+INSERT INTO test_AA VALUES(null,  'A');
+INSERT INTO test_AA VALUES(null,  'B');
+INSERT INTO test_AA VALUES(null,  'C');
+INSERT INTO test_AA VALUES(null,  'D');
+INSERT INTO test_AA VALUES(null,  'E');
+
+
+
+</code></pre>
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+
+SQL> SELECT * FROM test_AA;
+
+        ID VAL
+---------- ------------
+           A
+           B
+           C
+           D
+           E
+
+SQL> update test_aa set id = rownum;
+
+已更新5行。
+
+SQL> select * from test_aa;
+
+        ID VAL
+---------- ------------
+         1 A
+         2 B
+         3 C
+         4 D
+         5 E
+
+SQL> 
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+SELECT * FROM test_AA;
++------+------+
+| id   | val  |
++------+------+
+| NULL | A    |
+| NULL | B    |
+| NULL | C    |
+| NULL | D    |
+| NULL | E    |
++------+------+
+5 rows in set (0.00 sec)
+
+
+-- 假设 id 从 101 开始.
+SET @rownum = 100;
+UPDATE 
+  test_AA
+SET
+  id = (@rownum := @rownum + 1);
+
+mysql> SELECT * FROM test_AA;
++------+------+
+| id   | val  |
++------+------+
+|  101 | A    |
+|  102 | B    |
+|  103 | C    |
+|  104 | D    |
+|  105 | E    |
++------+------+
+5 rows in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

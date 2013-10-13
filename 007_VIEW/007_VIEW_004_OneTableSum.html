@@ -1,0 +1,408 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 视图 - 单表统计视图 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 视图 </h1>
+
+
+<h2>  单表统计视图 </h2>
+
+目标：测试 通过触发器实现“可更新视图”
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+通过 
+INSTEAD OF
+关键字
+实现视图的触发器
+
+<pre><code>
+
+
+SQL> CREATE VIEW
+  2    v_sale_report_sum
+  3  AS
+  4  SELECT
+  5    sale_item,
+  6    SUM(sale_money) AS sale_money
+  7  FROM
+  8    sale_report
+  9  GROUP BY
+ 10    sale_item;
+
+View created.
+
+SQL> SELECT * FROM v_sale_report_sum;
+
+SALE SALE_MONEY
+---- ----------
+A        733285
+B          2382
+C          5738
+X             1
+
+SQL> DELETE FROM v_sale_report_sum WHERE sale_item = 'X';
+DELETE FROM v_sale_report_sum WHERE sale_item = 'X'
+            *
+ERROR at line 1:
+ORA-01732: data manipulation operation not legal on this view
+
+SQL> CREATE OR REPLACE TRIGGER v_sale_report_trigger
+  2  INSTEAD OF
+  3  DELETE ON v_sale_report_sum
+  4  FOR EACH ROW
+  5  BEGIN
+  6    DELETE FROM sale_report WHERE sale_item = :old.sale_item;
+  7  END;
+  8  /
+
+Trigger created.
+
+SQL> DELETE FROM v_sale_report_sum WHERE sale_item = 'X';
+
+1 row deleted.
+
+SQL> SELECT * FROM v_sale_report_sum;
+
+SALE SALE_MONEY
+---- ----------
+A        733285
+B          2382
+C          5738
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => CREATE VIEW
+db2 (cont.) =>   v_sale_report_sum
+db2 (cont.) => AS
+db2 (cont.) => SELECT
+db2 (cont.) =>   sale_item,
+db2 (cont.) =>   SUM(sale_money) AS sale_money
+db2 (cont.) => FROM
+db2 (cont.) =>   sale_report
+db2 (cont.) => GROUP BY
+db2 (cont.) =>   sale_item;
+DB20000I  SQL 命令成功完成。
+
+db2 =>  SELECT * FROM v_sale_report_sum;
+
+SALE_ITEM SALE_MONEY
+--------- ---------------------------------
+A                                 733285.00
+B                                   2382.00
+C                                   5738.00
+X                                      2.00
+
+3	条记录已选择。
+
+db2 => DELETE FROM v_sale_report_sum WHERE sale_item = 'X';
+DB21034E  该命令被当作 SQL 语句来处理，因为它是无效的“命令行处理器”命令。在
+SQL 处理期间，它返回：
+SQL0150N  INSERT、DELETE、UPDATE、MERGE 或 TRUNCATE
+语句中的目标全查询、视图、类型表、具体化查询表、范围集群表或者登台表是不允许对其
+
+执行所请求的操作的目标。  SQLSTATE=42807
+
+db2 => CREATE TRIGGER v_sale_report_trigger \
+db2 (cont.) => INSTEAD OF \
+db2 (cont.) => DELETE ON v_sale_report_sum \
+db2 (cont.) => REFERENCING OLD AS O \
+db2 (cont.) => FOR EACH ROW MODE DB2SQL \
+db2 (cont.) => BEGIN ATOMIC \
+db2 (cont.) =>   DELETE FROM sale_report WHERE sale_item = O.sale_item; \
+db2 (cont.) => END
+DB20000I  SQL 命令成功完成。
+
+db2 => DELETE FROM v_sale_report_sum WHERE sale_item = 'X';
+DB20000I  SQL 命令成功完成。
+
+db2 => SELECT * FROM v_sale_report_sum;
+
+SALE_ITEM SALE_MONEY
+--------- ---------------------------------
+A                                 733285.00
+B                                   2382.00
+C                                   5738.00
+
+  3 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+通过 
+INSTEAD OF
+关键字
+实现视图的触发器
+
+<pre><code>
+
+1> CREATE VIEW
+2>   v_sale_report_sum
+3> AS
+4> SELECT
+5>   sale_item,
+6>   SUM(sale_money) AS sale_money
+7> FROM
+8>   sale_report
+9> GROUP BY
+10>   sale_item;
+11> go
+
+1> SELECT * FROM v_sale_report_sum;
+2> go
+sale_item sale_money
+--------- ----------------------------------------
+A                                        733285.00
+X                                             1.00
+C                                          5738.00
+B                                          2382.00
+
+(4 行受影响)
+
+1> DELETE FROM v_sale_report_sum WHERE sale_item = 'X';
+2> go
+消息 4403，级别 16，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+无法更新视图或函数 "v_sale_report_sum"，因为它包含聚合或 DISTINCT 子句。
+
+1> CREATE TRIGGER v_sale_report_trigger
+2> ON v_sale_report_sum
+3> INSTEAD OF DELETE
+4> AS
+5> DECLARE
+6>   @DeleteItem  VARCHAR(10)
+7> BEGIN
+8>   SELECT @DeleteItem=sale_item FROM deleted;
+9>   DELETE FROM
+10>     sale_report
+11>   WHERE
+12>     sale_item = @DeleteItem;
+13> END;
+14> go
+
+1> DELETE FROM v_sale_report_sum WHERE sale_item = 'X';
+2> go
+
+(1 行受影响)
+
+1> SELECT * FROM v_sale_report_sum;
+2> go
+sale_item sale_money
+--------- ----------------------------------------
+A                                        733285.00
+C                                          5738.00
+B                                          2382.00
+
+(3 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> CREATE VIEW
+    ->   v_sale_report_sum
+    -> AS
+    -> SELECT
+    ->   sale_item,
+    ->   SUM(sale_money) AS sale_money
+    -> FROM
+    ->   sale_report
+    -> GROUP BY
+    ->   sale_item;
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> SELECT * FROM v_sale_report_sum;
++-----------+------------+
+| sale_item | sale_money |
++-----------+------------+
+| A         |  733285.00 |
+| B         |    2382.00 |
+| C         |    5738.00 |
+| X         |       2.00 |
++-----------+------------+
+4 rows in set (0.00 sec)
+
+
+MySQL触发器 好像不支持 INSTEAD OF 。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+INSERT INTO sale_report (
+  sale_date, sale_item, sale_money
+) VALUES (
+  '2012-01-02 09:06:18', 'X', 1
+);
+
+
+
+CREATE VIEW
+  v_sale_report_sum
+AS
+SELECT
+  sale_item,
+  SUM(sale_money) AS sale_money
+FROM
+  sale_report
+GROUP BY
+  sale_item;
+
+
+
+
+CREATE TRIGGER v_sale_report_trigger
+INSTEAD OF
+DELETE ON v_sale_report_sum
+FOR EACH ROW
+BEGIN
+  DELETE FROM sale_report WHERE sale_item = old.sale_item;
+END;
+
+
+sqlite> select * from v_sale_report_sum;
+SALE_ITEM|sale_money
+A|21
+B|81
+X|1
+
+sqlite> DELETE FROM v_sale_report_sum WHERE sale_item = 'X';
+sqlite> select * from v_sale_report_sum;
+SALE_ITEM|sale_money
+A|21
+B|81
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# CREATE VIEW
+Test-#   v_sale_report_sum
+Test-# AS
+Test-# SELECT
+Test-#   sale_item,
+Test-#   SUM(sale_money) AS sale_money
+Test-# FROM
+Test-#   sale_report
+Test-# GROUP BY
+Test-#   sale_item;
+CREATE VIEW
+Test=#
+Test=#
+Test=#
+Test=# SELECT * FROM v_sale_report_sum;
+ sale_item | sale_money
+-----------+------------
+ C         |   22981.00
+ B         |    9530.00
+ A         | 2937342.00
+ X         |       1.00
+(4 行记录)
+
+
+Test=# DELETE FROM v_sale_report_sum WHERE sale_item = 'X';
+错误:  无法删除视图"v_sale_report_sum"
+提示:  你需要一个无条件的 ON DELETE DO INSTEAD 规则或者INSTEAD OF DELETE触发器.
+Test=#
+
+
+通过定义一个 PostgreSQL 中的 “规则”， 来实现， 
+当删除 v_sale_report_sum 视图中数据的时候， 
+实际去完成删除 SALE_REPORT 表的数据。
+
+CREATE RULE  rule_del_v_sale_report_sum AS 
+	ON DELETE TO v_sale_report_sum  
+	DO INSTEAD 
+      DELETE FROM sale_report WHERE sale_item = OLD.sale_item;
+
+
+Test=# DELETE FROM v_sale_report_sum WHERE sale_item = 'X';
+DELETE 1
+Test=#
+
+
+Test=# SELECT * FROM v_sale_report WHERE sale_item = 'X';
+ sale_date | sale_item | sale_money
+-----------+-----------+------------
+(0 行记录)
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

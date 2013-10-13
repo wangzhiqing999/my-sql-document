@@ -1,0 +1,351 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 事务处理 - 数据锁定检测 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 事务处理 </h1>
+
+
+<h2>  数据锁定检测.  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+会话1：
+
+SQL> select * from test_main;
+
+        ID VALUE
+---------- --------------------
+         1 ONE
+         2 TWO
+         5 FIVE
+         3 THREE
+         4 Four
+
+SQL> UPDATE test_main SET value = 'Five-5' WHERE id = 5;
+
+已更新 1 行。
+
+
+
+
+会话2：
+SQL> select * from test_main;
+
+        ID VALUE
+---------- --------------------
+         1 ONE
+         2 TWO
+         5 FIVE
+         3 THREE
+         4 Four
+
+SQL> UPDATE test_main SET value ='THREE-3' WHERE id = 3;
+
+已更新 1 行。
+
+
+
+会话1：
+SQL> UPDATE test_main SET value ='THREE-5' WHERE id = 3;
+由于 id=3 的行，已经被会话2修改，并锁定，因此会话1当前进入等待状态。
+
+
+
+
+
+
+
+会话3
+
+SELECT
+  lo.OBJECT_ID    AS  "被锁定对象ID",
+  ao.object_name  AS  "被锁定对象",
+  lo.SESSION_ID   AS  "会话ID",
+  s.serial#		  AS  "会话流水",
+  s.LOCKWAIT      AS  "等待地址",
+  s.STATUS        AS  "会话状态",
+  lo.ORACLE_USERNAME  AS  "数据库用户名",
+  lo.OS_USER_NAME   AS  "操作系统用户名",
+  lo.LOCKED_MODE  AS  "锁定模式"
+FROM
+  V$LOCKED_OBJECT  lo
+    JOIN  all_objects ao
+    ON (lo.object_id  = ao.object_id)
+  JOIN  V$SESSION  s
+    ON (lo.PROCESS  =  s.PROCESS);
+
+
+
+被锁定对象ID	被锁定对象	会话ID	会话流水	等待地址	会话状态	数据库用户名	操作系统用户名	锁定模式
+15070	TEST_MAIN	29	260	70E0167C	ACTIVE	TEST	Edward	3
+15070	TEST_MAIN	27	37		INACTIVE	TEST	Edward	3
+
+
+
+会话2：
+
+SQL> select userenv('sid') from dual;
+
+USERENV('SID')
+--------------
+            27
+
+SQL> rollback;
+
+回退已完成。
+
+
+
+
+
+
+
+
+会话3
+
+SELECT
+  lo.OBJECT_ID    AS  "被锁定对象ID",
+  ao.object_name  AS  "被锁定对象",
+  lo.SESSION_ID   AS  "会话ID",
+  s.serial#		  AS  "会话流水",
+  s.LOCKWAIT      AS  "等待地址",
+  s.STATUS        AS  "会话状态",
+  lo.ORACLE_USERNAME  AS  "数据库用户名",
+  lo.OS_USER_NAME   AS  "操作系统用户名",
+  lo.LOCKED_MODE  AS  "锁定模式"
+FROM
+  V$LOCKED_OBJECT  lo
+    JOIN  all_objects ao
+    ON (lo.object_id  = ao.object_id)
+  JOIN  V$SESSION  s
+    ON (lo.PROCESS  =  s.PROCESS);
+
+
+被锁定对象ID	被锁定对象	会话ID	会话流水	等待地址	会话状态	数据库用户名	操作系统用户名	锁定模式
+15070	TEST_MAIN	29	260		INACTIVE	TEST	Edward	3
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+
+会话1：
+
+mysql> select * from test_main;
++----+---------+
+| id | value   |
++----+---------+
+|  1 | ONE     |
+|  2 | TWO     |
+|  3 | THREE-3 |
+|  4 | FOUR-4  |
+|  6 | SIX     |
++----+---------+
+5 rows in set (0.00 sec)
+
+
+
+mysql> START TRANSACTION;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> UPDATE test_main SET value = 'FOUR-4' WHERE id = 4;
+Query OK, 0 rows affected (0.00 sec)
+Rows matched: 1  Changed: 0  Warnings: 0
+
+
+会话2：
+
+mysql>  START TRANSACTION;
+Query OK, 0 rows affected (0.00 sec)
+
+
+mysql> UPDATE test_main SET value ='THREE-3' WHERE id = 3;
+Query OK, 0 rows affected (0.00 sec)
+Rows matched: 1  Changed: 0  Warnings: 0
+
+
+会话1：
+UPDATE test_main SET value ='THREE-5' WHERE id = 3;
+
+因为会话2 已经锁定了 id=3 的这行数据，
+因此， 当前会话暂时不能更新被锁定行， 进入锁定等待状态......
+
+
+
+
+
+
+
+会话3：
+
+通过下面的查询， 来查询当前数据库， 有哪些事务，都锁定哪些资源。
+
+SELECT
+	trx_id AS  `事务ID`,
+	trx_state AS `事务状态`,
+	trx_requested_lock_id  AS  `事务需要等待的资源`,
+	trx_wait_started	AS  `事务开始等待时间`,
+	trx_tables_in_use AS `事务使用表`,
+	trx_tables_locked AS `事务拥有锁`,
+	trx_rows_locked  AS `事务锁定行`,
+	trx_rows_modified  AS `事务更改行`
+FROM
+	information_schema.innodb_trx ;
+
+
++--------+-----------+--------------------+---------------------+------------+--
+----------+------------+------------+
+| 事务ID | 事务状态  | 事务需要等待的资源 | 事务开始等待时间    | 事务使用表 |
+事务拥有锁 | 事务锁定行 | 事务更改行 |
++--------+-----------+--------------------+---------------------+------------+--
+----------+------------+------------+
+| B09    | LOCK WAIT | B09:0:453:12       | 2013-01-31 15:51:00 |          1 |
+        1 |          2 |          1 |
+| B07    | RUNNING   | NULL               | NULL                |          0 |
+        0 |          2 |          1 |
++--------+-----------+--------------------+---------------------+------------+--
+----------+------------+------------+
+2 rows in set (0.00 sec)
+
+
+
+SELECT
+	lock_id			AS	`锁ID`,
+	lock_trx_id 	AS	`拥有锁的事务ID`,
+	lock_mode 		AS	`锁模式	`,
+	lock_type 		AS	`锁类型`,
+	lock_table 		AS	`被锁的表`,
+	lock_index 		AS	`被锁的索引`,
+	lock_space 		AS	`被锁的表空间号`,
+	lock_page 		AS	`被锁的页号`,
+	lock_rec 		AS	`被锁的记录号`,
+	lock_data 		AS	`被锁的数据`
+FROM
+	information_schema.innodb_locks;
+
+
+
++--------------+----------------+---------+--------+--------------------+-------
+-----+----------------+------------+--------------+------------+
+| 锁ID         | 拥有锁的事务ID | 锁模式         | 锁类型 | 被锁的表           |
+ 被锁的索引 | 被锁的表空间号 | 被锁的页号 | 被锁的记录号 | 被锁的数据 |
++--------------+----------------+---------+--------+--------------------+-------
+-----+----------------+------------+--------------+------------+
+| B09:0:453:12 | B09            | X       | RECORD | `test`.`test_main` | `PRIMA
+RY`  |              0 |        453 |           12 | 3          |
+| B07:0:453:12 | B07            | X       | RECORD | `test`.`test_main` | `PRIMA
+RY`  |              0 |        453 |           12 | 3          |
++--------------+----------------+---------+--------+--------------------+-------
+-----+----------------+------------+--------------+------------+
+2 rows in set (0.00 sec)
+
+
+
+
+SELECT
+  requesting_trx_id   AS  `请求锁的事务ID`,
+  requested_lock_id   AS  `请求锁的锁ID`,
+  blocking_trx_id     AS  `当前拥有锁的事务ID`,
+  blocking_lock_id    AS  `当前拥有锁的锁ID`
+FROM
+  innodb_lock_waits;
+
+
+
++----------------+--------------+--------------------+------------------+
+| 请求锁的事务ID | 请求锁的锁ID | 当前拥有锁的事务ID | 当前拥有锁的锁ID |
++----------------+--------------+--------------------+------------------+
+| B09            | B09:0:453:12 | B07                | B07:0:453:12     |
++----------------+--------------+--------------------+------------------+
+1 row in set (0.00 sec)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

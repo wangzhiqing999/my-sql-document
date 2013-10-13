@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典类函数 - 获取架构名称 SCHEMA_NAME  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典类函数 </h1>
+
+
+<h2>  获取架构名称 SCHEMA_NAME </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SCHEMA_NAME ( [ schema_id ] )
+schema_id
+ 架构的 ID。schema_id 的数据类型为 int。如果没有定义 schema_id，
+ 则 SCHEMA_NAME 将返回调用方的默认架构的名称。 
+
+1> SELECT SCHEMA_NAME(), SCHEMA_NAME(5), SCHEMA_NAME(6)
+2> go
+------------------------------
+dbo         Work        Report
+
+
+
+<hr/>
+
+
+如果需要查询 当前数据库所有用户的默认的 SCHEMA.
+
+select 
+  name,
+  default_schema_name
+from 
+  sys.database_principals;
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+Test=# select current_schema();
+ current_schema
+----------------
+ public
+(1 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

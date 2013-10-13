@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 其他函数 - IP地址转换处理 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 其他函数 </h1>
+
+
+<h2> IP地址转换处理  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+CREATE FUNCTION GetIPv4FromInt32(
+@IntVal  INT
+)
+RETURNS VARCHAR(15)
+AS
+BEGIN
+  RETURN
+    CAST(
+      CASE
+        WHEN (@IntVal & -16777216)/16777216 >=0
+          THEN (@IntVal & -16777216)/16777216
+        ELSE
+          256 + (@IntVal & -16777216)/16777216
+        END
+      as varchar(3)) + '.' +
+    CAST( (@IntVal & 16711680)/65536  as varchar(3)) + '.' +
+    CAST( (@IntVal & 65280)/256  as varchar(3)) + '.' +
+    CAST( (@IntVal & 255)        as varchar(3));
+END
+GO
+
+
+CREATE FUNCTION GetInt32FromIPv4(
+@ipv4  VARCHAR(15)
+)
+RETURNS INT
+AS
+BEGIN
+  -- 此函数不检查 ip 地址有效性.
+  DECLARE 
+    @ipPart1 INT,
+    @ipPart2 INT,
+    @ipPart3 INT,
+    @ipPart4 INT,
+    @ipFrom  INT,
+    @ipTo    INT;
+  SET @ipFrom = 1;
+  SET @ipTo = CHARINDEX('.', @ipv4);
+  SET @ipPart1 = SUBSTRING(@ipv4 , @ipFrom, @ipTo-@ipFrom);
+  
+  SET @ipFrom = @ipTo + 1 ;
+  SET @ipTo = CHARINDEX('.', @ipv4, @ipFrom) ;
+  SET @ipPart2 = SUBSTRING(@ipv4 , @ipFrom, @ipTo-@ipFrom);
+  
+  SET @ipFrom = @ipTo + 1;
+  SET @ipTo = CHARINDEX('.', @ipv4, @ipFrom) ;
+  SET @ipPart3 = SUBSTRING(@ipv4 , @ipFrom, @ipTo-@ipFrom);
+  
+  SET @ipFrom = @ipTo + 1;
+  SET @ipPart4 = SUBSTRING(@ipv4 , @ipFrom, LEN(@ipv4) - @ipFrom + 1);
+
+  RETURN
+    CASE
+      WHEN @ipPart1 &lt;= 127 THEN @ipPart1
+      ELSE (@ipPart1 - 256)
+    END * 16777216
+    + @ipPart2 * 65536
+    + @ipPart3 * 256
+    + @ipPart4;
+END
+GO
+
+SELECT dbo.GetInt32FromIPv4('192.168.1.102')
+-----------
+-1062731418
+
+(1 行受影响)
+
+
+SELECT dbo.GetIPv4FromInt32(-1062731418);
+---------------
+192.168.1.102
+
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

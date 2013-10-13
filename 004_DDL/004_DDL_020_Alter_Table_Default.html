@@ -1,0 +1,325 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - 修改表 - 修改列的默认值 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 修改表 - 修改列的默认值 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> ALTER TABLE test_tab
+  2    MODIFY sex DEFAULT '男';
+
+表已更改。
+
+
+<hr/>
+
+测试 时间列的默认值为 “当前时间” 的情况。
+
+
+CREATE TABLE test_tab_dt (
+  test_id  int,
+  test_date  date
+);
+
+
+ALTER TABLE test_tab_dt
+  MODIFY test_date DEFAULT SYSDATE;
+  
+INSERT INTO test_tab_dt(test_id) VALUES(1);
+
+ALTER session SET nls_date_format='yyyy-mm-dd hh24:mi:ss';
+
+SELECT * FROM test_tab_dt;
+
+
+   TEST_ID TEST_DATE
+---------- -------------------
+         1 2013-05-18 20:16:28
+
+
+测试结果： 使用 SYSDATE 作为默认值，满足预期。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => ALTER TABLE TEST_TAB
+db2 (cont.) =>   ALTER COLUMN SEX
+db2 (cont.) =>     SET WITH DEFAULT '男' ;
+DB20000I  SQL 命令成功完成。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+通过新增约束来处理
+<pre><code>
+
+1> ALTER TABLE test_tab
+2>   ADD CONSTRAINT
+3>      DF_test_tab_sex DEFAULT '男' FOR sex;
+4> go
+
+
+<hr/>
+
+测试 时间列的默认值为 “当前时间” 的情况。
+
+CREATE TABLE test_tab_dt (
+  test_id  int,
+  test_date  datetime
+);
+GO
+
+ALTER TABLE test_tab_dt
+  ADD CONSTRAINT
+     DF_test_tab_dt DEFAULT GETDATE() FOR test_date;
+go
+
+INSERT INTO test_tab_dt(test_id) VALUES(1);
+go
+
+SELECT * FROM test_tab_dt;
+go
+
+
+test_id     test_date
+----------- -----------------------
+          1 2013-05-18 18:24:17.390
+
+(1 行受影响)
+
+
+测试结果： 使用 GETDATE() 作为默认值，满足预期。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+通过MODIFY COLUMN来处理
+<pre><code>
+
+mysql> ALTER TABLE test_tab
+    ->   MODIFY COLUMN sex  VARCHAR(2) DEFAULT '男';
+Query OK, 0 rows affected (0.06 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+
+
+<hr/>
+
+注意：
+MySQL 中，默认值无法使用函数
+也就是你无法 设置某一列，默认值是 NOW ()  这样的处理
+
+假如需要 某列的默认值为 当前数据库时间，那么可以使用 TIMESTAMP 数据类型。插入的时候，忽略该列 即可。
+
+dt TIMESTAMP 
+等价于
+dt TIMESTAMP  default CURRENT_TIMESTAMP  ON UPDATE CURRENT_TIMESTAMP
+
+create table testB ( 
+  id   int PRIMARY KEY,
+  val  varchar(10),
+  dt TIMESTAMP 
+);
+
+INSERT INTO testB(id, val) VALUES(1, 'A');
+INSERT INTO testB(id, val) VALUES(2, 'B');
+
+SELECT 
+  *
+FROM
+  testB;
++----+------+---------------------+
+| id | val  | dt                  |
++----+------+---------------------+
+|  1 | A    | 2013-03-21 14:24:20 |
+|  2 | B    | 2013-03-21 14:24:21 |
++----+------+---------------------+
+2 rows in set (0.00 sec)
+
+
+UPDATE 
+  testB
+SET
+  val = 'C'
+WHERE
+  id = 1;
+
+SELECT 
+  *
+FROM
+  testB;
+
++----+------+---------------------+
+| id | val  | dt                  |
++----+------+---------------------+
+|  1 | C    | 2013-03-21 14:28:02 |
+|  2 | B    | 2013-03-21 14:24:21 |
++----+------+---------------------+
+2 rows in set (0.00 sec)
+
+
+
+<hr/>
+
+假如仅仅需要 插入时记录时间， 更新的时候不需要， 那么需要修改表定义方式：
+TIMESTAMP  not null  default CURRENT_TIMESTAMP 
+
+create table testC ( 
+  id   int PRIMARY KEY,
+  val  varchar(10),
+  dt TIMESTAMP  not null  default CURRENT_TIMESTAMP 
+);
+
+INSERT INTO testC(id, val) VALUES(1, 'A');
+INSERT INTO testC(id, val) VALUES(2, 'B');
+
+SELECT 
+  *
+FROM
+  testC;
+
++----+------+---------------------+
+| id | val  | dt                  |
++----+------+---------------------+
+|  1 | A    | 2013-03-21 14:35:12 |
+|  2 | B    | 2013-03-21 14:35:13 |
++----+------+---------------------+
+2 rows in set (0.00 sec)
+
+
+UPDATE 
+  testC
+SET
+  val = 'CC'
+WHERE
+  id = 1;
+
+SELECT 
+  *
+FROM
+  testC;
+
++----+------+---------------------+
+| id | val  | dt                  |
++----+------+---------------------+
+|  1 | CC   | 2013-03-21 14:35:12 |
+|  2 | B    | 2013-03-21 14:35:13 |
++----+------+---------------------+
+2 rows in set (0.00 sec)
+
+
+
+<hr/>
+
+对于 datetime 数据类型， 可以使用 DEFAULT CURRENT_TIMESTAMP
+
+
+mysql> CREATE TABLE test (
+    ->   id  int,
+    ->   test_date  datetime  DEFAULT CURRENT_TIMESTAMP
+    -> );
+Query OK, 0 rows affected (0.06 sec)
+
+mysql> insert into test(id) values(1);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select * from test;
++------+---------------------+
+| id   | test_date           |
++------+---------------------+
+|    1 | 2013-08-06 13:39:57 |
++------+---------------------+
+1 row in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+不支持
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# ALTER TABLE test_tab
+Test-#   ALTER COLUMN  sex SET DEFAULT '男';
+ALTER TABLE
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

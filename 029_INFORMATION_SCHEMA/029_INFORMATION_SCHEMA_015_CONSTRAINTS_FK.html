@@ -1,0 +1,229 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典表 - 约束-外键 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典表 </h1>
+
+
+<h2> 约束-外键 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SELECT
+  USER_CONS_COLUMNS.CONSTRAINT_NAME AS 约束名,
+  USER_CONS_COLUMNS.TABLE_NAME AS 子表名,
+  USER_CONS_COLUMNS.COLUMN_NAME AS 子表列名,
+  USER_CONS_COLUMNS.POSITION AS 位置,
+  USER_INDEXES.TABLE_NAME AS 主表名,
+  USER_IND_COLUMNS.COLUMN_NAME AS 主表列名
+FROM
+  USER_CONSTRAINTS
+    JOIN USER_CONS_COLUMNS
+    ON (USER_CONSTRAINTS.CONSTRAINT_NAME
+        = USER_CONS_COLUMNS.CONSTRAINT_NAME)
+    JOIN USER_INDEXES
+    ON (USER_CONSTRAINTS.R_CONSTRAINT_NAME
+        = USER_INDEXES.INDEX_NAME)
+    JOIN USER_IND_COLUMNS
+    ON (USER_INDEXES.INDEX_NAME = USER_IND_COLUMNS.INDEX_NAME)
+WHERE
+  CONSTRAINT_TYPE = 'R';
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+SELECT
+  CONSTNAME   AS  "外键约束名称",
+  TABNAME     AS  "子表名",
+  FK_COLNAMES AS  "子表中外键列",
+  REFKEYNAME  AS  "参照的KEY名称",
+  REFTABNAME  AS  "参照的主表名称",
+  PK_COLNAMES AS  "参照的主表的列",
+  DELETERULE  AS  "删除规则",
+  UPDATERULE  AS  "更新规则"
+FROM
+  SYSCAT.REFERENCES
+WHERE
+  TABNAME = 'TEST_SUB';
+
+查询结果：
+MAIN_ID_CONS	TEST_SUB	 MAIN_ID            	SQL130226182812740	TEST_MAIN	 ID                 	A	A
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+select 
+  oSub.name  AS  [子表名称],
+  fk.name AS  [外键名称],
+  SubCol.name AS [子表列名],
+  oMain.name  AS  [主表名称],
+  MainCol.name AS [主表列名]
+from 
+  sys.foreign_keys fk  
+    JOIN sys.all_objects oSub  
+        ON (fk.parent_object_id = oSub.object_id)
+    JOIN sys.all_objects oMain 
+        ON (fk.referenced_object_id = oMain.object_id)
+    JOIN sys.foreign_key_columns fkCols 
+        ON (fk.object_id = fkCols.constraint_object_id)
+    JOIN sys.columns SubCol 
+        ON (oSub.object_id = SubCol.object_id  
+            AND fkCols.parent_column_id = SubCol.column_id)
+    JOIN sys.columns MainCol 
+        ON (oMain.object_id = MainCol.object_id  
+            AND fkCols.referenced_column_id = MainCol.column_id)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT
+    ->   t.TABLE_NAME,
+    ->   c.CONSTRAINT_NAME AS `外键名`,
+    ->   c.COLUMN_NAME AS `子表列名`,
+    ->   c.REFERENCED_TABLE_NAME AS `主表`,
+    ->   c.REFERENCED_COLUMN_NAME AS `主表列名`
+    -> FROM
+    ->   INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS t,
+    ->   INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS c
+    -> WHERE
+    ->   t.TABLE_NAME = c.TABLE_NAME
+    ->   AND t.TABLE_SCHEMA = 'test'
+    ->   AND t.CONSTRAINT_TYPE = 'FOREIGN KEY'
+    ->   AND c.REFERENCED_TABLE_NAME IS NOT NULL ;
++------------+--------------+----------+-----------+----------+
+| TABLE_NAME | 外键名       | 子表列名 | 主表      | 主表列名 |
++------------+--------------+----------+-----------+----------+
+| test_sub   | main_id_cons | main_id  | test_main | id       |
++------------+--------------+----------+-----------+----------+
+1 row in set (0.05 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+SELECT
+  pg_constraint.conname AS "外键名",
+  tab.relname AS "子表名称",
+  MainTab.relname AS "主表名称",
+  pg_constraint.confupdtype  AS  "更新级联操作",
+  pg_constraint.confdeltype  AS  "删除级联操作"
+FROM
+  pg_constraint
+    JOIN pg_class tab
+	  ON ( pg_constraint.conrelid = tab.oid )
+	JOIN pg_class MainTab
+	  ON ( pg_constraint.confrelid = MainTab.oid )
+WHERE
+  pg_constraint.contype = 'f'
+  AND pg_constraint.connamespace = (SELECT pg_namespace.oid FROM pg_namespace WHERE nspname = 'public');
+
+
+    外键名     |     子表名称     |    主表名称     | 更新级联操作 | 删除级联操作
+---------------+------------------+-----------------+--------------+--------------
+ main_id_cons2 | test_sub2        | test_main2      | a            | a
+ main_id_cons  | test_sub         | test_main       | a            | a
+ fk_main_class | test_sub_student | test_main_class | d            | a
+(3 行记录)
+
+
+
+注：
+pg_constraint.contype
+  c = check constraint, 
+  f = foreign key constraint, 
+  p = primary key constraint, 
+  u = unique constraint, 
+  t = constraint trigger, 
+  x = exclusion constraint
+
+
+关于
+pg_constraint.confupdtype 与 pg_constraint.confdeltype：
+a = no action, r = restrict, c = cascade, n = set null, d = set default
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

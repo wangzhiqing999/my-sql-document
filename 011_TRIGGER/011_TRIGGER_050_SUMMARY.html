@@ -1,0 +1,221 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 触发器 - 小结 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 触发器 </h1>
+
+
+<h2>  小结 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+触发器有2种
+一种语句级别的
+一种行级的 FOR EACH ROW
+
+有 BEFORE 有 AFTER
+行级取得 操作数据 的是通过  :old  :new
+BEFORE 的时候， 可以通过 :new.xxx 来修改数据。
+
+对于 INSERT OR UPDATE OR DELETE 的
+通过 INSERTING UPDATING DELETING 进行判断。
+
+通过 OF 字段 ON 表 实现只针对特定列的触发。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+触发器有2种
+一种语句级别的 for each statement
+一种行级的 FOR EACH ROW
+
+有 BEFORE 有 AFTER
+取得 操作数据 的是通过  old  new
+
+对于 语句级的 触发器
+取得 操作数据 的是通过  OLD_TABLE  NEW_TABLE
+
+对于 old / new / old_table / new_table
+需要通过
+REFERENCING OLD AS O NEW AS N
+以及
+REFERENCING NEW_TABLE AS inserted
+这样的方式，来定义使用。
+
+通过 OF 字段 ON 表 实现只针对特定列的触发。
+通过 WHEN 实现 特定条件下的触发。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+触发器只有 语句级别的
+只有 AFTER
+取得 操作数据，通过 inserted deleted
+
+编写触发器的时候，要充分考虑 一次更新一条，与一次更新多条的问题。
+避免简单的 SELECT @NewName = name FROM inserted; 代码操作。
+
+对于 FOR INSERT,UPDATE,DELETE 的
+通过 查询 inserted 与 deleted 的记录 来判断
+
+通过COLUMNS_UPDATED 实现在触发以后，判断哪些列被更新了。
+
+
+注意:
+  对于触发器,在测试期间,出于测试/调试的目的,加了PRINT语句。
+  在最终的实施环境，不要写任何的 PRINT 语句。
+  否则可能会出现不可预料的问题。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+触发器只有 FOR EACH ROW 级别的
+
+有 BEFORE 有 AFTER
+取得 操作数据 的是通过  old  new
+BEFORE 的时候， 可以通过 new.xxx 来修改数据。
+
+不支持一个触发器 同时处理 INSERT UPDATE DELETE 触发器
+
+对于具有相同触发程序动作时间和事件的给定表，不能有两个触发程序。
+例如，对于某一表，不能有两个BEFORE UPDATE触发程序。
+但可以有1个BEFORE UPDATE触发程序和1个BEFORE INSERT触发程序，或1个BEFORE UPDATE触发程序和1个AFTER UPDATE触发程序。
+
+
+
+如果多于一个触发器为同样的事件定义在同样的关系上， 触发器将按照由名字的字母顺序排序的顺序触发。
+如果是事件之前触发的触发器，每个触发器返回的可能已经被修改过的行成为下一个触发器的输入。 
+如果任何事件之前触发的触发器返回 NULL 指针， 那么对该行的操作将被丢弃并且随后的触发器不会被触发。
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+触发器好像是只有 FOR EACH ROW 级别的
+
+有 BEFORE 有 AFTER
+取得 操作数据 的是通过  old  new
+AFTER 的时候， 通过 UPDATE 被触发表来更新数据。
+
+
+不支持一个触发器 同时处理 INSERT UPDATE DELETE 触发器
+
+
+通过 OF 字段 ON 表 实现只针对特定列的触发。
+通过 WHEN 实现 特定条件下的触发。
+
+
+触发器还通常分成 before 触发器和 after 触发器。 
+语句级别的 "before" 触发器通常在语句开始做任何事情之前触发， 
+而语句级别的 "after" 触发器在语句的最后触发。 
+
+行级别的 "before" 触发器在对特定行进行操作的时候马上触发， 
+而行级别的 "after" 触发器在语句结束的时候触发（但是在任何语句级别的 "after" 触发器之前）。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+触发器函数必须在创建触发器之前，作为一个没有参数并且返回trigger类型的函数定义。
+一旦创建了一个合适的触发器函数，触发器就用 CREATE TRIGGER 创建。
+同一个触发器函数可以用于多个触发器。
+
+
+一种语句级别的 FOR EACH STATEMENT
+一种行级的 FOR EACH ROW
+
+
+有 BEFORE 有 AFTER
+行级取得 操作数据 的是通过  OLD  NEW
+
+
+对于 INSERT OR UPDATE OR DELETE 的
+通过 TG_OP 的值 进行判断。
+
+
+
+通过 OF 字段 ON 表 实现只针对特定列的触发。
+通过 WHEN 实现 特定条件下的触发。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

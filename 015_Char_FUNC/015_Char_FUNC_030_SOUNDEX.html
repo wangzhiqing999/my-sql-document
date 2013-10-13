@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 字符函数 - 取得发音 SOUNDEX  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 字符函数 </h1>
+
+
+<h2> 取得发音 SOUNDEX  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    SOUNDEX('Hello') A
+  3  FROM
+  4    dual;
+
+A
+--------
+H400
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => SELECT SOUNDEX('Hello') A
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+A
+----
+H400
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT
+2>   SOUNDEX('Hello') A
+3> go
+A
+-----
+H120
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+SOUNDEX(str) 
+从str返回一个soundex字符串。 
+两个具有几乎同样探测的字符串应该具有同样的 soundex 字符串。
+一个标准的soundex 字符串的长度为4个字符，
+然而SOUNDEX() 函数会返回一个人以长度的字符串。 
+可使用结果中的SUBSTRING() 来得到一个标准 soundex 字符串。
+在str中，会忽略所有未按照字母顺序排列的字符。 所有不在A-Z范围之内的国际字母符号被视为元音字母。 
+
+mysql> SELECT SOUNDEX('Hello');
+        -> 'H400'
+mysql> SELECT SOUNDEX('Quadratically');
+        -> 'Q36324'
+
+		
+注意：这个函数执行原始的Soundex算法，而非更加流行的加强版本(如D. Knuth所述)。
+其区别在于原始版本首先会删去元音，其次是重复，而加强版则首先删去重复，而后删去元音。 
+expr1 SOUNDS LIKE expr2 
+这相当于SOUNDEX(expr1) = SOUNDEX(expr2)。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

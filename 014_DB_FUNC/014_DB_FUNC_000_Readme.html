@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库系统自带函数 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库系统自带函数 </h1>
+
+
+<h2>  说明  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SELECT  必须要  FROM 一个表
+单独测试某个函数，不检索表的情况下，需要 FROM dual
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+SELECT  必须要  FROM 一个表
+单独测试某个函数，不检索表的情况下，需要 FROM SYSIBM.SYSDUMMY1
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SELECT  可以不 FROM 一个表
+直接 SELECT 函数()
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+SELECT  可以不 FROM 一个表
+直接 SELECT 函数()
+
+注：MySQL 中，也有一个  dual 表
+用于 下面这种情况
+
+INSERT INTO  test_book1
+  SELECT 5, 'TEST', 'ABC' FROM dual
+  WHERE NOT EXISTS( SELECT 1 FROM test_book1 WHERE id = 5);
+
+因为 如果有  SELECT  和  WHERE  ，但是没有 FROM 的话，SQL报错。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+SELECT  可以不 FROM 一个表
+直接 SELECT 函数()
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+SELECT  可以不 FROM 一个表
+直接 SELECT 函数()
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 字符函数 - 删除前后空格或其它字符 TRIM  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 字符函数 </h1>
+
+
+<h2> 删除前后空格或其它字符 TRIM   </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT TRIM('   Ora   ') A,
+  2         TRIM(LEADING '*' FROM '***Ora***') B,
+  3         TRIM(TRAILING '*' FROM '***Ora***') C,
+  4         TRIM(BOTH '*' FROM '***Ora***') D
+  5  FROM
+  6    dual;
+
+A      B            C            D
+------ ------------ ------------ ------
+Ora    Ora***       ***Ora       Ora
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT TRIM('   Ora   ') A,
+    ->          TRIM(LEADING '*' FROM '***Ora***') B,
+    ->          TRIM(TRAILING '*' FROM '***Ora***') C,
+    ->          TRIM(BOTH '*' FROM '***Ora***') D
+    -> //
++------+--------+--------+------+
+| A    | B      | C      | D    |
++------+--------+--------+------+
+| Ora  | Ora*** | ***Ora | Ora  |
++------+--------+--------+------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+sqlite> SELECT TRIM('   Ora   ') A,
+   ...>        TRIM('***Ora***',  '*') B;
+A|B
+Ora|Ora
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+Test=# SELECT TRIM('   Ora   ') A,
+Test-#   TRIM(LEADING '*' FROM '***Ora***') B,
+Test-#   TRIM(TRAILING '*' FROM '***Ora***') C,
+Test-#   TRIM(BOTH '*' FROM '***Ora***') D;
+  a  |   b    |   c    |  d
+-----+--------+--------+-----
+ Ora | Ora*** | ***Ora | Ora
+(1 行记录)
+
+
+
+
+Test=# SELECT BTRIM('   Ora   ') A,
+Test-#        BTRIM('***Ora***', '*') B,
+Test-#        BTRIM('xyxyzOraxyyx', 'xy') C;
+  a  |  b  |  c
+-----+-----+------
+ Ora | Ora | zOra
+(1 行记录)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

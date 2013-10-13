@@ -1,0 +1,537 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 权限体系结构 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 权限体系结构 </h1>
+
+
+<h2>   </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SQL Server 权限体系结构
+
+SQL Server 中，创建 链接服务器以后，检索一个表，要输入很长的一段
+
+例如 SQL Server 链接 SQL Server
+那么表名结构是
+[链接服务器名称].[数据库名称].[构架名称].[表名]
+
+
+如果是 SQL Server 链接 Oracle
+那么表名结构是
+[链接服务器名称]..[构架名称/用户名].[表名]
+
+
+如果是 SQL Server 链接 Access
+那么表名结构是
+[链接服务器名称]...[表名]
+
+
+如果是 SQL Server 链接 Excel
+那么表名结构是
+[链接服务器名称]...[Sheet名]
+
+
+假如你连接到一个 SQL Server 服务器上。
+如何判断
+[服务器名称].[数据库名称].[构架名称].[表名]
+这4样东西呢？
+
+
+[服务器名称].[数据库名称].[构架名称].[表名]
+
+查询当前连接下，有多少个服务器。
+SELECT
+  *
+FROM
+  sys.servers
+
+注意：上面的SQL语句，把自己这个服务器也检索出来了。
+其中有个 is_linked 字段，表示是不是链接服务器.
+is_linked = 0 的，表示自己这个服务器。
+is_linked = 1 的，表示是链接服务器
+
+
+[服务器名称].[数据库名称].[构架名称].[表名]
+查询 SQL Server 服务器下，有多少个数据库。
+SELECT
+  *
+FROM
+  sys.databases
+
+注意：其中有个 owner_sid .
+有可能是通过 owner_sid = 0x01 的条件，来区分 系统数据库/非系统数据库。
+
+也就是
+SELECT
+  name
+FROM
+  sys.databases
+WHERE
+  owner_sid != 0x01;
+
+name
+--------------------
+Test1
+MyRule
+test
+TestDev
+TestWork
+(5 行受影响)
+
+[服务器名称].[数据库名称].[构架名称].[表名]
+选择好数据库以后，查看数据库的构架
+USE Test1
+GO
+
+SELECT
+  name
+FROM
+  sys.schemas
+WHERE
+  principal_id = 1
+GO
+
+name
+--------------
+dbo
+(1 行受影响)
+
+
+USE Test
+GO
+
+SELECT
+  name
+FROM
+  sys.schemas
+WHERE
+  principal_id = 1
+GO
+
+name
+--------------
+dbo
+Work
+Report
+(3 行受影响)
+
+
+[服务器名称].[数据库名称].[构架名称].[表名]
+查询 指定 构架中的表
+
+-- 查询 Report 构架下的表.
+SELECT
+  t.name
+FROM
+  sys.tables t
+    JOIN sys.schemas s
+      ON (t.schema_id = s.schema_id)
+WHERE
+  s.name = 'Report'
+
+
+name
+---------------
+Report_A
+Report_B
+(2 行受影响)
+
+
+-- 查询 Work 构架下的表.
+SELECT
+  t.name
+FROM
+  sys.tables t
+    JOIN sys.schemas s
+      ON (t.schema_id = s.schema_id)
+WHERE
+  s.name = 'Work'
+
+name
+-------------
+Work_A
+(1 行受影响)
+
+
+
+
+结构如何查询介绍完了。
+
+下面 创建 3个 登陆帐户。
+用于测试
+只能操作指定 表 级别的
+只能操作指定 构架 级别的
+只能操作指定 数据库 级别的
+
+
+CREATE LOGIN table_only
+  WITH  PASSWORD='123',
+        DEFAULT_DATABASE=[Test],
+        DEFAULT_LANGUAGE=[简体中文],
+        CHECK_EXPIRATION=OFF,
+        CHECK_POLICY=OFF;
+
+CREATE LOGIN schema_only
+  WITH  PASSWORD='456',
+        DEFAULT_DATABASE=[Test],
+        DEFAULT_LANGUAGE=[简体中文],
+        CHECK_EXPIRATION=OFF,
+        CHECK_POLICY=OFF;
+
+CREATE LOGIN database_only
+  WITH  PASSWORD='789',
+        DEFAULT_DATABASE=[Test],
+        DEFAULT_LANGUAGE=[简体中文],
+        CHECK_EXPIRATION=OFF,
+        CHECK_POLICY=OFF;
+
+
+下面 创建 3个 数据库用户 与上面的 登陆用户关联。
+CREATE USER [table_only]
+  FOR LOGIN [table_only]
+    WITH DEFAULT_SCHEMA=[Report];
+
+CREATE USER [schema_only]
+  FOR LOGIN [schema_only]
+    WITH DEFAULT_SCHEMA=[Report];
+
+CREATE USER [database_only]
+  FOR LOGIN [database_only]
+    WITH DEFAULT_SCHEMA=[Report];
+
+
+
+要了解可在 SQL Server 中可用的权限数量，可以调用 fn_builtin_permissions 系统函数：
+SELECT * FROM sys.fn_builtin_permissions(default)
+
+
+
+对象级别权限
+-- 查看 对象级别的，可设置的权限。
+SELECT 
+  permission_name 
+FROM 
+  sys.fn_builtin_permissions(default)
+WHERE
+  class_desc = 'Object';
+  
+permission_name
+----------------------
+SELECT
+UPDATE
+REFERENCES
+INSERT
+DELETE
+EXECUTE
+RECEIVE
+VIEW DEFINITION
+ALTER
+TAKE OWNERSHIP
+CONTROL
+(11 行受影响)
+
+
+-- 下面先为 table_only 用户，设置权限
+-- 该用户仅仅能 INSERT, SELECT, UPDATE  Report_A表
+-- 其他事情都不能干.
+GRANT 
+  INSERT, SELECT, UPDATE 
+  ON [Test].[Report].[Report_A]
+  TO table_only;
+
+
+
+构架级别权限
+-- 查看 构架级别的，可设置的权限。
+SELECT 
+  permission_name 
+FROM 
+  sys.fn_builtin_permissions(default)
+WHERE
+  class_desc = 'Schema';
+
+permission_name
+--------------------------
+SELECT
+INSERT
+UPDATE
+DELETE
+REFERENCES
+EXECUTE
+VIEW DEFINITION
+ALTER
+TAKE OWNERSHIP
+CONTROL
+(10 行受影响)
+
+
+-- 下面为 schema_only 用户，设置权限
+-- 该用户仅仅能 INSERT, SELECT, UPDATE  Report 构架下的表
+-- 其他事情都不能干.
+-- 注：执行本语句前，先确定是 USE Test 数据库了
+GRANT 
+  INSERT, SELECT, UPDATE 
+  ON SCHEMA :: [Report]
+  TO schema_only;
+
+
+数据库级别权限
+-- 查看 数据库级别的，可设置的权限。
+SELECT 
+  permission_name 
+FROM 
+  sys.fn_builtin_permissions(default)
+WHERE
+  class_desc = 'Database';
+
+permission_name
+------------------------------------------
+CREATE TABLE
+CREATE VIEW
+CREATE PROCEDURE
+CREATE FUNCTION
+CREATE RULE
+CREATE DEFAULT
+BACKUP DATABASE
+BACKUP LOG
+CREATE DATABASE
+CREATE TYPE
+CREATE ASSEMBLY
+CREATE XML SCHEMA COLLECTION
+CREATE SCHEMA
+CREATE SYNONYM
+CREATE AGGREGATE
+CREATE ROLE
+CREATE MESSAGE TYPE
+CREATE SERVICE
+CREATE CONTRACT
+CREATE REMOTE SERVICE BINDING
+CREATE ROUTE
+CREATE QUEUE
+CREATE SYMMETRIC KEY
+CREATE ASYMMETRIC KEY
+CREATE FULLTEXT CATALOG
+CREATE CERTIFICATE
+CREATE DATABASE DDL EVENT NOTIFICATION
+CONNECT
+CONNECT REPLICATION
+CHECKPOINT
+SUBSCRIBE QUERY NOTIFICATIONS
+AUTHENTICATE
+SHOWPLAN
+ALTER ANY USER
+ALTER ANY ROLE
+ALTER ANY APPLICATION ROLE
+ALTER ANY SCHEMA
+ALTER ANY ASSEMBLY
+ALTER ANY DATASPACE
+ALTER ANY MESSAGE TYPE
+ALTER ANY CONTRACT
+ALTER ANY SERVICE
+ALTER ANY REMOTE SERVICE BINDING
+ALTER ANY ROUTE
+ALTER ANY FULLTEXT CATALOG
+ALTER ANY SYMMETRIC KEY
+ALTER ANY ASYMMETRIC KEY
+ALTER ANY CERTIFICATE
+SELECT
+INSERT
+UPDATE
+DELETE
+REFERENCES
+EXECUTE
+ALTER ANY DATABASE DDL TRIGGER
+ALTER ANY DATABASE EVENT NOTIFICATION
+VIEW DATABASE STATE
+VIEW DEFINITION
+TAKE OWNERSHIP
+ALTER
+CONTROL
+(61 行受影响)
+
+-- 下面为 database_only 用户，设置权限
+-- 该用户仅仅能 INSERT, SELECT, UPDATE  Test 数据库下的表
+-- 其他事情都不能干.
+-- 注：执行本语句前，先确定是 USE Test 数据库了
+GRANT 
+  INSERT, SELECT, UPDATE 
+  TO database_only;
+
+
+
+
+下面开始测试
+
+对象级别的权限测试
+E:\>sqlcmd -S "localhost\SQLEXPRESS" -U table_only -P 123
+1> use test
+2> go
+已将数据库上下文更改为 'test'。
+1> select * FROM report_a;
+2> go
+id          Val
+----------- -----------
+
+(0 行受影响)
+
+1> select * FROM report_b;
+2> go
+消息 229，级别 14，状态 5，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+拒绝了对对象 'Report_B' (数据库 'test'，架构 'Report')的 SELECT 权限。
+
+1> insert into report_a VALUES(100)
+2> go
+(1 行受影响)
+
+1> update report_a SET Val = 200
+2> go
+(1 行受影响)
+
+1> delete report_a
+2> go
+消息 229，级别 14，状态 5，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+拒绝了对对象 'Report_A' (数据库 'test'，架构 'Report')的 DELETE 权限。
+
+
+构架级别的权限测试
+E:\>sqlcmd -S "localhost\SQLEXPRESS" -U schema_only -P 456
+1> use test
+2> go
+已将数据库上下文更改为 'test'。
+1> select * FROM report_a
+2> go
+id          Val
+----------- -----------
+          2         200
+
+(1 行受影响)
+1> select * FROM report_b
+2> go
+id          Val
+----------- -----------
+
+(0 行受影响)
+1> select * FROM Work.work_a
+2> go
+消息 229，级别 14，状态 5，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+拒绝了对对象 'Work_A' (数据库 'test'，架构 'Work')的 SELECT 权限。
+
+
+数据库级别的权限测试
+E:\>sqlcmd -S "localhost\SQLEXPRESS" -U database_only -P 789
+1> go
+1> select * from report_a;
+2> go
+id          Val
+----------- -----------
+          2         200
+
+(1 行受影响)
+1> select * from report_b;
+2> go
+id          Val
+----------- -----------
+
+(0 行受影响)
+1> select * FROM Work.work_a
+2> go
+id          Val
+----------- -----------
+
+(0 行受影响)
+1> select * FROM Test1.dbo.A
+2> go
+消息 916，级别 14，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+服务器主体 "database_only" 无法在当前安全上下文下访问数据库 "Test1"。
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

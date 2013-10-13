@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 字符函数 - 字符替换 REPLACE </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 字符函数 </h1>
+
+
+<h2>  字符替换 REPLACE </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+3参数：
+源字符串
+检索字符串
+替换字符串
+
+参数3默认为’’
+
+
+
+SQL> SELECT
+  2    REPLACE('easy come, easy go, so easy!', 'easy') A,
+  3    REPLACE('easy come, easy go, so easy!', 'easy', 'not easy') B
+  4  FROM
+  5    dual;
+
+A
+--------------------------------
+B
+--------------------------------------------------------------------------------
+
+ come,  go, so !
+not easy come, not easy go, so not easy!
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => SELECT  REPLACE('easy come, easy go!', 'easy', '!')
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+1
+-------------------
+! come, ! go!
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT REPLACE('easy come, easy go!', 'easy', '!')
+2> go
+
+! come, ! go!
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT REPLACE('easy come, easy go!', 'easy', '!')
+    -> //
++---------------------------------------------+
+| REPLACE('easy come, easy go!', 'easy', '!') |
++---------------------------------------------+
+| ! come, ! go!                               |
++---------------------------------------------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+SELECT
+  REPLACE('easy come, easy go, so easy!', 'easy', '!') A,
+  REPLACE('easy come, easy go, so easy!', 'easy', 'not easy') B;
+
+A|B
+! come, ! go, so !!|not easy come, not easy go, so not easy!
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# select REPLACE('easy come, easy go, so easy!', 'easy', 'not easy') A;
+                    a
+------------------------------------------
+ not easy come, not easy go, so not easy!
+(1 行记录)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

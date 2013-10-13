@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 窗口函数 - 移动平均1 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 窗口函数 </h1>
+
+
+<h2> 移动平均1  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+下面是用于计算移动平均的例子
+ROWS 2 PRECEDING 意味着 物理行从当前行-2行开始，到当前行结束。
+
+SELECT
+  student_name,
+  SUM(grade) AS AllGrade,
+  SUM(SUM(grade)) OVER(ORDER BY student_name ROWS 2 PRECEDING) AS "3人移动合计",
+  AVG(SUM(grade)) OVER(ORDER BY student_name ROWS 2 PRECEDING) AS "3人移动平均"
+FROM
+  test_course
+GROUP BY
+  student_name;
+
+STUDENT_NA   ALLGRADE 3人移动合计 3人移动平均
+---------- ---------- ----------- -----------
+丙                145         145         145
+丁                125         270         135
+庚                120         390         130
+己                100         345         115
+甲                185         405         135
+奎                185         470  156.666667
+壬                165         535  178.333333
+戊                105         455  151.666667
+辛                140         410  136.666667
+乙                165         410  136.666667
+
+已选择10行。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+SELECT
+  student_name,
+  SUM(grade) AS AllGrade,
+  SUM(SUM(grade)) OVER(ORDER BY student_name ROWS 2 PRECEDING) AS "3人移动合计",
+  AVG(SUM(grade)) OVER(ORDER BY student_name ROWS 2 PRECEDING) AS "3人移动平均"
+FROM
+  test_course
+GROUP BY
+  student_name;
+
+
+ student_name | allgrade | 3人移动合计 |     3人移动平均
+--------------+----------+-------------+----------------------
+ 丙           |      145 |         145 | 145.0000000000000000
+ 丁           |      125 |         270 | 135.0000000000000000
+ 庚           |      120 |         390 | 130.0000000000000000
+ 己           |      100 |         345 | 115.0000000000000000
+ 甲           |      185 |         405 | 135.0000000000000000
+ 奎           |      185 |         470 | 156.6666666666666667
+ 壬           |      165 |         535 | 178.3333333333333333
+ 戊           |      105 |         455 | 151.6666666666666667
+ 辛           |      140 |         410 | 136.6666666666666667
+ 乙           |      165 |         410 | 136.6666666666666667
+(10 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

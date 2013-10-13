@@ -1,0 +1,279 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - TOP-N  只更新前面N条 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> TOP-N  只更新前面N条 </h2>
+
+
+
+
+<pre><code>
+
+CREATE TABLE testTopN (
+  id  int PRIMARY KEY,
+  val varchar(10)
+);
+
+
+INSERT INTO testTopN VALUES ( 1,  'TEST001' );
+INSERT INTO testTopN VALUES ( 2,  'TEST002' );
+INSERT INTO testTopN VALUES ( 3,  'TEST003' );
+INSERT INTO testTopN VALUES ( 4,  'TEST004' );
+INSERT INTO testTopN VALUES ( 5,  'TEST005' );
+INSERT INTO testTopN VALUES ( 6,  'TEST006' );
+INSERT INTO testTopN VALUES ( 7,  'TEST007' );
+INSERT INTO testTopN VALUES ( 8,  'TEST008' );
+INSERT INTO testTopN VALUES ( 9,  'TEST009' );
+INSERT INTO testTopN VALUES (10,  'TEST010' );
+
+
+
+要求， 把  TEST  替换为  TOP.
+但是仅仅替换 前 3行。
+
+
+</code></pre>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+update 
+  testTopN
+set 
+  val = replace(val, 'TEST', 'TOP')
+WHERE
+  rownum &lt;=3;
+
+
+SQL> update 
+  2    testTopN
+  3  set 
+  4    val = replace(val, 'TEST', 'TOP')
+  5  WHERE
+  6    rownum &lt;=3;
+
+已更新3行。
+
+SQL> select * from testTopN;
+
+        ID VAL
+---------- --------------------
+         1 TOP001
+         2 TOP002
+         3 TOP003
+         4 TEST004
+         5 TEST005
+         6 TEST006
+         7 TEST007
+         8 TEST008
+         9 TEST009
+        10 TEST010
+
+已选择10行。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+ 
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+update 
+  top (3) testTopN
+set 
+  val = replace(val, 'TEST', 'TOP');
+
+(3 行受影响)
+1> select * from testTopN
+2> go
+id          val
+----------- ----------
+          1 TOP001
+          2 TOP002
+          3 TOP003
+          4 TEST004
+          5 TEST005
+          6 TEST006
+          7 TEST007
+          8 TEST008
+          9 TEST009
+         10 TEST010
+
+(10 行受影响)
+
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+	
+
+<pre><code>
+
+
+update 
+  testTopN
+set 
+  val = replace(val, 'TEST', 'TOP')
+LIMIT 3;
+
+
+Query OK, 3 rows affected (0.00 sec)
+Rows matched: 3  Changed: 3  Warnings: 0
+
+mysql> select * from testTopN;
++----+---------+
+| id | val     |
++----+---------+
+|  1 | TOP001  |
+|  2 | TOP002  |
+|  3 | TOP003  |
+|  4 | TEST004 |
+|  5 | TEST005 |
+|  6 | TEST006 |
+|  7 | TEST007 |
+|  8 | TEST008 |
+|  9 | TEST009 |
+| 10 | TEST010 |
++----+---------+
+10 rows in set (0.00 sec)
+
+
+
+
+<hr/>
+
+按逆序更新 id 最大的3个.
+
+update 
+  testTopN
+set 
+  val = replace(val, 'TEST', 'MAX')
+ORDER BY
+  id DESC
+LIMIT 3;
+
+Query OK, 3 rows affected (0.00 sec)
+Rows matched: 3  Changed: 3  Warnings: 0
+
+mysql> select * from testTopN
+    -> ;
++----+---------+
+| id | val     |
++----+---------+
+|  1 | TOP001  |
+|  2 | TOP002  |
+|  3 | TOP003  |
+|  4 | TEST004 |
+|  5 | TEST005 |
+|  6 | TEST006 |
+|  7 | TEST007 |
+|  8 | MAX008  |
+|  9 | MAX009  |
+| 10 | MAX010  |
++----+---------+
+10 rows in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+
+
+
+<pre><code>
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# update
+Test-#   testTopN
+Test-# set
+Test-#   val = replace(val, 'TEST', 'TOP')
+Test-# LIMIT 3;
+错误:  语法错误 在 "LIMIT" 或附近的
+第5行LIMIT 3;
+     ^
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - 创建用户 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 创建用户 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+实际运用时，需要指定默认表空间等信息。
+<pre><code>
+
+CREATE USER test_user PROFILE "DEFAULT"
+    IDENTIFIED BY "qwert"
+    ACCOUNT UNLOCK;
+
+
+ALTER user test_user
+  temporary tablespace TEMP01;
+
+
+
+
+
+比较常用的创建方式：
+
+-- 创建用户.
+-- 同时 指定默认的  正式表空间 与 临时表空间.
+create user TEST_USER_1
+  identified by "test"
+  default tablespace DATA01
+  temporary tablespace TEMP01
+  profile DEFAULT;
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+-- 首先在 SQL Server 服务器级别，创建登陆帐户（create login）
+1> CREATE LOGIN test_user
+2>   WITH  PASSWORD='test',
+3>         DEFAULT_DATABASE=[Stock],
+4>         DEFAULT_LANGUAGE=[简体中文],
+5>         CHECK_EXPIRATION=OFF,
+6>         CHECK_POLICY=OFF
+7> GO
+
+-- 创建数据库用户（create user）
+2> USE [Stock]
+3> GO
+已将数据库上下文更改为 'Stock'。
+1> CREATE USER [test_user] FOR LOGIN [test_user] WITH DEFAULT_SCHEMA=[dbo]
+2> GO
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+-- 创建一个新用户 test_user， 该用户只能在 本机登录。
+mysql> CREATE USER 'test_user'@'localhost' IDENTIFIED BY 'testpassword';
+Query OK, 0 rows affected (0.00 sec)
+
+
+-- 创建一个新用户 test_user， 该用户能在 其他计算机登录到本服务器。
+mysql> CREATE USER 'test_user'@'%' IDENTIFIED BY 'testpassword';
+Query OK, 0 rows affected (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Synopsis
+
+CREATE USER name [ [ WITH ] option [ ... ] ]
+
+这里 option 可以是∶
+
+      SYSID uid
+    | CREATEDB | NOCREATEDB
+    | CREATEUSER | NOCREATEUSER
+    | IN GROUP groupname [, ...]
+    | [ ENCRYPTED | UNENCRYPTED ] PASSWORD 'password'
+    | VALID UNTIL 'abstime'
+
+
+参数
+
+name
+新用户名
+
+uid
+SYSID 子句可以用于选择新用户的 PostgreSQL 用户标识。
+通常这是不必要的，但是如果你想恢复一个孤儿对象的所有者，也许这个很有用。
+如果没有声明这个，缺省使用已分配的最高用户标识加一（最小是 100）。
+
+CREATEDB
+NOCREATEDB
+这个子句定义用户的创建数据库权限。
+如果声明了CREATEDB， 被定义的用户将允许创建其自己的数据库。
+而使用NOCREATEDB将否决该用户的创建数据库的能力。 如果没有声明，缺省是NOCREATEDB。
+
+CREATEUSER
+NOCREATEUSER
+该子句决定一个用户是否能创建一个新的用户。
+CREATEUSER 将把此用户变成数据库超级用户，可以跨越所有访问限制。
+省略这个参数将置用户的这个属性为 NOCREATEUSER。
+
+groupname
+一个组名称，把这个用户设为该组成员。 你可以列出多个组名字。
+
+password
+设置用户的口令，如果你不准备使用口令认证， 那么你可以省略这个选项，但如果你想切换到一个口令认证的服务器，那么该用户将不能联接。
+此口令可以稍后再次设置或者修改，使用 ALTER USER。
+
+ENCRYPTED
+UNENCRYPTED
+ENCRYPTED/UNENCRYPTED 控制口令在数据库中是否以加密形式存储在系统表中。
+（如果两个都没有设置，那么缺省的特性是由配置参数 password_encryption 决定的。）
+如果提供的字串已经是 MD5 加密的格式，那么就照原样存储， 不管声明的是 ENCRYPTED 还是 UNENCRYPTED （因为系统无法解密制定的加密口令字串）。
+这样就允许在转储/恢复的过程中重载加密后的口令。
+
+请注意老的客户端可能缺少 MD5 认证机制，我们需要这个认证机制处理存储为密文的口令。
+
+abstime
+VALID UNTIL（有效期）子句设置一个绝对时间， 过了该时间后用户的口令将不再有效。
+如果省略这个子句，登陆将总是有效的。
+
+
+
+
+Test=# -- 创建一个没有口令的用户：
+Test=# CREATE USER jonathan;
+CREATE ROLE
+Test=#
+Test=# -- 创建一个有口令的用户：
+Test=# CREATE USER davide WITH PASSWORD 'jw8s0F4';
+CREATE ROLE
+Test=#
+Test=# -- 创建一个有口令的用户
+Test=# -- 其帐号在 2014 年底失效。 注意当 2015 年走过一秒后，该帐号将不再有效：
+Test=# CREATE USER miriam WITH PASSWORD 'jw8s0F4' VALID UNTIL '2015-01-01';
+CREATE ROLE
+Test=#
+Test=# -- 创建一个拥有创建数据库权限的用户：
+Test=# CREATE USER manuel WITH PASSWORD 'jw8s0F4' CREATEDB;
+CREATE ROLE
+Test=#
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

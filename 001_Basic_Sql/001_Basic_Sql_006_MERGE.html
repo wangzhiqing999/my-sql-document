@@ -1,0 +1,446 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 基本SQL命令-MERGE 语句 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 基本SQL命令 </h1>
+
+
+<h2> MERGE 语句 </h2>
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+
+Oracle 9i 开始支持 MERGE语句.
+
+Oracle的MERGE 相对于SQL Server 2008 的 MERGE。
+
+功能上，缺少一个 WHEN NOT MATCHED BY SOURCE 的情况。
+
+<pre><code>
+
+-- 源表
+CREATE TABLE test_from (id INT, val VARCHAR(20));
+
+-- 目标表
+CREATE TABLE test_to (id INT, val VARCHAR(20));
+
+-- 插入源表
+INSERT INTO test_from VALUES (1, 'A');
+INSERT INTO test_from VALUES (2, 'B');
+
+-- 合并 源表到目标表
+<span class="KeyInfo">MERGE INTO</span> test_to 
+<span class="KeyInfo">USING</span> test_from
+<span class="KeyInfo">ON</span> ( test_to.id = test_from.id )    -- 条件是 id 相同
+<span class="BasicInfo">WHEN MATCHED THEN UPDATE SET</span> test_to.val = test_from.val   -- 匹配的时候，更新
+<span class="BasicInfo">WHEN NOT MATCHED THEN INSERT VALUES</span>(test_from.id, test_from.val) -- 源表有，目标表没有，插入
+
+
+-- 第一次检查 目标表数据.
+SQL> SELECT * FROM test_to;
+
+        ID VAL
+---------- --------------------
+         1 A
+         2 B
+
+-- 更新源表
+UPDATE test_from SET val = 'A2' WHERE id = 1;
+-- 删除源表
+DELETE FROM test_from WHERE id = 2;
+-- 插入源表
+INSERT INTO test_from VALUES (3, 'C');
+
+
+-- 合并 源表到目标表
+MERGE INTO test_to 
+USING test_from
+ON ( test_to.id = test_from.id )    -- 条件是 id 相同
+WHEN MATCHED THEN UPDATE SET test_to.val = test_from.val   -- 匹配的时候，更新
+WHEN NOT MATCHED THEN INSERT VALUES(test_from.id, test_from.val) -- 源表有，目标表没有，插入
+
+
+-- 再次检查 目标表数据.
+SQL> SELECT * FROM test_to;
+
+        ID VAL
+---------- --------------------
+         1 A2
+         2 B
+         3 C
+
+<hr/>
+
+一种出错的情况。
+
+假如我仅仅想更新  val 等于特定值的情况。
+
+UPDATE test_from SET val = 'A2X' WHERE id = 1;
+
+
+MERGE INTO test_to 
+USING test_from
+ON ( test_to.id = test_from.id 
+     AND test_to.val = 'A2'  )    -- 条件是 id 相同, 并且 val = A2
+WHEN MATCHED THEN UPDATE SET test_to.val = test_from.val   -- 匹配的时候，更新
+
+
+
+执行将报错:
+
+     AND test_to.val = 'A2'  )    -- 条件是 id 相同, 并且 val = A2
+         *
+ERROR 位于第 4 行:
+ORA-38104: 无法更新 ON 子句中引用的列: "TEST_TO"."VAL"
+
+
+这种情况下， 只能用 UPDATE 语句来处理了
+
+UPDATE
+  test_to
+SET
+  val = (SELECT val  FROM test_from WHERE  test_from.id = test_to.id)
+WHERE
+  EXISTS ( SELECT 1 FROM test_from WHERE  test_from.id = test_to.id)
+  AND val = 'A2';
+
+
+已更新 1 行。
+
+SQL> select * from test_to;
+
+        ID VAL
+---------- ----------------------------------------
+         1 A2X
+         2 B
+         3 C
+  
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+本处使用 db2 –t 进入系统。
+
+-- 源表
+db2 => CREATE TABLE test_from (id INT, val VARCHAR(20));
+DB20000I  SQL 命令成功完成。
+
+-- 目标表
+db2 => CREATE TABLE test_to (id INT, val VARCHAR(20));
+DB20000I  SQL 命令成功完成。
+
+-- 插入源表
+db2 => INSERT INTO test_from VALUES (1, 'A');
+DB20000I  SQL 命令成功完成。
+db2 => INSERT INTO test_from VALUES (2, 'B');
+DB20000I  SQL 命令成功完成。
+
+-- 合并 源表到目标表
+<span class="KeyInfo">MERGE INTO</span> test_to 
+<span class="KeyInfo">USING</span> test_from
+<span class="KeyInfo">ON</span> ( test_to.id = test_from.id )    -- 条件是 id 相同
+<span class="BasicInfo">WHEN MATCHED THEN UPDATE SET</span> test_to.val = test_from.val   -- 匹配的时候，更新
+<span class="BasicInfo">WHEN NOT MATCHED THEN INSERT VALUES</span>(test_from.id, test_from.val) -- 源表有，目标表没有，插入
+;
+
+-- 第一次检查 目标表数据.
+db2 =>  SELECT * FROM test_to;
+
+ID          VAL
+----------- --------------------
+          1 A
+          2 B
+
+  2 条记录已选择。
+
+
+db2 => -- 更新源表
+db2 => UPDATE test_from SET val = 'A2' WHERE id = 1;
+DB20000I  SQL 命令成功完成。
+db2 => -- 删除源表
+db2 => DELETE FROM test_from WHERE id = 2;
+DB20000I  SQL 命令成功完成。
+db2 => -- 插入源表
+db2 => INSERT INTO test_from VALUES (3, 'C');
+DB20000I  SQL 命令成功完成。
+
+
+再次执行 merge
+MERGE INTO test_to 
+USING test_from
+ON ( test_to.id = test_from.id )    -- 条件是 id 相同
+WHEN MATCHED THEN UPDATE SET test_to.val = test_from.val   -- 匹配的时候，更新
+WHEN NOT MATCHED THEN INSERT VALUES(test_from.id, test_from.val) -- 源表有，目标表没有，插入
+;
+
+
+db2 => -- 再次检查 目标表数据.
+db2 => SELECT * FROM test_to;
+
+ID          VAL
+----------- --------------------
+          1 A2
+          2 B
+          3 C
+
+  3 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+
+
+SQL Server 2008 开始支持 MERGE语句
+
+
+<pre><code>
+
+-- 源表
+CREATE TABLE test_from (id INT, val VARCHAR(20));
+
+-- 目标表
+CREATE TABLE test_to (id INT, val VARCHAR(20));
+
+-- 插入源表
+INSERT INTO test_from VALUES (1, 'A');
+INSERT INTO test_from VALUES (2, 'B');
+
+-- 合并 源表到目标表
+<span class="KeyInfo">MERGE</span> test_to <span class="KeyInfo">USING</span> test_from
+<span class="KeyInfo">ON</span> ( test_to.id = test_from.id )    -- 条件是 id 相同
+<span class="BasicInfo">WHEN MATCHED THEN UPDATE SET</span> test_to.val = test_from.val   -- 匹配的时候，更新
+<span class="BasicInfo">WHEN NOT MATCHED THEN INSERT VALUES</span>(test_from.id, test_from.val) -- 源表有，目标表没有，插入
+<span class="BasicInfo">WHEN NOT MATCHED BY SOURCE THEN DELETE</span>; -- 目标表有，源表没有，目标表该数据删除.
+
+-- 第一次检查 目标表数据.
+SELECT * FROM test_to;
+
+id          val
+----------- --------------------
+          1 A
+          2 B
+
+
+-- 更新源表
+UPDATE test_from SET val = 'A2' WHERE id = 1;
+-- 删除源表
+DELETE FROM test_from WHERE id = 2;
+-- 插入源表
+INSERT INTO test_from VALUES (3, 'C');
+
+
+-- 合并 源表到目标表
+MERGE test_to USING test_from
+ON ( test_to.id = test_from.id )    -- 条件是 id 相同
+WHEN MATCHED THEN UPDATE SET test_to.val = test_from.val   -- 匹配的时候，更新
+WHEN NOT MATCHED THEN INSERT VALUES(test_from.id, test_from.val) -- 源表有，目标表没有，插入
+WHEN NOT MATCHED BY SOURCE THEN DELETE; -- 目标表有，源表没有，目标表该数据删除.
+
+-- 再次检查 目标表数据.
+SELECT * FROM test_to;
+
+id          val
+----------- --------------------
+          1 A2
+          3 C
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+
+-- 源表
+CREATE TABLE test_from (id INT, val VARCHAR(20));
+
+-- 目标表
+CREATE TABLE test_to (id INT, val VARCHAR(20));
+
+-- 插入源表
+INSERT INTO test_from VALUES (1, 'A');
+INSERT INTO test_from VALUES (2, 'B');
+
+-- 合并 源表到目标表
+<span class="KeyInfo"> replace into </span> test_to (id, val) 
+	select id, val from test_from;
+
+
+-- 第一次检查 目标表数据.
+mysql> SELECT * FROM test_to;
++------+------+
+| id   | val  |
++------+------+
+|    1 | A    |
+|    2 | B    |
++------+------+
+2 rows in set (0.00 sec)
+
+
+-- 更新源表
+UPDATE test_from SET val = 'A2' WHERE id = 1;
+-- 删除源表
+DELETE FROM test_from WHERE id = 2;
+-- 插入源表
+INSERT INTO test_from VALUES (3, 'C');
+
+-- 合并 源表到目标表
+<span class="KeyInfo"> replace into  </span> test_to (id, val) 
+	select id, val from test_from;
+
+-- 再次检查 目标表数据.
+mysql> SELECT * FROM test_to;
++------+------+
+| id   | val  |
++------+------+
+|    1 | A    |
+|    2 | B    |
+|    1 | A2   |
+|    3 | C    |
++------+------+
+4 rows in set (0.00 sec)
+
+
+
+
+
+<hr/>
+
+<h4> 实际例子 </h4>
+
+要求: 将B表的数据更新到A表(sku,data),
+条件是:更新A表item 与B表item 的相同数据
+(特别注意,B表中的item 字段内存在相同数据,例如有可能有几个 1234 的数据,
+当B表中item中出现相同数据时,我只需要获取B表time中最新日期的那一条数据,
+即表数据结构图例中的B表中item 只选取C2的数据. )
+
+
+条件是只更新A表item现有的数据而与B表item同样有的数据，如果A表item没有的就不能添加进去
+
+CREATE TABLE A (
+  id   INT  AUTO_INCREMENT,
+  item varchar(10),
+  sku  varchar(10),
+  data varchar(10),
+  PRIMARY KEY (id)
+);
+
+-- 模拟 A 只有 ACE
+INSERT INTO A (id, item)
+SELECT	1,	'A'  UNION ALL  
+SELECT	3,	'C'  UNION ALL
+SELECT	5,	'E';
+
+
+CREATE TABLE B (
+  item varchar(10),
+  sku  varchar(10),
+  data varchar(10),
+  `time` date
+);
+
+
+-- 模拟 B 有 ABCD
+INSERT INTO B (item, sku, data, `time`)
+SELECT	'A', 'A',  'Xa', '2013-02-01'  UNION ALL  
+SELECT	'B', 'A',  'Xb', '2013-02-01'  UNION ALL
+SELECT	'C', 'C1', 'Xc', '2013-03-01'  UNION ALL  
+SELECT	'C', 'C2', 'Xc', '2013-04-01'  UNION ALL
+SELECT	'D', 'A',  'Xd', '2013-04-01'  ;
+
+
+
+
+REPLACE  INTO   A (id, item, sku, data)
+SELECT 
+  A.id,  main.item, main.sku, main.data
+FROM
+  B  main  JOIN  A
+    ON  (main.item = A.item)
+WHERE
+  NOT  EXISTS (
+  SELECT 1
+  FROM  B  sub
+  WHERE  main.item = sub.item
+    AND  main.`time` < sub.`time` );
+
+mysql> select * from a;
++----+------+------+------+
+| id | item | sku  | data |
++----+------+------+------+
+|  1 | A    | A    | Xa   |
+|  3 | C    | C2   | Xc   |
+|  5 | E    | NULL | NULL |
++----+------+------+------+
+3 rows in set (0.00 sec)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

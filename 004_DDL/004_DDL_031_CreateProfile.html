@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - 创建 PROFILE </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 创建 PROFILE </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+用下面的 SQL ， 先查询 默认的 PROFILE
+select
+ RESOURCE_NAME,
+ LIMIT
+from
+ dba_profiles
+where
+ profile='DEFAULT'
+
+
+1	COMPOSITE_LIMIT	UNLIMITED
+2	SESSIONS_PER_USER	UNLIMITED
+3	CPU_PER_SESSION	UNLIMITED
+4	CPU_PER_CALL	UNLIMITED
+5	LOGICAL_READS_PER_SESSION	UNLIMITED
+6	LOGICAL_READS_PER_CALL	UNLIMITED
+7	IDLE_TIME	UNLIMITED
+8	CONNECT_TIME	UNLIMITED
+9	PRIVATE_SGA	UNLIMITED
+10	FAILED_LOGIN_ATTEMPTS	10
+11	PASSWORD_LIFE_TIME	UNLIMITED
+12	PASSWORD_REUSE_TIME	UNLIMITED
+13	PASSWORD_REUSE_MAX	UNLIMITED
+14	PASSWORD_VERIFY_FUNCTION	NULL
+15	PASSWORD_LOCK_TIME	UNLIMITED
+16	PASSWORD_GRACE_TIME	UNLIMITED
+
+然后创建 PROFILE 覆盖掉默认的设置
+
+SQL> CREATE PROFILE my_profile LIMIT
+  2  CONNECT_TIME  100
+  3  FAILED_LOGIN_ATTEMPTS 3;
+
+配置文件已创建
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

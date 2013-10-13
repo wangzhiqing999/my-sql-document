@@ -1,0 +1,378 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 触发器 - 针对特定列的触发 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 触发器 </h1>
+
+
+<h2> 针对特定列的触发  </h2>
+
+测试此处时，先删除其它的触发器
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+通过  OF 字段 ON 表 实现只针对特定列的触发。
+
+
+SQL> CREATE OR REPLACE TRIGGER BeforeUpdateTest
+  2    BEFORE INSERT OR UPDATE OF val ON test_trigger_table
+  3  FOR EACH ROW
+  4  BEGIN
+  5    dbms_output.put_line('BEFORE UPDATE val ON test_trigger_table ');
+  6    dbms_output.put_line('Old val = ' || :old.val);
+  7    dbms_output.put_line('New val = ' || :new.val);
+  8  END;
+  9  /
+
+Trigger created.
+
+SQL>
+SQL> INSERT INTO test_trigger_table(id, name, val) VALUES (1, 'ABC', 1);
+BEFORE UPDATE val ON test_trigger_table
+Old val =
+New val = 1
+
+1 row created.
+
+SQL>
+SQL> UPDATE test_trigger_table SET name = 'XYZ' WHERE id=1;
+
+1 row updated.
+
+SQL>
+SQL> UPDATE test_trigger_table SET val = 20 WHERE id=1;
+BEFORE UPDATE val ON test_trigger_table
+Old val = 1
+New val = 20
+
+1 row updated.
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => CREATE TRIGGER AfterUpdateTest \
+db2 (cont.) => AFTER UPDATE OF val ON test_trigger_table \
+db2 (cont.) => REFERENCING OLD AS O NEW AS N \
+db2 (cont.) => FOR EACH ROW \
+db2 (cont.) => BEGIN \
+db2 (cont.) =>   INSERT INTO log_table VALUES ( 'Old val = ' || O.val ); \
+db2 (cont.) =>   INSERT INTO log_table VALUES ( 'New val = ' || N.val ); \
+db2 (cont.) => END
+DB20000I  SQL 命令成功完成。
+
+db2 => truncate TABLE log_table IMMEDIATE
+DB20000I  SQL 命令成功完成。
+
+db2 => truncate TABLE test_trigger_table IMMEDIATE
+DB20000I  SQL 命令成功完成。
+db2 =>  INSERT INTO test_trigger_table(id, name, val) VALUES (1, 'ABC', 10)
+DB20000I  SQL 命令成功完成。
+db2 =>  UPDATE test_trigger_table SET name = 'XYZ' WHERE id=1
+DB20000I  SQL 命令成功完成。
+db2 =>  UPDATE test_trigger_table SET val = 123 WHERE id=1
+DB20000I  SQL 命令成功完成。
+db2 => select * from test_trigger_table
+
+ID          NAME       VAL
+----------- ---------- -----------
+          1 XYZ                123
+
+  1 条记录已选择。
+
+db2 => select * from log_table
+
+LOG_TEXT
+------------------------------
+Old val = 10
+New val = 123
+
+  2 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+通过 COLUMNS_UPDATED 来判断哪些列被更新
+COLUMNS_UPDATED 函数以从左到右的顺序返回位，最左边的为最不重要的位。
+最左边的位表示表中的第一列；向右的下一位表示第二列，依此类推。
+如果在表上创建的触发器包含 8 列以上，则 COLUMNS_UPDATED 返回多个字节，最左边的为最不重要的字节。
+在 INSERT 操作中 COLUMNS_UPDATED 将对所有列返回 TRUE 值，因为这些列插入了显式值或隐性 (NULL) 值。
+
+
+1> drop TRIGGER AfterUpdateTest;
+2> go
+1> CREATE TRIGGER AfterUpdateTest
+2>   ON test_trigger_table
+3>   FOR INSERT, UPDATE
+4> AS
+5> DECLARE
+6>   @OldVal VARCHAR(10),
+7>   @NewVal VARCHAR(10);
+8> BEGIN
+9>
+10>   IF (COLUMNS_UPDATED() & 4 ) > 0
+11>   BEGIN
+12>     PRINT('AFTER UPDATE Only Val');
+13>     SELECT @NewVal = val FROM inserted;
+14>     SELECT @OldVal = val FROM deleted;
+15>     PRINT('Old Val = ' + @OldVal);
+16>     PRINT('New Val = ' + @NewVal);
+17>   END;
+18> END
+19> go
+1> INSERT INTO test_trigger_table(id, name, val) VALUES (1, 'ABC', 1);
+2> go
+AFTER UPDATE Only Val
+
+
+(1 行受影响)
+New Val = 1
+1>
+2> UPDATE test_trigger_table SET name = 'XYZ' WHERE id=1;
+3> go
+
+(1 行受影响)
+1>
+2> UPDATE test_trigger_table SET val = 20 WHERE id=1;
+3> go
+AFTER UPDATE Only Val
+Old Val = 1
+
+(1 行受影响)
+New Val = 20
+
+
+<hr/>
+使用  UPDATE(列名) 也可以实现。
+drop TRIGGER AfterUpdateTest;
+
+
+CREATE TRIGGER AfterUpdateTest
+  ON test_trigger_table
+  FOR INSERT, UPDATE
+AS
+DECLARE
+  @OldVal VARCHAR(10),
+  @NewVal VARCHAR(10);
+BEGIN
+  IF UPDATE(Val) 
+  BEGIN
+    PRINT('Val 列被更新了.');
+    SELECT @NewVal = val FROM inserted;
+    SELECT @OldVal = val FROM deleted;
+    PRINT('Old Val = ' + @OldVal);
+    PRINT('New Val = ' + @NewVal);
+  END;
+END
+go
+
+
+
+1> INSERT INTO test_trigger_table(id, name, val) VALUES (100, 'ABC100', 100);
+2> go
+Val 列被更新了.
+
+New Val = 100
+
+(1 行受影响)
+
+
+1> UPDATE test_trigger_table SET name = 'XYZ' WHERE id=100;
+2> go
+
+(1 行受影响)
+
+
+1> UPDATE test_trigger_table SET val = 20 WHERE id=100;
+2> go
+Val 列被更新了.
+Old Val = 100
+New Val = 20
+
+(1 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+与 Oracle 差不多
+<pre><code>
+
+
+
+Drop Trigger If Exists AfterUpdateTest ;
+
+CREATE TRIGGER AfterUpdateTest 
+  AFTER UPDATE OF val ON test_trigger_table
+FOR EACH ROW
+BEGIN
+  INSERT INTO log_table VALUES ( 'Old val = ' || old.val ); 
+  INSERT INTO log_table VALUES ( 'New val = ' || new.val ); 
+END;
+
+sqlite> delete from log_table;
+sqlite> insert into test_trigger_table values(1, 'A', 0);
+sqlite> UPDATE test_trigger_table SET name = 'XYZ' WHERE id = 1;
+sqlite> UPDATE test_trigger_table SET val = '456' WHERE id = 1;
+sqlite> select * from test_trigger_table;
+1|XYZ|456
+sqlite> select * from log_table;
+Old val = 0
+New val = 456
+sqlite>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+PostgreSQL 8.1  语法：
+
+CREATE TRIGGER name { BEFORE | AFTER } { event [ OR ... ] }
+    ON table [ FOR [ EACH ] { ROW | STATEMENT } ]
+    EXECUTE PROCEDURE funcname ( arguments )
+
+从语法上面来看， 不支持 针对特定列的触发.
+只能触发器函数里面， 自己判断  OLD.列 != NEW.列 了。
+
+
+PostgreSQL 9.2.4  语法：
+CREATE [ CONSTRAINT ] TRIGGER name { BEFORE | AFTER | INSTEAD OF } { event [ OR ... ] }
+    ON table_name
+    [ FROM referenced_table_name ]
+    { NOT DEFERRABLE | [ DEFERRABLE ] { INITIALLY IMMEDIATE | INITIALLY DEFERRED } }
+    [ FOR [ EACH ] { ROW | STATEMENT } ]
+    [ WHEN ( condition ) ]
+    EXECUTE PROCEDURE function_name ( arguments )
+
+从语法上面来看， 支持 针对特定列的触发.
+
+
+
+
+以下代码在 PostgreSQL 9.2 下执行！
+
+
+-- 清除日志表.
+TRUNCATE TABLE log_table;
+
+
+-- 创建 触发器函数.
+CREATE FUNCTION TrUpdateTestOf()  RETURNS trigger AS $tr_update_test_of$
+BEGIN
+  RAISE EXCEPTION '% VAL 不允许修改！', NEW.val;
+  RETURN NULL;
+END;
+$tr_update_test_of$ LANGUAGE plpgsql;
+
+
+-- 定义触发器.
+CREATE TRIGGER tr_update_test_of 
+  BEFORE UPDATE  OF val ON test_trigger_table
+  FOR EACH ROW 
+  EXECUTE PROCEDURE TrUpdateTestOf();
+
+Test=# select * from test_trigger_table;
+ id | name | val
+----+------+-----
+  1 | XYZ  | 130
+(1 行记录)
+
+
+-- 测试执行. (没有更新 val 列， 不触发)
+Test=# update test_trigger_table set name = 'ABC' where id=1;
+UPDATE 1
+
+
+-- 测试执行. (更新 val 列， 触发)
+Test=# update test_trigger_table set val = 100 where id=1;
+错误:  100 VAL 不允许修改！
+
+
+Test=# select * from test_trigger_table;
+ id | name | val
+----+------+-----
+  1 | ABC  | 130
+(1 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> MODEL查询函数 - RULES UPDATE选项 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> MODEL查询函数 </h1>
+
+
+<h2>  RULES UPDATE选项 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+-- 本例子用于演示 更新已有的单元
+-- 默认情况下，如果表达式左端的引用单元存在，则更新该单元。
+-- 如果该单元不存在，就在数组中创建一条新的记录。
+-- 可以用RULES UPDATE改变这种默认的行为，指出在单元不存在的情况下不创建新纪录。
+With cte AS
+(
+SELECT
+  EXTRACT(YEAR FROM SALE_DATE) AS year,
+  EXTRACT(MONTH FROM SALE_DATE) AS month,
+  SUM(sale_money) AS sum_money,
+  0 AS prev_sum_money
+FROM
+  sale_report
+WHERE 
+  EXTRACT(YEAR FROM SALE_DATE) = 2010
+GROUP BY
+  EXTRACT(YEAR FROM SALE_DATE),
+  EXTRACT(MONTH FROM SALE_DATE)
+)
+SELECT 
+  *
+FROM cte 
+MODEL 
+  DIMENSION BY (year, month)  -- 按照 年，月 为 维度
+  MEASURES(sum_money, prev_sum_money) -- 数组的数据为 sum_money, prev_sum_money
+  RULES UPDATE
+  ( 
+    prev_sum_money[2010, FOR month FROM 2 TO 12 INCREMENT 1]
+      = sum_money[CURRENTV(), CURRENTV() - 1]
+  )
+ORDER BY
+  year,
+  month;
+
+
+      YEAR      MONTH  SUM_MONEY PREV_SUM_MONEY
+---------- ---------- ---------- --------------
+      2010          2         20
+      2010          5         50
+      2010          8         80
+      2010         11        110
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

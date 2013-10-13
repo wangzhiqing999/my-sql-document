@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 运算符号-算术运算符 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 运算符号 </h1>
+
+
+<h2> 算术运算符 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SELECT
+  3+2 AS "3加2", 
+  3-2 AS "3减2", 
+  3*2 AS "3乘2", 
+  3/2 AS "3除2", 
+  MOD(3, 2) AS "3除2余数"
+FROM
+  dual;
+
+      3加2       3减2       3乘2       3除2   3除2余数
+---------- ---------- ---------- ---------- ----------
+         5          1          6        1.5          1
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SELECT
+  3+2 AS [3加2], 
+  3-2 AS [3减2], 
+  3*2 AS [3乘2], 
+  3/2 AS [3除2], 
+  3%2 AS [3除2余数]
+
+3加2         3减2         3乘2         3除2         3除2余数
+----------- ----------- ----------- ----------- -----------
+5           1           6           1           1
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+SELECT
+  3+2 AS `3加2`, 
+  3-2 AS `3减2`, 
+  3*2 AS `3乘2`, 
+  3/2 AS `3除2`, 
+  MOD(3, 2) AS `3除2余数`
+FROM
+  dual;
+
++------+------+------+------+----------+
+| 3加2 | 3减2 | 3乘2 | 3除2 | 3除2余数 |
++------+------+------+------+----------+
+|    5 |    1 |    6 | 1.50 |        1 |
++------+------+------+------+----------+
+1 row in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+SELECT
+  3+2 AS "3加2", 
+  3-2 AS "3减2", 
+  3*2 AS "3乘2", 
+  3/2 AS "3除2", 
+  3%2 AS "3除2余数";
+
+3加2|3减2|3乘2|3除2|3除2余数
+5|1|6|1|1
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# SELECT
+Test-#   3+2 AS "3加2",
+Test-#   3-2 AS "3减2",
+Test-#   3*2 AS "3乘2",
+Test-#   3/2 AS "3除2",
+Test-#   3%2 AS "3除2余数",
+Test-#   3^4 AS "3的4次幂";
+ 3加2 | 3减2 | 3乘2 | 3除2 | 3除2余数 | 3的4次幂
+------+------+------+------+----------+----------
+    5 |    1 |    6 |    1 |        1 |       81
+(1 行记录)
+
+
+
+
+
+Test=# SELECT
+Test-#   |/ 25.0  AS  "25的平方根",
+Test-#   ||/ 27.0  AS  "27的立方根",
+Test-#   5!        AS  "5的阶乘",
+Test-#   !!5            AS  "5的阶乘2",
+Test-#   @ -5.0    AS  "-5的绝对值";
+ 25的平方根 | 27的立方根 | 5的阶乘 | 5的阶乘2 | -5的绝对值
+------------+------------+---------+----------+------------
+          5 |          3 |     120 |      120 |        5.0
+(1 行记录)
+
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

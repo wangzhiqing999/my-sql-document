@@ -1,0 +1,295 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 基本SQL命令-两表UPDATE处理 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 基本SQL命令 </h1>
+
+
+<h2> 两表UPDATE处理 </h2>
+
+
+<pre><code>
+
+- 源表
+CREATE TABLE test_from (id INT, val VARCHAR(20));
+-- 目标表
+CREATE TABLE test_to (id INT, val VARCHAR(20));
+-- 插入源表
+INSERT INTO test_from VALUES (1, 'A');
+INSERT INTO test_from VALUES (2, 'B');
+-- 插入目标表
+INSERT INTO test_to SELECT * FROM test_from;
+-- 更新源表
+UPDATE test_from SET val = 'AAA' WHERE id = 1;
+
+
+</code></pre>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+同步更新到 目标表.
+SQL> UPDATE
+  2    test_to
+  3  SET
+  4    test_to.val =
+  5      ( SELECT
+  6          test_from.val
+  7        FROM
+  8          test_from
+  9        WHERE
+ 10          test_to.id = test_from.id
+ 11      );
+
+2 rows updated.
+
+SQL> select * from test_to;
+        ID VAL
+---------- ----------------------------
+         1 AAA
+         2 B
+
+
+<hr/>
+
+注意：
+如果 需要更新的列的数量比较多的情况下，
+或者更新的时候，还存在特殊的查询逻辑的情况下。
+建议使用 Oracle 的 MERGE  INTO  语句来处理。
+
+
+否则
+UPDATE
+  test_to
+SET
+  列1 = ( SELECT test_from.列1 FROM test_from WHERE test_to.id = test_from.id),
+  列2 = ( SELECT test_from.列2 FROM test_from WHERE test_to.id = test_from.id),
+  列3 = ( SELECT test_from.列3 FROM test_from WHERE test_to.id = test_from.id),
+  ......
+  列N = ( SELECT test_from.列N FROM test_from WHERE test_to.id = test_from.id);
+
+
+这样会导致最终的 SQL 语句太长了， 难以维护。
+		 
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+（同Oracle）
+<pre><code>
+
+db2 => UPDATE
+db2 (cont.) =>   test_to
+db2 (cont.) => SET
+db2 (cont.) =>   test_to.val =
+db2 (cont.) =>     ( SELECT
+db2 (cont.) =>         test_from.val
+db2 (cont.) =>       FROM
+db2 (cont.) =>         test_from
+db2 (cont.) =>       WHERE
+db2 (cont.) =>         test_to.id = test_from.id
+db2 (cont.) =>     );
+DB20000I  SQL 命令成功完成。
+
+db2 => select * from test_to;
+
+ID          VAL
+----------- --------------------
+          1 AAA
+          2 B
+
+  2 条记录已选择。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+同步更新到 目标表.
+1> <span class="KeyInfo">UPDATE</span>
+2>   test_to
+3> <span class="KeyInfo">SET</span>
+4>   test_to.val = test_from.val
+5> <span class="KeyInfo">FROM</span>
+6>   test_to JOIN test_from
+7>     ON (test_to.id = test_from.id);
+8> go
+
+(2 行受影响)
+1> SELECT * FROM test_to;
+2> go
+id          val
+----------- --------------------
+          1 AAA
+          2 B
+
+(2 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+（同Oracle）
+<pre><code>
+
+mysql> UPDATE
+    ->   test_to
+    -> SET
+    ->   test_to.val =
+    ->     ( SELECT
+    ->         test_from.val
+    ->       FROM
+    ->         test_from
+    ->       WHERE
+    ->         test_to.id = test_from.id
+    ->     );
+Query OK, 1 row affected (0.03 sec)
+Rows matched: 2  Changed: 1  Warnings: 0
+
+mysql> select * from test_to;
++------+------+
+| id   | val  |
++------+------+
+|    1 | AAA  |
+|    2 | B    |
++------+------+
+2 rows in set (0.00 sec)
+
+
+
+注意：
+如果 需要更新的列的数量比较多的情况下，
+或者更新的时候，还存在特殊的查询逻辑的情况下。
+建议使用 MySQL 的 REPLACE  INTO  语句来处理。
+
+<hr/>
+
+否则
+UPDATE
+  test_to
+SET
+  列1 = ( SELECT test_from.列1 FROM test_from WHERE test_to.id = test_from.id),
+  列2 = ( SELECT test_from.列2 FROM test_from WHERE test_to.id = test_from.id),
+  列3 = ( SELECT test_from.列3 FROM test_from WHERE test_to.id = test_from.id),
+  ......
+  列N = ( SELECT test_from.列N FROM test_from WHERE test_to.id = test_from.id);
+
+
+这样会导致最终的 SQL 语句太长了， 难以维护。
+  
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# UPDATE
+Test-#   test_to
+Test-# SET
+Test-#   val =
+Test-#     ( SELECT
+Test(#         test_from.val
+Test(#       FROM
+Test(#         test_from
+Test(#       WHERE
+Test(#         test_to.id = test_from.id
+Test(#     );
+UPDATE 2
+Test=#
+Test=# select * from test_to;
+ id | val
+----+-----
+  1 | AAA
+  2 | B
+(2 行记录)
+
+
+
+或者：
+
+Test=# UPDATE
+Test-#   test_to
+Test-# SET
+Test-#   val = test_from.val
+Test-# FROM
+Test-#   test_from
+Test-# WHERE
+Test-#   test_to.id = test_from.id;
+UPDATE 2
+Test=#
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

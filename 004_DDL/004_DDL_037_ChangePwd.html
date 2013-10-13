@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - 登陆帐户改密码 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 登陆帐户改密码 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> ALTER USER test_user IDENTIFIED BY "newpass";
+
+User altered.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> alter login test_user_abc with password='test_abc'
+2> go
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+
+修改当前登录用户的密码：  （也就是修改自己的密码）
+
+mysql> SET PASSWORD = PASSWORD('test');
+Query OK, 0 rows affected (0.00 sec)
+
+
+mysql> select host, user, password from mysql.user;
++-----------+------+-------------------------------------------+
+| host      | user | password                                  |
++-----------+------+-------------------------------------------+
+| localhost | root |                                           |
+| localhost |      | *94BDCEBE19083CE2A1F959FD02F964C7AF4CFC29 |
++-----------+------+-------------------------------------------+
+2 rows in set (0.00 sec)
+
+
+
+要想更改已有账户的密码，使用UPDATE来设置Password列值：
+
+shell> mysql -u root mysql
+mysql> UPDATE user SET Password = PASSWORD('bagel')
+       -> WHERE Host = '%' AND User = 'francis';
+mysql> FLUSH PRIVILEGES;
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# ALTER USER davide WITH PASSWORD '123456';
+ALTER ROLE
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

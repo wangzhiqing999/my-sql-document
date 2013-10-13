@@ -1,0 +1,455 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 大容量导入/导出操作 - 普通表导入导出 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 大容量导入/导出操作 </h1>
+
+
+<h2> 普通表导入导出  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+<h3>导出</h3>
+
+SQL> set trimspool on
+SQL> set linesize 200
+SQL> set pagesize 2000
+SQL> set newpage 1
+SQL> set heading off
+SQL> set term off
+SQL> spool E:\Temp\test.txt
+SQL> select * from test_main;
+
+         1 ONE
+         3 THREE
+         2 TWO
+
+SQL> spool off
+
+
+
+
+
+
+文件导出以后，需要做一定的修改处理.
+
+
+E:\Temp>type test.txt
+SQL> select * from test_main;
+
+         1 ONE
+         3 THREE
+         2 TWO
+
+SQL> spool off
+
+E:\Temp>
+
+
+<hr/>
+
+
+<h3>导入</h3>
+
+
+SQL*Loader
+通过运行 sqlldr 程序来完成。
+
+首先需要一个 控制文件test_main.ctl，内容如下：
+LOAD DATA
+INFILE *
+INTO TABLE test_main
+FIELDS TERMINATED BY ','
+(ID, VALUE)
+BEGINDATA
+1,Test
+
+其中，
+第一行LOAD DATA意思是告诉SQL*Loader，要干啥? 这里是加载数据。
+第二行INFILE *意思是数据从哪里来? 这里是包含在控制文件中。
+第三行INTO TABLE 意思是数据要导到哪里？ 这里是要到 test_main 表。
+第四行FIELDS TERMINATED BY意思是数据之间用什么符号分隔？ 这里是用 逗号 分隔。
+第五行是数据要按什么顺序写到列里面
+第六行BEGINDATA是告诉SQL*Loader，后面的都是数据了。
+
+然后开始运行 sqlldr 程序
+
+D:\temp>sqlldr userid=test/test123 control=test_main.ctl
+SQL*Loader: Release 10.2.0.1.0 - Production on 星期日 3月 13 14:58:22 2011
+Copyright (c) 1982, 2005, Oracle.  All rights reserved.
+SQL*Loader-601:  对于 INSERT 选项, 表必须为空。表 TEST_MAIN 上出错
+
+在 SQL Plus 中，
+SQL> truncate table test_main;
+表被截断。
+以后，再次测试执行
+
+D:\temp>sqlldr userid=test/test123 control=test_main.ctl
+SQL*Loader: Release 10.2.0.1.0 - Production on 星期日 3月 13 14:58:56 2011
+Copyright (c) 1982, 2005, Oracle.  All rights reserved.
+达到提交点 - 逻辑记录计数 1
+
+
+将 SQL Server 的 bcp 工具导出的数据，通过SQL*Loader 导入到 Oracle中。
+
+首先创建一个 控制文件test_main_c.ctl，内容如下：
+LOAD DATA
+INTO TABLE test_main
+FIELDS TERMINATED BY WHITESPACE
+(ID, VALUE)
+
+这里的 TERMINATED BY WHITESPACE
+WHITESPACE 意味着空白字符，包含 制表/空格/换行
+
+首先在SQL Plus 中，truncate table test_main，然后执行sqlldr
+D:\temp>sqlldr userid=test/test123 control=test_main_c.ctl data=test_main_c.dat
+SQL*Loader: Release 10.2.0.1.0 - Production on 星期日 3月 13 15:18:23 2011
+Copyright (c) 1982, 2005, Oracle.  All rights reserved.
+达到提交点 - 逻辑记录计数 2
+
+如果Oracle表中，已经有部分数据，且不希望被删除，只希望做追加的操作
+首先创建一个 控制文件test_main_c2.ctl，内容如下：
+LOAD DATA
+INTO TABLE test_main
+APPEND
+FIELDS TERMINATED BY WHITESPACE
+(ID, VALUE)
+
+在SQL Plus 中，更新主键，以实现追加一条、主键重复一条的处理。
+SQL> update test_main set id = id+1;
+已更新2行。
+SQL> commit;
+提交完成。
+
+执行 sqlldr
+D:\temp>sqlldr userid=test/test123 control=test_main_c2.ctl data=test_main_c.dat
+SQL*Loader: Release 10.2.0.1.0 - Production on 星期日 3月 13 15:48:12 2011
+Copyright (c) 1982, 2005, Oracle.  All rights reserved.
+达到提交点 - 逻辑记录计数 2
+
+在SQL Plus 中核对结果：
+SQL> select * from test_main;
+        ID VALUE
+---------- ----------
+         2 ONE
+         3 TWO
+         1 ONE
+
+发现 2 TWO 的记录因为主键冲突，无法插入
+
+在当前目录下，有一个 test_main_c.bad 的文件，内容为：
+2	TWO
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+进程外
+bcp 实用工具 
+
+进程内
+BULK INSERT 和 OPENROWSET(BULK) 
+
+导出:
+
+BCP
+-c 指定字符格式。
+-n 指定本机数据类型。
+-t 是指定，在字符格式情况下，使用什么字符作为分割符号，如果不指定的情况下，默认使用 制表符 (\t) 作为分割符号。
+-T 使用Windows验证 [ 如果使用 SQL Server 验证， 使用 -U 和 -P 参数 ]
+-S 后面跟服务器名
+
+使用字符格式
+BCP [Test].[dbo].[test_main] out test_main_c.dat -c -T -S "localhost\SQLEXPRESS"
+
+使用本机格式
+BCP [Test].[dbo].[test_main] out test_main_n.dat -n -T -S "localhost\SQLEXPRESS"
+
+
+导入：
+
+使用BCP导入
+
+使用字符格式
+BCP [Test].[dbo].[test_main1] in test_main_c.dat -c -T -S "localhost\SQLEXPRESS"
+
+使用本机格式
+BCP [Test].[dbo].[test_main2] in test_main_n.dat -n -T -S "localhost\SQLEXPRESS"
+
+
+使用BULK INSERT导入
+
+DATAFILETYPE 
+    char（默认值） 字符格式。
+    native 本机（数据库）数据类型。与 char 值相比，本机值提供更高的性能。
+    widechar Unicode 字符。
+    widenative 本机（数据库）数据类型，除了 char、varchar 和 text 列以外，列中的数据均存储为 Unicode 格式。
+
+ROWTERMINATOR ='row_terminator'
+    指定要用于 char 和 widechar 数据文件的行终止符。默认行终止符为 \r\n（换行符）。
+
+FIELDTERMINATOR ='field_terminator'
+    指定要用于 char 和 widechar 数据文件的字段终止符。默认的字段终止符是 \t（制表符）。
+
+
+使用字符格式
+BULK INSERT test_main3 
+   FROM 'E:\Temp\test_main_c.dat' 
+   WITH (
+      DATAFILETYPE='char'
+   ); 
+
+
+使用本机格式
+BULK INSERT test_main4 
+   FROM 'E:\Temp\test_main_n.dat' 
+   WITH (
+      DATAFILETYPE='native'
+   );
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+导出
+mysql> select id, ke, val
+    -> INTO OUTFILE 'f:/test.txt'
+    -> FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY ''''
+    -> LINES TERMINATED BY '\n'
+    -> FROM test_rownum;
+Query OK, 9 rows affected (0.01 sec)
+
+注:
+FIELDS TERMINATED BY ',' 数据字段间用逗号隔开
+OPTIONALLY ENCLOSED BY '''' 每个字段的数据用单引号括住（注意单引号的表达方法）
+LINES TERMINATED BY '\n' 每条数据结束用'\n'作为换行符。
+
+
+
+导入
+
+mysql> TRUNCATE TABLE test_rownum;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql>
+mysql> LOAD DATA INFILE 'f:/test.txt'
+    -> INTO TABLE test_rownum
+    -> FIELDS TERMINATED BY ','
+    -> OPTIONALLY ENCLOSED BY ''''
+    -> (id, ke, val);
+Query OK, 9 rows affected (0.00 sec)
+Records: 9  Deleted: 0  Skipped: 0  Warnings: 0
+
+mysql> select * from test_rownum;
++------+------+------+
+| ID   | Ke   | val  |
++------+------+------+
+|    1 | A    |    1 |
+|    2 | A    |    2 |
+|    3 | A    |    3 |
+|    4 | B    |    1 |
+|    5 | B    |    2 |
+|    6 | B    |    1 |
+|    7 | C    |    3 |
+|    8 | C    |    2 |
+|    9 | C    |    2 |
++------+------+------+
+9 rows in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+基本语法：
+
+COPY tablename [ ( column [, ...] ) ]
+    FROM { 'filename' | STDIN }
+    [ [ WITH ]
+          [ BINARY ]
+          [ OIDS ]
+          [ DELIMITER [ AS ] 'delimiter' ]
+          [ NULL [ AS ] 'null string' ]
+          [ CSV [ HEADER ]
+                [ QUOTE [ AS ] 'quote' ]
+                [ ESCAPE [ AS ] 'escape' ]
+                [ FORCE NOT NULL column [, ...] ]
+
+COPY tablename [ ( column [, ...] ) ]
+    TO { 'filename' | STDOUT }
+    [ [ WITH ]
+          [ BINARY ]
+          [ OIDS ]
+          [ DELIMITER [ AS ] 'delimiter' ]
+          [ NULL [ AS ] 'null string' ]
+          [ CSV [ QUOTE [ AS ] 'quote' ]
+                [ ESCAPE [ AS ] 'escape' ]
+                [ FORCE QUOTE column [, ...] ]
+
+
+
+<hr/>
+
+CREATE TABLE test_rownum (
+   ID  INT,
+   Ke  VARCHAR(2),
+   val INT
+);
+
+INSERT INTO test_rownum 
+SELECT 1, 'A', 1 UNION ALL
+SELECT 2, 'A', 2 UNION ALL
+SELECT 3, 'A', 3 UNION ALL
+SELECT 4, 'B', 1 UNION ALL
+SELECT 5, 'B', 2 UNION ALL
+SELECT 6, 'B', 1 UNION ALL
+SELECT 7, 'C', 3 UNION ALL
+SELECT 8, 'C', 2 UNION ALL
+SELECT 9, 'C', 2;
+
+
+-- 将 test_rownum 表中的数据，导出到 F:\PostgreSQL\test_rownum.txt 文件当中.
+Test=# COPY test_rownum TO 'F:\PostgreSQL\test_rownum.txt';
+COPY 9
+
+
+-- 删除 test_rownum 表中的数据
+Test=# TRUNCATE TABLE test_rownum;
+TRUNCATE TABLE
+
+
+-- 从 F:\PostgreSQL\test_rownum.txt 文件当中 读取数据， 导入到 test_rownum 文件中.
+Test=# COPY test_rownum FROM 'F:\PostgreSQL\test_rownum.txt';
+COPY 9
+Test=# select * from test_rownum;
+ id | ke | val
+----+----+-----
+  1 | A  |   1
+  2 | A  |   2
+  3 | A  |   3
+  4 | B  |   1
+  5 | B  |   2
+  6 | B  |   1
+  7 | C  |   3
+  8 | C  |   2
+  9 | C  |   2
+(9 行记录)
+
+
+<hr/>
+-- 当需要导出某个表的部分数据的时候， 使用查询的方式来处理.
+Test=# COPY (SELECT * FROM test_rownum WHERE id &lt;=5) TO 'F:\PostgreSQL\test_rownum2.txt';
+COPY 5
+
+
+CREATE TABLE test_rownum2 (
+   ID  INT,
+   Ke  VARCHAR(2),
+   val INT
+);
+
+
+Test=# COPY test_rownum2 FROM 'F:\PostgreSQL\test_rownum2.txt';
+COPY 5
+
+Test=# select * from test_rownum2;
+ id | ke | val
+----+----+-----
+  1 | A  |   1
+  2 | A  |   2
+  3 | A  |   3
+  4 | B  |   1
+  5 | B  |   2
+(5 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

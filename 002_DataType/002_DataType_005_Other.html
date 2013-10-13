@@ -1,0 +1,296 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据类型-其他类型 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据类型 </h1>
+
+
+<h2> 其他类型 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+BFILE	只读方式访问文件系统
+ROWID	数据库一行的10字节地址
+UROWID	通用ROWID，用于索引组织表
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+cursor	游标的引用
+timestamp	用来创建一个数据库范围内的唯一数码。 一个表中只能有一个timestamp列。每次插入或修改一行时，timestamp列的值都会改变。
+Uniqueidentifier	用来存储一个全局唯一标识符，即GUID。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+布尔类型
+
+ boolean 只能有两个状态之一： '真'('True') 或 '假'('False')。 第三种状态，'未知'('Unknow')，用 SQL空状态表示。
+
+"真"值的有效文本值是：
+
+TRUE
+'t'
+'true'
+'y'
+'yes'
+'1'
+而对于"假"而言，你可以使用下面这些：
+FALSE
+'f'
+'false'
+'n'
+'no'
+'0'
+
+<hr/>
+
+几何类型
+
+几何数据类型表示二维的平面物体。 
+
+<table border="1">
+<tr>
+  <td>名字</td><td>存储空间</td><td>描述</td><td>表现形式</td>
+</tr>
+<tr>
+  <td>point</td><td>16 字节</td><td>空间中一点</td><td>(x,y)</td>
+</tr>
+<tr>
+  <td>line</td><td>32 字节</td><td>(无穷)直线（未完全实现）</td><td>((x1,y1),(x2,y2))</td>
+</tr>
+<tr>
+  <td>lseg</td><td>32 字节</td><td>（有限）线段</td><td>((x1,y1),(x2,y2))</td>
+</tr>
+<tr>
+  <td>box</td><td>32 字节</td><td>长方形</td><td>((x1,y1),(x2,y2))</td>
+</tr>
+<tr>
+  <td>path</td><td>16+16n 字节</td><td>闭合路径(与多边形类似)</td><td>((x1,y1),...)</td>
+</tr>
+<tr>
+  <td>path</td><td>16+16n 字节</td><td>开放路径</td><td>[(x1,y1),...]</td>
+</tr>
+<tr>
+  <td>polygon</td><td>40+16n 字节</td><td>多边形(与闭合路径相似)</td><td>((x1,y1),...)</td>
+</tr>
+<tr>
+  <td>circle</td><td>24 字节</td><td>圆(圆心和半径)</td><td>&lt;(x,y),r &gt;（圆心与半径）</td>
+</tr>
+</table>
+
+
+
+<hr/>
+网络地址数据类型
+
+
+<table border="1">
+<tr>
+  <td>名字</td><td>存储空间</td><td>描述</td>
+</tr>
+<tr>
+  <td>cidr</td><td>12 或 24 字节</td><td>IPv4 和 IPv6 网络</td>
+</tr>
+<tr>
+  <td>inet</td><td>12 或 24 字节</td><td>IPv4 或 IPv6 网络和主机</td>
+</tr>
+<tr>
+  <td>macaddr</td><td>6 字节</td><td>MAC 地址</td>
+</tr>
+</table>
+
+
+
+<hr/>
+位串类型
+
+位串就是一串 1 和 0 的字串。
+它们可以用于存储和视觉化位掩码。 
+我们有两种类型的 SQL 位类型： bit(n) 和 bit varying(n); 这里的 n是一个正整数。
+
+bit类型的数据必须准确匹配长度n; 试图存储短些或者长一些的数据都是错误的。
+类型 bit varying 数据是最长 n 的变长类型； 更长的串会被拒绝。
+写一个没有长度的 bit 等效于 bit(1)，没有长度的bit varying 意思是没有长度限制。
+
+
+<hr/>
+数组
+
+PostgreSQL 允许记录的字段定义成定长或不定长的多维数组。 
+数组类型可以是任何基本类型或用户定义类型。（不过，复合类型和域的数组还不支持。）
+
+
+<hr/>
+复合类型
+
+复合类型描述一行或者一条记录的结构； 
+它实际上只是一个字段名和它们的数据类型的列表。 
+PostgreSQL 允许像简单数据类型那样使用复合类型。 
+比如，一个表的某个字段可以声明为一个复合类型。
+
+CREATE TYPE inventory_item AS (
+    name            text,
+    supplier_id     integer,
+    price           numeric
+);
+
+CREATE TABLE on_hand (
+    item      inventory_item,
+    count     integer
+);
+
+
+INSERT INTO on_hand VALUES (ROW('fuzzy dice', 42, 1.99), 1000);
+
+
+
+<hr/>
+对象标识符类型
+
+PostgreSQL 在内部使用对象标识符（OID）作为各种系统表的主键。 
+同时，系统不会给用户创建的表增加一个 OID 系统字段
+（除非在建表时声明了 WITH OIDS 或者是配置参数 default_with_oids 设置成了真）。 
+类型 oid 代表一个对象标识符。
+除此以外还有几个 oid 的别名： 
+regproc，regprocedure，regoper， regoperator，regclass，和 regtype。
+
+
+<hr/>
+伪类型
+
+PostgreSQL 类型系统包含一系列特殊用途的 条目，它们按照类别来说叫做 伪类型。
+一个伪类型不能作为 字段的数据类型，但是它可以用于声明一个函数的参数或者结果类型。 
+每个可用的伪类型在一个函数不只是简单地接受并返回某种SQL数据类型的 情况下都很有用。 
+
+
+<table border="1">
+<tr>
+  <td>名字</td><td>描述</td>
+</tr>
+<tr>
+  <td>any</td><td>表示一个函数接受任何输入数据类型</td>
+</tr>
+<tr>
+  <td>anyarray</td><td>表示一个函数接受任意数组数据类型</td>
+</tr>
+<tr>
+  <td>anyelement</td><td>表示一个函数接受任何数据类型</td>
+</tr>
+<tr>
+  <td>cstring</td><td>表示一个函数接受或者返回一个空结尾的 C 字串</td>
+</tr>
+<tr>
+  <td>internal</td><td>表示一个函数接受或者返回一种服务器内部的数据类型</td>
+</tr>
+<tr>
+  <td>language_handler</td><td>一个过程语言调用句柄声明为返回 language_handler</td>
+</tr>
+<tr>
+  <td>void</td><td>表示一个函数不返回数值</td>
+</tr>
+<tr>
+  <td>record</td><td>标识一个函数返回一个未声明的行类型</td>
+</tr>
+<tr>
+  <td>trigger</td><td>一个触发器函数声明为返回 trigger</td>
+</tr>
+<tr>
+  <td>opaque</td><td>一个已经过时的类型，以前用于所有上面这些用途</td>
+</tr>
+</table>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

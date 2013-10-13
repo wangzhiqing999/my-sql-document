@@ -1,0 +1,226 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典表 - 视图列 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典表 </h1>
+
+
+<h2> 视图列  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+视图列的 SQL
+与 表列的 SQL 是一样的。
+
+
+SQL> SELECT
+  2    column_name
+  3  FROM
+  4    all_tab_columns
+  5  WHERE
+  6    table_name = 'AB_VIEW';
+
+COLUMN_NAME
+------------------------------
+AID
+ACARD
+BID
+BCARD
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+视图列的 SQL
+与 表列的 SQL 是一样的。
+
+SELECT
+  name  	AS "列名",
+  colno    	AS "列索引",
+  coltype 	AS "数据类型",
+  nulls     AS "可以为空"
+FROM 
+  SYSIBM.SYSCOLUMNS
+WHERE
+  tbname = 'V_SALE_REPORT';
+
+
+或者
+
+SELECT
+  colname  AS "列名",
+  colno    AS "列索引",
+  typename AS "数据类型",
+  nulls    AS "可以为空"
+FROM
+  SYSCAT.COLUMNS
+WHERE
+  tabname = 'V_SALE_REPORT';
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SELECT
+   vie.name AS ViewName,
+   col.name AS ColumnName,
+   col.column_id  AS  ColumnId,
+   typ.name as DataType,
+   col.max_length AS MaxLength,
+   col.precision AS Precision,
+   col.Scale AS Scale,
+   col.is_nullable  AS IsNullAble,
+   col.is_identity  AS IsIDEntity,
+   case when exists 
+      ( SELECT 1 
+        FROM 
+          sys.indexes idx 
+            join sys.index_columns idxCol 
+            on (idx.object_id = idxCol.object_id)
+         WHERE
+            idx.object_id = col.object_id
+            AND idxCol.index_column_id = col.column_id
+            AND idx.is_primary_key = 1
+       ) THEN 1 ELSE 0 END  AS IsPrimaryKey,
+  isnull(prop.[value],'-') AS Comment
+FROM
+  sys.views vie left join
+  (sys.columns col 
+    left join sys.types typ 
+      on (col.system_type_id = typ.system_type_id)
+    left join sys.extended_properties prop
+      on (col.object_id = prop.major_id AND prop.minor_id = col.column_id)
+  ) on (vie.object_id = col.object_id)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+视图列的 SQL
+与 表列的 SQL 是一样的。
+
+
+SELECT 
+  column_name AS `列名`, 
+  data_type   AS `数据类型`, 
+  character_maximum_length  AS `字符长度`,
+  numeric_precision AS `数字长度`,
+  numeric_scale AS `小数位数`,
+  is_nullable AS `是否允许非空`, 
+  CASE WHEN extra = 'auto_increment' 
+    THEN 1 ELSE 0 END AS `是否自增`,
+  column_default  AS  `默认值`, 
+  column_comment  AS  `备注`
+FROM
+  Information_schema.columns
+WHERE
+  table_Name='v_sale_report';
+
+  
+  
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+-- 查询视图的列的 SQL 与查询表的列的SQL 一样。
+
+SELECT
+  attname,
+  attnum
+FROM
+  pg_attribute
+WHERE
+  attrelid = 'v_sale_report'::regclass
+  AND attnum &gt; 0;
+
+
+  attname   | attnum
+------------+--------
+ sale_date  |      1
+ sale_item  |      2
+ sale_money |      3
+(3 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 基本SQL命令-显示表结构 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 基本SQL命令 </h1>
+
+
+<h2> 显示表结构 </h2>
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+	
+SQLPlus中 DESC。 
+
+SQL语句中无效
+	
+<pre><code>
+
+SQL> <span class="KeyInfo">desc</span> all_tab_columns
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+
+ OWNER                                     NOT NULL VARCHAR2(30)
+ TABLE_NAME                                NOT NULL VARCHAR2(30)
+ COLUMN_NAME                               NOT NULL VARCHAR2(30)
+ DATA_TYPE                                          VARCHAR2(106)
+ DATA_TYPE_MOD                                      VARCHAR2(3)
+ DATA_TYPE_OWNER                                    VARCHAR2(30)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => <span class="KeyInfo">describe select * from</span> test
+
+ 列信息
+
+ 列数：1
+
+ SQL 类型              类型长度      列名                           名称长度
+ --------------------  -----------  ------------------------------  -----------
+ 497   INTEGER                   4  ID                                        2
+
+
+或者
+db2 => <span class="KeyInfo">describe TABLE</span> test
+
+                                数据类型                      列
+列名                             模式       数据类型名称      长     小数位
+ NULL
+------------------------------- --------- ------------------- ---------- ----- -
+-----
+ID                              SYSIBM    INTEGER                      4     0
+是
+
+  1 条记录已选择。
+
+  
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> <span class="KeyInfo">sp_help</span> 'SALE_REPORT'
+2> go
+
+输出略
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> <span class="KeyInfo">desc</span> sale_report;
++------------+---------------+------+-----+---------+-------+
+| Field      | Type          | Null | Key | Default | Extra |
++------------+---------------+------+-----+---------+-------+
+| SALE_DATE  | datetime      | NO   |     | NULL    |       |
+| SALE_ITEM  | varchar(2)    | NO   |     | NULL    |       |
+| SALE_MONEY | decimal(10,2) | NO   |     | NULL    |       |
++------------+---------------+------+-----+---------+-------+
+3 rows in set (0.03 sec)
+
+
+
+
+
+某些情况下， 需要显示 表的 数据库存储引擎， 以及字符编码等信息的情况下， 使用 show create table 语句。
+
+
+mysql> <span class="KeyInfo">show create table</span>  test_user_orderby;
++-------------------+-----------------------------------------------------------
+------------------------------------------------------------+
+| Table             | Create Table
+                                                            |
++-------------------+-----------------------------------------------------------
+------------------------------------------------------------+
+| test_user_orderby | CREATE TABLE `test_user_orderby` (
+  `chinese_number` varchar(30) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 |
++-------------------+-----------------------------------------------------------
+------------------------------------------------------------+
+1 row in set (0.00 sec)
+
+
+从上面的输出结果， 可以看出， 数据库存储引擎为 InnoDB  默认字符集为 latin1
+
+
+
+
+下面是查询数据库的情况.
+
+mysql> <span class="KeyInfo">show create database</span> test;
++----------+-----------------------------------------------------------------+
+| Database | Create Database                                                 |
++----------+-----------------------------------------------------------------+
+| test     | CREATE DATABASE `test` /*!40100 DEFAULT CHARACTER SET latin1 */ |
++----------+-----------------------------------------------------------------+
+1 row in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+.table 
+列出当前数据库所包含的表.
+
+.schema 表名
+将列出建表语句.
+
+
+sqlite> .schema test_main
+CREATE TABLE test_main (
+  id      INT   NOT NULL,
+  value   VARCHAR(10),
+  PRIMARY KEY(id)
+);
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# CREATE TABLE test_create_tab (
+Test(#   id   INT,
+Test(#   val  VARCHAR(10)
+Test(# );
+CREATE TABLE
+Test=#
+
+
+Test=# <span class="KeyInfo">\d</span> test_create_tab;
+    资料表 "public.test_create_tab"
+ 栏位 |         型别          | 修饰词
+------+-----------------------+--------
+ id   | integer               |
+ val  | character varying(10) |
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

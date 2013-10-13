@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - CROSS APPLY 和 OUTER APPLY (SQL Server Only) </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> CROSS APPLY 和 OUTER APPLY (SQL Server Only)  </h2>
+
+
+
+<pre><code>
+
+
+CREATE TABLE test_dept (
+  dept_id    INT,         -- 部门ID
+  dept_name  VARCHAR(10)  -- 部门名称
+);
+
+CREATE TABLE test_user (
+  user_id    INT,           -- 用户ID
+  dept_id    INT,           -- 所属部门ID
+  user_name  VARCHAR(10)    -- 用户名
+);
+
+
+INSERT INTO test_dept VALUES (1, '开发一组');
+INSERT INTO test_dept VALUES (2, '开发二组');
+INSERT INTO test_dept VALUES (3, '开发三组');
+
+INSERT INTO test_user VALUES (1, 1, '张三');
+INSERT INTO test_user VALUES (2, 1, '李四');
+INSERT INTO test_user VALUES (3, 2, '王五');
+
+
+
+</code></pre>
+
+
+
+
+
+<h3>正常 LEFT OUTER JOIN 检索. </h3>
+
+<pre><code>
+
+SELECT
+  test_dept.dept_name,
+  test_user.user_name
+FROM
+  test_dept
+  LEFT JOIN test_user
+    ON (test_dept.dept_id = test_user.dept_id)
+
+dept_name  user_name
+---------- ----------
+开发一组       张三
+开发一组       李四
+开发二组       王五
+开发三组       NULL
+
+
+</code></pre>
+
+
+
+
+
+<h3> 使用 cross join  无关联条件的 排列组合 </h3>
+<pre><code>
+
+SELECT
+  test_dept.dept_name,
+  test_user.user_name
+FROM
+  test_dept
+    cross join test_user;
+
+dept_name  user_name
+---------- ----------
+开发一组       张三
+开发二组       张三
+开发三组       张三
+开发一组       李四
+开发二组       李四
+开发三组       李四
+开发一组       王五
+开发二组       王五
+开发三组       王五
+
+</code></pre>
+
+
+
+
+
+<pre><code>
+
+
+-- 用于测试的表值函数，参数为 部门编号
+-- 返回部门下的 人员信息.
+-- 这里检索条件中,不包含 dept_id 字段
+-- 也就说, 传入一个部门ID，就拿到所属的 员工.
+CREATE FUNCTION getUserInfo(@dept_id INT)
+RETURNS TABLE
+AS
+RETURN
+  SELECT
+    user_id,
+    -- dept_id,
+    user_name
+  FROM
+    test_user
+  WHERE
+    dept_id = @dept_id;
+
+
+
+
+
+使用 cross join  部门表 与 部门下员工的表值函数(1)
+SELECT
+  test_dept.dept_name,
+  test_user.user_name
+FROM
+  test_dept
+    cross join getUserInfo(1) test_user;
+
+dept_name  user_name
+---------- ----------
+开发一组       张三
+开发二组       张三
+开发三组       张三
+开发一组       李四
+开发二组       李四
+开发三组       李四
+
+
+使用 cross join  部门表 与 部门下员工的表值函数(2)
+SELECT
+  test_dept.dept_name,
+  test_user.user_name
+FROM
+  test_dept
+    cross join getUserInfo(2) test_user;
+
+dept_name  user_name
+---------- ----------
+开发一组       王五
+开发二组       王五
+开发三组       王五
+
+
+
+使用 cross join  部门表 与 部门下员工的表值函数( 引用当前部门 )
+目的是想做这样的处理
+每一个 部门， 与 这个部门下的所有员工，做排列组合 (笛卡尔乘积).
+但是一个 部门，与多个 员工做 排列组合 (笛卡尔乘积).  最后的记录数， 就是 员工的记录数。
+SELECT
+  test_dept.dept_name,
+  test_user.user_name
+FROM
+  test_dept
+    cross join getUserInfo( test_dept.dept_id  ) test_user;
+
+消息 4104，级别 16，状态 1，服务器 GMJ-PC\SQLEXPRESS，第 6 行
+无法绑定由多个部分组成的标识符 "test_dept.dept_id"。
+
+
+
+使用 cross apply  替换掉  cross join
+
+SELECT
+  test_dept.dept_name,
+  test_user.user_name
+FROM
+  test_dept
+    cross apply getUserInfo( test_dept.dept_id  ) test_user;
+
+dept_name  user_name
+---------- ----------
+开发一组       张三
+开发一组       李四
+开发二组       王五
+
+
+
+使用 outer apply
+
+SELECT
+  test_dept.dept_name,
+  test_user.user_name
+FROM
+  test_dept
+    outer apply getUserInfo( test_dept.dept_id  ) test_user;
+
+dept_name  user_name
+---------- ----------
+开发一组       张三
+开发一组       李四
+开发二组       王五
+开发三组       NULL
+
+
+
+
+</code></pre>
+
+
+
+</body>
+
+
+</html>

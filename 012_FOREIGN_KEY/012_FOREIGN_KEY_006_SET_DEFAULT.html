@@ -1,0 +1,515 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 外键约束 - SET DEFAULT 方式 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 外键约束 </h1>
+
+
+<h2>  SET DEFAULT 方式  </h2>
+
+
+
+为了更容易理解， SET DEFAULT 方式 使用下面这样的 测试表 与  测试数据.
+
+<pre><code>
+
+
+-- 创建测试主表. ID 是主键.
+-- 班级表.
+CREATE TABLE test_main_class (
+  id      INT   NOT NULL,
+  value   VARCHAR(20),
+  PRIMARY KEY(id)  
+);
+
+
+-- 创建测试子表. 
+-- 学生表.
+CREATE TABLE test_sub_student (
+  id      INT  NOT NULL,
+  main_id INT  DEFAULT 0,
+  value   VARCHAR(10),
+  PRIMARY KEY(id)  
+);
+
+
+-- 插入测试主表数据.
+INSERT INTO test_main_class(id, value) VALUES (0, '暂无班级');
+INSERT INTO test_main_class(id, value) VALUES (1, '2013级1班');
+INSERT INTO test_main_class(id, value) VALUES (2, '2013级2班');
+
+
+-- 插入测试子表数据.
+INSERT INTO test_sub_student(id, main_id, value) VALUES (1, 1, '张三');
+INSERT INTO test_sub_student(id, main_id, value) VALUES (2, 2, '李四');
+
+
+
+
+
+
+</code></pre>
+
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+不支持 ON DELETE SET DEFAULT  与  ON UPDATE SET DEFAULT;
+
+<h3> 首先测试 ON DELETE SET DEFAULT </h3>
+
+SQL> ALTER TABLE test_sub_student
+  2    ADD CONSTRAINT fk_main_class
+  3      FOREIGN KEY (main_id)  REFERENCES  test_main_class ON DELETE SET DEFAULT;
+    FOREIGN KEY (main_id)  REFERENCES  test_main_class ON DELETE SET DEFAULT
+                                                                           *
+ERROR 位于第 3 行:
+ORA-03001: 未实施的功能
+
+
+<h3> 然后测试 ON UPDATE SET DEFAULT </h3>
+
+SQL> ALTER TABLE test_sub_student
+  2    ADD CONSTRAINT fk_main_class
+  3      FOREIGN KEY (main_id)  REFERENCES  test_main_class ON UPDATE SET DEFAULT;
+    FOREIGN KEY (main_id)  REFERENCES  test_main_class ON UPDATE SET DEFAULT
+                                                          *
+ERROR 位于第 3 行:
+ORA-00905: 缺失关键字
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+不支持 ON DELETE SET DEFAULT  与  ON UPDATE SET DEFAULT;
+
+
+<h3> 首先测试 ON DELETE SET DEFAULT </h3>
+
+db2 => ALTER TABLE test_sub_student
+db2 (cont.) =>   ADD CONSTRAINT fk_main_class
+db2 (cont.) =>     FOREIGN KEY (main_id)  REFERENCES  test_main_class ON DELETE
+SET DEFAULT;
+DB21034E  该命令被当作 SQL 语句来处理，因为它是无效的“命令行处理器”命令。在
+SQL 处理期间，它返回：
+SQL0104N  在 "_class ON DELETE SET" 后面找到异常标记
+"DEFAULT"。预期标记可能包括："NULL"。  SQLSTATE=42601
+
+
+
+<h3> 然后测试 ON UPDATE SET DEFAULT </h3>
+
+db2 => ALTER TABLE test_sub_student
+db2 (cont.) =>   ADD CONSTRAINT fk_main_class
+db2 (cont.) =>     FOREIGN KEY (main_id)  REFERENCES  test_main_class ON UPDATE
+SET DEFAULT;
+DB21034E  该命令被当作 SQL 语句来处理，因为它是无效的“命令行处理器”命令。在
+SQL 处理期间，它返回：
+SQL0104N  在 "_class ON UPDATE SET" 后面找到异常标记
+"DEFAULT"。预期标记可能包括："NULL"。  SQLSTATE=42601
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+<h3> 首先测试 ON DELETE SET DEFAULT </h3>
+
+
+
+ALTER TABLE test_sub_student
+  ADD CONSTRAINT fk_main_class
+    FOREIGN KEY (main_id)  REFERENCES  test_main_class ON DELETE SET DEFAULT;
+
+
+SELECT
+  test_main_class.value AS "班级",
+  test_sub_student.value AS "学生"
+FROM
+  test_main_class
+    JOIN test_sub_student
+	  ON(test_main_class.id = test_sub_student.main_id);
+go
+班级                   学生
+-------------------- ----------
+2013级1班              张三
+2013级2班              李四
+
+(2 行受影响)
+
+
+1> DELETE FROM test_main_class WHERE ID = 1;
+2> go
+
+(1 行受影响)
+1> SELECT
+2>   test_main_class.value AS "班级",
+3>   test_sub_student.value AS "学生"
+4> FROM
+5>   test_main_class
+6>     JOIN test_sub_student
+7>        ON(test_main_class.id = test_sub_student.main_id);
+8> go
+班级                   学生
+-------------------- ----------
+暂无班级                 张三
+2013级2班              李四
+
+(2 行受影响)
+1>
+
+
+
+ON DELETE SET DEFAULT
+指定如果试图删除某一行，
+而该行的键被其他表的现有行中的外键所引用，
+则组成被引用行中的外键的所有值将被设置为它们的默认值。
+
+为了执行此约束，目标表的所有外键列必须具有默认定义。
+如果某个列可为空值，并且未设置显式的默认值，则将使用 NULL 作为该列的隐式默认值。
+因 ON DELETE SET DEFAULT 而设置的任何非空值在主表中必须有对应的值，才能维护外键约束的有效性。
+
+
+
+<hr/>
+
+<h3> 然后测试 ON UPDATE SET DEFAULT </h3>
+
+-- 删除前面的外键约束.
+ALTER TABLE test_sub_student DROP CONSTRAINT fk_main_class; 
+GO
+
+
+-- 创建外键约束.
+ALTER TABLE test_sub_student
+  ADD CONSTRAINT fk_main_class
+    FOREIGN KEY (main_id)  REFERENCES  test_main_class ON UPDATE SET DEFAULT;
+
+
+-- 更新主表.
+1> UPDATE test_main_class SET ID = 20 WHERE ID = 2;
+2> go
+
+(1 行受影响)
+1>
+2> SELECT
+3>   test_main_class.value AS "班级",
+4>   test_sub_student.value AS "学生"
+5> FROM
+6>   test_main_class
+7>     JOIN test_sub_student
+8>        ON(test_main_class.id = test_sub_student.main_id);
+9> go
+班级                   学生
+-------------------- ----------
+暂无班级                 张三
+暂无班级                 李四
+
+(2 行受影响)
+
+
+
+ON UPDATE SET DEFAULT
+指定如果试图更新某一行，
+而该行的键被其他表的现有行中的外键所引用，
+则组成被引用行中的外键的所有值将被设置为它们的默认值。
+
+为了执行此约束，目标表的所有外键列必须具有默认定义。
+如果某个列可为空值，并且未设置显式的默认值，则将使用 NULL 作为该列的隐式默认值。
+因 ON UPDATE SET DEFAULT 而设置的任何非空值在主表中必须有对应的值，才能维护外键约束的有效性。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+不支持 ON DELETE SET DEFAULT  与  ON UPDATE SET DEFAULT;
+
+
+<h3> 首先测试 ON DELETE SET DEFAULT </h3>
+
+mysql> ALTER TABLE test_sub_student
+    ->   ADD CONSTRAINT fk_main_class
+    ->     FOREIGN KEY (main_id)  REFERENCES  test_main_class(id)
+    ->  ON DELETE SET DEFAULT;
+ERROR 1005 (HY000): Can't create table 'test.#sql-7f0_1' (errno: 150)
+
+
+<h3> 然后测试 ON UPDATE SET DEFAULT </h3>
+mysql> ALTER TABLE test_sub_student
+    ->   ADD CONSTRAINT fk_main_class
+    ->     FOREIGN KEY (main_id)  REFERENCES  test_main_class(id)
+    ->  ON UPDATE SET DEFAULT;
+ERROR 1005 (HY000): Can't create table 'test.#sql-7f0_1' (errno: 150)
+
+
+
+
+<h3> 使用默认 </h3>
+mysql> ALTER TABLE test_sub_student
+    ->   ADD CONSTRAINT fk_main_class
+    ->     FOREIGN KEY (main_id)  REFERENCES  test_main_class(id);
+Query OK, 2 rows affected (0.02 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+
+	
+	
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+PRAGMA foreign_keys = ON;
+
+
+
+<h3> 首先测试 ON DELETE SET DEFAULT </h3>
+
+DROP TABLE test_sub_student;
+
+-- 创建测试子表. 
+-- 学生表.
+CREATE TABLE test_sub_student (
+  id      INT  NOT NULL,
+  main_id INT  DEFAULT 0 REFERENCES  test_main_class(id) ON DELETE SET DEFAULT,
+  value   VARCHAR(10),
+  PRIMARY KEY(id)  
+);
+
+
+-- 插入测试子表数据.
+INSERT INTO test_sub_student(id, main_id, value) VALUES (1, 1, '张三');
+INSERT INTO test_sub_student(id, main_id, value) VALUES (2, 2, '李四');
+
+SELECT
+  test_main_class.value AS "班级",
+  test_sub_student.value AS "学生"
+FROM
+  test_main_class
+    JOIN test_sub_student
+	  ON(test_main_class.id = test_sub_student.main_id);
+2013级1班|张三
+2013级2班|李四
+
+
+sqlite> DELETE FROM test_main_class WHERE ID = 1;
+sqlite> SELECT
+   ...>   test_main_class.value AS "班级",
+   ...>   test_sub_student.value AS "学生"
+   ...> FROM
+   ...>   test_main_class
+   ...>     JOIN test_sub_student
+   ...>           ON(test_main_class.id = test_sub_student.main_id);
+暂无班级|张三
+2013级2班|李四
+
+
+
+<hr/>
+
+<h3> 然后测试 ON UPDATE SET DEFAULT </h3>
+
+
+DROP TABLE test_sub_student;
+
+-- 创建测试子表. 
+-- 学生表.
+CREATE TABLE test_sub_student (
+  id      INT  NOT NULL,
+  main_id INT  DEFAULT 0   REFERENCES  test_main_class(id) ON UPDATE SET DEFAULT,
+  value   VARCHAR(10),
+  PRIMARY KEY(id)  
+);
+
+
+-- 插入测试子表数据.
+INSERT INTO test_sub_student(id, main_id, value) VALUES (1, 1, '张三');
+INSERT INTO test_sub_student(id, main_id, value) VALUES (2, 2, '李四');
+
+注： 由于外键约束， 上面的  张三  将插入失败！
+
+SELECT
+  test_main_class.value AS "班级",
+  test_sub_student.value AS "学生"
+FROM
+  test_main_class
+    JOIN test_sub_student
+	  ON(test_main_class.id = test_sub_student.main_id);
+
+2013级2班|李四
+
+
+
+sqlite> UPDATE test_main_class SET ID = 20 WHERE ID = 2;
+sqlite> SELECT
+   ...>   test_main_class.value AS "班级",
+   ...>   test_sub_student.value AS "学生"
+   ...> FROM
+   ...>   test_main_class
+   ...>     JOIN test_sub_student
+   ...>           ON(test_main_class.id = test_sub_student.main_id);
+暂无班级|李四
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+<h3> 首先测试 ON DELETE SET DEFAULT </h3>
+
+
+ALTER TABLE test_sub_student
+  ADD CONSTRAINT fk_main_class
+    FOREIGN KEY (main_id)  REFERENCES  test_main_class ON DELETE SET DEFAULT;
+
+
+SELECT
+  test_main_class.value AS "班级",
+  test_sub_student.value AS "学生"
+FROM
+  test_main_class
+    JOIN test_sub_student
+	  ON(test_main_class.id = test_sub_student.main_id);
+   班级    | 学生
+-----------+------
+ 2013级1班 | 张三
+ 2013级2班 | 李四
+(2 行记录)
+
+
+Test=# DELETE FROM test_main_class WHERE ID = 1;
+DELETE 1
+
+Test=# SELECT
+Test-#   test_main_class.value AS "班级",
+Test-#   test_sub_student.value AS "学生"
+Test-# FROM
+Test-#   test_main_class
+Test-#     JOIN test_sub_student
+Test-#    ON(test_main_class.id = test_sub_student.main_id);
+   班级    | 学生
+-----------+------
+ 2013级2班 | 李四
+ 暂无班级  | 张三
+(2 行记录)
+
+
+
+注意：
+如果一个动作声明 SET DEFAULT，但是缺省值并不能满足外键，那么动作就会失败。
+
+
+
+<hr/>
+
+<h3> 然后测试 ON UPDATE SET DEFAULT </h3>
+
+
+-- 删除前面的外键约束.
+ALTER TABLE test_sub_student DROP CONSTRAINT fk_main_class; 
+
+
+
+-- 创建外键约束.
+ALTER TABLE test_sub_student
+  ADD CONSTRAINT fk_main_class
+    FOREIGN KEY (main_id)  REFERENCES  test_main_class ON UPDATE SET DEFAULT;
+
+
+-- 更新主表.
+Test=# UPDATE test_main_class SET ID = 20 WHERE ID = 2;
+UPDATE 1
+Test=#
+Test=# SELECT
+Test-#   test_main_class.value AS "班级",
+Test-#   test_sub_student.value AS "学生"
+Test-# FROM
+Test-#   test_main_class
+Test-#     JOIN test_sub_student
+Test-#    ON(test_main_class.id = test_sub_student.main_id);
+   班级   | 学生
+----------+------
+ 暂无班级 | 张三
+ 暂无班级 | 李四
+(2 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

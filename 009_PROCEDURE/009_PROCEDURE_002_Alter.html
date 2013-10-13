@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 存储过程 - 修改存储过程 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 存储过程 </h1>
+
+
+<h2> 修改存储过程  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> CREATE OR REPLACE PROCEDURE HelloWorld AS
+  2  BEGIN
+  3    dbms_output.put_line('Hello World V2.0');
+  4  END HelloWorld;
+  5  /
+
+Procedure created.
+
+SQL>
+SQL> set serveroutput on
+SQL>
+SQL> BEGIN
+  2    HelloWorld();
+  3  END;
+  4  /
+Hello World V2.0
+
+PL/SQL procedure successfully completed.
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+好像没修改,
+只有先删除,
+后新建
+
+<pre><code>
+
+db2 => DROP PROCEDURE HelloWorld
+DB20000I  SQL 命令成功完成。
+
+db2 => CREATE PROCEDURE HelloWorld \
+db2 (cont.) => LANGUAGE SQL \
+db2 (cont.) => BEGIN \
+db2 (cont.) =>   INSERT INTO test_helloworld \
+db2 (cont.) =>     SELECT 'Hello World V2.0' FROM SYSIBM.SYSDUMMY1; \
+db2 (cont.) => END
+DB20000I  SQL 命令成功完成。
+
+db2 => truncate table  test_helloworld IMMEDIATE
+DB20000I  SQL 命令成功完成。
+
+db2 => call HelloWorld
+
+  返回状态 = 0
+db2 => select * from test_helloworld
+
+DATA
+--------------------
+Hello World V2.0
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+ALTER PROCEDURE HelloWorld AS
+BEGIN
+  PRINT 'Hello World V2.0';
+END;
+go
+
+
+DECLARE @RC int
+EXECUTE @RC = HelloWorld
+PRINT @RC
+go
+
+
+Hello World V2.0
+0
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+要更新一个现有函数的定义，使用 CREATE OR REPLACE FUNCTION。 
+我们不能用这个方法修改一个函数的名字或者参数类型（如果你这么干，那么你就会创建一个新的，不同的函数）。 
+同样，CREATE OR REPLACE FUNCTION 也不会允许你修改一个现有函数的返回类型。 
+要做这些事情，你必须删除并重新创建函数。 
+（如果使用 OUT 参数，那就意味着除了删除函数，你不能修改任何 OUT 参数的类型或者名字。）
+
+
+如果你删除然后重建一个函数，新函数和旧的将是不同的实体；你就需要删除现有引用了老函数的规则，视图，触发器等等。 
+使用 CREATE OR REPLACE FUNCTION 可以在不破坏引用该函数的对象的前提下修改函数定义。
+
+
+
+具体代码略.
+
+
+
+需要注意的一点。
+
+删除函数的时候， 需要传递完整的参数列表， 仅仅指定一个  函数的名称， 是无法删除的。
+
+例如：
+
+Test=# drop FUNCTION HelloWorld;
+错误:  语法错误 在 ";" 或附近的
+第1行drop FUNCTION HelloWorld;
+                             ^
+Test=# drop FUNCTION HelloWorld();
+DROP FUNCTION
+Test=#
+
+
+
+Test=# drop FUNCTION HelloWorld2;
+错误:  语法错误 在 ";" 或附近的
+第1行drop FUNCTION HelloWorld2;
+                              ^
+
+Test=# drop FUNCTION HelloWorld2();
+错误:  函数 helloworld2() 不存在
+
+Test=# drop FUNCTION HelloWorld2(varchar);
+DROP FUNCTION
+Test=#
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

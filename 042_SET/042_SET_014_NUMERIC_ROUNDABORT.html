@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库会话的基本参数设置 SET  - 舍入精度损失时的处理 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库会话的基本参数设置 SET </h1>
+
+
+<h2>  舍入精度损失时的处理 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+
+SET NUMERIC_ROUNDABORT { ON | OFF } 
+ 
+备注
+当 SET NUMERIC_ROUNDABORT 为 ON 时，在表达式中出现精度损失时将生成错误。
+当设置为 OFF 时，精度损失不生成错误信息，并且将结果舍入为存储结果的列或变量的精度。
+
+在精度较低的列或变量中，当尝试以固定精度存储值时，会出现精度损失。
+如果 SET NUMERIC_ROUNDABORT 为 ON，则 SET ARITHABORT 决定生成错误的严重级别。
+该表显示当出现精度损失时这两个设置的效果。
+
+
+<table>
+  <tr>
+    <td>
+设置
+    </td>
+    <td>
+SET NUMERIC_ROUNDABORT ON	
+    </td>
+    <td>
+SET NUMERIC_ROUNDABORT OFF
+    </td>
+  </tr>
+  <tr>
+    <td>
+SET ARITHABORT ON	
+    </td>
+    <td>
+生成错误；不返回结果集。	
+    </td>
+    <td>
+没有错误和警告；对结果进行舍入。
+    </td>
+  </tr>
+  <tr>
+    <td>
+SET ARITHABORT OFF	
+    </td>
+    <td>
+返回警告；表达式返回 NULL。	
+    </td>
+    <td>
+没有错误和警告；对结果进行舍入。
+    </td>
+  </tr>
+</table>
+
+
+SET NUMERIC_ROUNDABORT 的设置是在执行或运行时设置，而不是在分析时设置。
+
+在对计算列或索引视图创建或更改索引时，SET NUMERIC_ROUNDABORT 必须为 OFF。
+
+如果 SET NUMERIC_ROUNDABORT 为 ON，则用于计算列或索引视图中带索引的表的 CREATE、UPDATE、INSERT 和 DELETE 语句将失败。
+
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

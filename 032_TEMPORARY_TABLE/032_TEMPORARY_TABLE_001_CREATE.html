@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 临时表 - 创建临时表  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 临时表 </h1>
+
+
+<h2>  创建临时表 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+2种：
+基于会话
+基于事务
+
+
+SQL> -- 基于会话的临时表.
+SQL> CREATE GLOBAL TEMPORARY TABLE temp_table_session (
+  2      id      INT,
+  3      value   VARCHAR(10)
+  4  ) ON COMMIT PRESERVE ROWS;
+
+Table created.
+
+SQL>
+SQL> -- 基于事务的临时表.
+SQL> CREATE GLOBAL TEMPORARY TABLE temp_table_transaction (
+  2      id      INT,
+  3      value   VARCHAR(10)
+  4  ) ON COMMIT DELETE ROWS;
+
+Table created.
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+要使用临时表，数据库中必须存在一个用户临时表空间（默认情况下没有）。
+先创建这样一个表空间：
+
+create user temporary tablespace usertemp1
+  managed by system using ('usertemp1');
+
+
+db2 => -- 基于会话的临时表.
+db2 => CREATE GLOBAL TEMPORARY TABLE temp_table_session (
+db2 (cont.) =>     id      INT,
+db2 (cont.) =>     value   VARCHAR(10)
+db2 (cont.) => ) ON COMMIT PRESERVE ROWS;
+DB20000I  SQL 命令成功完成。
+
+db2 => -- 基于事务的临时表.
+db2 => CREATE GLOBAL TEMPORARY TABLE temp_table_transaction (
+db2 (cont.) =>     id      INT,
+db2 (cont.) =>     value   VARCHAR(10)
+db2 (cont.) => ) ON COMMIT DELETE ROWS;
+DB20000I  SQL 命令成功完成。
+
+
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SQL Server
+
+2种：
+本地临时
+全局临时
+
+
+
+1> -- 本地临时表.
+2> CREATE TABLE #temp_table_local (
+3>     id      INT,
+4>     value   VARCHAR(10)
+5> );
+6> go
+1> -- 全局临时表.
+2> CREATE TABLE ##temp_table_global (
+3>     id      INT,
+4>     value   VARCHAR(10)
+5> );
+6> go
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> CREATE TEMPORARY TABLE temp_table (
+    ->   id      INT,
+    ->   value   VARCHAR(10)
+    -> )
+    -> //
+Query OK, 0 rows affected (0.03 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+sqlite> CREATE TEMPORARY TABLE temp_table (
+   ...>   id      INT,
+   ...>   value   VARCHAR(10)
+   ...> );
+sqlite>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+-- 基于会话的临时表.
+CREATE TEMPORARY TABLE temp_table_session (
+    id      INT,
+    value   VARCHAR(10)
+) ON COMMIT PRESERVE ROWS;
+
+
+-- 基于事务的临时表.
+CREATE TEMPORARY TABLE temp_table_transaction (
+    id      INT,
+    value   VARCHAR(10)
+) ON COMMIT DELETE ROWS;
+
+
+-- 基于事务的临时表 2 ( Commit 的时候，删除表).
+CREATE TEMPORARY TABLE temp_table_transaction2 (
+    id      INT,
+    value   VARCHAR(10)
+) ON COMMIT DROP;
+
+注： 由于 PostgreSQL 默认 单语句， 一个事务处理， 
+因此单独执行以后， temp_table_transaction2 并不存在。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

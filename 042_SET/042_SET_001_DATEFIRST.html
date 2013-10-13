@@ -1,0 +1,338 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库会话的基本参数设置 SET - 设置一周的第一天 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库会话的基本参数设置 SET </h1>
+
+
+<h2> 设置一周的第一天  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SET DATEFIRST { number | @number_var }
+SQL Server 默认一周的第一天是 星期天
+
+1> SELECT
+2>   GETDATE(),
+3>   '周中第几天'  AS  '日期部分',
+4>   DATEPART(dw, GETDATE()) AS [数值]
+5> go
+                        日期部分       数值
+----------------------- ---------- -----------
+2011-05-08 10:16:02.903 周中第几天                1
+(1 行受影响)
+
+这里设置 星期一 为 每周的第一天。
+1> SET DATEFIRST 1
+2> GO
+
+1> SELECT
+2>   GETDATE(),
+3>   '周中第几天'  AS  '日期部分',
+4>   DATEPART(dw, GETDATE()) AS [数值]
+5> GO
+                        日期部分       数值
+----------------------- ---------- -----------
+2011-05-08 10:16:24.280 周中第几天                7
+
+(1 行受影响)
+
+可以通过 @@DATEFIRST 返回对会话进行 SET DATEFIRST 操作所得结果的当前值。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+通过  WEEK  与  YEARWEEK  函数的第2个参数，来决定。
+
+<table border="1">
+  <tr>
+    <td>
+      参数值
+	</td>
+	<td>
+	每周第一天
+	是星期几
+	</td>
+	<td>
+	返回值范围
+	</td>
+	<td>
+	第一周是怎么计算的？
+	</td>
+  </tr>
+  <tr>
+    <td>
+    0
+	</td>
+	<td>
+星期天
+	</td>
+	<td>
+0-53
+	</td>
+	<td>
+遇到本年的第一个星期天开始，是第一周。
+前面的计算为第0周。
+	</td>
+  </tr>
+  <tr>
+    <td>
+    1
+	</td>
+	<td>
+星期一
+	</td>
+	<td>
+0-53
+	</td>
+	<td>
+假如第一周能超过3天，那么计算为本年的第一周。否则为第0周
+可以理解为
+如果1月1号～4号是星期一，那么本年第一周开始。（之前的是第零周）
+如果1月5号以后是星期一，那么现在开始，是本年的第二周了，之前的是第一周。
+	</td>
+  </tr>
+  <tr>
+    <td>
+	2
+	</td>
+	<td>
+星期天
+	</td>
+	<td>
+1-53
+	</td>
+	<td>
+遇到本年的第一个星期天开始，是第一周。
+前面的计算为 上年度的 第 5x 周。
+	</td>
+  </tr>
+  <tr>
+    <td>
+    3
+	</td>
+	<td>
+星期一
+	</td>
+	<td>
+1-53
+	</td>
+	<td>
+假如第一周能超过3天，那么计算为本年的第一周。否则为上年度的 第 5x周。
+可以理解为
+如果1月1号～4号是星期一，那么本年第一周开始。（之前的是第5x周）
+如果1月5号以后是星期一，那么现在开始，是本年的第二周了，之前的是第一周。
+	</td>
+  </tr>
+  <tr>
+    <td>
+    4
+	</td>
+	<td>
+星期天
+	</td>
+	<td>
+0-53
+	</td>
+	<td>
+假如第一周能超过3天，那么计算为本年的第一周。否则为第0周
+可以理解为
+如果1月1号～4号是星期天，那么本年第一周开始。（之前的是第零周）
+如果1月5号以后是星期天，那么现在开始，是本年的第二周了，之前的是第一周。
+	</td>
+  </tr>
+  <tr>
+    <td>
+    5
+	</td>
+	<td>
+星期一
+	</td>
+	<td>
+0-53
+	</td>
+	<td>
+遇到本年的第一个星期一开始，是第一周。
+前面的计算为第0周。
+	</td>
+  </tr>
+  <tr>
+    <td>
+    6
+	</td>
+	<td>
+星期天
+	</td>
+	<td>
+1-53
+	</td>
+	<td>
+假如第一周能超过3天，那么计算为本年的第一周。否则为上年度的 第 5x周。
+可以理解为
+如果1月1号～4号是星期天，那么本年第一周开始。（之前的是第5x周）
+如果1月5号以后是星期天，那么现在开始，是本年的第二周了，之前的是第一周。
+	</td>
+  </tr>
+  <tr>
+    <td>
+    7
+	</td>
+	<td>
+星期一
+	</td>
+	<td>
+1-53
+	</td>
+	<td>
+遇到本年的第一个星期一开始，是第一周。
+前面的计算为 上年度的 第 5x 周。
+	</td>
+  </tr>
+</table>
+
+
+CREATE TABLE test_YEARWEEK (
+  test  date
+);
+
+
+truncate table test_YEARWEEK;
+
+
+INSERT INTO test_YEARWEEK
+  SELECT '2009-01-01' UNION ALL
+  SELECT '2009-01-02' UNION ALL
+  SELECT '2009-01-03' UNION ALL
+  SELECT '2009-01-04' UNION ALL
+  SELECT '2009-01-05' UNION ALL
+  SELECT '2009-01-06' UNION ALL
+  SELECT '2009-01-07' UNION ALL
+  SELECT '2009-12-25' UNION ALL
+  SELECT '2009-12-26' UNION ALL
+  SELECT '2009-12-27' UNION ALL
+  SELECT '2009-12-28' UNION ALL
+  SELECT '2009-12-29' UNION ALL
+  SELECT '2009-12-30' UNION ALL
+  SELECT '2009-12-31' UNION ALL
+  SELECT '2010-01-01' UNION ALL
+  SELECT '2010-01-02' UNION ALL
+  SELECT '2010-01-03' UNION ALL
+  SELECT '2010-01-04' UNION ALL
+  SELECT '2010-01-05' UNION ALL
+  SELECT '2010-01-06' UNION ALL
+  SELECT '2010-01-07';
+
+
+select
+  test,
+  DATE_FORMAT(test, '%W') AS W,
+  YEARWEEK( test, 0) AS `0`,
+  YEARWEEK( test, 1) AS `1`,
+  YEARWEEK( test, 2) AS `2`,
+  YEARWEEK( test, 3) AS `3`,
+  YEARWEEK( test, 4) AS `4`,
+  YEARWEEK( test, 5) AS `5`,
+  YEARWEEK( test, 6) AS `6`,
+  YEARWEEK( test, 7) AS `7`
+FROM
+  test_YEARWEEK;
+
+
+select
+  test,
+  DATE_FORMAT(test, '%W') AS W,
+  WEEK( test, 0) AS `0`,
+  WEEK( test, 1) AS `1`,
+  WEEK( test, 2) AS `2`,
+  WEEK( test, 3) AS `3`,
+  WEEK( test, 4) AS `4`,
+  WEEK( test, 5) AS `5`,
+  WEEK( test, 6) AS `6`,
+  WEEK( test, 7) AS `7`
+FROM
+  test_YEARWEEK;
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

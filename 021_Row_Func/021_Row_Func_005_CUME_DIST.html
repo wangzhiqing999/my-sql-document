@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 统计分析函数 - 计算一行在组中的相对位置 CUME_DIST  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 统计分析函数 </h1>
+
+
+<h2>  计算一行在组中的相对位置 CUME_DIST </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+CUME_DIST(x) =  number of values in S coming before
+   and including x in the specified order/ N
+
+计算一行在组中的相对位置，CUME_DIST总是返回大于0、小于或等于1的数，该数表示该行在N行中的位置。
+
+按照分数 排名 从高到底 (这里把 CUME_DIST 作了乘10的处理，以便与其他的作比较.)
+
+SELECT
+  10 * CUME_DIST() OVER( ORDER BY SUM(grade) DESC) AS CUME,
+  student_name,
+  SUM(grade) AS AllGrade
+FROM
+  test_course
+GROUP BY
+  student_name
+ORDER BY
+  SUM(grade) DESC;
+
+      CUME STUDENT_NA   ALLGRADE
+---------- ---------- ----------
+         2 奎                185
+         2 甲                185
+         4 乙                165
+         4 壬                165
+         5 丙                145
+         6 辛                140
+         7 丁                125
+         8 庚                120
+         9 戊                105
+        10 己                100
+
+已选择10行。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+SELECT
+  10 * CUME_DIST() OVER( ORDER BY SUM(grade) DESC) AS CUME,
+  student_name,
+  SUM(grade) AS AllGrade
+FROM
+  test_course
+GROUP BY
+  student_name
+ORDER BY
+  SUM(grade) DESC;
+
+
+
+ cume | student_name | allgrade
+------+--------------+----------
+    2 | 甲           |      185
+    2 | 奎           |      185
+    4 | 壬           |      165
+    4 | 乙           |      165
+    5 | 丙           |      145
+    6 | 辛           |      140
+    7 | 丁           |      125
+    8 | 庚           |      120
+    9 | 戊           |      105
+   10 | 己           |      100
+(10 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

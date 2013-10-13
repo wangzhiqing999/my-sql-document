@@ -1,0 +1,322 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 存储过程 - 参数定义- IN、OUT、IN OUT </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 存储过程 </h1>
+
+
+<h2> 参数定义- IN、OUT、IN OUT </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+注：
+Oracle 的 IN OUT 写在变量名后面。
+
+
+SQL> CREATE OR REPLACE PROCEDURE HelloWorld2 (
+  2    p_user_name IN     VARCHAR2,
+  3    p_out_val   OUT    VARCHAR2,
+  4    p_inout_val IN OUT VARCHAR2
+  5  ) AS
+  6  BEGIN
+  7     dbms_output.put_line('Hello ' || p_user_name || p_inout_val || '!');
+  8     p_out_val := 'A';
+  9     p_inout_val := 'B';
+ 10  END HelloWorld2;
+ 11  /
+
+Procedure created.
+
+SQL> DECLARE
+  2    p_outval VARCHAR2(10);
+  3    p_inoutval VARCHAR2(10) := '~Hi~';
+  4  BEGIN
+  5    HelloWorld2('Edward', p_outval, p_inoutval);
+  6
+  7    dbms_output.put_line('p_outval=' || p_outval);
+  8    dbms_output.put_line('p_inoutval=' || p_inoutval);
+  9  END;
+ 10  /
+Hello Edward~Hi~!
+p_outval=A
+p_inoutval=B
+
+PL/SQL procedure successfully completed.
+
+SQL>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => CREATE PROCEDURE HelloWorld2 ( \
+db2 (cont.) =>   IN vUserName VARCHAR(10),  \
+db2 (cont.) =>   OUT vOutValue VARCHAR(10), \
+db2 (cont.) =>   INOUT vInOutValue VARCHAR(10)) \
+db2 (cont.) => LANGUAGE SQL \
+db2 (cont.) => BEGIN \
+db2 (cont.) =>   INSERT INTO test_helloworld \
+db2 (cont.) =>     VALUES('Hello ' || vUserName || vInOutValue); \
+db2 (cont.) =>   SET vOutValue = 'A';  \
+db2 (cont.) =>   SET vInOutValue = 'B';  \
+db2 (cont.) => END
+DB20000I  SQL 命令成功完成。
+
+db2 => truncate table  test_helloworld IMMEDIATE
+DB20000I  SQL 命令成功完成。
+
+db2 => BEGIN \
+db2 (cont.) =>   DECLARE p_outval VARCHAR(10); \
+db2 (cont.) =>   DECLARE p_inoutval VARCHAR(10); \
+db2 (cont.) =>   SET p_inoutval = '~Hi~'; \
+db2 (cont.) =>   call HelloWorld2('Edward', p_outval, p_inoutval); \
+db2 (cont.) =>   INSERT INTO test_helloworld VALUES('p_outval=' || p_outval); \
+db2 (cont.) =>   INSERT INTO test_helloworld VALUES('p_inoutval=' || p_inoutval)
+; \
+db2 (cont.) => END
+DB20000I  SQL 命令成功完成。
+
+
+db2 => select * from test_helloworld
+
+DATA
+--------------------
+Hello Edward~Hi~
+p_outval=A
+p_inoutval=B
+
+  3 条记录已选择。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+注：
+SQL Server 的 OUTPUT 需要写在变量数据类型后面。
+SQL Server 没有 IN OUT 关键字
+OUTPUT 已经相当于 IN OUT 了。
+
+
+
+1> CREATE PROCEDURE HelloWorld2
+2>   @UserName VARCHAR(10),
+3>   @OutVal   VARCHAR(10) OUTPUT,
+4>   @InoutVal VARCHAR(10) OUTPUT
+5> AS
+6> BEGIN
+7>   PRINT 'Hello ' + @UserName  + @InoutVal + '!';
+8>    SET @OutVal = 'A';
+9>    SET @InoutVal = 'B';
+10> END;
+11> go
+
+1>
+2> DECLARE @RC int, @OutVal VARCHAR(10), @InoutVal VARCHAR(10);
+3> BEGIN
+4>   SET @InoutVal = '~Hi~';
+5>   EXECUTE @RC = HelloWorld2 'Edward', @OutVal OUTPUT, @InoutVal OUTPUT;
+6>   PRINT @RC;
+7>   PRINT '@OutVal=' + @OutVal;
+8>   PRINT '@InoutVal=' + @InoutVal;
+9> END
+10> go
+Hello Edward~Hi~!
+0
+@OutVal=A
+@InoutVal=B
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+
+MySQL 存储过程参数如果不显式指定“in”、“out”、“inout”，则默认为“in”。习惯上，对于是“in” 的参数，我们都不会显式指定。
+
+
+
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE HelloWorld2(
+    ->   IN vUserName VARCHAR(10),
+    ->   OUT vOutValue VARCHAR(10),
+    ->   INOUT vInOutValue VARCHAR(10))
+    -> BEGIN
+    ->   SELECT CONCAT('Hello ', vUserName);
+    ->   SET vOutValue = 'A';
+    ->   SET vInOutValue = 'B';
+    -> END//
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> call HelloWorld2('Edward', @a, @b)//
++-----------------------------+
+| CONCAT('Hello ', vUserName) |
++-----------------------------+
+| Hello Edward                |
++-----------------------------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select @a//
++------+
+| @a   |
++------+
+| A    |
++------+
+1 row in set (0.00 sec)
+
+mysql> select @b//
++------+
+| @b   |
++------+
+| B    |
++------+
+1 row in set (0.00 sec)
+
+
+
+mysql> SHOW CREATE PROCEDURE HelloWorld2\G
+*************************** 1. row ***************************
+           Procedure: HelloWorld2
+            sql_mode: STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITU
+TION
+    Create Procedure: CREATE DEFINER=`root`@`localhost` PROCEDURE `HelloWorld2`(
+
+  IN vUserName VARCHAR(10),
+  OUT vOutValue VARCHAR(10),
+  INOUT vInOutValue VARCHAR(10))
+BEGIN
+  SELECT CONCAT('Hello ', vUserName);
+  SET vOutValue = 'A';
+  SET vInOutValue = 'B';
+END
+character_set_client: utf8
+collation_connection: utf8_general_ci
+  Database Collation: utf8_general_ci
+1 row in set (0.06 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+Test=# truncate table test_helloworld;
+TRUNCATE TABLE
+
+
+Test=# CREATE OR REPLACE FUNCTION HelloWorld3 (
+Test(#   IN vUserName VARCHAR,
+Test(#   OUT vOutValue VARCHAR
+Test(# ) AS
+Test-# $$
+Test$# BEGIN
+Test$#   INSERT INTO test_helloworld
+Test$#     VALUES('Hello ' || vUserName);
+Test$#   vOutValue := 'A';
+Test$# END;
+Test$# $$
+Test-# LANGUAGE plpgsql;
+CREATE FUNCTION
+Test=#
+Test=# SELECT HelloWorld3('ABC');
+ helloworld3
+-------------
+ A
+(1 行记录)
+
+
+Test=# select * from test_helloworld;
+   data
+-----------
+ Hello ABC
+(1 行记录)
+
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

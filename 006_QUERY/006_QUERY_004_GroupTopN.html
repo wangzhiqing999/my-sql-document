@@ -1,0 +1,482 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 分组的TOP-N  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> 分组的TOP-N  </h2>
+
+
+要求 查询 SALE_REPORT 表中，以SALE_ITEM为分组单位，日期最大的3条记录
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    sale_item,
+  3    sale_date,
+  4    sale_money
+  5  FROM
+  6    sale_report main
+  7  WHERE
+  8    (
+  9    SELECT
+ 10      COUNT(1)
+ 11    FROM
+ 12      sale_report sub
+ 13    WHERE
+ 14      main.sale_item = sub.sale_item
+ 15      AND main.sale_date &lt; sub.sale_date
+ 16    ) &lt; 3
+ 17  ORDER BY
+ 18    sale_item,
+ 19    sale_date DESC
+ 20  ;
+
+SALE SALE_DATE      SALE_MONEY
+---- -------------- ----------
+A    31-12？ -09          2009
+A    30-12？ -09          2009
+A    29-12？ -09          2009
+B    31-12？ -09            12
+B    30-12？ -09            12
+B    29-12？ -09            12
+C    31-12？ -09            31
+C    30-12？ -09            30
+C    29-12？ -09            29
+
+
+
+
+上面的查询， 执行起来，速度会慢一些。
+采用下面这种 ROW_NUMBER + PARTITION 的方式， 某些情况下，速度会快一些。
+
+SELECT
+  sale_item,
+  sale_date,
+  sale_money
+FROM
+(
+SELECT
+  ROW_NUMBER() OVER(PARTITION BY SALE_ITEM ORDER BY SALE_DATE DESC) AS NO,
+  SALE_REPORT.*
+FROM
+  SALE_REPORT
+)
+WHERE
+  no &lt;=3;
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => SELECT
+db2 (cont.) =>   sale_item,
+db2 (cont.) =>   sale_date,
+db2 (cont.) =>   sale_money
+db2 (cont.) => FROM
+db2 (cont.) =>   sale_report main
+db2 (cont.) => WHERE
+db2 (cont.) =>   (
+db2 (cont.) =>   SELECT
+db2 (cont.) =>     COUNT(1)
+db2 (cont.) =>   FROM
+db2 (cont.) =>     sale_report sub
+db2 (cont.) =>   WHERE
+db2 (cont.) =>     main.sale_item = sub.sale_item
+db2 (cont.) =>     AND main.sale_date &lt; sub.sale_date
+db2 (cont.) =>   ) &lt; 3
+db2 (cont.) => ORDER BY
+db2 (cont.) =>   sale_item,
+db2 (cont.) =>   sale_date DESC
+db2 (cont.) => ;
+
+SALE_ITEM SALE_DATE  SALE_MONEY
+--------- ---------- ------------
+A         2009-12-31      2009.00
+A         2009-12-30      2009.00
+A         2009-12-29      2009.00
+B         2009-12-31        12.00
+B         2009-12-30        12.00
+B         2009-12-29        12.00
+C         2009-12-31        31.00
+C         2009-12-30        30.00
+C         2009-12-29        29.00
+
+  9 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT
+2>   sale_item,
+3>   sale_date,
+4>   sale_money
+5> FROM
+6>   sale_report main
+7> WHERE
+8>   (
+9>   SELECT
+10>     COUNT(1)
+11>   FROM
+12>     sale_report sub
+13>   WHERE
+14>     main.sale_item = sub.sale_item
+15>     AND main.sale_date &lt; sub.sale_date
+16>   ) &lt; 3
+17> ORDER BY
+18>   sale_item,
+19>   sale_date DESC
+20> go
+sale_item sale_date               sale_money
+--------- ----------------------- ------------
+A         2009-12-31 00:00:00.000      2009.00
+A         2009-12-30 00:00:00.000      2009.00
+A         2009-12-29 00:00:00.000      2009.00
+B         2009-12-31 00:00:00.000        12.00
+B         2009-12-30 00:00:00.000        12.00
+B         2009-12-29 00:00:00.000        12.00
+C         2009-12-31 00:00:00.000        31.00
+C         2009-12-30 00:00:00.000        30.00
+C         2009-12-29 00:00:00.000        29.00
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+SELECT
+  sale_item,
+  sale_date,
+  sale_money
+FROM
+  sale_report main
+WHERE
+  (
+  SELECT
+    COUNT(1)
+  FROM
+    sale_report sub
+  WHERE
+    main.sale_item = sub.sale_item
+    AND main.sale_date &lt; sub.sale_date
+  ) &lt; 3
+ORDER BY
+  sale_item,
+  sale_date DESC;
+
+数据量小的情况下，执行可以。
+如果数据量大的话，查询时间太长，需要使用其他的处理方式：
+
+mysql> select count(1) from SALE_REPORT;
++----------+
+| count(1) |
++----------+
+|     4383 |
++----------+
+1 row in set (0.01 sec)
+
+
+上面那个查询：
++-----------+---------------------+------------+
+| sale_item | sale_date           | sale_money |
++-----------+---------------------+------------+
+| A         | 2012-12-31 00:00:00 |    2012.00 |
+| A         | 2012-12-30 00:00:00 |    2012.00 |
+| A         | 2012-12-29 00:00:00 |    2012.00 |
+| B         | 2012-12-31 00:00:00 |      12.00 |
+| B         | 2012-12-30 00:00:00 |      12.00 |
+| B         | 2012-12-29 00:00:00 |      12.00 |
+| C         | 2012-12-31 00:00:00 |      31.00 |
+| C         | 2012-12-30 00:00:00 |      30.00 |
+| C         | 2012-12-29 00:00:00 |      29.00 |
++-----------+---------------------+------------+
+9 rows in set (10.70 sec)
+
+请注意： 4K 行的数据， 查询花费 10秒+...
+
+
+<hr/>
+查询优化的处理： 通过使用 游标+动态SQL 的处理机制：
+
+
+DELIMITER //
+
+CREATE PROCEDURE test_group_topN()
+LABEL_PROC:
+BEGIN
+
+  -- 关键字数据.
+  DECLARE v_sale_item VARCHAR(10);
+
+  -- 游标控制的标志
+  DECLARE no_more_departments INT;
+
+  -- 动态SQL.
+  DECLARE v_sql varchar(1000);
+  
+  -- 定义游标：用于查询每一个分组的关键字.
+  DECLARE c_test_main CURSOR
+  FOR
+  SELECT sale_item FROM sale_report group by sale_item;
+
+  -- 当游标没有数据的时候
+  -- 设置 no_more_departments = 1
+  DECLARE CONTINUE HANDLER
+  FOR
+  NOT FOUND SET no_more_departments=1;
+
+  -- 初始化 sql 变量的字符串.
+  SET v_sql = '';  
+  
+  -- 设置初始标志位，认为游标是有数据的.
+  SET no_more_departments=0;
+  
+  -- 打开游标
+  OPEN c_test_main;
+  
+  -- 获取游标数据
+  FETCH c_test_main INTO v_sale_item;
+  
+  -- 循环所有的行
+  WHILE no_more_departments = 0 DO
+    -- 拼 SQL. 
+	-- 注意：因为 子查询里面，用到了 ORDER BY 与 LIMIT, 因此需要在每个查询外面加括号，否则要报错误
+	-- 报错内容可能为： ERROR 1221 (HY000): Incorrect usage of UNION and ORDER BY
+	IF v_sql = '' THEN
+		-- 第一条
+		SET v_sql = CONCAT('(SELECT * FROM sale_report WHERE sale_item=''', v_sale_item, ''' ORDER BY sale_date DESC LIMIT 3)') ;
+	ELSE
+		-- 后续的 sql， 需要 union all
+		SET v_sql = CONCAT(v_sql, ' UNION ALL (SELECT * FROM sale_report WHERE sale_item=''', v_sale_item, ''' ORDER BY sale_date DESC LIMIT 3)') ;
+	END IF;
+    -- 获取游标数据
+    FETCH c_test_main INTO v_sale_item;
+  END WHILE;
+  
+  -- 关闭游标
+  CLOSE c_test_main;
+  
+  -- 执行动态 SQL.  
+  SET @sql = v_sql;
+  PREPARE sl FROM @sql;
+  EXECUTE sl;
+  DEALLOCATE PREPARE sl;
+END LABEL_PROC //
+
+DELIMITER ;
+
+call test_group_topN();
+
+
++---------------------+-----------+------------+
+| SALE_DATE           | SALE_ITEM | SALE_MONEY |
++---------------------+-----------+------------+
+| 2012-12-31 00:00:00 | A         |    2012.00 |
+| 2012-12-30 00:00:00 | A         |    2012.00 |
+| 2012-12-29 00:00:00 | A         |    2012.00 |
+| 2012-12-31 00:00:00 | B         |      12.00 |
+| 2012-12-30 00:00:00 | B         |      12.00 |
+| 2012-12-29 00:00:00 | B         |      12.00 |
+| 2012-12-31 00:00:00 | C         |      31.00 |
+| 2012-12-30 00:00:00 | C         |      30.00 |
+| 2012-12-29 00:00:00 | C         |      29.00 |
++---------------------+-----------+------------+
+9 rows in set (0.01 sec)
+
+Query OK, 0 rows affected (0.04 sec)
+
+
+使用存储过程来处理， 时间大幅度减少.
+
+
+<hr/>
+
+使用模拟的 ROW_NUMBER + PARTITION 的方式
+
+
+SELECT
+  sale_item,
+  sale_date,
+  sale_money
+FROM
+(
+SELECT
+  CASE 
+    WHEN @cn != sale_item THEN @rownum:= 1 
+    ELSE @rownum:= @rownum + 1  
+    END AS No,
+  @cn := sale_item AS sale_item,
+  sale_date,
+  sale_money
+FROM
+  (SELECT @rownum:=0) r,
+  (SELECT @cn:='') p,
+  SALE_REPORT
+ORDER BY
+  SALE_ITEM,
+  SALE_DATE DESC
+) subQuery
+WHERE
+  no &lt;=3;
+
+
+
++-----------+---------------------+------------+
+| sale_item | sale_date           | sale_money |
++-----------+---------------------+------------+
+| A         | 2012-12-31 00:00:00 |    2012.00 |
+| A         | 2012-12-30 00:00:00 |    2012.00 |
+| A         | 2012-12-29 00:00:00 |    2012.00 |
+| B         | 2012-12-31 00:00:00 |      12.00 |
+| B         | 2012-12-30 00:00:00 |      12.00 |
+| B         | 2012-12-29 00:00:00 |      12.00 |
+| C         | 2012-12-31 00:00:00 |      31.00 |
+| C         | 2012-12-30 00:00:00 |      30.00 |
+| C         | 2012-12-29 00:00:00 |      29.00 |
++-----------+---------------------+------------+
+9 rows in set (0.02 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+SELECT
+  sale_item,
+  sale_date,
+  sale_money
+FROM
+  sale_report main
+WHERE
+  (
+  SELECT
+    COUNT(1)
+  FROM
+    sale_report sub
+  WHERE
+    main.sale_item = sub.sale_item
+    AND main.sale_date &lt; sub.sale_date
+  ) &lt; 3
+ORDER BY
+  sale_item,
+  sale_date DESC
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+SELECT
+  sale_item,
+  sale_date,
+  sale_money
+FROM
+  sale_report main
+WHERE
+  (
+  SELECT
+    COUNT(1)
+  FROM
+    sale_report sub
+  WHERE
+    main.sale_item = sub.sale_item
+    AND main.sale_date &lt;  sub.sale_date
+  ) &lt; 3
+ORDER BY
+  sale_item,
+  sale_date DESC;
+
+执行时间相当长....
+
+SELECT
+  sale_item,
+  sale_date,
+  sale_money
+FROM
+(
+SELECT
+  ROW_NUMBER() OVER(PARTITION BY SALE_ITEM ORDER BY SALE_DATE DESC) AS NO,
+  SALE_REPORT.*
+FROM
+  SALE_REPORT
+) subQuery
+WHERE
+  no &lt; =3;
+
+执行时间可接受.
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

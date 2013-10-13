@@ -1,0 +1,19 @@
+[OPTIONS]
+Compatibility=1.1 or later
+Compiled file=SQLDoc.chm
+Contents file=Table_of_Contents.hhc
+Default Font=微软雅黑,8,0
+Default Window=$global_main
+Default topic=000_Index.html
+Display compile progress=No
+Full-text search=Yes
+Index file=Index.hhk
+Language=0x804 中文(简体，中国)
+Title=SQL 参考手册
+
+[WINDOWS]
+$global_main="SQL 参考手册","Table_of_Contents.hhc","Index.hhk","000_Index.html",,,,,,0x22520,,0x3006,,,,,,,,0
+
+
+[INFOTYPES]
+

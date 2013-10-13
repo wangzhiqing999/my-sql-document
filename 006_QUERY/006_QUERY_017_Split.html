@@ -1,0 +1,417 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 一行转多行 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> 一行转多行  </h2>
+
+
+<pre><code>
+
+测试表与测试数据
+
+CREATE TABLE TestMulToOne (
+  name       VARCHAR(10),
+  allTitles  VARCHAR(200)
+);
+
+INSERT INTO TestMulToOne VALUES ('张三', '程序员,系统管理员,网络管理员');
+INSERT INTO TestMulToOne VALUES ('李四', '项目经理,系统分析员');
+
+
+</code></pre>
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+Oracle 需要首先在数据库中， 创建好 类型 与 函数。
+来实现一个  split 功能的处理。
+
+
+
+-- 定义一个对象类型.
+CREATE OR REPLACE TYPE ty_row_str_split as object (strValue VARCHAR2 (4000));
+/
+
+-- 定义一个 表/数组类型， 内容是前面定义的那个对象.
+CREATE OR REPLACE TYPE ty_tbl_str_split IS TABLE OF ty_row_str_split;
+/
+
+--------------------
+-- 字符分割函数.
+-- 参数1：  被分割的源字符串
+-- 参数2：  用于拆分的字符串。
+--------------------
+CREATE OR REPLACE FUNCTION fn_split(
+  p_str       IN VARCHAR2,
+  p_delimiter IN VARCHAR2)
+RETURN ty_tbl_str_split IS
+  j         INT := 0;
+  i         INT := 1;
+  -- 被分割的源字符串 的长度.
+  len       INT := 0;
+  -- 分隔字符串的长度
+  len1      INT := 0;
+  -- 暂存的中间每一个单元的文本信息.
+  str       VARCHAR2(4000);
+  -- 预期返回结果.
+  str_split ty_tbl_str_split := ty_tbl_str_split();
+BEGIN
+  -- 被分割的源字符串 的长度.
+  len   := LENGTH(p_str);
+  -- 分隔字符串的长度.
+  len1 := LENGTH(p_delimiter);
+
+  -- 遍历 被分割的源字符串.
+  WHILE j &lt; len LOOP
+    -- 在被分割的源字符串中， 查询 分隔字符串.
+    j := INSTR(p_str, p_delimiter, i);
+
+    IF j = 0 THEN
+      -- j=0 意味着没有找到.
+	  -- 可以理解为是查询到最后一个单元了.
+	  -- 设置 j := len， 让外部的循环处理可以结束了.
+      j  := len;
+      -- 获取最后一个单元的内容.
+      str := SUBSTR(p_str, i);
+      -- 结果追加一行.
+      str_split.EXTEND;
+      -- 设置结果内容.
+      str_split(str_split.COUNT) := ty_row_str_split(strValue => str);
+
+      IF i &gt;= len THEN
+        EXIT;
+      END IF;
+    ELSE
+      -- 如果在被分割的源字符串中，找到了 分隔字符串.
+      -- 首先，获取分割的内容.
+      str := SUBSTR(p_str, i, j - i);
+      -- 然后设置索引， 下一次再查找的时候，从指定的索引位置开始（不是从0开始找了）
+      i := j + len1;
+      -- 结果追加一行.
+      str_split.EXTEND;
+      -- 设置结果内容.
+      str_split(str_split.COUNT) := ty_row_str_split(strValue => str);
+    END IF;
+  END LOOP;
+
+
+  RETURN str_split;
+END fn_split;
+/
+
+
+
+
+函数创建完毕以后，可以开始做查询的处理.
+
+
+SQL> select to_char(strvalue) as Value from table(fn_split('aa,bb,cc',','));
+
+VALUE
+-------------------------------------------------------------------------------
+aa
+bb
+cc
+
+
+
+SQL> COLUMN "name" FORMAT A15
+SQL> COLUMN "Value" FORMAT A15
+SQL>
+SQL>
+SQL>
+SQL> select
+  2    TestMulToOne.name,
+  3    to_char(strvalue) as Value
+  4  from
+  5    TestMulToOne,
+  6    table(fn_split( TestMulToOne.allTitles,  ','));
+
+NAME            VALUE
+--------------- ---------------
+张三            程序员
+张三            系统管理员
+张三            网络管理员
+李四            项目经理
+李四            系统分析员
+
+SQL>
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 -td@
+
+
+CREATE OR REPLACE FUNCTION f_split (
+	p_str    varchar(1000),
+	p_split  varchar(10)
+) RETURNS TABLE (result VARCHAR(100))
+LANGUAGE SQL
+RETURN
+  with n(str, ori, pos) as (
+     values (p_str||p_split, 1, locate(p_split,p_str))
+     union all
+     select  str,  pos+length(p_split), locate(p_split, str, pos+length(p_split))
+     from n
+     where locate(p_split, str, pos+length(p_split))>0)
+   select substr(str, ori, pos-ori) as result from n
+@
+
+
+
+函数创建完毕以后，可以开始做查询的处理.
+db2 => select result from table(f_split('aa,bb,cc',','))@
+RESULT
+--------------------
+SQL0347W  递归公共表表达式 "TEST.N" 可能包含无限循环。  SQLSTATE=01605
+aa
+bb
+cc
+
+  已选择 3 条记录，打印 1 条警告消息。
+
+
+
+db2 => select
+db2 (cont.) =>   TestMulToOne.name,
+db2 (cont.) =>   result as Value
+db2 (cont.) => from
+db2 (cont.) =>   TestMulToOne,
+db2 (cont.) =>   table(f_split( TestMulToOne.allTitles,  ','))@
+
+NAME       VALUE
+---------- ---------------------------------------------------------------------
+SQL0347W  递归公共表表达式 "TEST.N" 可能包含无限循环。  SQLSTATE=01605
+
+张三       程序员
+张三       系统管理员
+张三       网络管理员
+李四       项目经理
+李四       系统分析员
+
+  已选择 5 条记录，打印 1 条警告消息。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+第一步 将 文本信息，变为 XML 格式的信息
+select
+    name,
+    allTitle = convert(xml, '&lt;root&gt;&lt;v&gt;' + replace(allTitles,',','&lt;/v&gt;&lt;v&gt;') + '&lt;/v&gt;&lt;/root&gt;')
+  from
+    TestMulToOne
+
+name       allTitle
+---------- ---------------------------------------------------------------
+张三         &lt;root&gt;&lt;v&gt;程序员&lt;/v&gt;&lt;v&gt;系统管理员&lt;/v&gt;&lt;v&gt;网络管理员&lt;/v&gt;&lt;/root&gt;
+李四         &lt;root&gt;&lt;v&gt;项目经理&lt;/v&gt;&lt;v&gt;系统分析员&lt;/v&gt;&lt;/root&gt;
+
+
+第二步，使用outer apply处理
+select
+  a.name,
+  b.OneTitle
+from
+  (
+  select
+    name,
+    allTitle = convert(xml, '&lt;root&gt;&lt;v&gt;' + replace(allTitles,',','&lt;/v&gt;&lt;v&gt;') + '&lt;/v&gt;&lt;/root&gt;')
+  from
+    TestMulToOne
+  )a
+  outer apply
+  (
+  select
+    OneTitle = C.v.value('.', 'nvarchar(100)')
+    from
+      a.allTitle.nodes('/root/v')C(v)
+  ) b
+
+执行结果
+name       OneTitle
+---------- ------------------
+张三         程序员
+张三         系统管理员
+张三         网络管理员
+李四         项目经理
+李四         系统分析员
+
+
+
+
+
+<hr>
+
+也可以采用自己创建函数的处理机制来处理.
+
+
+CREATE FUNCTION f_split(
+	@p_str    varchar(1000),
+	@p_split  varchar(10)
+)
+RETURNS  TABLE
+AS
+RETURN
+  with n as (
+    SELECT @p_str + @p_split AS str, 1 AS ori, CHARINDEX(@p_split, @p_str) AS pos
+    union all
+    select  str,  pos+LEN(@p_split), CHARINDEX(@p_split, str, pos + LEN(@p_split))
+    from n
+    where CHARINDEX(@p_split, str, pos+LEN(@p_split))>0)
+   select SUBSTRING(str, ori, pos-ori) as result from n;
+GO
+
+
+函数创建完毕以后，可以开始做查询的处理.
+1> select CAST(result as varchar(10)) as RESULT from f_split('aa,bb,cc',',');
+2> GO
+RESULT
+----------
+aa
+bb
+cc
+
+(3 行受影响)
+
+
+
+-- 请注意这里需要使用 cross apply
+1> select
+2>   TestMulToOne.name,
+3>   CAST(result as varchar(20)) as Value
+4> from
+5>   TestMulToOne
+6>     cross apply f_split(TestMulToOne.allTitles,  ',')
+7> GO
+name       Value
+---------- --------------------
+张三         程序员
+张三         系统管理员
+张三         网络管理员
+李四         项目经理
+李四         系统分析员
+
+(5 行受影响)
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+SELECT
+  TestMulToOne.name,
+  regexp_split_to_table( TestMulToOne.allTitles,  ',') AS OneTitle
+FROM
+  TestMulToOne;
+
+ name |  onetitle
+------+------------
+ 张三 | 程序员
+ 张三 | 系统管理员
+ 张三 | 网络管理员
+ 李四 | 项目经理
+ 李四 | 系统分析员
+(5 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 触发器 - DDL触发器 服务器级别 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 触发器 </h1>
+
+
+<h2> DDL触发器 服务器级别  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+create or replace trigger trigger_name
+before|after startup|shutdown|logon|logoff
+on database
+例：
+--记录数据库关闭的时间（shutdown类型要用关键字before，startup用after）
+create or replace trigger db_shutdown
+before shutdown
+on database
+begin
+insert into test_tbl(log_event) values('db shutdown at '||to_char(sysdate,'yyyy-mm-dd hh24:mi:ss'));
+commit;
+end;
+
+--记录用户LOGON时间（logoff类型要用关键字before，logon用after）
+create or replace trigger user_logon_db
+after logon
+on database
+begin
+insert into test_tbl(username,logon_time) values(user,to_char(sysdate,'yyyy-mm-dd hh24:mi:ss'));
+commit;
+end;
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> CREATE TRIGGER ddl_trig_database
+2> ON ALL SERVER
+3> FOR CREATE_DATABASE
+4> AS
+5> BEGIN
+6>   DECLARE @EventData     AS xml;
+7>   DECLARE @DatabaseName  AS varchar(100);
+8>   DECLARE @Sql    NVARCHAR(200);
+9>
+10>   SET @EventData = EVENTDATA();
+11>
+12>   SELECT
+13>     @DatabaseName = t.c.value('(DatabaseName)[1]',   'varchar(100)' )
+14>   FROM
+15>     @EventData.nodes('/EVENT_INSTANCE') t(c);
+16>
+17>   PRINT 'Database Created.'
+18>
+19>   SET @Sql =
+20>     'CREATE TABLE ' + @DatabaseName + '.dbo.abc( a INT )' ;
+21>   PRINT @Sql;
+22>   EXEC (@Sql);
+23>
+24> END
+25> GO
+1> create database test2
+2> go
+Database Created.
+CREATE TABLE test2.dbo.abc( a INT )
+1> use test2
+2> go
+已将数据库上下文更改为 'test2'。
+1> select * from abc
+2> go
+a
+-----------
+
+(0 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

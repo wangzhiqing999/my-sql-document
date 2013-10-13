@@ -1,0 +1,453 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 导出/导入 - 简单表的导出/导入 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 导出/导入 </h1>
+
+
+<h2> 简单表的导出/导入  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+Oracle 9/10
+可以使用 exp 导出  Imp 导入
+
+
+===== 导出、导入 整个用户的情况。
+
+用于导出  test  用户下的所有数据.
+EXP test/test@源数据库 file=test.dmp owner=test
+
+用于将前面导出的  test  用户下的所有数据.   倒入到  test2 用户下.
+IMP test2/test2@目标数据库   file=test.dmp FROMUSER=test TOUSER=test2
+
+
+===== 导出、导入 单个表的情况。
+
+导出 TEST_MAIN,TEST_SUB  这2个表
+EXP test/test@源数据库 file=test.dmp tables=(TEST_MAIN,TEST_SUB)
+
+导入 TEST_MAIN,TEST_SUB  这2个表
+IMP test2/test2@目标数据库 file=test.dmp tables=(TEST_MAIN,TEST_SUB)
+
+
+
+
+==============================
+
+
+Oracle 10g 开始， 新增数据泵工具 导出导入 的工具.
+
+数据泵工具导出的步骤：
+1、创建DIRECTORY
+create directory dir_dp as 'C:/OracleData'
+
+2、授权
+Grant read,write on directory dir_dp to obpos;
+
+3、执行导出
+expdp obpos/obpos schemas=obpos directory=dir_dp dumpfile=obpos.dmp logfile=obpos.log
+
+C:\>expdp obpos/obpos schemas=obpos directory=dir_dp dumpfile=obpos.dmp logfile=obpos.log
+
+Export: Release 10.2.0.1.0 - Production on 星期二, 29 1月, 2013 16:52:12
+
+Copyright (c) 2003, 2005, Oracle.  All rights reserved.
+
+连接到: Oracle Database 10g Express Edition Release 10.2.0.1.0 - Production
+启动 "OBPOS"."SYS_EXPORT_SCHEMA_01":  obpos/******** schemas=obpos directory=dir
+_dp dumpfile=obpos.dmp logfile=obpos.log
+正在使用 BLOCKS 方法进行估计...
+处理对象类型 SCHEMA_EXPORT/TABLE/TABLE_DATA
+使用 BLOCKS 方法的总估计: 5.375 MB
+......
+已成功加载/卸载了主表 "OBPOS"."SYS_EXPORT_SCHEMA_01"
+******************************************************************************
+OBPOS.SYS_EXPORT_SCHEMA_01 的转储文件集为:
+  C:\ORACLEDATA\OBPOS.DMP
+作业 "OBPOS"."SYS_EXPORT_SCHEMA_01" 已于 16:52:56 成功完成
+
+
+
+
+
+EXPDP导出的各种模式：
+1、 按表导出：
+EXPDP obpos/obpos  tables="OBPOS"."ROOM","OBPOS"."ROOMBOOKD" dumpfile=expdp_Room.dmp logfile=expdp_Room.log directory=dir_dp job_name=my_job
+
+2、按查询条件导出：
+EXPDP obpos/obpos  tables="OBPOS"."ROOM" dumpfile =expdp_Room2.dmp logfile=expdp_Room2.log directory=dir_dp job_name=my_job query='"where rownum&lt;5"'
+
+3、按表空间导出：
+EXPDP obpos/obpos dumpfile=expdp_tablespace.dmp tablespaces=USER.DBF logfile=expdp_tablespace.log directory=dir_dp job_name=my_job
+
+4、导出方案
+EXPDP obpos/obpos DIRECTORY=dir_dp DUMPFILE=schema.dmp SCHEMAS=obpos
+
+5、导出整个数据库：
+EXPDP obpos/obpos dumpfile=full.dmp full=y logfile=full.log directory=dir_dp job_name=my_job
+
+
+
+
+
+
+
+IMPDP导入的各种模式：
+
+授权
+Grant read,write on directory dir_dp to test;
+
+
+1、按表导入
+impdp obpos/obpos dumpfile=obpos.dmp logfile=obpos.log directory=dir_dp tables=MR_USER job_name=my_job
+
+impdp obpos/obpos dumpfile=expdp_Room.dmp logfile=obpos.log directory=dir_dp tables=ROOM job_name=my_job
+
+
+(注： 因为导出的时候， 是用 obpos 用户，以 schemas=obpos 的机制导出的。 导入的时候， 如果用 test 用户导入， 好像表不会导入到 test 的用户下面 )
+
+这种 A 用户导出，  B 用户导入的情况下。  需要使用  REMAP_SCHEMA  参数.   REMAP_SCHEMA = 导出的用户名:导入的用户名
+impdp obpos/obpos REMAP_SCHEMA=obpos:test dumpfile=expdp_Room.dmp logfile=obpos.log directory=dir_dp tables=ROOM job_name=my_job
+
+
+
+
+2、按用户导入（可以将用户信息直接导入，即如果用户信息不存在的情况下也可以直接导入）
+impdp obpos/obpos schemas=obpos dumpfile=obpos.dmp logfile=impdp.log directory=dir_dp job_name=my_job
+
+
+
+
+3、不通过expdp的步骤生成dmp文件而直接导入的方法：
+--从源数据库中向目标数据库导入表 p_street_area
+impdp gwm/gwm directory=dir_dp NETWORK_LINK=igisdb tables=p_street_area logfile=p_street_area.log  job_name=my_job
+igisdb 是目的数据库与源数据的链接名，dir_dp 是目的数据库上的目录
+
+
+
+4、更换表空间
+  采用remap_tablespace参数
+--导出gwm用户下的所有数据
+expdp system/orcl directory=data_pump_dir dumpfile=gwm.dmp SCHEMAS=gwm
+
+注：如果是用sys用户导出的用户数据，包括用户创建、授权部分，用自身用户导出则不含这些内容
+--以下是将gwm用户下的数据全部导入到表空间gcomm（原来为gmapdata表空间下）下
+impdp system/orcl directory=data_pump_dir dumpfile=gwm.dmp remap_tablespace=gmapdata:gcomm
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+Bcp out 为导出
+Bcp in 为导入
+
+
+C:\Documents and Settings\wzq>bcp [Test1].[dbo].[A] out a.txt -c -T -S "localhost\SQLEXPRESS"
+
+开始复制...
+
+已复制 9 行。
+网络数据包大小(字节): 4096
+总时钟时间(毫秒)     : 1      平均值: (每秒 9000.00 行。)
+
+
+这里在另外一个窗口，删除了 A 表的数据。DELETE FROM A
+
+
+C:\Documents and Settings\wzq>bcp [Test1].[dbo].[A] in a.txt -c -T -S "localhost\SQLEXPRESS"
+
+开始复制...
+
+已复制 9 行。
+网络数据包大小(字节): 4096
+总时钟时间(毫秒)     : 203    平均值: (每秒 44.33 行。)
+
+
+
+
+
+
+如果需要导出查询,  使用  queryout 参数.
+
+D:\>BCP "SELECT id, LEFT(value, 1) value FROM [test_main]" queryout test_main_c.dat -c -T -S "localhost\SQLEXPRESS" -d "Test"
+
+开始复制...
+
+已复制 105 行。
+网络数据包大小(字节): 4096
+总时钟时间(毫秒)     : 1      平均值: (每秒 105000.00 行。)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+进入MySQL目录下的bin文件夹
+
+mysqldump -u 用户名 -p 数据库名 &gt; 导出的文件名
+
+
+
+C:\Program Files\MySQL\MySQL Server 5.5\bin>mysqldump -u root -p Test &gt; test.sql
+
+Enter password: ********
+
+C:\Program Files\MySQL\MySQL Server 5.5\bin>dir *.sql
+ 驱动器 C 中的卷没有标签。
+ 卷的序列号是 406A-C32E
+
+ C:\Program Files\MySQL\MySQL Server 5.5\bin 的目录
+
+2013-01-29  16:34            39,574 test.sql
+               1 个文件         39,574 字节
+               0 个目录  5,498,294,272 可用字节
+
+
+导入
+
+C:\Program Files\MySQL\MySQL Server 5.5\bin>mysql -u root -p
+Enter password: ********
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 17
+Server version: 5.5.29 MySQL Community Server (GPL)
+
+Copyright (c) 2000, 2012, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> create database test2;
+Query OK, 1 row affected (0.04 sec)
+
+mysql> use test2
+Database changed
+mysql> source test.sql
+
+......
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+--  以 test 作为用户名，导出 localhost:5432 服务器上的 Test 数据库。
+--  导出的文件名为 test_data
+
+F:\PostgreSQL\9.2\bin>pg_dump -f test_data -h localhost -U test -p 5432 Test
+口令:
+
+F:\PostgreSQL\9.2\bin>dir test_*
+ 驱动器 F 中的卷是 Install
+ 卷的序列号是 24AD-61D9
+
+ F:\PostgreSQL\9.2\bin 的目录
+
+2013-04-15  14:46           136,270 test_data
+               1 个文件        136,270 字节
+               0 个目录 10,456,657,920 可用字节
+
+
+
+-- 将 test_data  文件中的数据，导入到 localhost:5432 服务器上的 Test2 数据库。
+
+F:\PostgreSQL\9.2\bin>psql.exe -h localhost -U test -p 5432 -d Test2 &lt; test_data
+
+用户 test 的口令：test
+
+SET
+SET
+SET
+SET
+SET
+CREATE SCHEMA
+ALTER SCHEMA
+CREATE EXTENSION
+COMMENT
+CREATE EXTENSION
+COMMENT
+......
+
+
+
+<hr/>
+
+-- 导出当前服务器下的所有数据库。
+F:\PostgreSQL\9.2\bin>pg_dumpall -f all_db_data -h localhost -U test -p 5432
+口令:
+口令:
+口令:
+口令:
+口令:
+
+F:\PostgreSQL\9.2\bin>dir all*
+ 驱动器 F 中的卷是 Install
+ 卷的序列号是 24AD-61D9
+
+ F:\PostgreSQL\9.2\bin 的目录
+
+2013-04-15  14:59           277,246 all_db_data
+               1 个文件        277,246 字节
+               0 个目录 10,448,384,000 可用字节
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+
+<h4> 导出 </h4>
+
+./mongoexport -h 主机名 -u 用户名 -p 密码 -d 数据库名 -c 表名 -o 输出文件.
+
+/* 导出一个表的例子  */
+
+./mongoexport -d test -c SALE_REPORT -o /temp/SALE_REPORT.data
+
+[root@mongodb01 bin]# ./mongoexport -d test -c SALE_REPORT -o /temp/SALE_REPORT.data
+connected to: 127.0.0.1
+exported 12 records
+[root@mongodb01 bin]# more /temp/SALE_REPORT.data
+{ "_id" : { "$oid" : "52401bccc3093463b4f17ea7" }, "SALE_DATE" : { "$date" : 123
+1977600000 }, "SALE_ITEM" : "A", "SALE_MONEY" : 1 }
+{ "_id" : { "$oid" : "52401bccc3093463b4f17ea8" }, "SALE_DATE" : { "$date" : 123
+4656000000 }, "SALE_ITEM" : "A", "SALE_MONEY" : 2 }
+......
+
+
+
+
+<h4> 导入 </h4>
+
+./mongoimport  -h 主机名 -u 用户名 -p 密码 -d 数据库名 -c 表名 -file 文件
+
+/* 导入一个表的例子  */
+
+./mongoimport -d test1 -c SALE_REPORT -file /temp/SALE_REPORT.data
+
+
+[root@mongodb01 bin]# ./mongoimport -d test1 -c SALE_REPORT -file /temp/SALE_REPORT.data
+connected to: 127.0.0.1
+Mon Sep 23 19:22:38.143 check 9 12
+Mon Sep 23 19:22:38.144 imported 12 objects
+
+
+[root@mongodb01 bin]# ./mongo test1
+MongoDB shell version: 2.4.6
+connecting to: test1
+
+
+> db.SALE_REPORT.find().limit(3)
+{ "_id" : ObjectId("52401bccc3093463b4f17ea7"), "SALE_DATE" : ISODate("2009-01-15T00:00:00Z"), "SALE_ITEM" : "A", "SALE_MONEY" : 1 }
+{ "_id" : ObjectId("52401bccc3093463b4f17ea8"), "SALE_DATE" : ISODate("2009-02-15T00:00:00Z"), "SALE_ITEM" : "A", "SALE_MONEY" : 2 }
+{ "_id" : ObjectId("52401bccc3093463b4f17ea9"), "SALE_DATE" : ISODate("2009-03-15T00:00:00Z"), "SALE_ITEM" : "A", "SALE_MONEY" : 3 }
+>
+>
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,477 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 日期函数 - 日期的截尾 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 日期函数 </h1>
+
+
+<h2>  日期的截尾 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+alter session set nls_date_format='YYYY-MM-DD HH24:MI:SS';
+Session altered.
+
+
+TRUNC 为日期的截尾
+
+SELECT '现在' AS truncType , SYSDATE FROM DUAL
+UNION ALL  
+SELECT '年' AS truncType , TRUNC( SYSDATE, 'YYYY' ) FROM DUAL
+UNION ALL
+SELECT '季度' AS truncType, TRUNC( SYSDATE, 'Q' ) FROM DUAL
+UNION ALL
+SELECT '月' AS truncType, TRUNC( SYSDATE, 'MM' ) FROM DUAL
+UNION ALL
+SELECT '星期第一天（月初）' AS truncType, TRUNC( SYSDATE, 'W' ) FROM DUAL
+UNION ALL
+SELECT '本周第一天' AS truncType, TRUNC( SYSDATE, 'D' ) FROM DUAL
+UNION ALL
+SELECT '今天0点' AS truncType, TRUNC( SYSDATE, 'DD' ) FROM DUAL
+UNION ALL
+SELECT '小时' AS truncType, TRUNC( SYSDATE, 'HH' ) FROM DUAL
+UNION ALL
+SELECT '分' AS truncType, TRUNC( SYSDATE, 'MI' ) FROM DUAL;
+
+
+
+TRUNCTYPE                                              SYSDATE
+------------------------------------------------------ -------------------
+现在                                                   2013-01-23 11:38:52
+年                                                     2013-01-01 00:00:00
+季度                                                   2013-01-01 00:00:00
+月                                                     2013-01-01 00:00:00
+星期第一天（月初）                                     2013-01-22 00:00:00
+本周第一天                                             2013-01-20 00:00:00
+今天0点                                                2013-01-23 00:00:00
+小时                                                   2013-01-23 11:00:00
+分                                                     2013-01-23 11:38:00
+
+已选择9行。
+
+
+
+
+
+
+
+
+ROUND 为日期的四舍五入.
+
+SELECT '今天' AS ROUNDType , SYSDATE FROM DUAL
+UNION ALL  
+SELECT '年' AS ROUNDType , ROUND ( SYSDATE, 'YYYY' ) FROM DUAL
+UNION ALL
+SELECT '季度' AS ROUNDType, ROUND ( SYSDATE, 'Q' ) FROM DUAL
+UNION ALL
+SELECT '月' AS ROUNDType, ROUND ( SYSDATE, 'MM' ) FROM DUAL
+UNION ALL
+SELECT '星期第一天（月初）' AS ROUNDType, ROUND ( SYSDATE, 'W' ) FROM DUAL
+UNION ALL
+SELECT '本周第一天' AS ROUNDType, ROUND ( SYSDATE, 'D' ) FROM DUAL
+UNION ALL
+SELECT '今天' AS ROUNDType, ROUND ( SYSDATE, 'DD' ) FROM DUAL
+UNION ALL
+SELECT '小时' AS ROUNDType, ROUND ( SYSDATE, 'HH' ) FROM DUAL
+UNION ALL
+SELECT '分' AS ROUNDType, ROUND ( SYSDATE, 'MI' ) FROM DUAL;
+
+
+ROUNDTYPE                                              SYSDATE
+------------------------------------------------------ -------------------
+今天                                                   2013-01-23 11:42:50
+年                                                     2013-01-01 00:00:00
+季度                                                   2013-01-01 00:00:00
+月                                                     2013-02-01 00:00:00
+星期第一天（月初）                                     2013-01-22 00:00:00
+本周第一天                                             2013-01-20 00:00:00
+今天                                                   2013-01-23 00:00:00
+小时                                                   2013-01-23 12:00:00
+分                                                     2013-01-23 11:43:00
+
+已选择9行。
+
+
+
+
+
+LAST_DAY = 本月最后一天
+SELECT 
+  LAST_DAY(SYSDATE) A
+FROM
+   dual;
+
+A
+-------------------
+2013-01-31 11:39:43
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+SELECT '本年' AS  截尾方式,
+  CURRENT_DATE - (DAYOFYEAR(CURRENT_DATE) - 1) DAY AS 结果  FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '本年' AS  截尾方式,
+  DATE( VARCHAR(CHAR(YEAR(CURRENT_DATE)),4) || '-01-01' ) AS 结果  FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '本年月份' AS  截尾方式,
+  CURRENT_DATE - (DAY(CURRENT_DATE) - 1) DAY AS 结果  FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '本年月份' AS  截尾方式,
+  DATE( SUBSTR(CHAR(CURRENT_DATE),1, 8) || '01' ) AS 结果  FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '本周星期一' AS  截尾方式,
+  CURRENT_DATE - (DAYOFWEEK(CURRENT_DATE) - 2) DAY AS 结果  FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '本周开始[周日]' AS  截尾方式,
+  CURRENT_DATE - (DAYOFWEEK(CURRENT_DATE) - 1) DAY AS 结果 FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '本月结束' AS  截尾方式,
+  CURRENT_DATE + 1 MONTH - DAY(CURRENT_DATE + 1 MONTH) DAY  AS 结果 FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '本年结束' AS  截尾方式,
+  CURRENT_DATE + 1 YEAR - DAYOFYEAR(CURRENT_DATE + 1 YEAR) DAY AS  结果 FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '本年结束' AS  截尾方式,
+  DATE( VARCHAR(CHAR(YEAR(CURRENT_DATE)),4) || '-12-31' ) AS 结果 FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '本周结束' AS  截尾方式,
+  CURRENT_DATE + 7 DAY - DAYOFWEEK(CURRENT_DATE) DAY AS 结果 FROM SYSIBM.SYSDUMMY1
+;
+
+截尾方式             结果
+-------------------- ----------
+本年结束             2011-12-31
+本年结束             2011-12-31
+本月结束             2011-10-31
+本周开始[周日]       2011-10-02
+本周星期一           2011-10-03
+本年月份             2011-10-01
+本年月份             2011-10-01
+本年                 2011-01-01
+本年                 2011-01-01
+本周结束             2011-10-08
+
+  10 条记录已选择。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SELECT '现在' AS  [截尾方式], GETDATE() AS  [结果]
+UNION ALL
+SELECT '本年' AS  [截尾方式], DATEADD(YEAR, DATEDIFF(YEAR, 0, GETDATE()), 0) AS  [结果]
+UNION ALL
+SELECT '本季度' AS  [截尾方式],  DATEADD(QQ, DATEDIFF(QQ, 0, GETDATE()), 0) AS  [结果]
+UNION ALL
+SELECT '本年月份' AS  [截尾方式], DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()), 0)  AS  [结果]
+UNION ALL
+SELECT '本周一' AS  [截尾方式], DATEADD(WEEK, DATEDIFF(WEEK, 0, GETDATE()), 0)  AS  [结果]
+UNION ALL
+SELECT '今天' AS  [截尾方式], DATEADD(DD, DATEDIFF(DD, 0, GETDATE()), 0)  AS  [结果]
+UNION ALL
+SELECT '当前小时' AS  [截尾方式], DATEADD(HH, DATEDIFF(HH, 0, GETDATE()), 0)  AS  [结果]
+UNION ALL
+SELECT '本年结束' AS  [截尾方式],  DATEADD(YEAR, DATEDIFF(YEAR, 0, GETDATE()) + 1, 0) - 1  AS  [结果]
+UNION ALL
+SELECT '本季度结束' AS  [截尾方式],  DATEADD(QQ, DATEDIFF(QQ, 0, GETDATE()) + 1, 0) - 1 AS  [结果]
+UNION ALL
+SELECT '本月结束' AS  [截尾方式],  DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) + 1, 0) -1  AS  [结果]
+UNION ALL
+SELECT '本周结束' AS  [截尾方式],  DATEADD(WEEK, DATEDIFF(WEEK, 0, GETDATE()) + 1, 0) - 1  AS  [结果]
+
+
+截尾方式       结果
+---------- -----------------------
+现在         2013-01-25 15:19:34.633
+本年         2013-01-01 00:00:00.000
+本季度        2013-01-01 00:00:00.000
+本年月份       2013-01-01 00:00:00.000
+本周一        2013-01-21 00:00:00.000
+今天         2013-01-25 00:00:00.000
+当前小时       2013-01-25 15:00:00.000
+本年结束       2013-12-31 00:00:00.000
+本季度结束      2013-03-31 00:00:00.000
+本月结束       2013-01-31 00:00:00.000
+本周结束       2013-01-27 00:00:00.000
+
+(11 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+返回datetime的日期部分
+mysql> SELECT DATE('2010-10-11 20:10:10') A;
++------------+
+| A          |
++------------+
+| 2010-10-11 |
++------------+
+1 row in set (0.00 sec)
+
+返回指定日期的月末的一天.
+mysql> SELECT LAST_DAY(NOW()) A;
++------------+
+| A          |
++------------+
+| 2010-10-31 |
++------------+
+1 row in set (0.00 sec)
+
+
+mysql> SELECT '本年' AS  `截尾方式`,
+    ->   DATE(DATE_SUB(NOW(),INTERVAL DAYOFYEAR(NOW())-1 DAY)) AS `结果`
+    -> UNION ALL
+    -> SELECT '本年' AS  `截尾方式`,
+    ->   MAKEDATE ( YEAR(NOW()), 1) AS `结果`
+    -> UNION ALL
+    -> SELECT '本年月份' AS  `截尾方式`,
+    ->   DATE(DATE_SUB(NOW(),INTERVAL DAYOFMONTH(NOW())-1 DAY)) AS `结果`
+    -> UNION ALL
+    -> SELECT '本周一' AS  `截尾方式`,
+    ->   DATE(DATE_SUB(NOW(),INTERVAL DAYOFWEEK(NOW())-2 DAY)) AS `结果`
+    -> UNION ALL
+    -> SELECT '本周开始[周日]' AS  `截尾方式`,
+    ->   DATE(DATE_SUB(NOW(),INTERVAL DAYOFWEEK(NOW())-1 DAY)) AS `结果`
+    -> UNION ALL
+    -> SELECT '本月结束' AS  `截尾方式`,
+    ->   LAST_DAY(NOW()) AS `结果`
+    -> UNION ALL
+    -> SELECT '本年结束' AS  `截尾方式`,
+    ->   DATE_ADD(
+    ->     DATE(DATE_SUB(NOW(),INTERVAL DAYOFYEAR(NOW()) DAY)),
+    ->     INTERVAL 1 YEAR) AS  `结果`
+    -> UNION ALL
+    -> SELECT '本年结束' AS  `截尾方式`,
+    ->   DATE_SUB( MAKEDATE ( YEAR(NOW()) + 1, 1), INTERVAL 1 DAY ) AS `结果`
+    -> UNION ALL
+    -> SELECT '本周结束' AS  `截尾方式`,
+    ->   DATE(DATE_SUB(NOW(),INTERVAL DAYOFWEEK(NOW())- 7 DAY)) AS `结果`;
++----------------+------------+
+| 截尾方式       | 结果       |
++----------------+------------+
+| 本年           | 2011-01-01 |
+| 本年           | 2011-01-01 |
+| 本年月份       | 2011-04-01 |
+| 本周一         | 2011-04-18 |
+| 本周开始[周日] | 2011-04-17 |
+| 本月结束       | 2011-04-30 |
+| 本年结束       | 2011-12-31 |
+| 本年结束       | 2011-12-31 |
+| 本周结束       | 2011-04-23 |
++----------------+------------+
+9 rows in set (0.00 sec)
+
+
+
+
+
+<hr/>
+
+某些情况下， 需要按  星期一 是一周的第一天的情况。
+也就是 星期日， 会被计算到上一周的最后一天去。
+
+
+CREATE TABLE a (
+    id  INT,
+    `date`  DATE
+);
+ 
+INSERT INTO a VALUES(1, '2013-06-1');
+INSERT INTO a VALUES(2, '2013-06-2');
+INSERT INTO a VALUES(3, '2013-06-3');
+INSERT INTO a VALUES(4, '2013-06-4');
+INSERT INTO a VALUES(5, '2013-06-5');
+INSERT INTO a VALUES(6, '2013-06-6');
+INSERT INTO a VALUES(7, '2013-06-7');
+INSERT INTO a VALUES(8, '2013-06-8');
+INSERT INTO a VALUES(9, '2013-06-9');
+INSERT INTO a VALUES(10, '2013-06-10');
+INSERT INTO a VALUES(11, '2013-06-11');
+INSERT INTO a VALUES(12, '2013-06-12');
+INSERT INTO a VALUES(13, '2013-06-13');
+INSERT INTO a VALUES(14, '2013-06-14');
+INSERT INTO a VALUES(15, '2013-06-15');
+INSERT INTO a VALUES(16, '2013-06-16');
+INSERT INTO a VALUES(17, '2013-06-17');
+INSERT INTO a VALUES(18, '2013-06-18');
+INSERT INTO a VALUES(19, '2013-06-19');
+
+
+
+SELECT
+  id,
+  `Date`,
+  DATE(DATE_SUB(`date`,INTERVAL  DAYOFWEEK(`date`) + IF(DAYOFWEEK(`date`) = 1, 5, -2)  DAY))  AS  `Fiset_Date`
+FROM
+  a;
+  
+
++------+------------+------------+
+| id   | Date       | Fiset_Date |
++------+------------+------------+
+|    1 | 2013-06-01 | 2013-05-27 |
+|    2 | 2013-06-02 | 2013-05-27 |
+|    3 | 2013-06-03 | 2013-06-03 |
+|    4 | 2013-06-04 | 2013-06-03 |
+|    5 | 2013-06-05 | 2013-06-03 |
+|    6 | 2013-06-06 | 2013-06-03 |
+|    7 | 2013-06-07 | 2013-06-03 |
+|    8 | 2013-06-08 | 2013-06-03 |
+|    9 | 2013-06-09 | 2013-06-03 |
+|   10 | 2013-06-10 | 2013-06-10 |
+|   11 | 2013-06-11 | 2013-06-10 |
+|   12 | 2013-06-12 | 2013-06-10 |
+|   13 | 2013-06-13 | 2013-06-10 |
+|   14 | 2013-06-14 | 2013-06-10 |
+|   15 | 2013-06-15 | 2013-06-10 |
+|   16 | 2013-06-16 | 2013-06-10 |
+|   17 | 2013-06-17 | 2013-06-17 |
+|   18 | 2013-06-18 | 2013-06-17 |
+|   19 | 2013-06-19 | 2013-06-17 |
++------+------------+------------+
+19 rows in set (0.00 sec)
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+SELECT 
+	datetime('now') as "现在",
+	datetime('now', 'start of day') as "本日开始",
+	datetime('now', 'start of month') as "本月开始",
+	datetime('now', 'start of year') as "本年开始";
+
+现在|本日开始|本月开始|本年开始
+2012-12-19 06:03:32|2012-12-19 00:00:00|2012-12-01 00:00:00|2012-01-01 00:00:00
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+SELECT '现在' AS truncType , now() 
+UNION ALL
+SELECT '千年' AS truncType , date_trunc('millennium',  now())
+UNION ALL
+SELECT '百年' AS truncType , date_trunc('century',  now())
+UNION ALL
+SELECT '十年' AS truncType , date_trunc('decade',  now())
+UNION ALL
+SELECT '年' AS truncType , date_trunc('year',  now())
+UNION ALL
+SELECT '月' AS truncType, date_trunc('month',  now())
+UNION ALL
+SELECT '周' AS truncType, date_trunc('week',  now())
+UNION ALL
+SELECT '日' AS truncType , date_trunc('day',  now())
+UNION ALL  
+SELECT '日' AS truncType , date_trunc('day',  now())
+UNION ALL  
+SELECT '小时' AS truncType, date_trunc('month',  now())
+UNION ALL
+SELECT '分' AS truncType, date_trunc('minute',  now())
+UNION ALL
+SELECT '秒' AS truncType, date_trunc('second',  now()) ;
+
+ trunctype |            now
+-----------+---------------------------
+ 现在      | 2013-04-09 12:01:58.72+08
+ 千年      | 2001-01-01 00:00:00+08
+ 百年      | 2001-01-01 00:00:00+08
+ 十年      | 2010-01-01 00:00:00+08
+ 年        | 2013-01-01 00:00:00+08
+ 月        | 2013-04-01 00:00:00+08
+ 周        | 2013-04-08 00:00:00+08
+ 日        | 2013-04-09 00:00:00+08
+ 日        | 2013-04-09 00:00:00+08
+ 小时      | 2013-04-01 00:00:00+08
+ 分        | 2013-04-09 12:01:00+08
+ 秒        | 2013-04-09 12:01:58+08
+(12 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

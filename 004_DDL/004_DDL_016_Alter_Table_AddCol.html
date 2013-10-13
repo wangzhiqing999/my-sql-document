@@ -1,0 +1,220 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - 修改表 - 新增列 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 修改表 - 新增列 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+SQL> ALTER TABLE test_tab
+  2    ADD user_number VARCHAR(18) UNIQUE;
+
+Table altered.
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => ALTER TABLE test_tab
+db2 (cont.) =>   ADD user_number VARCHAR(18) NOT NULL DEFAULT 'N/A';
+DB20000I  SQL 命令成功完成。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> ALTER TABLE test_tab
+2>   ADD user_number VARCHAR(18) UNIQUE;
+3> go
+
+
+
+
+<hr/>
+
+关于新增列的时候， 默认值的设置问题：
+
+
+CREATE TABLE test_default(id INT)
+GO
+
+INSERT INTO test_default(id) VALUES(1);
+INSERT INTO test_default(id) VALUES(2);
+INSERT INTO test_default(id) VALUES(3);
+GO
+
+
+ALTER TABLE test_default
+  ADD Value1 varchar(30) NOT NULL
+    CONSTRAINT DF_test_default1  DEFAULT '非空的列，自动设置数据';
+go
+
+
+ALTER TABLE test_default
+  ADD Value2 varchar(30) NULL
+    CONSTRAINT DF_test_default2  DEFAULT '允许为空的，不自动设置'
+go
+
+ALTER TABLE test_default
+  ADD Value3 varchar(30) NULL
+    CONSTRAINT DF_test_default3  DEFAULT '允许为空的，强制设置'  WITH VALUES 
+go
+
+
+1> select * from test_default
+2> go
+id          Value1                         Value2                         Value3
+
+----------- ------------------------------ ------------------------------ ------
+------------------------
+          1 非空的列，自动设置数据                    NULL
+     允许为空的，强制设置
+          2 非空的列，自动设置数据                    NULL
+     允许为空的，强制设置
+          3 非空的列，自动设置数据                    NULL
+     允许为空的，强制设置
+
+(3 行受影响)
+
+
+
+
+1> insert into test_default values( 4, DEFAULT, DEFAULT, DEFAULT)
+2> go
+(1 行受影响)
+
+
+1> select * from test_default
+2> go
+id          Value1                         Value2                         Value3
+
+----------- ------------------------------ ------------------------------ ------
+------------------------
+          1 非空的列，自动设置数据                    NULL
+     允许为空的，强制设置
+          2 非空的列，自动设置数据                    NULL
+     允许为空的，强制设置
+          3 非空的列，自动设置数据                    NULL
+     允许为空的，强制设置
+          4 非空的列，自动设置数据                    允许为空的，不自动设置
+                允许为空的，强制设置
+
+(4 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> ALTER TABLE test_tab
+    ->   ADD user_number VARCHAR(18) UNIQUE;
+    -> //
+Query OK, 0 rows affected (0.14 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+sqlite> CREATE TABLE test_tab (
+   ...>   id   INT,
+   ...>   name VARCHAR(10),
+   ...>   age  INT,
+   ...>   val  VARCHAR(10)
+   ...> );
+
+sqlite> ALTER TABLE test_tab
+   ...>         ADD user_number VARCHAR(18) UNIQUE;
+Error: Cannot add a UNIQUE column
+
+sqlite> ALTER TABLE test_tab
+   ...>         ADD user_number VARCHAR(18) ;
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# ALTER TABLE test_tab
+Test-#   ADD user_number VARCHAR(18) UNIQUE;
+注意:  ALTER TABLE / ADD UNIQUE 将要为表 "test_tab" 创建隐含索引 "test_tab_user_number_key"
+ALTER TABLE
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

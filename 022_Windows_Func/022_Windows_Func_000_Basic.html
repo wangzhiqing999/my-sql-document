@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 窗口函数 - 基本语法 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 窗口函数 </h1>
+
+
+<h2>  基本语法  </h2>
+
+
+
+
+<pre><code>
+
+
+分析函数的语法：
+  分析函数( [参数] ) OVER ( 分析语句 )
+
+分析语句的语法：
+  [ 分区语句 ] [ 排序语句 [ 窗口语句 ] ]
+
+窗口函数
+windowing_clause =
+     { ROWS | RANGE }
+     { BETWEEN
+       { UNBOUNDED PRECEDING
+         | CURRENT ROW
+         | value_expr { PRECEDING | FOLLOWING }
+       }
+       AND
+       { UNBOUNDED FOLLOWING
+         | CURRENT ROW
+         | value_expr { PRECEDING | FOLLOWING }
+       }
+       |
+       { UNBOUNDED PRECEDING
+         | CURRENT ROW
+         | value_expr PRECEDING
+       }
+     }
+
+ROWS 是关键字，指定窗口由物理行构成
+RANGE 是关键字，指定窗口由逻辑偏移量构成
+
+BETWEEN..AND是关键字，用来指定窗口的起始点和终结点
+UNBOUNDED PRECEDING 指明窗口开始于分组的第一行
+CURRENT ROW 作为起始点，指明窗口开始于当前行或当前值
+            作为终结点，指明窗口结束于当前行或当前值
+UNBOUNDED FOLLOWING 指明窗口结束于分组的最后一行
+value_expr 为物理或逻辑偏移量表达式
+
+value_expr PRECEDING 表示从 当前行 - value_expr 行开始，到当前行结束
+value_expr FOLLOWING 表示从 当前行 行开始，当前行 + value_expr行结束
+
+
+</code></pre>
+
+
+
+
+
+
+
+
+
+</body>
+
+
+</html>

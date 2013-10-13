@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> ROLLUP 与 CUBE 查询 - CUBE-GROUPING  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> ROLLUP 与 CUBE 查询 </h1>
+
+
+<h2>  CUBE-GROUPING </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    sale_item,
+  3    TO_CHAR(sale_date, 'Q') AS sale_quarter,
+  4    SUM(sale_money),
+  5    GROUPING(sale_item)  A,
+  6    GROUPING(TO_CHAR(sale_date, 'Q'))  B
+  7  FROM
+  8    sale_report
+  9  GROUP BY
+ 10    CUBE(sale_item, TO_CHAR(sale_date, 'Q'));
+
+SALE SA SUM(SALE_MONEY)          A          B
+---- -- --------------- ---------- ----------
+                 741405          1          1
+     1           182388          1          0
+     2           184700          1          0
+     3           187020          1          0
+     4           187297          1          0
+A                733285          0          1
+A    1           180810          0          0
+A    2           182819          0          0
+A    3           184828          0          0
+A    4           184828          0          0
+B                  2382          0          1
+
+SALE SA SUM(SALE_MONEY)          A          B
+---- -- --------------- ---------- ----------
+B    1              180          0          0
+B    2              455          0          0
+B    3              735          0          0
+B    4             1012          0          0
+C                  5738          0          1
+C    1             1398          0          0
+C    2             1426          0          0
+C    3             1457          0          0
+C    4             1457          0          0
+
+20 rows selected.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+SELECT
+  sale_item,
+  TO_CHAR(sale_date, 'Q') AS sale_quarter,
+  SUM(sale_money),
+  GROUPING(sale_item)  A,
+  GROUPING(TO_CHAR(sale_date, 'Q'))  B
+FROM
+  sale_report
+GROUP BY
+  CUBE(sale_item, TO_CHAR(sale_date, 'Q'));
+
+
+与 Oracle 相同. 
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT
+2>   sale_item,
+3>   DATEPART(qq, sale_date) AS sale_quarter,
+4>   SUM(sale_money),
+5>   GROUPING(sale_item)  A,
+6>   GROUPING(DATEPART(qq, sale_date))  B
+7> FROM
+8>   sale_report
+9> GROUP BY
+10>   sale_item, DATEPART(qq, sale_date) WITH CUBE
+11> go
+sale_item sale_quarter             A   B
+--------- ------------ ----------- --- ---
+A                    1   180810.00   0   0
+A                    2   182819.00   0   0
+A                    3   184828.00   0   0
+A                    4   184828.00   0   0
+A                 NULL   733285.00   0   1
+B                    1      180.00   0   0
+B                    2      455.00   0   0
+B                    3      735.00   0   0
+B                    4     1012.00   0   0
+B                 NULL     2382.00   0   1
+C                    1     1398.00   0   0
+C                    2     1426.00   0   0
+C                    3     1457.00   0   0
+C                    4     1457.00   0   0
+C                 NULL     5738.00   0   1
+NULL              NULL   741405.00   1   1
+NULL                 1   182388.00   1   0
+NULL                 2   184700.00   1   0
+NULL                 3   187020.00   1   0
+NULL                 4   187297.00   1   0
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

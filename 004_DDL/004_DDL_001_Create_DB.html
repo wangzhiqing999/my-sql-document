@@ -1,0 +1,374 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - 创建数据库 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 创建数据库 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+Oracle 通过 DBCA 工具创建一个数据库
+
+创建完毕后，将产生一个“服务”，可通过该服务，启动数据库实例。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+CREATE DATABASE TEST2
+  AUTOMATIC STORAGE YES  ON 'E:\'
+  DBPATH ON 'E:\' ALIAS T2
+  USING CODESET GBK TERRITORY CN COLLATE
+  USING SYSTEM PAGESIZE 4096;
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+
+CREATE DATABASE部分，
+需要指定数据库文件与日志文件的名称、文件名、初始大小、递增方式。
+
+
+
+
+<pre><code>
+
+
+
+CREATE DATABASE [Test] ON  PRIMARY
+( NAME = N’Test’,
+  FILENAME = N’E:\Microsoft SQL Server\MSSQL.1\MSSQL\DATA\Test.mdf’ ,
+  SIZE = 3072KB ,
+  FILEGROWTH = 1024KB )
+ LOG ON
+( NAME = N’Test_log’,
+  FILENAME = N’E:\Microsoft SQL Server\MSSQL.1\MSSQL\DATA\Test_log.ldf’ ,
+  SIZE = 1024KB ,
+  FILEGROWTH = 10%)
+GO
+
+
+
+
+
+--	设置数据库 “兼容级别”
+EXEC dbo.sp_dbcmptlevel @dbname=N’Test’, @new_cmptlevel=90
+GO
+
+--	设置数据库 ANSI NULL 默认值
+ALTER DATABASE [Test] SET ANSI_NULL_DEFAULT OFF
+GO
+
+--	设置数据库 ANSI NULL 已启用
+ALTER DATABASE [Test] SET ANSI_NULLS OFF
+GO
+
+--	设置 ANSI 填充已启用.
+ALTER DATABASE [Test] SET ANSI_PADDING OFF
+GO
+
+--	设置 ANSI 警告已启用
+ALTER DATABASE [Test] SET ANSI_WARNINGS OFF
+GO
+
+--	算术中止
+ALTER DATABASE [Test] SET ARITHABORT OFF
+GO
+
+--	自动关闭
+ALTER DATABASE [Test] SET AUTO_CLOSE OFF
+GO
+
+--	自动创建统计信息.
+ALTER DATABASE [Test] SET AUTO_CREATE_STATISTICS ON
+GO
+
+--	自动收缩
+ALTER DATABASE [Test] SET AUTO_SHRINK OFF
+GO
+
+--	自动更新统计信息.
+ALTER DATABASE [Test] SET AUTO_UPDATE_STATISTICS ON
+GO
+
+--	提交时关闭游标功能
+ALTER DATABASE [Test] SET CURSOR_CLOSE_ON_COMMIT OFF
+GO
+
+--	默认游标
+ALTER DATABASE [Test] SET CURSOR_DEFAULT  GLOBAL
+GO
+
+--	串联的 Null 结果为 Null
+ALTER DATABASE [Test] SET CONCAT_NULL_YIELDS_NULL OFF
+GO
+
+--	数值舍入中止
+ALTER DATABASE [Test] SET NUMERIC_ROUNDABORT OFF
+GO
+
+--	允许带引号的标识符
+ALTER DATABASE [Test] SET QUOTED_IDENTIFIER OFF
+GO
+
+--	递归触发器
+ALTER DATABASE [Test] SET RECURSIVE_TRIGGERS OFF
+GO
+
+--自动异步更新统计信息
+ALTER DATABASE [Test] SET AUTO_UPDATE_STATISTICS_ASYNC OFF
+GO
+
+--	日期相关性优化.
+ALTER DATABASE [Test] SET DATE_CORRELATION_OPTIMIZATION OFF
+GO
+
+--	参数化
+ALTER DATABASE [Test] SET PARAMETERIZATION SIMPLE
+GO
+
+--	数据库为 读写 方式 [非 只读]
+ALTER DATABASE [Test] SET  READ_WRITE
+GO
+
+--	恢复模式
+ALTER DATABASE [Test] SET RECOVERY SIMPLE
+GO
+
+--	限制访问
+ALTER DATABASE [Test] SET  MULTI_USER
+GO
+
+--	恢复-页验证
+ALTER DATABASE [Test] SET PAGE_VERIFY CHECKSUM
+GO
+
+USE [Test]
+GO
+
+--	设置文件组.
+IF NOT EXISTS (SELECT name FROM sys.filegroups WHERE is_default=1 AND name = N’PRIMARY’)
+ALTER DATABASE [Test] MODIFY FILEGROUP [PRIMARY] DEFAULT
+GO
+
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SHOW DATABASES;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| test               |
++--------------------+
+3 rows in set (0.00 sec)
+
+mysql> CREATE DATABASE SQLDOC;
+Query OK, 1 row affected (0.00 sec)
+
+mysql> SHOW DATABASES;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| sqldoc             |
+| test               |
++--------------------+
+4 rows in set (0.00 sec)
+
+
+
+-- 如果需要创建数据库的时候, 指定字符集.
+CREATE DATABASE test_utf8
+  DEFAULT CHARACTER SET utf8
+  COLLATE utf8_general_ci;
+
+
+mysql> use test_utf8
+Database changed
+mysql> show variables like 'character%';
++--------------------------+----------------------------------------+
+| Variable_name            | Value                                  |
++--------------------------+----------------------------------------+
+| character_set_client     | latin1                                 |
+| character_set_connection | latin1                                 |
+| character_set_database   | utf8                                   |
+| character_set_results    | latin1                                 |
+| character_set_server     | latin1                                 |
+| character_set_system     | utf8                                   |
+| character_sets_dir       | F:\mysql-4.1.10a-win32\share\charsets/ |
++--------------------------+----------------------------------------+
+7 rows in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+CREATE DATABASE test2
+  WITH ENCODING='UTF8'
+       OWNER=postgres
+       TEMPLATE=postgres
+       CONNECTION LIMIT=-1
+       TABLESPACE=pg_default;
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+不指定参数的情况下，默认连接到 test 数据库.
+
+
+如果指定一个参数，则是连接到的数据库名称.
+[root@mongodb01 bin]# ./mongo abc
+MongoDB shell version: 2.4.6
+connecting to: abc
+
+
+如果是第一次连接 一个不存在的数据库名称
+那么查询数据库是 不存在的。
+当向 当前数据库插入一张表以后， 查询数据库， 就能查询到了。
+
+
+> show dbs
+local   0.03125GB
+test    0.0625GB
+
+注意：这个时候， 查询数据库结果，里面没有 abc 这个数据库.
+
+> db.createCollection("mycoll",{capped:true,size:100000})
+{ "ok" : 1 }
+
+创建一个表.
+
+> show collections
+mycoll
+system.indexes
+
+查询当前数据库，有哪些表
+
+> show dbs
+abc     0.03125GB
+local   0.03125GB
+test    0.0625GB
+>
+
+查询当前实例里面，有哪些数据库.
+上面的结果显示，  abc 已经被创建了.
+
+
+
+
+
+删除数据库的处理
+
+> use test
+switched to db test
+
+> db.dropDatabase()
+{ "dropped" : "test", "ok" : 1 }
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

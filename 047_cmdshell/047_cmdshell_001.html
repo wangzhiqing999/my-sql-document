@@ -1,0 +1,148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 执行操作系统下的程序 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 执行操作系统下的程序 </h1>
+
+
+<h2>   </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SQL Server默认关闭 master..xp_cmdshell 功能
+
+
+
+1> EXEC master..xp_cmdshell
+2>   'bcp [Test1].[dbo].[a] out "D:\Program Files\a.txt" -c -T -S "localhost\SQL
+EXPRESS"'
+3> go
+消息 15281，级别 16，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，过程 xp_cmdshell
+，第 1 行
+SQL Server 阻止了对组件 'xp_cmdshell' 的 过程'sys.xp_cmdshell' 的访问，因为此组
+件已作为此服务器安全配置的一部分而被关闭。系统管理员可以通过使用 sp_configure 启
+用 'xp_cmdshell'。有关启用 'xp_cmdshell' 的详细信息，请参阅 SQL Server 联机丛书
+中的 "外围应用配置器"。
+
+
+
+EXEC sp_configure 'show advanced options', 1 
+GO 
+-- 重新配置 
+RECONFIGURE 
+GO 
+-- 启用xp_cmdshell 
+EXEC sp_configure 'xp_cmdshell', 1 
+GO 
+--重新配置 
+RECONFIGURE 
+GO 
+
+EXEC master..xp_cmdshell 
+  'bcp [Test1].[dbo].[a] out "D:\Program Files\a.txt" -c -T -S "localhost\SQLEXPRESS"'
+GO
+
+--用完后,要记得将xp_cmdshell禁用(从安全角度安全考虑) 
+-- 允许配置高级选项 
+EXEC sp_configure 'show advanced options', 1 
+GO 
+-- 重新配置 
+RECONFIGURE 
+GO 
+-- 禁用xp_cmdshell 
+EXEC sp_configure 'xp_cmdshell', 0
+GO 
+
+--重新配置 
+RECONFIGURE 
+GO 
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

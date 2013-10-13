@@ -1,0 +1,460 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 字符函数 - TRANSLATE </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 字符函数 </h1>
+
+
+<h2>  TRANSLATE </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+语法：TRANSLATE(char, from, to)
+
+用法：返回将出现在from中的每个字符替换为to中的相应字符以后的字符串。
+若from比to字符串长，那么在from中比to中多出的字符将会被删除。
+三个参数中有一个是空，返回值也将是空值。
+
+
+
+SQL> SELECT TRANSLATE('2KRW229',
+  2  　　'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  3  　　'9999999999XXXXXXXXXXXXXXXXXXXXXXXXXX') AS "License"
+  4  　　FROM DUAL;
+
+License
+-------
+9XXX999
+
+某些情况下，要从一个字符串中，提取数字信息的，可以使用：
+SQL> SELECT TRANSLATE('2KRW229',
+  2  　　'0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', '0123456789')
+  3  　　AS "Translate example"
+  4  　　FROM DUAL;
+
+Tran
+----
+2229
+
+更简单的写法，就是第一个字母是不存在的字母，后面全部是需要被删除的。
+SQL> SELECT TRANSLATE('2KRW229',
+  2  　　'#ABCDEFGHIJKLMNOPQRSTUVWXYZ', '#')
+  3  　　AS "Translate example"
+  4  　　FROM DUAL;
+
+Tran
+----
+2229
+
+还有一种写法，就是把需要保留的都标记下来，其他的都替换为空白
+SQL> SELECT TRANSLATE('2KRW229', 
+  2      '1234567890' || '2KRW229',  '1234567890')
+  3      AS "Translate example"
+  4  FROM DUAL;
+
+Tran
+----
+2229
+
+
+SQL> SELECT
+  2    TRANSLATE(
+  3      '妄想执著如来智慧德相妄想执著', 
+  4      '如来智慧德相妄想执著',
+  5      '如来智慧德相') A,
+  6    TRANSLATE(
+  7      '妄想执著如来智慧德相妄想执著', 
+  8      '#妄想执著',
+  9      '#') B,
+ 10    TRANSLATE(
+ 11      '妄想执著如来智慧德相妄想执著', 
+ 12      '如来智慧德相' || '妄想执著如来智慧德相妄想执著', 
+ 13      '如来智慧德相') C
+ 14  FROM 
+ 15    dual;
+
+A            B            C
+------------ ------------ ------------
+如来智慧德相 如来智慧德相 如来智慧德相
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+语法：TRANSLATE(char,  to, from, pad)
+DB2 相对于 Oralce， 首先是参数顺序发生变化。
+同时，还多了一个 可选的参数。
+最后一个参数，意味着 from 里面有， to里面没，统一替换成的字符，默认为空格。
+
+
+
+
+
+db2 => SELECT
+db2 (cont.) =>   TRANSLATE('2KRW229',
+db2 (cont.) =>     '9999999999XXXXXXXXXXXXXXXXXXXXXXXXXX',
+db2 (cont.) =>     '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+db2 (cont.) =>     ) AS License
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+LICENSE
+-------
+9XXX999
+
+
+某些情况下，要从一个字符串中，提取数字信息的，可以使用：
+db2 => SELECT TRANSLATE(
+db2 (cont.) =>   '2KRW229',
+db2 (cont.) =>   '0123456789',
+db2 (cont.) =>   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+1
+-------
+2   229
+
+  1 条记录已选择。
+
+db2 => SELECT TRANSLATE(
+db2 (cont.) =>   '2KRW229',
+db2 (cont.) =>   '0123456789',
+db2 (cont.) =>   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+db2 (cont.) =>   ''
+db2 (cont.) =>   )
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+1
+-------
+2229
+
+  1 条记录已选择。
+
+
+更简单的写法，就是第一个字母是不存在的字母，后面全部是需要被删除的。
+db2 => SELECT TRANSLATE(
+db2 (cont.) =>   '2KRW229',
+db2 (cont.) =>   '#',
+db2 (cont.) =>   '#ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+db2 (cont.) =>   '')
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+1
+-------
+2229
+
+  1 条记录已选择。
+
+
+
+某些中文汉字处理上，可能还有些问题，原因不明
+
+db2 => SELECT TRANSLATE(
+db2 (cont.) =>   '智慧2KRW229',
+db2 (cont.) =>   '智慧',
+db2 (cont.) =>   '智慧ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+db2 (cont.) =>   '')
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+1
+-------------
+智慧2229
+
+  1 条记录已选择。
+
+db2 => SELECT TRANSLATE(
+db2 (cont.) =>   '智慧2KRW229',
+db2 (cont.) =>   '智慧',
+db2 (cont.) =>   '智慧妄想ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+db2 (cont.) =>   '')
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+1
+-------------
+SQL0176N  TRANSLATE 标量函数的第二个、第三个或第四个自变量不正确。
+SQLSTATE=42815
+
+db2 => SELECT TRANSLATE(
+db2 (cont.) =>   '智慧2KRW229',
+db2 (cont.) =>   '智慧妄想',
+db2 (cont.) =>   '智慧妄想ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+db2 (cont.) =>   '')
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+1
+-------------
+智慧2229
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+CREATE FUNCTION TRANSLATE(
+ @string VARCHAR(MAX),
+ @from_str VARCHAR(MAX),
+ @to_str VARCHAR(MAX)
+)
+RETURNS VARCHAR(MAX)
+AS
+BEGIN
+
+  -- 返回将（所有出现的）from_str中的每个字符替换为to_str中的相应字符以后的string。
+  -- TRANSLATE 是REPLACE 所提供的功能的一个超集。
+  -- 如果from_str 比to_str 长，那么在from_str 中而不在to_str 中的额外字符将从string 中被删除，因为它们没有相应的替换字符。
+  -- to_str 不能为空。
+  -- Oracle 将空字符串解释为NULL，并且如果TRANSLATE 中的任何参数为NULL，那么结果也是NULL。
+  IF @string IS NULL OR @from_str IS NULL OR @to_str IS NULL
+  BEGIN
+    RETURN NULL;
+  END;
+
+  -- 源长度与目标长度
+  DECLARE @FromLen INT, @ToLen INT;
+  SET @FromLen = LEN(@from_str);
+  SET @ToLen = LEN(@to_str);
+
+  -- 准备用于返回的数值.
+  DECLARE @resultVal VARCHAR(MAX);
+  SET @resultVal = @string;
+  
+  -- 用于存储本次需要替换的字符信息.
+  DECLARE @thisTimeReplace CHAR(1);
+
+  
+  -- 从后向前依次替换.
+  WHILE @FromLen > 0
+  BEGIN
+    
+    -- 取得本次即将要替换的字符.
+    SET @thisTimeReplace = SUBSTRING(@from_str, @FromLen, 1);
+    
+    IF CHARINDEX(@thisTimeReplace, @from_str) &lt; @FromLen
+    BEGIN
+      -- 假如当前这个要替换的字符，在前面还有，那么这里就不替换了
+      -- 原因，为了支持
+      -- SELECT TRANSLATE('2KRW229', '1234567890' || '2KRW229',  '1234567890')
+      -- 这样的效果.
+      
+      -- 向前处理上一个.
+      SET @FromLen = @FromLen - 1;
+      CONTINUE;
+    END
+
+    IF @FromLen > @ToLen
+    BEGIN
+      -- from_str 比to_str 长，那么在from_str 中而不在to_str 中的额外字符将从string 中被删除，因为它们没有相应的替换字符。
+      SET @resultVal = REPLACE(@resultVal, SUBSTRING(@from_str, @FromLen, 1), '');
+    END
+    ELSE
+    BEGIN
+      -- from_str中的每个字符替换为to_str中的相应字符以后的string
+      SET @resultVal = REPLACE(@resultVal, @thisTimeReplace, SUBSTRING(@to_str, @FromLen, 1));
+    END;
+    
+    -- 处理完当前字符后，向前处理上一个.
+    SET @FromLen = @FromLen - 1;
+  END;
+  
+  -- 依次处理完毕后，返回结果.
+  RETURN @resultVal;
+  
+END
+go
+
+
+1> SELECT dbo.TRANSLATE('2KRW229',
+2>     '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+3>     '9999999999XXXXXXXXXXXXXXXXXXXXXXXXXX') AS "License"
+4> go
+License
+----------------
+9XXX999
+(1 行受影响)
+
+1>
+2> SELECT dbo.TRANSLATE('2KRW229',
+3>     '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', '0123456789')
+4>     AS "Translate example"
+5> go
+Translate example
+----------------
+2229
+(1 行受影响)
+
+1>
+2>
+3> SELECT dbo.TRANSLATE('2KRW229',
+4>     '#ABCDEFGHIJKLMNOPQRSTUVWXYZ', '#')
+5>     AS "Translate example"
+6> go
+Translate example
+----------------
+2229
+(1 行受影响)
+
+1>
+2> SELECT dbo.TRANSLATE('2KRW229',
+3>     '1234567890' + '2KRW229',  '1234567890')
+4>     AS "Translate example"
+5> go
+Translate example
+----------------
+2229
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+执行结果与 Oracle 相同， 具体功能解释， 参考 Oracle 的部分。
+这里不重复解释了。
+
+
+
+Test=# SELECT TRANSLATE('2KRW229',
+Test(#   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+Test(#   '9999999999XXXXXXXXXXXXXXXXXXXXXXXXXX') AS "License";
+ License
+---------
+ 9XXX999
+(1 行记录)
+
+
+Test=#
+Test=#
+Test=# SELECT TRANSLATE('2KRW229',
+Test(#   '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', '0123456789') AS "Translate example";
+ Translate example
+-------------------
+ 2229
+(1 行记录)
+
+
+Test=#
+Test=# SELECT TRANSLATE('2KRW229',
+Test(#   '#ABCDEFGHIJKLMNOPQRSTUVWXYZ', '#') AS "Translate example";
+ Translate example
+-------------------
+ 2229
+(1 行记录)
+
+
+Test=#
+Test=# SELECT TRANSLATE('2KRW229',
+Test(#   '1234567890' || '2KRW229',  '1234567890') AS "Translate example";
+ Translate example
+-------------------
+ 2229
+(1 行记录)
+
+
+Test=#
+Test=# SELECT
+Test-#   TRANSLATE(
+Test(#     '妄想执著如来智慧德相妄想执著',
+Test(#     '如来智慧德相妄想执著',
+Test(#     '如来智慧德相') A,
+Test-#   TRANSLATE(
+Test(#     '妄想执著如来智慧德相妄想执著',
+Test(#     '#妄想执著',
+Test(#     '#') B,
+Test-#   TRANSLATE(
+Test(#     '妄想执著如来智慧德相妄想执著',
+Test(#     '如来智慧德相' || '妄想执著如来智慧德相妄想执著',
+Test(#     '如来智慧德相') C;
+      a       |      b       |      c
+--------------+--------------+--------------
+ 如来智慧德相 | 如来智慧德相 | 如来智慧德相
+(1 行记录)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 外键约束 - 默认外键约束方式 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 外键约束 </h1>
+
+
+<h2>  默认外键约束方式 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> -- 创建外键(默认选项)
+SQL> ALTER TABLE test_sub ADD CONSTRAINT main_id_cons  FOREIGN KEY (main_id)  REFERENCES  test_main;
+
+Table altered.
+
+SQL>
+SQL> -- 测试删除主表数据. 将出错 ORA-02292: 违反完整约束条件
+SQL> DELETE test_main WHERE ID = 1;
+DELETE
+*
+ERROR at line 1:
+ORA-02292: integrity constraint (HR.MAIN_ID_CONS) violated - child record found
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => ALTER TABLE test_sub ADD CONSTRAINT main_id_cons  FOREIGN KEY (main_id)  REFERENCES  test_main;
+DB20000I  SQL 命令成功完成。
+
+db2 => DELETE
+db2 (cont.) =>   test_main
+db2 (cont.) => WHERE
+db2 (cont.) =>   ID = 1;
+DB21034E  该命令被当作 SQL 语句来处理，因为它是无效的“命令行处理器”命令。在
+SQL 处理期间，它返回：
+SQL0532N  因为关系 "WZQ.TEST_SUB.MAIN_ID_CONS" 限制删除，所以不能删除父行。
+SQLSTATE=23504
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> ALTER TABLE test_sub ADD CONSTRAINT main_id_cons  FOREIGN KEY (main_id)  REFERENCES  test_main;
+2> go
+1> DELETE
+2>   test_main
+3> WHERE
+4>   ID = 1;
+5> go
+消息 547，级别 16，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+DELETE 语句与 REFERENCE 约束"main_id_cons"冲突。该冲突发生于数据库"Stock"，表"db
+o.test_sub", column 'main_id'。
+语句已终止。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+
+
+
+
+	
+<pre><code>
+
+注意，MySQL 建立表的时候，需要确认引擎，是否是 InnoDB 。 
+Innodb存储引擎支持FOREIGN KEY和REFERENCES子句。
+Innodb存储引擎执行ADD [CONSTRAINT [symbol]] FOREIGN KEY (...) REFERENCES ... (...)。请参见15.2.6.4节，“FOREIGN KEY约束”。
+对于其它存储引擎，这些子句会被分析，但是会被忽略。
+
+  
+注意，MySQL 外键，必须指定 主表的列名称
+
+
+mysql> ALTER TABLE test_sub
+    ->   ADD CONSTRAINT main_id_cons
+    ->   FOREIGN KEY (main_id)
+    ->   REFERENCES  test_main(id);
+    -> //
+Query OK, 2 rows affected (0.17 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> DELETE FROM
+    ->   test_main
+    -> WHERE
+    ->   id = 1;
+    -> //
+ERROR 1451 (23000): Cannot delete or update a parent row: a foreign key constrai
+nt fails (`test`.`test_sub`, CONSTRAINT `main_id_cons` FOREIGN KEY (`main_id`) R
+EFERENCES `test_main` (`id`))
+
+
+
+注意:
+如果主表 id 数据类型为 INT   unsigned，  子表数据类型为  INT ， 那么外键将无法创建。
+
+因为：
+INT[(M)] [UNSIGNED] [ZEROFILL]
+普通大小的整数。带符号的范围是-2147483648到2147483647。无符号的范围是0到4294967295。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+
+由于不能通过 ALTER 语句 增加外键，因此只好重建表进行测试
+
+<pre><code>
+
+默认情况下， 外键约束功能是关闭的， 需要下面的命令打开
+sqlite> PRAGMA foreign_keys = ON;
+sqlite>
+
+
+DROP TABLE test_sub;
+
+CREATE TABLE test_sub (
+  id      INT   PRIMARY KEY,
+  main_id INT   REFERENCES  test_main(id),
+  value   VARCHAR(10)
+);
+
+sqlite> INSERT INTO test_sub(id, main_id, value) VALUES (1, 1, 'ONEONE');
+sqlite> INSERT INTO test_sub(id, main_id, value) VALUES (2, 2, 'TWOTWO');
+sqlite> INSERT INTO test_sub(id, main_id, value) VALUES (3, 3, 'THREE');
+Error: foreign key constraint failed
+
+
+sqlite> DELETE FROM test_main WHERE id = 1;
+Error: foreign key constraint failed
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# ALTER TABLE test_sub ADD CONSTRAINT main_id_cons  FOREIGN KEY (main_id)
+REFERENCES  test_main;
+ALTER TABLE
+Test=#
+
+Test=# DELETE test_main WHERE ID = 1;
+错误:  语法错误 在 "test_main" 或附近的
+第1行DELETE test_main WHERE ID = 1;
+            ^
+
+<span class="KeyInfo">PostgreSQL 数据库， DELETE 必须要加 FROM. </span>
+
+Test=# DELETE FROM test_main WHERE ID = 1;
+错误:  在 "test_main" 上的更新或删除操作违反了在 "test_sub" 上的外键约束 "main_id_cons"
+描述:  键值对(id)=(1)仍然是从表"test_sub"引用的.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+<p>
+测试完毕后，删除 外键约束 
+ALTER TABLE test_sub DROP CONSTRAINT main_id_cons;
+</p>
+
+<p>
+注：MySQL使用下面这个语句删除外键约束
+ALTER TABLE test_sub DROP FOREIGN KEY  main_id_cons;
+</p>
+
+<p>
+注：SQLite 等下要重建表的， 就不折腾了。
+</p>
+
+
+
+</body>
+
+
+</html>

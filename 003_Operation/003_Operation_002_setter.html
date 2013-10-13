@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 运算符号-赋值运算符 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 运算符号 </h1>
+
+
+<h2> 赋值运算符 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+两种方式
+:=  (普通设置) 与 SELECT  INTO (通过查询设置)
+
+DECLARE
+	vi	INT;
+BEGIN
+	vi <span class="KeyInfo">:=</span> 100;
+	dbms_output.put_line(TO_CHAR(vi));	
+	<span class="KeyInfo">SELECT</span> 1024  <span class="KeyInfo">INTO</span>  vi FROM dual;
+	dbms_output.put_line(TO_CHAR(vi));
+END;
+
+100
+1024
+
+PL/SQL 过程已成功完成。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+两种方式
+SET (普通设置) 与 SELECT (通过查询设置)
+
+DECLARE @i  INT;
+<span class="KeyInfo">SET</span> @i = 100;
+PRINT @i;
+
+--	这里仅仅用于演示，就不FROM具体表了.
+<span class="KeyInfo">SELECT</span> @i = 1024;
+PRINT @i;
+GO
+
+100
+1024
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

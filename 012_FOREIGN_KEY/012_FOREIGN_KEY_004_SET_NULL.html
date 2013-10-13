@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 外键约束 - SET NULL方式  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 外键约束 </h1>
+
+
+<h2> SET NULL方式  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> -- 创建外键(使用 ON DELETE SET NULL 选项，删除主表的时候，同时将子表的 main
+_id 设置为 NULL)
+SQL> ALTER TABLE test_sub
+  2    ADD CONSTRAINT main_id_cons
+  3      FOREIGN KEY (main_id)  REFERENCES  test_main  ON DELETE SET NULL;
+
+Table altered.
+
+SQL>
+SQL>
+SQL> -- 测试删除主表数据. 将成功地执行.
+SQL> DELETE
+  2    TEST_MAIN
+  3  WHERE
+  4    ID = 2;
+
+1 row deleted.
+
+SQL>
+SQL> -- 测试检索子表，应该有一条的 main_id = null
+SQL> SELECT
+  2    *
+  3  FROM
+  4    test_sub;
+
+        ID    MAIN_ID VALUE
+---------- ---------- --------------------
+         2            TWOTWO
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => ALTER TABLE test_sub
+db2 (cont.) =>   ADD CONSTRAINT main_id_cons
+db2 (cont.) =>     FOREIGN KEY (main_id)
+db2 (cont.) =>       REFERENCES  test_main
+db2 (cont.) =>         ON DELETE SET NULL;
+DB20000I  SQL 命令成功完成。
+
+db2 => -- 测试删除主表数据. 将成功地执行.
+db2 => DELETE TEST_MAIN WHERE ID = 2;
+DB20000I  SQL 命令成功完成。
+
+db2 =>  -- 测试检索子表，应该有一条的 main_id = null
+db2 => SELECT * FROM test_sub;
+
+ID          MAIN_ID     VALUE
+----------- ----------- ----------
+          2           - TWOTWO
+
+  1 条记录已选择。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> -- 创建外键(使用 ON DELETE SET NULL 选项，删除主表的时候，同时将子表的 main_i
+d 设置为 NULL)
+2> ALTER TABLE test_sub
+3>   ADD CONSTRAINT main_id_cons
+4>     FOREIGN KEY (main_id)  REFERENCES  test_main  ON DELETE SET NULL;
+5>
+6>
+7> -- 测试删除主表数据. 将成功地执行.
+8> DELETE
+9>   TEST_MAIN
+10> WHERE
+11>   ID = 2;
+12>
+13> -- 测试检索子表，应该有一条的 main_id = null
+14> SELECT
+15>   *
+16> FROM
+17>   test_sub;
+18>
+19> go
+
+(1 行受影响)
+id          main_id     value
+----------- ----------- ----------
+          2        NULL TWOTWO
+
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> ALTER TABLE test_sub
+    ->   ADD CONSTRAINT main_id_cons
+    ->   FOREIGN KEY (main_id)
+    ->   REFERENCES  test_main(id)
+    ->   ON DELETE SET NULL;
+    -> //
+Query OK, 1 row affected (0.13 sec)
+Records: 1  Duplicates: 0  Warnings: 0
+
+mysql> DELETE FROM
+    ->   test_main
+    -> WHERE
+    ->   id = 5;
+    -> //
+Query OK, 1 row affected (0.05 sec)
+
+mysql>
+mysql> SELECT
+    ->   *
+    -> FROM
+    ->   test_sub;
+    -> //
++----+---------+--------+
+| id | main_id | value  |
++----+---------+--------+
+|  2 |    NULL | TWOTWO |
++----+---------+--------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+DROP TABLE test_sub;
+
+CREATE TABLE test_sub (
+  id      INT   PRIMARY KEY,
+  main_id INT   REFERENCES  test_main(id) ON DELETE SET NULL,
+  value   VARCHAR(10)
+);
+
+sqlite> INSERT INTO test_sub(id, main_id, value) VALUES (2, 5, 'TWOTWO');
+sqlite> DELETE FROM test_main WHERE id = 5;
+sqlite> select * from test_sub;
+2||TWOTWO
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# ALTER TABLE test_sub
+Test-#   ADD CONSTRAINT main_id_cons
+Test-#     FOREIGN KEY (main_id) REFERENCES test_main
+Test-#       ON DELETE SET NULL;
+ALTER TABLE
+
+
+Test=# DELETE FROM test_main WHERE ID = 5;
+DELETE 1
+
+
+Test=# SELECT * FROM test_sub;
+ id | main_id | value
+----+---------+--------
+  2 |         | TWOTWO
+(1 行记录)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

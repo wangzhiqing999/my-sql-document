@@ -1,0 +1,267 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 控制结构 - LOOP </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 控制结构 </h1>
+
+
+<h2> LOOP  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> DECLARE
+  2    testvalue  INT;
+  3  BEGIN
+  4
+  5    testvalue := 0;
+  6
+  7    LOOP
+  8      testvalue := testvalue + 1;
+  9      dbms_output.put_line( TO_CHAR(testvalue) );
+ 10      EXIT WHEN testvalue &gt;= 5;
+ 11    END LOOP;
+ 12
+ 13  END;
+ 14  /
+1
+2
+3
+4
+5
+
+PL/SQL procedure successfully completed.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => TRUNCATE TABLE output_debug IMMEDIATE
+DB20000I  SQL 命令成功完成。
+
+db2 => BEGIN \
+db2 (cont.) =>   DECLARE testvalue  INT;  \
+db2 (cont.) =>   SET testvalue = 0; \
+db2 (cont.) =>   MyLoop: LOOP  \
+db2 (cont.) =>     SET testvalue = testvalue + 1;  \
+db2 (cont.) =>     INSERT INTO output_debug VALUES( TO_CHAR(testvalue) ); \
+db2 (cont.) =>     IF testvalue &gt;= 5 THEN  \
+db2 (cont.) =>       LEAVE MyLoop;  \
+db2 (cont.) =>     END IF;  \
+db2 (cont.) =>   END LOOP;  \
+db2 (cont.) => END
+DB20000I  SQL 命令成功完成。
+
+db2 => select * from output_debug
+DATA
+------------------------------------
+1
+2
+3
+4
+5
+
+  5 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+不支持
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE TestLoop()
+    -> BEGIN
+    ->   DECLARE v_index INT;
+    ->
+    ->   SET v_index = 0;
+    ->
+    ->   loop_label:LOOP
+    ->     SET v_index = v_index + 1;
+    ->
+    ->     SELECT v_index;
+    ->
+    ->     IF v_index &gt;= 5 THEN
+    ->       LEAVE loop_label;
+    ->     END IF;
+    ->
+    ->   END LOOP;
+    ->
+    -> END//
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> call TestLoop() //
++---------+
+| v_index |
++---------+
+|       1 |
++---------+
+1 row in set (0.00 sec)
+
++---------+
+| v_index |
++---------+
+|       2 |
++---------+
+1 row in set (0.00 sec)
+
++---------+
+| v_index |
++---------+
+|       3 |
++---------+
+1 row in set (0.00 sec)
+
++---------+
+| v_index |
++---------+
+|       4 |
++---------+
+1 row in set (0.02 sec)
+
++---------+
+| v_index |
++---------+
+|       5 |
++---------+
+1 row in set (0.02 sec)
+
+Query OK, 0 rows affected (0.02 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+语法 
+[ &lt;&lt;label&gt;&gt; ]
+LOOP
+    statements
+END LOOP [ label ];
+LOOP 定义一个无条件的循环，无限循环， 直到由EXIT或者RETURN语句终止。 
+可选的 label 可以由 EXIT 和 CONTINUE 语句使用， 用于在嵌套循环中声明应该应用于哪一层循环。
+
+
+
+Test=# TRUNCATE TABLE output_debug;
+TRUNCATE TABLE
+
+
+Test=# CREATE OR REPLACE FUNCTION TestLoop() RETURNS void AS
+Test-# $$
+Test$# DECLARE
+Test$#   testvalue  INT;
+Test$# BEGIN
+Test$#   testvalue := 0;
+Test$#   LOOP
+Test$#     testvalue := testvalue + 1;
+Test$#     INSERT INTO output_debug VALUES( testvalue );
+Test$#     EXIT WHEN testvalue >= 5;
+Test$#   END LOOP;
+Test$# END;
+Test$# $$
+Test-# LANGUAGE plpgsql;
+CREATE FUNCTION
+
+
+Test=# SELECT TestLoop();
+ testloop
+----------
+
+(1 行记录)
+
+
+Test=# select * from output_debug;
+ data
+------
+ 1
+ 2
+ 3
+ 4
+ 5
+(5 行记录)
+
+
+Test=#
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

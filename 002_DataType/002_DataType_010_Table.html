@@ -1,0 +1,357 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据类型 - 数组/表 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据类型 </h1>
+
+
+<h2>  数组/表 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+set serveroutput on
+
+
+DECLARE
+  -- 定义一个 VARCHAR(10) 的 表/数组类型.
+  TYPE t_CharTable IS TABLE OF VARCHAR(10) INDEX BY BINARY_INTEGER;
+  -- 定义一个变量. 数据类型是上面定义的类型.
+  v_testArray t_CharTable;
+BEGIN
+  -- 向数组内赋值.
+  v_testArray (1) := '测试1';
+  v_testArray (10) := '测试10';
+  v_testArray (-10) := '测试-10';
+
+  -- 尝试输出数组内容.
+  dbms_output.put_line(v_testArray (1));
+  dbms_output.put_line(v_testArray (10));
+  dbms_output.put_line(v_testArray (-10));
+END;
+/
+
+测试1
+测试10
+测试-10
+
+PL/SQL 过程已成功完成。
+
+<hr/>
+注意事项.  Oracel 中的 TABLE OF ， 实际内部处理机制，还是按照一个表的机制来处理的。
+赋值操作，相当于 不存在则 INSERT INTO， 存在则 UPDATE 的操作。
+
+DECLARE
+  -- 定义一个 VARCHAR(10) 的 表/数组类型.
+  TYPE t_CharTable IS TABLE OF VARCHAR(10) INDEX BY BINARY_INTEGER;
+  -- 定义一个变量. 数据类型是上面定义的类型.
+  v_testArray t_CharTable;
+BEGIN
+  -- 向数组内赋值.
+  v_testArray (1) := 'A测试1';
+  dbms_output.put_line(v_testArray (1));
+  v_testArray (1) := 'A测试10';
+  dbms_output.put_line(v_testArray (1));
+  v_testArray (1) := 'A测试-10';
+  dbms_output.put_line(v_testArray (1));
+END;
+/
+A测试1
+A测试10
+A测试-10
+
+PL/SQL 过程已成功完成。
+
+<hr/>
+尝试访问 没有定义的数组部分，将抛异常.
+
+DECLARE
+  -- 定义一个 VARCHAR(10) 的 表/数组类型.
+  TYPE t_CharTable IS TABLE OF VARCHAR(10) INDEX BY BINARY_INTEGER;
+  -- 定义一个变量. 数据类型是上面定义的类型.
+  v_testArray t_CharTable;
+BEGIN
+  -- 向数组内赋值.
+  v_testArray (1) := 'A测试1';
+
+  dbms_output.put_line(v_testArray (1));
+  dbms_output.put_line(v_testArray (2));
+END;
+/
+
+A测试1
+DECLARE
+*
+ERROR 位于第 1 行:
+ORA-01403: 未找到数据
+ORA-06512: 在 line 11
+
+
+<hr/>
+
+-- COUNT 属性，为 记录数。
+-- DELETE 用于删除处理。
+-- EXISTS 用于判断是否存在
+
+DECLARE
+  -- 定义一个 VARCHAR(10) 的 表/数组类型.
+  TYPE t_CharTable IS TABLE OF VARCHAR(10) INDEX BY BINARY_INTEGER;
+  -- 定义一个变量. 数据类型是上面定义的类型.
+  v_testArray t_CharTable;
+  -- 循环变量.
+  v_index  INT;
+BEGIN
+  dbms_output.put_line('向数组内赋值.');
+  FOR v_index IN 1..10 LOOP
+    v_testArray ( v_index ) := 'C测试' || TO_CHAR(v_index);
+    dbms_output.put_line('COUNT=' || TO_CHAR(v_testArray.COUNT));
+	IF v_testArray.EXISTS(v_index) THEN
+      dbms_output.put_line('EXISTS(' || TO_CHAR(v_index) || ') = TRUE' );
+    END IF;
+  END LOOP;
+
+  dbms_output.put_line('尝试删除 2.');
+  v_testArray.DELETE(2);
+  dbms_output.put_line('COUNT=' || TO_CHAR(v_testArray.COUNT));
+  IF v_testArray.EXISTS(2) THEN
+    dbms_output.put_line('EXISTS(2) = TRUE' );
+  ELSE
+    dbms_output.put_line('EXISTS(2) = FALSE' );
+  END IF;
+
+  dbms_output.put_line('尝试删除 5 - 8.');
+  v_testArray.DELETE(5,8);
+  dbms_output.put_line('COUNT=' || TO_CHAR(v_testArray.COUNT));
+
+  dbms_output.put_line('尝试全部删除');
+  v_testArray.DELETE;
+  dbms_output.put_line('COUNT=' || TO_CHAR(v_testArray.COUNT));
+
+END;
+/
+
+
+向数组内赋值.
+COUNT=1
+EXISTS(1) = TRUE
+COUNT=2
+EXISTS(2) = TRUE
+COUNT=3
+EXISTS(3) = TRUE
+COUNT=4
+EXISTS(4) = TRUE
+COUNT=5
+EXISTS(5) = TRUE
+COUNT=6
+EXISTS(6) = TRUE
+COUNT=7
+EXISTS(7) = TRUE
+COUNT=8
+EXISTS(8) = TRUE
+COUNT=9
+EXISTS(9) = TRUE
+COUNT=10
+EXISTS(10) = TRUE
+尝试删除 2.
+COUNT=9
+EXISTS(2) = FALSE
+尝试删除 5,8.
+COUNT=5
+尝试全部删除
+COUNT=0
+
+PL/SQL 过程已成功完成。
+
+
+
+<hr/>
+
+-- FIRST  与  LAST  返回首行末行的 行索引.
+-- NEXT  与  PRIOR 返回 下一行与上一行的  行索引.
+
+
+DECLARE
+  -- 定义一个 VARCHAR(10) 的 表/数组类型.
+  TYPE t_CharTable IS TABLE OF VARCHAR(10) INDEX BY BINARY_INTEGER;
+  -- 定义一个变量. 数据类型是上面定义的类型.
+  v_testArray t_CharTable;
+  -- 循环变量.
+  v_index  INT;
+BEGIN
+  dbms_output.put_line('向数组内赋值.');
+  FOR v_index IN 10..20 LOOP
+    v_testArray ( v_index ) := 'D测试' || TO_CHAR(v_index);
+  END LOOP;
+
+  -- 首行.
+  v_index := v_testArray.FIRST;
+  dbms_output.put_line('FIRST = ' || TO_CHAR(v_index) );
+
+  -- 首行的 下一行.
+  v_index := v_testArray.NEXT(v_index);
+  dbms_output.put_line('NEXT = ' || TO_CHAR(v_index) );
+
+  -- 末行.
+  v_index := v_testArray.LAST;
+  dbms_output.put_line('LAST = ' || TO_CHAR(v_index) );
+
+  -- 首行的 上一行.
+  v_index := v_testArray.PRIOR(v_index);
+  dbms_output.put_line('PRIOR = ' || TO_CHAR(v_index) );
+END;
+/
+
+向数组内赋值.
+FIRST = 10
+NEXT = 11
+LAST = 20
+PRIOR = 19
+
+PL/SQL 过程已成功完成。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+BEGIN
+
+  -- 定义一个表变量. 后面的写法， 与创建表的语法基本一致.
+  DECLARE @testTable  TABLE (id INT   NOT NULL,
+  value   VARCHAR(10),
+  PRIMARY KEY(id)
+);
+
+  -- 向表变量中插入数据.
+  INSERT INTO  @testTable (id, value) VALUES (1, 'ONE');
+  INSERT INTO  @testTable (id, value) VALUES (2, 'TWO');
+
+  -- 从表变量中查询.
+  SELECT * FROM  @testTable;
+END
+go
+
+
+(1 行受影响)
+id          value
+----------- ----------
+          1 ONE
+          2 TWO
+
+(2 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

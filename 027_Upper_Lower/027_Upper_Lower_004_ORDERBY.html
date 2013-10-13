@@ -1,0 +1,360 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 大小写敏感问题 - 排序 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 大小写敏感问题 </h1>
+
+
+<h2>  排序 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+默认排序为 区分大小写的。
+
+
+SQL> SELECT
+  2    *
+  3  FROM
+  4    Tab
+  5  ORDER BY
+  6    val;
+
+        ID VAL
+---------- ---------
+         1 ABC123
+         3 Abc345
+         4 aBC456
+         5 aBc567
+         2 abc234
+
+默认排序为大小写敏感
+
+SQL> ALTER SESSION SET NLS_COMP=ANSI;
+
+会话已更改。
+
+SQL> ALTER SESSION SET NLS_SORT=binary_ci;
+
+会话已更改。
+
+SQL> SELECT
+  2    *
+  3  FROM
+  4    Tab
+  5  ORDER BY
+  6    val;
+
+        ID VAL
+---------- ----------
+         1 ABC123
+         2 abc234
+         3 Abc345
+         4 aBC456
+         5 aBc567
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+默认排序为 区分大小写的。
+
+
+
+db2 => SELECT
+db2 (cont.) =>   *
+db2 (cont.) => FROM
+db2 (cont.) =>   Tab
+db2 (cont.) => ORDER BY
+db2 (cont.) =>   val;
+
+ID          VAL
+----------- ----------
+          1 ABC123
+          3 Abc345
+          4 aBC456
+          5 aBc567
+          2 abc234
+
+  5 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+默认排序为不区分大小写的。
+
+
+
+1> SELECT
+2>   *
+3> FROM
+4>   Tab
+5> ORDER BY
+6>   val
+7> go
+id          val
+----------- ----------
+          1 ABC123
+          2 abc234
+          3 Abc345
+          4 aBC456
+          5 aBc567
+
+(5 行受影响)
+
+默认排序，也是不区分大小写的。
+
+
+在查询 SQL SERVER 支持的排序规则。
+
+SELECT
+  *
+FROM
+  ::fn_helpcollations()
+WHERE
+  name LIKE 'Chinese_PRC%'
+
+ 
+
+1> SELECT
+2>   *
+3> FROM
+4>   Tab
+5> ORDER BY
+6>   val COLLATE Chinese_PRC_BIN
+7> go
+id          val
+----------- ----------
+          1 ABC123
+          3 Abc345
+          4 aBC456
+          5 aBc567
+          2 abc234
+
+(5 行受影响)
+
+
+注：
+ORDER BY val COLLATE Chinese_PRC_CS_AS 好像没有效果。
+因此使用 Chinese_PRC_BIN 二进制排序
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+修改表字段 恢复默认
+mysql> ALTER TABLE `tab`
+    ->   MODIFY COLUMN `val` VARCHAR(10);
+Query OK, 5 rows affected (0.17 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql>
+mysql> SELECT
+    ->   *
+    -> FROM
+    ->   Tab
+    -> ORDER BY
+    ->   val;
++----+--------+
+| id | val    |
++----+--------+
+|  1 | ABC123 |
+|  2 | abc234 |
+|  3 | Abc345 |
+|  4 | aBC456 |
+|  5 | aBc567 |
++----+--------+
+5 rows in set (0.00 sec)
+
+默认排序。不区分大小写。
+
+语句中区分大小写
+mysql> SELECT
+    ->   *
+    -> FROM
+    ->   Tab
+    -> ORDER BY
+    ->   val COLLATE latin1_general_cs;
++----+--------+
+| id | val    |
++----+--------+
+|  1 | ABC123 |
+|  3 | Abc345 |
+|  4 | aBC456 |
+|  5 | aBc567 |
+|  2 | abc234 |
++----+--------+
+5 rows in set (0.00 sec)
+
+
+修改表字段 设定区分大小写
+mysql> ALTER TABLE `tab`
+    ->   MODIFY COLUMN `val` VARCHAR(10) BINARY;
+Query OK, 5 rows affected (0.16 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> SELECT
+    ->   *
+    -> FROM
+    ->   Tab
+    -> ORDER BY
+    ->   val;
++----+--------+
+| id | val    |
++----+--------+
+|  1 | ABC123 |
+|  3 | Abc345 |
+|  4 | aBC456 |
+|  5 | aBc567 |
+|  2 | abc234 |
++----+--------+
+5 rows in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+SELECT
+  *
+FROM
+  Tab
+ORDER BY
+  val;
+
+id|val
+1|ABC123
+3|Abc345
+4|aBC456
+5|aBc567
+2|abc234
+
+默认排序区分大小写。
+
+加入 COLLATE NOCASE 关键字后可不区分大小写
+
+SELECT
+  *
+FROM
+  Tab
+ORDER BY
+  val
+COLLATE NOCASE;
+
+id|val
+1|ABC123
+2|abc234
+3|Abc345
+4|aBC456
+5|aBc567
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+默认排序为不区分大小写的。
+
+Test=# SELECT * FROM tab ORDER BY val;
+ id |  val
+----+--------
+  1 | ABC123
+  2 | abc234
+  3 | Abc345
+  4 | aBC456
+  5 | aBc567
+(5 行记录)
+
+
+
+注：PostgreSQL 语法：
+ORDER BY 子句
+可选地 ORDER BY 子句有下面的一般形式：
+ORDER BY expression [ ASC | DESC | USING operator ] [, ...]
+
+我们可以给 ORDER BY 子句里每个列/字段加一个关键字 DESC （降序）或 ASC（升序）。
+如果不声明， ASC 是缺省。 
+我们还可以在 USING 子句里声明一个排序操作符来实现排序。 
+ASC 等效于使用 USING &lt; 而 DESC 等效于使用 USING &gt;。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

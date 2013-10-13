@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title>  数学函数 - 进制转换 CONV (MySQL Only)  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数学函数 </h1>
+
+
+<h2>  进制转换 CONV (MySQL Only) </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+需要使用  CONVERT  函数来处理.
+先将数字转换为 VARBINARY, 然后再转换为 VARCHAR.
+
+需要注意的地方
+CONVERT(VARCHAR(20),   VARBINARY,    第3个参数要写1 )
+
+
+
+SELECT
+  CONVERT(VARCHAR(20),   CONVERT(VARBINARY(2), 100),  1) A,
+  CONVERT(VARCHAR(20),   CONVERT(VARBINARY(4), 1024),  1) B
+
+A                    B
+-------------------- --------------------
+0x0064               0x00000400
+
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT CONV  (255, 10, 2) A
+    -> //
++----------+
+| A        |
++----------+
+| 11111111 |
++----------+
+1 row in set (0.00 sec)
+
+mysql> SELECT CONV  (255, 10, 8) A
+    -> //
++------+
+| A    |
++------+
+| 377  |
++------+
+1 row in set (0.00 sec)
+
+
+mysql> SELECT CONV  (255, 10, 16) A
+    -> //
++------+
+| A    |
++------+
+| FF   |
++------+
+1 row in set (0.00 sec)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

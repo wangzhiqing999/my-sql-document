@@ -1,0 +1,501 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 大小写敏感问题 - LIKE操作的例子 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 大小写敏感问题 </h1>
+
+
+<h2>  LIKE操作的例子 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+Oracle 默认，大小写敏感
+
+
+SQL> SELECT
+  2    *
+  3  FROM
+  4    tab
+  5  WHERE
+  6   val LIKE 'a%';
+
+        ID VAL
+---------- ----------
+         2 abc234
+         4 aBC456
+         5 aBc567
+
+默认是大小写敏感。
+
+SQL> ALTER SESSION SET NLS_COMP=ANSI;
+
+会话已更改。
+
+SQL> ALTER SESSION SET NLS_SORT=binary_ci;
+
+会话已更改。
+
+会话更改以后， 条件是  val = 的，可以实现 大小写不敏感
+但是 对于 val LIKE 的查询，还是大小写敏感的。
+
+解决办法，使用 正则表达式的方式来 变通的处理。
+
+SQL> SELECT
+  2    *
+  3  FROM
+  4    tab
+  5  WHERE
+  6   REGEXP_LIKE (val, '^a', 'i');
+
+        ID VAL
+---------- ----------
+         1 ABC123
+         2 abc234
+         3 Abc345
+         4 aBC456
+         5 aBc567
+
+注1：REGEXP_LIKE 的第3个参数 'i' 表示大小写敏感。
+注2：对于环境变量 NLS_COMP 与 NLS_SORT的设置，会影响REGEXP_LIKE 执行的结果（假如第3个参数不填写的话）。
+
+
+默认情况下：
+SQL> SELECT
+  2    *
+  3  FROM
+  4    tab
+  5  WHERE
+  6   REGEXP_LIKE (val, '^a');
+
+        ID VAL
+---------- ----------
+         2 abc234
+         4 aBC456
+         5 aBc567
+
+ALTER SESSION SET … 之后
+
+SQL> SELECT
+  2    *
+  3  FROM
+  4    tab
+  5  WHERE
+  6   REGEXP_LIKE (val, '^a');
+
+        ID VAL
+---------- ----------
+         1 ABC123
+         2 abc234
+         3 Abc345
+         4 aBC456
+         5 aBc567
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+DB2 默认，大小写敏感
+
+
+
+
+db2 => SELECT
+db2 (cont.) =>   *
+db2 (cont.) => FROM
+db2 (cont.) =>   tab
+db2 (cont.) => WHERE
+db2 (cont.) =>  val LIKE 'a%';
+
+ID          VAL
+----------- ----------
+          4 aBC456
+          2 abc234
+          5 aBc567
+
+  3 条记录已选择。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SQL Server 默认大小写不敏感
+
+
+CREATE TABLE [tab] (
+  id  INT  IDENTITY(1,1),
+  val NVARCHAR(10)
+);
+go
+
+INSERT INTO [tab]
+  SELECT 'ABC123' UNION ALL
+  SELECT 'abc234' UNION ALL
+  SELECT 'Abc345' UNION ALL
+  SELECT 'aBC456' UNION ALL
+  SELECT 'aBc567'
+go
+
+ 
+
+1> SELECT
+2>   *
+3> FROM
+4>   tab
+5> WHERE
+6>  val LIKE 'a%'
+7> go
+id          val
+----------- ----------
+          1 ABC123
+          2 abc234
+          3 Abc345
+          4 aBC456
+          5 aBc567
+
+(5 行受影响)
+
+从上面的结果，可以看出，默认情况下，对于查询的数据，也是不区分大小写的
+LIKE 'a%' 意味着 a 开头 与 A 开头的。
+都会被检索出来。
+
+
+1> SELECT
+2>   *
+3> FROM
+4>   Tab
+5> WHERE
+6>  val LIKE 'a%' COLLATE  Chinese_PRC_CS_AS
+7> go
+id          val
+----------- ----------
+          2 abc234
+          4 aBC456
+          5 aBc567
+
+(3 行受影响)
+
+从上面的结果，可以看出，当指定了 COLLATE  Chinese_PRC_CS_AS 之后
+LIKE 'a%' 将只返回小写字母 a 开头的数据。 大写字母 A 开头的，将不被检索出来。
+
+ 
+
+1> SELECT
+2>   *
+3> FROM
+4>   Tab
+5> WHERE
+6>  val LIKE 'a%' COLLATE  Chinese_PRC_CS_AS
+7>  AND val LIKE '%B%'
+8> go
+id          val
+----------- ----------
+          2 abc234
+          4 aBC456
+          5 aBc567
+
+(3 行受影响)
+
+上面的查询，为检索 小写字母 a 开头的， 中间包含字母 B 或者 b 的 （因为这里的 val LIKE '%B%' 没有区分大小写 ）
+
+1>
+2> SELECT
+3>   *
+4> FROM
+5>   Tab
+6> WHERE
+7>  val LIKE 'a%' COLLATE  Chinese_PRC_CS_AS
+8>  AND val LIKE '%B%' COLLATE  Chinese_PRC_CS_AS
+9> go
+id          val
+----------- ----------
+          4 aBC456
+          5 aBc567
+
+(2 行受影响)
+
+上面的查询，为检索 小写字母 a 开头的， 中间包含字母 B 的 （因为这里的 val LIKE '%B%' 区分大小写 ）
+
+
+每次写SQL， 如果需要区分大小写的话，都加 COLLATE  Chinese_PRC_CS_AS 也是一件麻烦的事情。
+假如我希望让 Tab 的 val 字段，强制区分大小写的话。
+
+ALTER TABLE tab
+   ALTER COLUMN  val NVARCHAR(10) COLLATE Chinese_PRC_CS_AS
+go
+
+
+1> SELECT
+2>   *
+3> FROM
+4>   Tab
+5> WHERE
+6>  val LIKE 'a%'
+7> go
+id          val
+----------- ----------
+          2 abc234
+          4 aBC456
+          5 aBc567
+
+(3 行受影响)
+
+
+1> SELECT
+2>   *
+3> FROM
+4>   Tab
+5> WHERE
+6>  val LIKE 'a%'
+7>  AND val LIKE '%B%'
+8> go
+id          val
+----------- ----------
+          4 aBC456
+          5 aBc567
+
+(2 行受影响)
+
+由上面的结果可以看到
+执行了
+ALTER TABLE tab
+  ALTER COLUMN  val NVARCHAR(10) COLLATE Chinese_PRC_CS_AS
+之后。
+
+所有对 tab 表的 val 字段的查询操作。
+都自动强制区分大小写了。
+
+
+恢复 tab 表的 val 字段，不区分大小写
+ALTER TABLE tab
+  ALTER COLUMN  val NVARCHAR(10) COLLATE Chinese_PRC_CI_AS
+
+1> ALTER TABLE tab
+2>   ALTER COLUMN  val NVARCHAR(10)(10) COLLATE Chinese_PRC_CI_AS
+3> go
+
+
+1> SELECT
+2>   *
+3> FROM
+4>   Tab
+5> WHERE
+6>  val LIKE 'a%'
+7> go
+id          val
+----------- ----------
+          1 ABC123
+          2 abc234
+          3 Abc345
+          4 aBC456
+          5 aBc567
+
+(5 行受影响)
+
+
+好，一切又恢复到默认情况下了。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+修改表字段 恢复默认情况下
+mysql> ALTER TABLE `tab`
+    ->   MODIFY COLUMN `val` VARCHAR(10) ;
+Query OK, 5 rows affected (0.16 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> SELECT
+    ->   *
+    -> FROM
+    ->   Tab
+    -> WHERE
+    ->  val LIKE 'a%';
++----+--------+
+| id | val    |
++----+--------+
+|  1 | ABC123 |
+|  2 | abc234 |
+|  3 | Abc345 |
+|  4 | aBC456 |
+|  5 | aBc567 |
++----+--------+
+5 rows in set (0.00 sec)
+
+默认是不区分大小写的。
+
+语句中区分大小写
+mysql> SELECT
+    ->   *
+    -> FROM
+    ->   Tab
+    -> WHERE
+    ->  val LIKE 'a%' COLLATE latin1_general_cs;
++----+--------+
+| id | val    |
++----+--------+
+|  2 | abc234 |
+|  4 | aBC456 |
+|  5 | aBc567 |
++----+--------+
+3 rows in set (0.00 sec)
+
+
+
+修改表字段 区分大小写
+mysql> ALTER TABLE `tab`
+    ->   MODIFY COLUMN `val` VARCHAR(10) BINARY;
+Query OK, 5 rows affected (0.22 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql>
+mysql> SELECT
+    ->   *
+    -> FROM
+    ->   Tab
+    -> WHERE
+    ->  val LIKE 'a%';
++----+--------+
+| id | val    |
++----+--------+
+|  2 | abc234 |
+|  4 | aBC456 |
+|  5 | aBc567 |
++----+--------+
+3 rows in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+SELECT
+  *
+FROM
+  tab
+WHERE
+ val LIKE 'a%';
+
+id|val
+1|ABC123
+2|abc234
+3|Abc345
+4|aBC456
+5|aBc567
+
+
+LIKE 查询， 默认不区分大小写
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+PostgreSQL 默认，大小写敏感
+
+
+Test=# SELECT * FROM tab WHERE val LIKE 'a%';
+ id |  val
+----+--------
+  2 | abc234
+  4 | aBC456
+  5 | aBc567
+(3 行记录)
+
+
+
+
+可以使用  ILIKE  来实现 大小写不敏感
+
+
+Test=# SELECT * FROM tab WHERE val ILIKE 'a%';
+ id |  val
+----+--------
+  1 | ABC123
+  2 | abc234
+  3 | Abc345
+  4 | aBC456
+  5 | aBc567
+(5 行记录)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

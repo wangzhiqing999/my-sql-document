@@ -1,0 +1,260 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> ROLLUP 与 CUBE 查询 - ROLLUP-GROUPING </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> ROLLUP 与 CUBE 查询 </h1>
+
+
+<h2> ROLLUP-GROUPING  </h2>
+
+GROUPING函数，用于表示，当前行，是否是对指定字段的小计/总计数据
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    sale_item,
+  3    TO_CHAR(sale_date, 'Q') AS sale_quarter,
+  4    SUM(sale_money),
+  5    GROUPING(sale_item)  A,
+  6    GROUPING(TO_CHAR(sale_date, 'Q'))  B
+  7  FROM
+  8    sale_report
+  9  GROUP BY
+ 10    ROLLUP(sale_item, TO_CHAR(sale_date, 'Q'));
+
+SALE SA SUM(SALE_MONEY)          A          B
+---- -- --------------- ---------- ----------
+A    1           180810          0          0
+A    2           182819          0          0
+A    3           184828          0          0
+A    4           184828          0          0
+A                733285          0          1
+B    1              180          0          0
+B    2              455          0          0
+B    3              735          0          0
+B    4             1012          0          0
+B                  2382          0          1
+C    1             1398          0          0
+
+SALE SA SUM(SALE_MONEY)          A          B
+---- -- --------------- ---------- ----------
+C    2             1426          0          0
+C    3             1457          0          0
+C    4             1457          0          0
+C                  5738          0          1
+                 741405          1          1
+
+16 rows selected.
+
+
+
+
+
+<hr/>
+
+如果存在 需要同时显示  明细+小计的情况：
+那么，可以尝试在 GROUP BY 中， 加入 ROWNUM 列， 使得每一行明细行都能显示出来。
+
+
+
+CREATE TABLE A (
+  ID  INT,
+  DATE1  DECIMAL(3,1),
+  DATE2  DECIMAL(3,1),
+  DATE3  DECIMAL(3,1),
+  DATE4  DECIMAL(3,1)
+);
+
+INSERT INTO A
+SELECT 1, 1.1, 1.2, 1.3, 1.4 FROM dual UNION ALL
+SELECT 1, 3.1, 4.1, 5.1, 6.4 FROM dual UNION ALL
+SELECT 2, 2.1, 3.1, 4.1, 9.3 FROM dual UNION ALL
+SELECT 2, 2.2, 3.4, 4.7, 9.8 FROM dual;
+
+
+COLUMN "ID" FORMAT A5
+
+
+
+SELECT
+  CASE 
+    WHEN GROUPING(ROWNUM) = 1 THEN '总计' 
+	ELSE TO_CHAR(ID) END AS ID,
+  SUM(DATE1), SUM(DATE2), SUM(DATE3), SUM(DATE4)
+FROM
+  A
+GROUP BY
+  ROLLUP(ID, ROWNUM)
+HAVING
+  GROUPING(ID) = 0;
+
+ID    SUM(DATE1) SUM(DATE2) SUM(DATE3) SUM(DATE4)
+----- ---------- ---------- ---------- ----------
+1            1.1        1.2        1.3        1.4
+1            3.1        4.1        5.1        6.4
+总计         4.2        5.3        6.4        7.8
+2            2.1        3.1        4.1        9.3
+2            2.2        3.4        4.7        9.8
+总计         4.3        6.5        8.8       19.1
+
+已选择6行。
+
+
+
+
+
+SELECT
+  CASE 
+    WHEN GROUPING(ID) = 1 THEN '总计' 
+    WHEN GROUPING(ROWNUM) = 1 THEN '小计' 
+	ELSE TO_CHAR(ID) END AS ID,
+  SUM(DATE1), SUM(DATE2), SUM(DATE3), SUM(DATE4)
+FROM
+  A
+GROUP BY
+  ROLLUP(ID, ROWNUM);
+  
+ID    SUM(DATE1) SUM(DATE2) SUM(DATE3) SUM(DATE4)
+----- ---------- ---------- ---------- ----------
+1            1.1        1.2        1.3        1.4
+1            3.1        4.1        5.1        6.4
+小计         4.2        5.3        6.4        7.8
+2            2.1        3.1        4.1        9.3
+2            2.2        3.4        4.7        9.8
+小计         4.3        6.5        8.8       19.1
+总计         8.5       11.8       15.2       26.9
+
+已选择7行。
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+SELECT
+  sale_item,
+  TO_CHAR(sale_date, 'Q') AS sale_quarter,
+  SUM(sale_money),
+  GROUPING(sale_item)  A,
+  GROUPING(TO_CHAR(sale_date, 'Q'))  B
+FROM
+  sale_report
+GROUP BY
+  ROLLUP(sale_item, TO_CHAR(sale_date, 'Q'));
+
+与 Oracle 相同.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT
+2>   sale_item item,
+3>   DATEPART(qq, sale_date) AS sale_q,
+4>   SUM(sale_money) [money],
+5>   GROUPING(sale_item)  A,
+6>   GROUPING(DATEPART(qq, sale_date))  B
+7> FROM
+8>   sale_report
+9> GROUP BY
+10>   sale_item, DATEPART(qq, sale_date)  WITH ROLLUP
+11> go
+item sale_q      money              A   B
+---- ----------- ------------------ --- ---
+A              1          180810.00   0   0
+A              2          182819.00   0   0
+A              3          184828.00   0   0
+A              4          184828.00   0   0
+A           NULL          733285.00   0   1
+B              1             180.00   0   0
+B              2             455.00   0   0
+B              3             735.00   0   0
+B              4            1012.00   0   0
+B           NULL            2382.00   0   1
+C              1            1398.00   0   0
+C              2            1426.00   0   0
+C              3            1457.00   0   0
+C              4            1457.00   0   0
+C           NULL            5738.00   0   1
+NULL        NULL          741405.00   1   1
+
+(16 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

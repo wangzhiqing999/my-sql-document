@@ -1,0 +1,344 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 大小写敏感问题 - 关于中文汉字的排序 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 大小写敏感问题 </h1>
+
+
+<h2> 关于中文汉字的排序  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> TRUNCATE TABLE Tab;
+
+表被截断。
+
+SQL> 
+SQL> INSERT INTO tab
+  2    SELECT 1, '一' FROM DUAL UNION ALL
+  3    SELECT 2, '二' FROM DUAL UNION ALL
+  4    SELECT 3, '三' FROM DUAL UNION ALL
+  5    SELECT 4, '四' FROM DUAL UNION ALL
+  6    SELECT 5, '五' FROM DUAL;
+
+已创建5行。
+
+SQL> commit;
+
+提交完成。
+
+
+-- 按照拼音来排序
+SQL> SELECT 
+  2    * 
+  3  FROM 
+  4    Tab 
+  5  ORDER BY NLSSORT(val, 'NLS_SORT=SCHINESE_PINYIN_M');
+
+        ID VAL
+---------- ----------
+         2 二
+         3 三
+         4 四
+         5 五
+         1 一
+
+-- 按照笔画数来排序
+SQL> SELECT 
+  2    * 
+  3  FROM 
+  4    Tab 
+  5  ORDER BY NLSSORT(val, 'NLS_SORT=SCHINESE_STROKE_M');
+
+        ID VAL
+---------- ----------
+         1 一
+         2 二
+         3 三
+         5 五
+         4 四
+
+-- 按照偏旁部首来排序
+
+SQL> INSERT INTO tab
+  2    SELECT 6, '人' FROM DUAL UNION ALL
+  3    SELECT 7, '十' FROM DUAL UNION ALL
+  4    SELECT 8, '土' FROM DUAL UNION ALL
+  5    SELECT 9, '士' FROM DUAL;
+
+已创建4行。
+
+SQL> commit;
+
+提交完成。
+
+SQL> SELECT 
+  2    * 
+  3  FROM 
+  4    Tab 
+  5  ORDER BY NLSSORT(val, 'NLS_SORT=SCHINESE_RADICAL_M');
+
+        ID VAL
+---------- ----------
+         1 一
+         2 二
+         3 三
+         5 五
+         6 人
+         7 十
+         4 四
+         8 土
+         9 士
+
+已选择9行。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+TRUNCATE TABLE Tab
+go
+
+INSERT INTO tab
+  SELECT '一' UNION ALL
+  SELECT '二' UNION ALL
+  SELECT '三' UNION ALL
+  SELECT '四' UNION ALL
+  SELECT '五'
+go
+
+
+在查询 SQL SERVER 支持的排序规则。
+
+SELECT
+  *
+FROM
+  ::fn_helpcollations()
+WHERE
+  name LIKE 'Chinese_PRC%'
+
+ 
+
+
+Chinese_PRC_CS_AS_KS_WS：
+Chinese-PRC, case-sensitive, accent-sensitive, kanatype-sensitive, width-sensitive
+
+
+-- 按照拼音来排序
+1> SELECT
+2>   *
+3> FROM
+4>   Tab
+5> ORDER BY
+6>   val COLLATE Chinese_PRC_CS_AS_KS_WS
+7> go
+id          val
+----------- ----------
+          2 二
+          3 三
+          4 四
+          5 五
+          1 一
+
+(5 行受影响)
+
+ 
+
+Chinese_PRC_Stroke_CI_AS_KS_WS：
+Chinese-PRC-Stroke, case-insensitive, accent-sensitive, kanatype-sensitive, width-sensitive
+
+-- 按照笔画数的多少来排序
+1> SELECT
+2>   *
+3> FROM
+4>   Tab
+5> ORDER BY
+6>   val COLLATE Chinese_PRC_Stroke_CS_AS_KS_WS
+7> go
+id          val
+----------- ----------
+          1 一
+          2 二
+          3 三
+          5 五
+          4 四
+
+(5 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+TRUNCATE TABLE Tab;
+
+INSERT INTO tab(val)
+  SELECT '一' UNION ALL
+  SELECT '二' UNION ALL
+  SELECT '三' UNION ALL
+  SELECT '四' UNION ALL
+  SELECT '五';
+
+
+mysql> SELECT
+    ->   *
+    -> FROM
+    ->   Tab
+    -> ORDER BY
+    ->   val ;
++----+------+
+| id | val  |
++----+------+
+|  3 | 三   |
+|  4 | 四   |
+|  5 | 五   |
+|  1 | 一   |
+|  2 | 二   |
++----+------+
+5 rows in set (0.00 sec)
+
+默认排序方式为 不可理解的排序方式
+
+一种解决方法是对于包含中文的字段加上binary属性，使之作为二进制比较，例如将name char(10改成name char(10)binary。
+二种解决方法是如果你使用源码编译MySQL，可以编译MySQL时使用--with--charset=gbk 参数，这样MySQL就会直接支持中文查找和排序了
+
+这里只测试 方案一的
+
+mysql> ALTER TABLE `tab`
+    ->   MODIFY COLUMN `val` VARCHAR(10) BINARY;
+Query OK, 5 rows affected (0.13 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> SELECT
+    ->   *
+    -> FROM
+    ->   Tab
+    -> ORDER BY
+    ->   val ;
++----+------+
+| id | val  |
++----+------+
+|  2 | 二   |
+|  3 | 三   |
+|  4 | 四   |
+|  5 | 五   |
+|  1 | 一   |
++----+------+
+5 rows in set (0.00 sec)
+
+结果 与 Oracle / SQL Server 的按拼音排序的结果一致。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# TRUNCATE TABLE Tab;
+TRUNCATE TABLE
+
+Test=# INSERT INTO tab(val)
+Test-#   SELECT '一' UNION ALL
+Test-#   SELECT '二' UNION ALL
+Test-#   SELECT '三' UNION ALL
+Test-#   SELECT '四' UNION ALL
+Test-#   SELECT '五';
+INSERT 0 5
+
+
+
+Test=# SELECT * FROM tab ORDER BY val;
+ id | val
+----+-----
+    | 二
+    | 三
+    | 四
+    | 五
+    | 一
+(5 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

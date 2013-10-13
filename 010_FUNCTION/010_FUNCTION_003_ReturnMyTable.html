@@ -1,0 +1,194 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 函数 - 创建返回结果集的函数(自定义结构) </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 函数 </h1>
+
+
+<h2> 创建返回结果集的函数(自定义结构)  </h2>
+
+
+<pre><code>
+
+本章节与上一章节的区别：
+
+上一个章节， 是返回结果集合， 是直接从一个表返回的。
+本章节，返回的是手工处理后的结果集合。
+不是简单的返回  SELECT ... FROM 表的处理.
+
+
+</code></pre>
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+ 
+<pre><code>
+
+
+-- 定义类型
+CREATE OR REPLACE TYPE MyTable AS OBJECT(A int, B int, C int);
+/
+CREATE OR REPLACE TYPE MyTableResult IS TABLE OF MyTable;
+/
+
+
+CREATE OR REPLACE FUNCTION getTestTable return MyTableResult
+IS
+  -- 预期返回结果.
+  return_Result  MyTableResult := MyTableResult();
+BEGIN
+  -- 结果追加一行.
+  return_Result.EXTEND;
+  -- 设置结果内容.
+  return_Result(return_Result.COUNT) := MyTable(A	=> 1, B=>2, C=>3);
+  -- 结果追加一行.
+  return_Result.EXTEND;
+  -- 设置结果内容.
+  return_Result(return_Result.COUNT) := MyTable(A	=> 4, B=>5, C=>6);
+  -- 结果追加一行.
+  return_Result.EXTEND;
+  -- 设置结果内容.
+  return_Result(return_Result.COUNT) := MyTable(A	=> 7, B=>8, C=>9);
+
+  return return_Result;
+END getTestTable;
+/
+
+
+SQL> SELECT
+  2    A, B, C
+  3  FROM
+  4   table( getTestTable() );
+
+         A          B          C
+---------- ---------- ----------
+         1          2          3
+         4          5          6
+         7          8          9
+
+SQL>  
+ 
+ 
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+	
+
+<pre><code>
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+
+<pre><code>
+
+CREATE FUNCTION getTestTable()
+RETURNS @result  TABLE(A int, B int, C int) 
+AS
+BEGIN
+  INSERT INTO @result VALUES(1, 2, 3);
+  INSERT INTO @result VALUES(4, 5, 6);
+  INSERT INTO @result VALUES(7, 8, 9);
+  RETURN;
+END;
+
+
+
+SELECT * FROM getTestTable();
+
+A	B	C
+1	2	3
+4	5	6
+7	8	9
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+都写在 “存储过程返回结果集” 的章节了。
+这里不重复写了。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

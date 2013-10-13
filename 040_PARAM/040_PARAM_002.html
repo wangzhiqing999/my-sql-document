@@ -1,0 +1,221 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库系统参数 - 修改系统参数  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库系统参数 </h1>
+
+
+<h2>  修改系统参数  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+这里以 nls_date_format 为例
+首先查看参数值。
+SQL> show parameter NLS_DATE_FORMAT
+
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+nls_date_format                      string
+SQL> SELECT sysdate FROM dual;
+
+SYSDATE
+--------------
+01-5月 -11
+
+SQL> ALTER SESSION SET nls_date_format = 'YYYY-MM-DD';
+
+会话已更改。
+
+SQL> SELECT sysdate FROM dual;
+
+SYSDATE
+----------
+2011-05-01
+
+SQL> show parameter NLS_DATE_FORMAT
+
+NAME                                 TYPE        VALUE
+------------------------------------ ----------- ------------------------------
+nls_date_format                      string
+
+注：由于这里是ALTER SESSION，仅仅修改当前会话的参数，因此不影响整个数据库的参数。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+这里以 xp_cmdshell 为例：
+首先查看参数值。
+
+1> sp_configure xp_cmdshell
+2> go
+name                                minimum     maximum     config_value run_value
+----------------------------------- ----------- ----------- ------------ -----------
+xp_cmdshell                                   0           1            0           0
+
+修改参数值
+1> EXEC sp_configure 'xp_cmdshell', 1
+2> GO
+配置选项 'xp_cmdshell' 已从 0 更改为 1。请运行 RECONFIGURE 语句进行安装。
+
+1> RECONFIGURE
+2> GO
+
+查看参数是否被修改成功
+1> sp_configure xp_cmdshell
+2> go
+name                                minimum     maximum     config_value run_value
+----------------------------------- ----------- ----------- ------------ -----------
+xp_cmdshell                                   0           1            1           1
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+这里以 table_lock_wait_timeout 为例：
+首先查看参数值。
+
+mysql> show variables like '%wait_timeout%';
++--------------------------+-------+
+| Variable_name            | Value |
++--------------------------+-------+
+| innodb_lock_wait_timeout | 50    |
+| table_lock_wait_timeout  | 50    |
+| wait_timeout             | 28800 |
++--------------------------+-------+
+3 rows in set (0.00 sec)
+
+修改参数值
+
+mysql> set table_lock_wait_timeout = 60;
+ERROR 1229 (HY000): Variable 'table_lock_wait_timeout' is a GLOBAL variable and should be set with S
+ET GLOBAL
+mysql> set GLOBAL table_lock_wait_timeout = 60;
+Query OK, 0 rows affected (0.00 sec)
+
+
+查看参数是否被修改成功
+mysql> show variables like '%wait_timeout%';
++--------------------------+-------+
+| Variable_name            | Value |
++--------------------------+-------+
+| innodb_lock_wait_timeout | 50    |
+| table_lock_wait_timeout  | 60    |
+| wait_timeout             | 28800 |
++--------------------------+-------+
+3 rows in set (0.01 sec)
+
+上面修改的是 “全局参数”。修改设置的时候，需要 “set GLOBAL”
+
+下面修改的是 “非全局参数”。修改设置的时候，简单的“set”就可以了。
+
+mysql> show variables like '%char%';
++--------------------------+-------------------------------------------+
+| Variable_name            | Value                                     |
++--------------------------+-------------------------------------------+
+| character_set_client     | latin1                                    |
+| character_set_connection | latin1                                    |
+| character_set_database   | latin1                                    |
+| character_set_filesystem | binary                                    |
+| character_set_results    | latin1                                    |
+| character_set_server     | latin1                                    |
+| character_set_system     | utf8                                      |
+| character_sets_dir       | E:\MySQL\MySQL Server 5.1\share\charsets\ |
++--------------------------+-------------------------------------------+
+8 rows in set (0.02 sec)
+
+mysql> set character_set_client = 'UTF8';
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> show variables like '%char%';
++--------------------------+-------------------------------------------+
+| Variable_name            | Value                                     |
++--------------------------+-------------------------------------------+
+| character_set_client     | utf8                                      |
+| character_set_connection | latin1                                    |
+| character_set_database   | latin1                                    |
+| character_set_filesystem | binary                                    |
+| character_set_results    | latin1                                    |
+| character_set_server     | latin1                                    |
+| character_set_system     | utf8                                      |
+| character_sets_dir       | E:\MySQL\MySQL Server 5.1\share\charsets\ |
++--------------------------+-------------------------------------------+
+8 rows in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

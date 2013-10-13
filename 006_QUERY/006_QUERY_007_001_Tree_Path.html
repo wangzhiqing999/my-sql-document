@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 树形结构 - 获取全路径 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> 树形结构 - 获取全路径  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+
+<pre><code>
+
+使用 START WITH  CONNECT BY 语句实现树状查询
+使用 SYS_CONNECT_BY_PATH  函数，获取节点的全路径.
+
+
+COLUMN "FullPath" FORMAT A35
+
+SELECT
+  LEVEL,
+  test_id,
+  test_val,
+  SYS_CONNECT_BY_PATH(test_val, '\') AS "FullPath"
+FROM
+  test_tree
+START WITH
+  test_id IN (1, 6, 10)
+CONNECT BY PRIOR test_id = pid
+ORDER SIBLINGS BY test_val;
+
+
+     LEVEL    TEST_ID TEST_VAL             FullPath
+---------- ---------- -------------------- -----------------------------------
+         1          1 .NET                 \.NET
+         2          4 ASP.NET              \.NET\ASP.NET
+         2          2 C#                   \.NET\C#
+         2          3 J#                   \.NET\J#
+         2          5 VB.NET               \.NET\VB.NET
+         1         10 Database             \Database
+         2         11 DB2                  \Database\DB2
+         2         12 MySQL                \Database\MySQL
+         2         13 Oracle               \Database\Oracle
+         3         15 PL/SQL               \Database\Oracle\PL/SQL
+         4         19 Cursor               \Database\Oracle\PL/SQL\Cursor
+
+     LEVEL    TEST_ID TEST_VAL             FullPath
+---------- ---------- -------------------- -----------------------------------
+         4         16 Function             \Database\Oracle\PL/SQL\Function
+         4         18 Package              \Database\Oracle\PL/SQL\Package
+         4         17 Procedure            \Database\Oracle\PL/SQL\Procedure
+         2         14 SQL Server           \Database\SQL Server
+         3         20 T-SQL                \Database\SQL Server\T-SQL
+         1          6 J2EE                 \J2EE
+         2          7 EJB                  \J2EE\EJB
+         2          9 JSP                  \J2EE\JSP
+         2          8 Servlet              \J2EE\Servlet
+
+已选择20行。
+
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+WITH StepCTE
+AS
+(
+SELECT
+  test_id,
+  pid,
+  Convert(varchar(35), '\' + test_val) as test_val,
+  1 as Lev
+FROM
+  test_tree
+WHERE
+  test_id IN (1,6,10)
+UNION ALL
+SELECT
+  T.test_id,
+  T.pid,
+  Convert(varchar(35), CTE.test_val + '\' + T.test_val) as test_val,
+  CTE.Lev + 1
+FROM
+  test_tree T INNER JOIN StepCTE CTE
+  ON T.pid = CTE.test_id
+)
+SELECT
+  test_id, pid, test_val, Lev
+FROM StepCTE;
+
+
+
+test_id     pid         test_val                            Lev
+----------- ----------- ----------------------------------- -----------
+          1        NULL \.NET                                         1
+          6        NULL \J2EE                                         1
+         10        NULL \Database                                     1
+         11          10 \Database\DB2                                 2
+         12          10 \Database\MySQL                               2
+         13          10 \Database\Oracle                              2
+         14          10 \Database\SQL Server                          2
+         20          14 \Database\SQL Server\T-SQL                    3
+         15          13 \Database\Oracle\PL/SQL                       3
+         16          15 \Database\Oracle\PL/SQL\Function              4
+         17          15 \Database\Oracle\PL/SQL\Procedure             4
+         18          15 \Database\Oracle\PL/SQL\Package               4
+         19          15 \Database\Oracle\PL/SQL\Cursor                4
+          7           6 \J2EE\EJB                                     2
+          8           6 \J2EE\Servlet                                 2
+          9           6 \J2EE\JSP                                     2
+          2           1 \.NET\C#                                      2
+          3           1 \.NET\J#                                      2
+          4           1 \.NET\ASP.NET                                 2
+          5           1 \.NET\VB.NET                                  2
+
+(20 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 窗口函数 - 移动平均3 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 窗口函数 </h1>
+
+
+<h2> 移动平均3  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+下面是用于计算移动平均的例子
+RANGE 20 PRECEDING
+意味着 逻辑行的数值，从当前行的数值-20 开始，到当前行的数值结束。
+
+SELECT
+  student_name,
+  SUM(grade) AS AllGrade,
+  SUM(SUM(grade)) OVER(ORDER BY SUM(grade) RANGE 20 PRECEDING) AS "向前20分移动合计",
+  AVG(SUM(grade)) OVER(ORDER BY SUM(grade) RANGE 20 PRECEDING) AS "向前20分移动平均"
+FROM
+  test_course
+GROUP BY
+  student_name;
+
+
+STUDENT_NA   ALLGRADE 向前20分移动合计 向前20分移动平均
+---------- ---------- ---------------- ----------------
+己                100              100              100
+戊                105              205            102.5
+庚                120              325       108.333333
+丁                125              350       116.666667
+辛                140              385       128.333333
+丙                145              410       136.666667
+乙                165              475       158.333333
+壬                165              475       158.333333
+奎                185              700              175
+甲                185              700              175
+
+已选择10行。
+
+
+
+注意：
+上面的窗口函数，为逻辑行。
+如果数据是日期逻辑的话，使用下面2种函数处理
+RANGE NUMTODSINTERVAL(100, 'DAY'/'HOUR'/'MINUTE'/'SECOND')
+RANGE NUMTOYMINTERVAL(1, 'YEAR'/ 'MONTH')
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+SELECT
+  student_name,
+  SUM(grade) AS AllGrade,
+  SUM(SUM(grade)) OVER(ORDER BY SUM(grade) RANGE 20 PRECEDING) AS "向前20分移动合计",
+  AVG(SUM(grade)) OVER(ORDER BY SUM(grade) RANGE 20 PRECEDING) AS "向前20分移动平均"
+FROM
+  test_course
+GROUP BY
+  student_name;
+
+
+错误:  UNBOUNDED不支持RANGE PRECEDING
+第4行  SUM(SUM(grade)) OVER(ORDER BY SUM(grade) RANGE 20 PRECEDIN...
+                                                ^
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

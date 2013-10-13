@@ -1,0 +1,233 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - 表/字段的备注 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 表/字段的备注 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+通过 COMMENT ON TABLE  /  COMMENT ON COLUMN 追加表/字段的备注。
+
+CREATE TABLE "MR_DEPT" (
+	"DEPT_ID" NUMBER NOT NULL ,
+	"PARENT_ID" NUMBER,
+	"DEPT_NAME" CHAR(20) NOT NULL ,
+	"STATUS" NUMBER DEFAULT 1 NOT NULL ,
+PRIMARY KEY ("DEPT_ID") 
+) 
+/
+
+COMMENT ON TABLE "MR_DEPT" IS '部门表'
+/
+
+COMMENT ON COLUMN "MR_DEPT"."DEPT_ID" IS '部门编号'
+/
+COMMENT ON COLUMN "MR_DEPT"."PARENT_ID" IS '上级部门编号'
+/
+COMMENT ON COLUMN "MR_DEPT"."DEPT_NAME" IS '部门名'
+/
+COMMENT ON COLUMN "MR_DEPT"."STATUS" IS '状态'
+/
+
+
+
+
+<hr/>
+视图的列也是同样的语句：
+
+CREATE TABLE test_table (
+  id  INT,
+  val INT
+);
+
+COMMENT ON COLUMN test_table.ID IS '测试表编号';
+COMMENT ON COLUMN test_table.val IS '测试表数值';
+
+
+
+CREATE VIEW test_view
+AS 
+SELECT * FROM test_table;
+
+COMMENT ON COLUMN test_view.ID IS '测试视图编号';
+COMMENT ON COLUMN test_view.val IS '测试视图数值';
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => CREATE TABLE MR_DEPT (
+db2 (cont.) =>   DEPT_ID INT NOT NULL ,
+db2 (cont.) =>   PARENT_ID INT,
+db2 (cont.) =>   DEPT_NAME CHAR(20) NOT NULL ,
+db2 (cont.) =>   STATUS SMALLINT DEFAULT 1 NOT NULL ,
+db2 (cont.) =>   PRIMARY KEY (DEPT_ID)
+db2 (cont.) => );
+DB20000I  SQL 命令成功完成。
+
+db2 => COMMENT ON TABLE MR_DEPT IS '部门表';
+DB20000I  SQL 命令成功完成。
+
+db2 => COMMENT ON MR_DEPT (
+db2 (cont.) =>   DEPT_ID IS '部门编号',
+db2 (cont.) =>   PARENT_ID IS '上级部门编号',
+db2 (cont.) =>   DEPT_NAME IS '部门名',
+db2 (cont.) =>   STATUS IS '状态'
+db2 (cont.) => ) ;
+DB20000I  SQL 命令成功完成。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+通过存储过程追加
+
+CREATE TABLE test_table(
+  Test_ID int IDENTITY(1,1)  PRIMARY KEY  NOT NULL ,
+  Test_Key varchar(10) NOT NULL ,
+  Test_Value varchar(20) NOT NULL 
+);
+go
+
+EXECUTE sp_addextendedproperty N'MS_Description', '测试表',  N'user',  N'dbo',  N'Table', N'test_table', NULL, NULL;
+go
+
+EXECUTE sp_addextendedproperty   N'MS_Description', '主键(自增长)',   N'user',  N'dbo',  N'Table', N'test_table', N'column' , N'Test_ID';
+go
+
+EXECUTE sp_addextendedproperty   N'MS_Description', '种类',   N'user',  N'dbo',  N'Table', N'test_table', N'column' , N'Test_Key';
+go
+
+EXECUTE sp_addextendedproperty   N'MS_Description', '数值',   N'user',  N'dbo',  N'Table', N'test_table', N'column' , N'Test_Value';
+go
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+CREATE TABLE test_table(
+  Test_ID int NOT NULL  AUTO_INCREMENT  PRIMARY KEY  COMMENT  '主键(自增长)' ,
+  Test_Key varchar(10) NOT NULL  COMMENT  '种类' ,
+  Test_Value varchar(20) NOT NULL  COMMENT  '数值' 
+)
+COMMENT = '测试表'
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+通过 COMMENT ON TABLE  /  COMMENT ON COLUMN 追加表/字段的备注。
+(与 Oracle 相同)
+
+Test=# CREATE TABLE "MR_DEPT" (
+Test(#  "DEPT_ID" INT NOT NULL ,
+Test(#  "PARENT_ID" INT,
+Test(#  "DEPT_NAME" CHAR(20) NOT NULL ,
+Test(#  "STATUS" INT DEFAULT 1 NOT NULL ,
+Test(# PRIMARY KEY ("DEPT_ID")
+Test(# );
+注意:  CREATE TABLE / PRIMARY KEY 将要为表 "MR_DEPT" 创建隐含索引 "MR_DEPT_pkey"
+
+CREATE TABLE
+Test=# COMMENT ON TABLE "MR_DEPT" IS '部门表';
+COMMENT
+Test=#
+Test=# COMMENT ON COLUMN "MR_DEPT"."DEPT_ID" IS '部门编号';
+COMMENT
+Test=#
+Test=# COMMENT ON COLUMN "MR_DEPT"."PARENT_ID" IS '上级部门编号';
+COMMENT
+Test=#
+Test=# COMMENT ON COLUMN "MR_DEPT"."DEPT_NAME" IS '部门名';
+COMMENT
+Test=#
+Test=# COMMENT ON COLUMN "MR_DEPT"."STATUS" IS '状态';
+COMMENT
+Test=#
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

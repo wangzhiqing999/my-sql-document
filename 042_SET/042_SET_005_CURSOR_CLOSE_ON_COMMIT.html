@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库会话的基本参数设置 SET - 提交事务时是否关闭游标 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库会话的基本参数设置 SET </h1>
+
+
+<h2> 提交事务时是否关闭游标  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SET CURSOR_CLOSE_ON_COMMIT { ON | OFF }
+
+备注
+如果 SET CURSOR_CLOSE_ON_COMMIT 为 ON，此设置将遵从 SQL-92 标准，在提交或回滚时关闭所有打开的游标。如果 SET CURSOR_CLOSE_ON_COMMIT 为 OFF，则在提交事务时将不关闭游标。
+注意：
+如果 SET CURSOR_CLOSE_ON_COMMIT 为 ON，则从 SAVE TRANSACTION 语句将回滚应用于 savepoint_name 时，将不关闭为回滚打开的游标。
+如果 SET CURSOR_CLOSE_ON_COMMIT 为 OFF，则 ROLLBACK 语句只关闭未完全填充的打开的异步游标。如果回滚了修改，则在修改之后打开的 STATIC 或 INSENSITIVE 游标将不再反映数据的状态。
+SET CURSOR_CLOSE_ON_COMMIT 与 CURSOR_CLOSE_ON_COMMIT 数据库选项控制的行为相同。如果 SET CURSOR_CLOSE_ON_COMMIT 设置为 ON 或 OFF，则该设置将用于连接。如果尚未指定 SET CURSOR_CLOSE_ON_COMMIT，则应用 sys.databases 目录视图中的 is_cursor_close_on_commit_on 列中的值。
+SQL 本机客户商 ODBC 驱动程序以及 SQL Server 的 SQL 本机客户端 OLE DB 访问接口在连接时都会将 CURSOR_CLOSE_ON_COMMIT 设置为 OFF。DB-Library 不自动设置 CURSOR_CLOSE_ON_COMMIT 值。
+如果 SET ANSI_DEFAULTS 为 ON，则会启用 SET CURSOR_CLOSE_ON_COMMIT。
+SET CURSOR_CLOSE_ON_COMMIT 的设置是在执行或运行时设置的，而不是在分析时设置的。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

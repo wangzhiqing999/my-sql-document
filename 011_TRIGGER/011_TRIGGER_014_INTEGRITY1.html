@@ -1,0 +1,568 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 触发器 - 触发器实现数据完整性的处理1 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 触发器 </h1>
+
+
+<h2> 触发器实现数据完整性的处理1  </h2>
+
+
+<pre><code>
+-- 货物表
+CREATE TABLE Goods(
+  id  INT,
+  Amount INT
+);
+
+-- 订单表
+CREATE TABLE OrderDetail(
+  ID   INT,
+  GoodsID  INT,
+  Amount   INT
+);
+
+-- 库存测试数据：
+INSERT INTO Goods VALUES (1, 100);
+
+要求：当订单表插入数据的时候，自动去货物表检查，是否有足够的库存
+如果有，那么更新 货物表 的 库存 = 原库存 – 本次订单数量
+如果库存不足，抱错返回.
+
+</code></pre>
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+CREATE OR REPLACE TRIGGER BeforeInsertDetail
+  BEFORE INSERT ON OrderDetail
+FOR EACH ROW
+DECLARE v_nowCount INT;
+BEGIN
+  SELECT
+    Amount INTO v_nowCount
+  FROM
+    Goods
+  WHERE
+    ID = :new.GoodsID;
+
+  IF v_nowCount - :new.Amount &lt;  0 THEN
+    RAISE_APPLICATION_ERROR(-20000, '库存不足!');
+  ELSE
+    UPDATE
+      Goods
+    SET
+      Amount = Amount - :new.Amount
+    WHERE
+      ID = :new.GoodsID;
+  END IF;
+END;
+
+
+SQL> INSERT INTO OrderDetail VALUES(1, 1, 90);
+已创建 1 行。
+
+SQL> INSERT INTO OrderDetail VALUES(1, 1, 20);
+INSERT INTO OrderDetail VALUES(1, 1, 20)
+            *
+第 1 行出现错误:
+ORA-20000: 库存不足!
+ORA-06512: 在 "TEST.BEFOREINSERTDETAIL", line 11
+ORA-04088: 触发器 'TEST.BEFOREINSERTDETAIL' 执行过程中出错
+
+
+SQL> select * from goods;
+        ID     AMOUNT
+---------- ----------
+         1         10
+
+SQL>  select * from OrderDetail;
+        ID    GOODSID     AMOUNT
+---------- ---------- ----------
+         1          1         90
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => CREATE TRIGGER AfterInsertDetail \
+db2 (cont.) => AFTER INSERT ON OrderDetail \
+db2 (cont.) => REFERENCING NEW AS N \
+db2 (cont.) => FOR EACH ROW MODE DB2SQL \
+db2 (cont.) => BEGIN ATOMIC \
+db2 (cont.) =>   DECLARE v_nowCount INT; \
+db2 (cont.) =>   SET v_nowCount = \
+db2 (cont.) =>     (SELECT Amount FROM Goods \
+db2 (cont.) =>      WHERE ID = N.GoodsID ); \
+db2 (cont.) =>   IF v_nowCount - N.Amount &lt;  0 THEN \
+db2 (cont.) =>     SIGNAL SQLSTATE '75002' ('库存不足！') ; \
+db2 (cont.) =>   ELSE \
+db2 (cont.) =>     UPDATE \
+db2 (cont.) =>       Goods \
+db2 (cont.) =>     SET \
+db2 (cont.) =>       Amount = Amount - N.Amount \
+db2 (cont.) =>     WHERE \
+db2 (cont.) =>       ID = N.GoodsID; \
+db2 (cont.) =>   END IF; \
+db2 (cont.) => END
+DB20000I  SQL 命令成功完成。
+
+db2 => INSERT INTO OrderDetail VALUES(1, 1, 90)
+DB20000I  SQL 命令成功完成。
+
+db2 => INSERT INTO OrderDetail VALUES(1, 1, 20)
+DB21034E  该命令被当作 SQL 语句来处理，因为它是无效的“命令行处理器”命令。在
+SQL 处理期间，它返回：
+SQL0438N  应用程序发生错误或警告，其诊断文本为："库存不足！"。  SQLSTATE=75002
+
+db2 => select * from goods
+
+ID          AMOUNT
+----------- -----------
+          1          10
+
+  1 条记录已选择。
+
+db2 => select * from OrderDetail
+
+ID          GOODSID     AMOUNT
+----------- ----------- -----------
+          1           1          90
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+EXEC sp_addmessage 60005, 16,
+   @msgtext = N'Not Goods to use.',
+   @lang = 'us_english'
+go
+EXEC sp_addmessage 60005, 16,
+   @msgtext = N'库存不足',
+   @lang = '简体中文'
+go
+
+create trigger trgAfterOrder
+on OrderDetail
+for insert
+as
+begin
+ declare 
+ @cGoodsID as int,
+ @iAmount as int,
+ @nowCount as INT
+ 
+ select @cGoodsID = GoodsID, @iAmount = Amount
+ from inserted
+ 
+ 
+ SELECT @nowCount = Amount
+ FROM Goods
+ where ID = @cGoodsID;
+ 
+ IF @nowCount - @iAmount &lt;  0 
+ BEGIN
+   RAISERROR(60005, 16, 1);
+   ROLLBACK;
+ END
+ ELSE
+ BEGIN
+   update Goods
+     set Amount = Amount - @iAmount
+     where ID = @cGoodsID
+ END
+end
+
+处理前
+1> select * from goods;
+2> go
+id          Amount
+----------- -----------
+          1         100
+
+(1 行受影响)
+1> select * from OrderDetail;
+2> go
+ID          GoodsID     Amount
+----------- ----------- -----------
+
+(0 行受影响)
+1> INSERT INTO OrderDetail VALUES(1, 1, 90);
+2> go
+
+(1 行受影响)
+1> INSERT INTO OrderDetail VALUES(1, 1, 20);
+2> go
+消息 60005，级别 16，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，过程 trgAfterOrd
+er，第 21 行
+库存不足
+消息 3609，级别 16，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+事务在触发器中结束。批处理已中止。
+
+处理后
+1> select * from goods;
+2> go
+id          Amount
+----------- -----------
+          1          10
+
+(1 行受影响)
+1> select * from OrderDetail;
+2> go
+ID          GoodsID     Amount
+----------- ----------- -----------
+          1           1          90
+
+(1 行受影响)
+
+
+
+<hr/>
+
+如果要错误提示信息可读性更好一些。
+可以尝试使用下面的方式
+(处理前， 先删除前面的那个触发器)
+
+create trigger trgAfterOrder2
+on OrderDetail
+for insert
+as
+begin
+ declare 
+ @cGoodsID as int,
+ @iAmount as int,
+ @nowCount as INT
+ 
+ select @cGoodsID = GoodsID, @iAmount = Amount
+ from inserted
+ 
+ 
+ SELECT @nowCount = Amount
+ FROM Goods
+ where ID = @cGoodsID;
+ 
+ IF @nowCount - @iAmount &lt;  0 
+ BEGIN
+ 
+   -- 为了测试 RAISERROR 里面的 %s， 设置一个 字符型的变量.
+   DECLARE @strGoodCode  varchar(6);
+   SET @strGoodCode = CAST(@cGoodsID as varchar);
+   
+   -- 这里与上面那个触发器不同的地方， 就在这里。
+   -- 这里不需要事先定义错误代码了， 直接写入错误信息
+   -- 相关运行时的外部数据，以参数的方式传递进来。
+   -- %s 意味着参数是 字符类型   %d 意味着参数是数字类型.
+   RAISERROR(N'%s 的库存不足，目前只有 %d 个，无法满足出库 %d 个的需求！', 16, 1, @strGoodCode, @nowCount, @iAmount);
+   ROLLBACK;
+ END
+ ELSE
+ BEGIN
+   update Goods
+     set Amount = Amount - @iAmount
+     where ID = @cGoodsID
+ END
+end
+
+
+
+
+1> INSERT INTO OrderDetail VALUES(1, 1, 20);
+2> go
+消息 50000，级别 16，状态 1，服务器 EDWARDPC\SQLEXPRESS，过程 trgAfterOrder2，第 30 行
+1 的库存不足，目前只有 10 个，无法满足出库 20 个的需求！
+消息 3609，级别 16，状态 1，服务器 EDWARDPC\SQLEXPRESS，第 1 行
+事务在触发器中结束。批处理已中止。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+DELIMITER //
+
+CREATE TRIGGER BeforeInsertOrderDetail
+  BEFORE INSERT ON OrderDetail
+FOR EACH ROW
+BEGIN
+  DECLARE
+    v_nowCount INT;
+
+  SELECT
+    Amount INTO v_nowCount
+  FROM
+    Goods
+  WHERE
+    ID = new.GoodsID;
+
+  IF v_nowCount - new.Amount &lt; 0 THEN
+    -- 由于 MySQL 没有直接抛出异常的语句
+    -- 因此这里通过在触发器里面，插入/删除自己这个表
+    -- 导致 MySQL 发生异常
+    DELETE FROM
+      OrderDetail
+    WHERE
+      ID = new.GoodsID;
+  ELSE
+    UPDATE
+      Goods
+    SET
+      Amount = Amount - new.Amount
+    WHERE
+      ID = new.GoodsID;
+  END IF;
+END;
+//
+DELIMITER ;
+
+处理前
+mysql> select * from goods;
++------+--------+
+| id   | Amount |
++------+--------+
+|    1 |    100 |
++------+--------+
+1 row in set (0.00 sec)
+
+mysql> select * from OrderDetail;
+Empty set (0.00 sec)
+
+mysql>  INSERT INTO OrderDetail VALUES(1, 1, 90);
+Query OK, 1 row affected (0.02 sec)
+
+mysql> INSERT INTO OrderDetail VALUES(1, 1, 20);
+ERROR 1442 (HY000): Can't update table 'orderdetail' in stored function/trigger
+because it is already used by statement which invoked this stored function/trigg
+er.
+
+处理后
+
+mysql>  select * from goods;
++------+--------+
+| id   | Amount |
++------+--------+
+|    1 |     10 |
++------+--------+
+1 row in set (0.00 sec)
+
+mysql> select * from OrderDetail;
++------+---------+--------+
+| ID   | GoodsID | Amount |
++------+---------+--------+
+|    1 |       1 |     90 |
++------+---------+--------+
+1 row in set (0.00 sec)
+
+
+
+
+<hr/>
+注：
+MySQL 5.5 新特性。
+SIGNAL  语句，用于抛出异常的处理.
+
+DELIMITER //
+
+CREATE TRIGGER BeforeInsertOrderDetail
+  BEFORE INSERT ON OrderDetail
+FOR EACH ROW
+BEGIN
+  DECLARE
+    v_nowCount INT;
+
+  SELECT
+    Amount INTO v_nowCount
+  FROM
+    Goods
+  WHERE
+    ID = new.GoodsID;
+
+  IF v_nowCount - new.Amount &lt; 0 THEN
+    -- 使用 MySQL 5.5 的 SIGNAL  语句， 抛出异常.
+	SIGNAL SQLSTATE '03001'
+      SET MESSAGE_TEXT = '库存不足！', MYSQL_ERRNO = 1000;
+  ELSE
+    UPDATE
+      Goods
+    SET
+      Amount = Amount - new.Amount
+    WHERE
+      ID = new.GoodsID;
+  END IF;
+END;
+//
+DELIMITER ;
+
+
+
+mysql>
+mysql> INSERT INTO OrderDetail VALUES(1, 1, 90);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO OrderDetail VALUES(1, 1, 20);
+ERROR 1000 (03001): 库存不足！
+
+mysql> select * from goods;
++------+--------+
+| id   | Amount |
++------+--------+
+|    1 |     10 |
++------+--------+
+1 row in set (0.00 sec)
+
+mysql> select * from OrderDetail;
++------+---------+--------+
+| ID   | GoodsID | Amount |
++------+---------+--------+
+|    1 |       1 |     90 |
++------+---------+--------+
+1 row in set (0.00 sec)
+
+
+使用 SIGNAL 语句， 能够能明显的把 异常信息， 提示给最终用户.
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+-- 创建 触发器函数.
+CREATE FUNCTION TrInsertDetail()  RETURNS trigger AS $tr_insert_detail$
+DECLARE
+  -- 当前库存数.
+  v_nowCount INT;
+BEGIN
+
+  -- 查询当前库存.
+  SELECT
+    Amount INTO v_nowCount
+  FROM
+    Goods
+  WHERE
+    ID = NEW.GoodsID;
+
+  IF v_nowCount - NEW.Amount < 0 THEN
+	RAISE EXCEPTION '% 库存不足', NEW.GoodsID;
+  ELSE
+    -- 有足够库存的情况下，更新库存数据.
+    UPDATE
+      Goods
+    SET
+      Amount = Amount - NEW.Amount
+    WHERE
+      ID = NEW.GoodsID;
+  END IF;
+
+  -- 正常返回.
+  RETURN NEW;
+END;
+$tr_insert_detail$ LANGUAGE plpgsql;
+
+
+-- 定义触发器.
+CREATE TRIGGER tr_insert_detail 
+  BEFORE INSERT ON OrderDetail
+  FOR EACH ROW EXECUTE 
+  PROCEDURE TrInsertDetail();
+
+
+Test=# INSERT INTO OrderDetail VALUES(1, 1, 90);
+INSERT 0 1
+Test=# INSERT INTO OrderDetail VALUES(1, 1, 20);
+错误:  1 库存不足
+Test=# select * from goods;
+ id | amount
+----+--------
+  1 |     10
+(1 行记录)
+
+
+Test=# select * from OrderDetail;
+ id | goodsid | amount
+----+---------+--------
+  1 |       1 |     90
+(1 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

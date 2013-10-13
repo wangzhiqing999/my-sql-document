@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 其他函数 - FIELD</title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 其他函数 </h1>
+
+
+<h2> FIELD  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+FIELD(str,str1,str2,str3,...) 
+返回值为str1, str2, str3,……列表中的str 指数。在找不到str 的情况下，返回值为 0 。
+如果所有对于FIELD() 的参数均为字符串，则所有参数均按照字符串进行比较。
+如果所有的参数均为数字，则按照数字进行比较。否则，参数按照双倍进行比较。 
+如果str 为NULL，则返回值为0 ，原因是NULL不能同任何值进行同等比较。FIELD() 是ELT()的补数。
+
+
+
+mysql> SELECT FIELD('ej', 'Hej', 'ej', 'Heja', 'hej', 'foo') A;
++---+
+| A |
++---+
+| 2 |
++---+
+1 row in set (0.00 sec)
+
+mysql> SELECT FIELD('fo', 'Hej', 'ej', 'Heja', 'hej', 'foo') B;
++---+
+| B |
++---+
+| 0 |
++---+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

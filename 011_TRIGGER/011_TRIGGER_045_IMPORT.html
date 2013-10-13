@@ -1,0 +1,410 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 触发器 - 导入时是否触发 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 触发器 </h1>
+
+
+<h2> 导入时是否触发 </h2>
+
+
+<pre><code>
+
+-- 测试表结构.
+CREATE TABLE test_exp_imp (
+  code   VARCHAR(10),
+  value  INT,
+  PRIMARY KEY(code)
+);
+
+
+INSERT INTO test_exp_imp(code) VALUES('TEST0000');
+INSERT INTO test_exp_imp VALUES('TEST0001',  1);
+INSERT INTO test_exp_imp VALUES('TEST0002',  2);
+INSERT INTO test_exp_imp VALUES('TEST0003',  3);
+INSERT INTO test_exp_imp VALUES('TEST0004',  4);
+INSERT INTO test_exp_imp VALUES('TEST0005',  5);
+
+
+测试计划：
+
+原始数据中 code 有数据，  value 为 NULL 或者 小于 10 的数据
+INSERT 触发器中， 自动设置 value 为 100.
+
+也就是如果 导入数据以后， value 大于 100 了， 说明触发器执行了.
+
+</code></pre>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+-- 创建触发器.
+CREATE OR REPLACE TRIGGER tr_test_exp_imp
+BEFORE INSERT ON test_exp_imp
+FOR EACH ROW
+BEGIN
+  -- 设置流水.
+  :new.value := 100;
+END;
+/
+
+
+-- exp 导出数据.
+E:\>EXP test/test@vbpos file=test_exp_imp.dmp tables=(test_exp_imp)
+
+Export: Release 9.2.0.1.0 - Production on 星期三 7月 24 11:42:04 2013
+
+Copyright (c) 1982, 2002, Oracle Corporation.  All rights reserved.
+
+
+连接到: Oracle Database 10g Express Edition Release 10.2.0.1.0 - Production
+已导出 ZHS16GBK 字符集和 AL16UTF16 NCHAR 字符集
+服务器使用 AL32UTF8 字符集 (可能的字符集转换)
+
+即将导出指定的表通过常规路径 ...
+. . 正在导出表                    TEST_EXP_IMP          6 行被导出
+EXP-00091: 正在导出可疑的统计信息。
+导出成功终止，但出现警告。
+
+
+
+-- 首先删除所有的旧数据.
+SQL> TRUNCATE TABLE test_exp_imp;
+
+表已截掉。
+
+
+
+-- imp 导入数据. (因为表已存在， 这里 IGNORE=Y 忽略创建错误)
+E:\>IMP test/test@vbpos file=test_exp_imp.dmp tables=(test_exp_imp) IGNORE=Y
+
+Import: Release 9.2.0.1.0 - Production on 星期三 7月 24 11:47:19 2013
+
+Copyright (c) 1982, 2002, Oracle Corporation.  All rights reserved.
+
+
+连接到: Oracle Database 10g Express Edition Release 10.2.0.1.0 - Production
+
+经由常规路径导出由EXPORT:V09.02.00创建的文件
+已经完成ZHS16GBK字符集和AL16UTF16 NCHAR 字符集中的导入
+导入服务器使用AL32UTF8字符集 (可能的字符集转换)
+. 正在将TEST的对象导入到 TEST
+. . 正在导入表                  "TEST_EXP_IMP"          6行被导入^C
+
+卡死后按 Ctrl-C 退出.
+
+
+-- 查询数据.
+SQL> select * from test_exp_imp;
+
+CODE                      VALUE
+-------------------- ----------
+TEST0000                    100
+TEST0001                    100
+TEST0002                    100
+TEST0003                    100
+TEST0004                    100
+TEST0005                    100
+
+已选择6行。
+
+
+结果显示： imp 处理过程中， 触发器代码，被执行了.
+
+
+<hr/>
+
+测试 SQL*Loader 导入的情况.
+
+-- 首先删除所有的旧数据.
+SQL> TRUNCATE TABLE test_exp_imp;
+
+表已截掉。
+
+
+test_exp_imp.ctl 文件：
+
+LOAD DATA
+INFILE *
+INTO TABLE test_exp_imp
+FIELDS TERMINATED BY ','
+(CODE, VALUE)
+BEGINDATA
+TEST0000,0
+TEST0001,1
+TEST0002,2
+TEST0003,3
+TEST0004,4
+TEST0005,5
+
+
+-- 运行 sqlldr
+E:\>sqlldr userid=test/test@vbpos control=test_exp_imp.ctl
+
+SQL*Loader: Release 9.2.0.1.0 - Production on 星期三 7月 24 11:56:42 2013
+
+Copyright (c) 1982, 2002, Oracle Corporation.  All rights reserved.
+
+达到提交点，逻辑记录计数6
+
+
+-- 查询数据.
+SQL> select * from test_exp_imp;
+
+CODE                      VALUE
+-------------------- ----------
+TEST0000                    100
+TEST0001                    100
+TEST0002                    100
+TEST0003                    100
+TEST0004                    100
+TEST0005                    100
+
+已选择6行。
+
+
+结果显示： sqlldr 处理过程中， 触发器代码，被执行了.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+-- 创建触发器.
+CREATE TRIGGER tr_test_exp_imp
+  ON test_exp_imp
+  FOR INSERT 
+AS
+BEGIN
+  -- 设置流水.
+  UPDATE
+    test_exp_imp
+  SET
+    value = 100
+  WHERE
+    code in (SELECT code FROM inserted);
+END;
+GO
+
+
+--  导出数据.
+E:\>bcp [Test].[dbo].[test_exp_imp] out test_exp_imp.txt -c -T -S "localhost\SQLEXPRESS"
+
+开始复制...
+
+已复制 6 行。
+网络数据包大小(字节): 4096
+总时钟时间(毫秒)     : 16     平均值: (每秒 375.00 行。)
+
+
+-- 首先删除所有的旧数据.
+1> TRUNCATE TABLE test_exp_imp;
+2> go
+
+
+
+-- 导入数据.
+E:\>bcp [Test].[dbo].[test_exp_imp] in test_exp_imp.txt -c -T -S "localhost\SQLEXPRESS"
+
+开始复制...
+
+已复制 6 行。
+网络数据包大小(字节): 4096
+总时钟时间(毫秒)     : 343    平均值: (每秒 17.49 行。)
+
+
+
+-- 查询数据.
+1> select * from test_exp_imp;
+2> go
+
+code       value
+---------- -----------
+TEST0000          NULL
+TEST0001             1
+TEST0002             2
+TEST0003             3
+TEST0004             4
+TEST0005             5
+
+(6 行受影响)
+
+
+检测到 bcp in 的处理， 未执行触发器。
+
+手动插入一行数据，检测触发器当前是否有效.
+1> insert into test_exp_imp values('TEST9999', 9999)
+2> go
+
+(1 行受影响)
+
+
+1> select * from test_exp_imp;
+2> go
+code       value
+---------- -----------
+TEST0000          NULL
+TEST0001             1
+TEST0002             2
+TEST0003             3
+TEST0004             4
+TEST0005             5
+TEST9999           100
+
+(7 行受影响)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+-- 创建触发器.
+DELIMITER //
+
+CREATE TRIGGER tr_test_exp_imp
+  BEFORE INSERT ON test_exp_imp
+FOR EACH ROW
+BEGIN
+  SET new.value = '100';
+END;
+//
+
+DELIMITER ;
+
+
+-- 导出.
+select code, value
+INTO OUTFILE 'f:/test_exp_imp.txt'
+FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY ''''
+LINES TERMINATED BY '\n'
+FROM test_exp_imp;
+
+Query OK, 6 rows affected (0.03 sec)
+
+
+-- 首先删除所有的旧数据.
+mysql> TRUNCATE TABLE test_exp_imp;
+Query OK, 0 rows affected (0.01 sec)
+ 
+
+-- 导入.
+LOAD DATA INFILE 'f:/test_exp_imp.txt'
+INTO TABLE test_exp_imp
+FIELDS TERMINATED BY ','
+OPTIONALLY ENCLOSED BY ''''
+(code, value);
+
+Query OK, 6 rows affected (0.01 sec)
+Records: 6  Deleted: 0  Skipped: 0  Warnings: 0
+
+
+-- 查询数据.
+mysql> select * from test_exp_imp;
++----------+-------+
+| code     | value |
++----------+-------+
+| TEST0000 |   100 |
+| TEST0001 |   100 |
+| TEST0002 |   100 |
+| TEST0003 |   100 |
+| TEST0004 |   100 |
+| TEST0005 |   100 |
++----------+-------+
+6 rows in set (0.00 sec)
+
+
+结果显示： LOAD DATA INFILE  处理过程中， 触发器代码，被执行了.
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

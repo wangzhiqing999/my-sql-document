@@ -1,0 +1,202 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典表 - 视图 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典表 </h1>
+
+
+<h2>  视图 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    VIEW_NAME,
+  3    TEXT
+  4  FROM
+  5    USER_VIEWS;
+
+VIEW_NAME
+------------------------------
+TEXT
+------------------------------
+AB_VIEW
+SELECT
+    A.id AS Aid,
+    A.card AS ACard,
+    B.id AS Bid,
+    B.Card AS BCar
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+SELECT
+  name  AS  "视图名称"
+FROM
+  SYSIBM.SYSTABLES
+WHERE
+  -- 数据库表用T表示;数据库视图用V表示 
+  type = 'V'
+  AND  name = 'V_SALE_REPORT';
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+select
+  a.name AS ViewName,
+  c.text AS CreateViewSQL
+from
+  sys.views a 
+  LEFT OUTER JOIN
+       dbo.syscomments c ON a.object_id = c.id
+order by 
+  a.name
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+是否是视图
+通过 table_type 字段是否为 VIEW 来区分的。
+
+
+SELECT 
+  table_name  AS  `表名`, 
+  table_type  AS  `类型`, 
+  engine      AS  `引擎`, 
+  table_comment  AS  `备注`
+FROM 
+  information_schema.tables
+WHERE 
+  table_schema = 'test'  AND  table_type = 'VIEW'
+ORDER BY 
+  table_name DESC;
+
+
+也可以通过 INFORMATION_SCHEMA.VIEWS 来检索 视图的特有的信息
+mysql> SELECT
+    ->   TABLE_NAME,
+    ->   CHECK_OPTION,
+    ->   IS_UPDATABLE
+    -> FROM
+    ->   INFORMATION_SCHEMA.VIEWS;
++-------------------+--------------+--------------+
+| TABLE_NAME        | CHECK_OPTION | IS_UPDATABLE |
++-------------------+--------------+--------------+
+| temp_view         | NONE         | YES          |
+| v_sale_report     | NONE         | YES          |
+| v_sale_report_sum | NONE         | NO           |
+| v_sale_report_x   | CASCADED     | YES          |
+| tmp               | NONE         | NO           |
++-------------------+--------------+--------------+
+5 rows in set (0.03 sec) 
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+-- 查询表是从 pg_tables 查询。
+-- 查询视图是从 pg_views 查询。
+
+SELECT
+  schemaname,
+  viewname,
+  viewowner
+FROM
+  pg_views
+WHERE
+  schemaname = 'public';
+
+ schemaname |     viewname      | viewowner
+------------+-------------------+-----------
+ public     | v_sale_report     | postgres
+ public     | v_sale_report_sum | postgres
+(2 行记录)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

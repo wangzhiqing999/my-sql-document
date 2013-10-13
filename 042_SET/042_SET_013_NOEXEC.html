@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库会话的基本参数设置 SET  - 仅仅编译不执行 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库会话的基本参数设置 SET </h1>
+
+
+<h2> 仅仅编译不执行  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SET NOEXEC { ON | OFF }
+
+备注
+当 SET NOEXEC 为 ON 时，SQL Server 2005 将编译每一批处理 Transact-SQL 语句但并不执行它们。当 SET NOEXEC 设置为 OFF 时，所有批处理将在编译后执行。
+
+SQL Server 中的语句执行包含两个阶段：
+编译和执行。该设置可用于让 SQL Server 在执行 Transact-SQL 代码时，验证代码中的语法和对象名。它也可以用于调试通常是较大的批处理中的部分语句。
+
+SET NOEXEC 设置是在执行或运行时设置，而不是在分析时设置。
+
+默认情况下：
+1> SET NOCOUNT OFF
+2> go
+1> SELECT 'Hello World';
+2> PRINT 'Hello World';
+3> GO
+-----------
+Hello World
+(1 行受影响)
+Hello World
+
+1> SET NOEXEC ON;
+2> GO
+
+1> SELECT 'Hello World';
+2> PRINT 'Hello World';
+3> GO
+1> SELECT 'Hello World' a b c;
+2> go
+消息 102，级别 15，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+'b' 附近有语法错误。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

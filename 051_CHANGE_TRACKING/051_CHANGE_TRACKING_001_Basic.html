@@ -1,0 +1,250 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 更改跟踪-基本配置 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 更改跟踪 </h1>
+
+
+<h2>  基本配置 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+更改跟踪：SQL Server 2008 新特性.
+
+
+-- 首先， 需要启用数据库的 “更改跟踪” 功能
+-- 此处理可以在  SQL Server Management Studio 中， 选择数据库， 鼠标右键， 属性后，在 “更改跟踪” 标签中进行设置。
+USE [master]
+GO
+ALTER DATABASE [test] SET CHANGE_TRACKING = ON (CHANGE_RETENTION = 3 DAYS)
+GO
+
+
+
+
+USE [test]
+GO
+
+
+-- 创建测试表
+CREATE TABLE test_ct_table (
+  ID   int,
+  VAL  VARCHAR(10),
+  PRIMARY KEY(ID)
+);
+GO
+
+
+-- 针对这个表， 设置  “更改跟踪” 功能
+-- 此处理可以在  SQL Server Management Studio 中， 选择数据库里面的表， 鼠标右键， 属性后，在 “更改跟踪” 标签中进行设置。
+-- 注： 开启“更改跟踪” 功能，  要求表有 主键。  没有主键的， 执行改处理， 将会抱错。
+ALTER TABLE [dbo].[test_ct_table] ENABLE CHANGE_TRACKING WITH(TRACK_COLUMNS_UPDATED = ON)
+GO
+
+
+-- 查询当前 “更改跟踪” 中， 数据库中存储的最小的版本号.
+SELECT CHANGE_TRACKING_MIN_VALID_VERSION( OBJECT_ID('dbo.test_ct_table'))
+GO
+--------------------
+                   4
+(1 行受影响)
+
+因为前面做过别的数据测试， 因此这里的 最小版本号是 4 了
+如果从未做过，那么最小版本号数字是 0 开始的.
+
+
+
+
+INSERT INTO test_ct_table  VALUES (1, 'TEST1');
+GO
+
+INSERT INTO test_ct_table  VALUES (2, 'TEST2');
+GO
+
+INSERT INTO test_ct_table  VALUES (3, 'TEST3');
+GO
+
+
+UPDATE test_ct_table SET VAL = 'NEW_TEST1' WHERE ID = 1
+GO
+
+UPDATE test_ct_table SET VAL = 'NEW_TEST2' WHERE ID = 2;
+UPDATE test_ct_table SET VAL = 'NEW_TEST3' WHERE ID = 3;
+GO
+
+
+--  查询当前 “更改跟踪” 中， 数据库中存储的当前的版本号.
+SELECT CHANGE_TRACKING_CURRENT_VERSION()
+GO
+--------------------
+                  10
+(1 行受影响)
+
+
+-- 开始查询从 4 版本开始， 数据发生的变更情况.
+SELECT 
+  *
+FROM 
+  CHANGETABLE(CHANGES dbo.test_ct_table,4) as ct
+GO
+
+SYS_CHANGE_VERSION	SYS_CHANGE_CREATION_VERSION	SYS_CHANGE_OPERATION	SYS_CHANGE_COLUMNS	SYS_CHANGE_CONTEXT	ID
+8	5	I	NULL	NULL	1
+9	6	I	NULL	NULL	2
+10	7	I	NULL	NULL	3
+
+
+
+-- 开始查询从 8 版本开始， 数据发生的变更情况.
+SELECT 
+  *
+FROM 
+  CHANGETABLE(CHANGES dbo.test_ct_table,7) as ct
+GO
+
+SYS_CHANGE_VERSION	SYS_CHANGE_CREATION_VERSION	SYS_CHANGE_OPERATION	SYS_CHANGE_COLUMNS	SYS_CHANGE_CONTEXT	ID
+8	NULL	U	NULL	NULL	1
+9	NULL	U	NULL	NULL	2
+10	NULL	U	NULL	NULL	3
+
+
+
+
+列的说明.
+
+<table border="1">
+  <tr><td>列名</td><td>数据类型</td><td>说明</td></tr>
+  
+  
+  <tr><td>SYS_CHANGE_VERSION</td><td>bigint</td><td>与上次对行的更改关联的版本值</td></tr>
+  
+  
+  <tr><td>SYS_CHANGE_CREATION_VERSION</td><td>bigint</td><td>与上次插入操作关联的版本值。</td></tr>
+  
+  
+  <tr><td>SYS_CHANGE_OPERATION</td><td> nchar(1) </td><td> 指定更改的类型：
+U = 更新
+I = 插入
+D = 删除</td></tr>
+
+
+<tr><td>SYS_CHANGE_COLUMNS</td><td> varbinary(4100) </td><td>
+列出自基准版本以后发生了更改的列。
+注意： 计算列永远不会作为更改的列列出。
+以下任何一个条件为真时，值为 NULL：
+未启用列更改跟踪。
+操作是插入操作或删除操作。
+在一个操作中更新了所有非主键列。不应直接解释此二进制值。取而代之的是，要解释它，请使用 CHANGE_TRACKING_IS_COLUMN_IN_MASK()。</td></tr>
+
+
+<tr><td>SYS_CHANGE_CONTEXT</td><td> varbinary(128) </td><td> 更改可以在 INSERT、UPDATE 或 DELETE 语句中使用 WITH 子句选择指定的上下文信息。</td></tr>
+ 
+<tr><td>主键列值</td><td> 与用户表列相同</td><td> 被跟踪表的主键值。这些值在用户表中唯一标识各行。</td></tr>
+ 
+</table>
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

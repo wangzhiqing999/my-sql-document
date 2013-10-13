@@ -1,0 +1,444 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 统计分析函数 - RANK 排名不连续  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 统计分析函数 </h1>
+
+
+<h2> RANK 排名不连续  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+按照分数 排名 从高到底
+SELECT
+  RANK() OVER( ORDER BY SUM(grade) DESC) AS NO,
+  student_name,
+  SUM(grade) AS AllGrade
+FROM
+  test_course
+GROUP BY
+  student_name
+ORDER BY
+  SUM(grade) DESC
+
+        NO STUDENT_NA   ALLGRADE
+---------- ---------- ----------
+         1 奎                185
+         1 甲                185
+         3 乙                165
+         3 壬                165
+         5 丙                145
+         6 辛                140
+         7 丁                125
+         8 庚                120
+         9 戊                105
+        10 己                100
+
+已选择10行。
+
+按照分数 排名 从高到底（区分 课程）
+
+SELECT
+  RANK() OVER(PARTITION BY course_name ORDER BY grade DESC) AS NO,
+  test_course.student_name,
+  test_course.course_name,
+  test_course.grade
+FROM
+  test_course
+ORDER BY
+  course_name,
+  grade DESC
+
+        NO STUDENT_NA COURSE_NAM      GRADE
+---------- ---------- ---------- ----------
+         1 奎         数学               95
+         2 甲         数学               90
+         3 壬         数学               85
+         4 乙         数学               80
+         5 辛         数学               70
+         5 丙         数学               70
+         7 庚         数学               60
+         7 丁         数学               60
+         9 己         数学               50
+         9 戊         数学               50
+         1 甲         语文               95
+
+        NO STUDENT_NA COURSE_NAM      GRADE
+---------- ---------- ---------- ----------
+         2 奎         语文               90
+         3 乙         语文               85
+         4 壬         语文               80
+         5 丙         语文               75
+         6 辛         语文               70
+         7 丁         语文               65
+         8 庚         语文               60
+         9 戊         语文               55
+        10 己         语文               50
+
+已选择20行。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+SELECT
+  RANK() OVER( ORDER BY SUM(grade) DESC) AS NO,
+  student_name,
+  SUM(grade) AS AllGrade
+FROM
+  test_course
+GROUP BY
+  student_name
+ORDER BY
+  SUM(grade) DESC
+
+NO                   STUDENT_NAME ALLGRADE
+-------------------- ------------ -----------
+                   1 奎                   185
+                   1 甲                   185
+                   3 乙                   165
+                   3 壬                   165
+                   5 丙                   145
+                   6 辛                   140
+                   7 丁                   125
+                   8 庚                   120
+                   9 戊                   105
+                  10 己                   100
+
+  10 条记录已选择。
+
+
+NO                   STUDENT_NAME COURSE_NAME GRADE
+-------------------- ------------ ----------- -----------
+                   1 奎           数学                 95
+                   2 甲           数学                 90
+                   3 壬           数学                 85
+                   4 乙           数学                 80
+                   5 丙           数学                 70
+                   5 辛           数学                 70
+                   7 丁           数学                 60
+                   7 庚           数学                 60
+                   9 戊           数学                 50
+                   9 己           数学                 50
+                   1 甲           语文                 95
+                   2 奎           语文                 90
+                   3 乙           语文                 85
+                   4 壬           语文                 80
+                   5 丙           语文                 75
+                   6 辛           语文                 70
+                   7 丁           语文                 65
+                   8 庚           语文                 60
+                   9 戊           语文                 55
+                  10 己           语文                 50
+
+  20 条记录已选择。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+按照分数 排名 从高到底
+SELECT
+  RANK() OVER( ORDER BY SUM(grade) DESC) AS NO,
+  student_name,
+  SUM(grade) AS AllGrade
+FROM
+  test_course
+GROUP BY
+  student_name
+ORDER BY
+  SUM(grade) DESC
+
+1	甲	185
+1	奎	185
+3	壬	165
+3	乙	165
+5	丙	145
+6	辛	140
+7	丁	125
+8	庚	120
+9	戊	105
+10	己	100
+
+按照分数 排名 从高到底（区分 课程）
+
+SELECT
+  RANK() OVER(PARTITION BY course_name ORDER BY grade DESC) AS NO,
+  *
+FROM
+  test_course
+ORDER BY
+  course_name,
+  grade DESC
+
+1	奎	数学	95
+2	甲	数学	90
+3	壬	数学	85
+4	乙	数学	80
+5	丙	数学	70
+5	辛	数学	70
+7	庚	数学	60
+7	丁	数学	60
+9	戊	数学	50
+9	己	数学	50
+1	甲	语文	95
+2	奎	语文	90
+3	乙	语文	85
+4	壬	语文	80
+5	丙	语文	75
+6	辛	语文	70
+7	丁	语文	65
+8	庚	语文	60
+9	戊	语文	55
+10	己	语文	50
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+MySQL 不直接支持 RANK 函数。
+需要用替代方法。
+
+SELECT
+  CASE 
+    WHEN @AllGrade = AllGrade THEN @rank
+    ELSE @rank:= @rownum + 1  
+  END AS RANK,
+  @rownum:=@rownum+1 AS NO,
+  student_name,
+  @AllGrade:=AllGrade AS AllGrade
+FROM
+  (SELECT @rownum:=0) rn,
+  (SELECT @rank:=1) rk,
+  (SELECT @AllGrade:=0) ag,
+  (SELECT
+    student_name,
+    SUM(grade) AS AllGrade
+  FROM
+    test_course
+  GROUP BY
+    student_name
+  ) SubQuery
+ORDER BY
+  AllGrade DESC;
+
++------+------+--------------+----------+
+| RANK | NO   | student_name | AllGrade |
++------+------+--------------+----------+
+|    1 |    1 | 甲           |      185 |
+|    1 |    2 | 奎           |      185 |
+|    3 |    3 | 乙           |      165 |
+|    3 |    4 | 壬           |      165 |
+|    5 |    5 | 丙           |      145 |
+|    6 |    6 | 辛           |      140 |
+|    7 |    7 | 丁           |      125 |
+|    8 |    8 | 庚           |      120 |
+|    9 |    9 | 戊           |      105 |
+|   10 |   10 | 己           |      100 |
++------+------+--------------+----------+
+10 rows in set (0.00 sec)
+
+
+SELECT
+  CASE 
+    WHEN @cn != course_name THEN @rank:= 1 
+    WHEN @grade = grade THEN @rank
+    ELSE @rank:= @rownum + 1  
+    END AS RANK,
+  CASE 
+    WHEN @cn != course_name THEN @rownum:= 1 
+    ELSE @rownum:= @rownum + 1  
+    END AS No,
+  student_name,
+  @cn := course_name AS course_name,
+  @grade := grade AS grade
+FROM
+  (SELECT @rownum:=0) r,
+  (SELECT @rank:=1) rk,
+  (SELECT @cn:='') p,
+  (SELECT @grade:=0) g,
+  test_course
+ORDER BY
+  course_name,
+  grade DESC;
+
++------+------+--------------+-------------+-------+
+| RANK | No   | student_name | course_name | grade |
++------+------+--------------+-------------+-------+
+|    1 |    1 | 奎           | 数学        |    95 |
+|    2 |    2 | 甲           | 数学        |    90 |
+|    3 |    3 | 壬           | 数学        |    85 |
+|    4 |    4 | 乙           | 数学        |    80 |
+|    5 |    5 | 辛           | 数学        |    70 |
+|    5 |    6 | 丙           | 数学        |    70 |
+|    7 |    7 | 庚           | 数学        |    60 |
+|    7 |    8 | 丁           | 数学        |    60 |
+|    9 |    9 | 己           | 数学        |    50 |
+|    9 |   10 | 戊           | 数学        |    50 |
+|    1 |    1 | 甲           | 语文        |    95 |
+|    2 |    2 | 奎           | 语文        |    90 |
+|    3 |    3 | 乙           | 语文        |    85 |
+|    4 |    4 | 壬           | 语文        |    80 |
+|    5 |    5 | 丙           | 语文        |    75 |
+|    6 |    6 | 辛           | 语文        |    70 |
+|    7 |    7 | 丁           | 语文        |    65 |
+|    8 |    8 | 庚           | 语文        |    60 |
+|    9 |    9 | 戊           | 语文        |    55 |
+|   10 |   10 | 己           | 语文        |    50 |
++------+------+--------------+-------------+-------+
+20 rows in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+按照分数 排名 从高到底
+SELECT
+  RANK() OVER( ORDER BY SUM(grade) DESC) AS NO,
+  student_name,
+  SUM(grade) AS AllGrade
+FROM
+  test_course
+GROUP BY
+  student_name
+ORDER BY
+  SUM(grade) DESC;
+
+ no | student_name | allgrade
+----+--------------+----------
+  1 | 甲           |      185
+  1 | 奎           |      185
+  3 | 壬           |      165
+  3 | 乙           |      165
+  5 | 丙           |      145
+  6 | 辛           |      140
+  7 | 丁           |      125
+  8 | 庚           |      120
+  9 | 戊           |      105
+ 10 | 己           |      100
+(10 行记录)
+
+
+
+
+按照分数 排名 从高到底（区分 课程）
+
+SELECT
+  RANK() OVER(PARTITION BY course_name ORDER BY grade DESC) AS NO,
+  test_course.student_name,
+  test_course.course_name,
+  test_course.grade
+FROM
+  test_course
+ORDER BY
+  course_name,
+  grade DESC;
+
+ no | student_name | course_name | grade
+----+--------------+-------------+-------
+  1 | 奎           | 数学        |    95
+  2 | 甲           | 数学        |    90
+  3 | 壬           | 数学        |    85
+  4 | 乙           | 数学        |    80
+  5 | 丙           | 数学        |    70
+  5 | 辛           | 数学        |    70
+  7 | 丁           | 数学        |    60
+  7 | 庚           | 数学        |    60
+  9 | 己           | 数学        |    50
+  9 | 戊           | 数学        |    50
+  1 | 甲           | 语文        |    95
+  2 | 奎           | 语文        |    90
+  3 | 乙           | 语文        |    85
+  4 | 壬           | 语文        |    80
+  5 | 丙           | 语文        |    75
+  6 | 辛           | 语文        |    70
+  7 | 丁           | 语文        |    65
+  8 | 庚           | 语文        |    60
+  9 | 戊           | 语文        |    55
+ 10 | 己           | 语文        |    50
+(20 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

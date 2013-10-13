@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 外键约束 - 测试表与测试数据 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 外键约束 </h1>
+
+
+<h2>  外键约束使用同样的测试表与测试数据 </h2>
+
+
+
+
+<pre><code>
+
+-- 创建测试主表. ID 是主键.
+CREATE TABLE test_main (
+  id      INT   NOT NULL,
+  value   VARCHAR(10),
+  PRIMARY KEY(id)  
+);
+
+
+-- 创建测试子表. 
+CREATE TABLE test_sub (
+  id      INT  NOT NULL,
+  main_id INT ,
+  value   VARCHAR(10),
+  PRIMARY KEY(id)  
+);
+
+
+-- 插入测试主表数据.
+INSERT INTO test_main(id, value) VALUES (1, 'ONE');
+INSERT INTO test_main(id, value) VALUES (2, 'TWO');
+
+-- 插入测试子表数据.
+INSERT INTO test_sub(id, main_id, value) VALUES (1, 1, 'ONEONE');
+INSERT INTO test_sub(id, main_id, value) VALUES (2, 2, 'TWOTWO');
+
+
+
+
+</code></pre>
+ 
+
+
+
+</body>
+
+
+</html>

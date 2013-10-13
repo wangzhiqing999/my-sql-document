@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典表 - 触发器 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典表 </h1>
+
+
+<h2> 触发器  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    trigger_name,
+  3    status
+  4  FROM
+  5    user_triggers
+  6  WHERE
+  7    table_name='TEST_TRIGGER_TABLE';
+
+TRIGGER_NAME                                                 STATUS
+------------------------------------------------------------ ----------------
+BEFOREALLTEST                                                ENABLED
+BEFOREALLTEST2                                               ENABLED
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+select 
+  tri.name  AS  TriggerName,
+  tri.is_disabled AS IsDisable,
+  tri.is_instead_of_trigger AS IsInsteadOfTrigger,
+  c.text AS CreateTriggerSQL
+from 
+  sys.triggers tri LEFT OUTER JOIN
+     dbo.syscomments c ON tri.object_id = c.id
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT
+    ->   TRIGGER_NAME,
+    ->   EVENT_MANIPULATION,
+    ->   EVENT_OBJECT_TABLE
+    -> FROM
+    ->   INFORMATION_SCHEMA.TRIGGERS;
++-------------------+--------------------+--------------------+
+| TRIGGER_NAME      | EVENT_MANIPULATION | EVENT_OBJECT_TABLE |
++-------------------+--------------------+--------------------+
+| BeforeInsertTest4 | INSERT             | test_create_tab4   |
++-------------------+--------------------+--------------------+
+1 row in set (0.03 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+SELECT
+  tr.tgname AS "触发器名",
+  t.relname  AS  "被触发表名",
+  p.proname  AS  "触发器函数"
+FROM
+  pg_trigger tr
+    JOIN pg_class t
+	  ON (t.oid = tr.tgrelid)
+    JOIN pg_proc p
+	  ON (tr.tgfoid = p.oid);
+
+
+           触发器名           |     被触发表名     |      触发器函数
+------------------------------+--------------------+----------------------
+ RI_ConstraintTrigger_a_16473 | test_main2         | RI_FKey_noaction_del
+ RI_ConstraintTrigger_a_16474 | test_main2         | RI_FKey_noaction_upd
+ RI_ConstraintTrigger_c_16475 | test_sub2          | RI_FKey_check_ins
+ RI_ConstraintTrigger_c_16476 | test_sub2          | RI_FKey_check_upd
+ RI_ConstraintTrigger_a_16499 | test_main          | RI_FKey_noaction_del
+ RI_ConstraintTrigger_a_16500 | test_main          | RI_FKey_noaction_upd
+ RI_ConstraintTrigger_c_16501 | test_sub           | RI_FKey_check_ins
+ RI_ConstraintTrigger_c_16502 | test_sub           | RI_FKey_check_upd
+ tr_insert_detail             | orderdetail        | trinsertdetail
+ tr_update_test_of            | test_trigger_table | trupdatetestof
+(10 行记录)
+
+
+
+注： 看上面的输出结果， 估计 PostgreSQL 的外键约束处理， 内部是通过触发器来完成的。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

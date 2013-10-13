@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - 修改表 - 新增主键 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 修改表 - 新增主键 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> CREATE TABLE test_tab (
+  2    id   INT,
+  3    name VARCHAR(10),
+  4    age  INT,
+  5    val  VARCHAR(10)
+  6  );
+
+Table created.
+
+SQL> ALTER TABLE test_tab
+  2    ADD CONSTRAINT pk_test_tab PRIMARY KEY(id);
+
+Table altered.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => CREATE TABLE test_tab (
+db2 (cont.) =>   id   INT,
+db2 (cont.) =>   name VARCHAR(10),
+db2 (cont.) =>   age  INT,
+db2 (cont.) =>   val  VARCHAR(10)
+db2 (cont.) => );
+DB20000I  SQL 命令成功完成。
+
+db2 => ALTER TABLE test_tab
+db2 (cont.) =>   ADD CONSTRAINT pk_test_tab
+db2 (cont.) =>     PRIMARY KEY(id);
+DB21034E  该命令被当作 SQL 语句来处理，因为它是无效的“命令行处理器”命令。在
+SQL 处理期间，它返回：
+SQL0542N  因为 "ID" 可能包含空值，所以它不能是主键或唯一键的列。
+SQLSTATE=42831
+
+
+注：DB2 当中，如果将 NULL 的列 修改为  NOT NULL， 将只能通过 DROP 表 ，并重新创建的方式处理。
+
+
+db2 => drop TABLE test_tab ;
+DB20000I  SQL 命令成功完成。
+
+db2 => CREATE TABLE test_tab (
+db2 (cont.) =>   id   INT  NOT NULL,
+db2 (cont.) =>   name VARCHAR(10),
+db2 (cont.) =>   age  INT,
+db2 (cont.) =>   val  VARCHAR(10)
+db2 (cont.) => );
+DB20000I  SQL 命令成功完成。
+
+db2 => ALTER TABLE test_tab
+db2 (cont.) =>    ADD CONSTRAINT pk_test_tab PRIMARY KEY(id);
+DB20000I  SQL 命令成功完成。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> CREATE TABLE test_tab (
+2>   id   INT,
+3>   name VARCHAR(10),
+4>   age  INT,
+5>   val  VARCHAR(10)
+6> );
+7> go
+1> ALTER TABLE test_tab
+2>    ADD CONSTRAINT pk_test_tab PRIMARY KEY(id);
+3> go
+消息 8111，级别 16，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+无法在表 'test_tab' 中可为空的列上定义 PRIMARY KEY 约束。
+消息 1750，级别 16，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+无法创建约束。请参阅前面的错误消息。
+
+首先对 id 这个列，增加一个 NOT NULL 约束，然后再设置为主键。
+
+1> ALTER TABLE test_tab
+2>   ALTER COLUMN id INT NOT NULL;
+3> go
+
+1> ALTER TABLE test_tab
+2>    ADD CONSTRAINT pk_test_tab PRIMARY KEY(id);
+3> go
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> CREATE TABLE test_tab (
+    ->   id   INT,
+    ->   name VARCHAR(10),
+    ->   age  INT,
+    ->   val  VARCHAR(10)
+    -> );
+    -> //
+Query OK, 0 rows affected (0.08 sec)
+
+mysql> ALTER TABLE test_tab
+    ->   ADD CONSTRAINT pk_test_tab PRIMARY KEY(id);
+    -> //
+Query OK, 0 rows affected (0.14 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+不支持
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# CREATE TABLE test_tab (
+Test(#   id   INT,
+Test(#   name VARCHAR(10),
+Test(#   age  INT,
+Test(#   val  VARCHAR(10)
+Test(# );
+CREATE TABLE
+Test=#
+Test=#
+Test=#
+Test=# ALTER TABLE test_tab
+Test-#   ADD CONSTRAINT pk_test_tab PRIMARY KEY(id);
+注意:  ALTER TABLE / ADD PRIMARY KEY 将要为表 "test_tab" 创建隐含索引 "pk_test_t
+ab"
+ALTER TABLE
+Test=#
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 其他函数 - 非空判断 NVL / ISNULL </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 其他函数 </h1>
+
+
+<h2>  非空判断 NVL / ISNULL </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    NVL(sale_item, 'ALL') AS item,
+  3    SUM(sale_money) AS money
+  4  FROM
+  5    sale_report
+  6  GROUP BY
+  7    ROLLUP(sale_item);
+
+ITEM        MONEY
+------ ----------
+A          733285
+B            2382
+C            5738
+ALL        741405
+
+
+<hr/>
+
+【语法】NVL (expr1, expr2) 
+【功能】若expr1为NULL，返回expr2；expr1不为NULL，返回expr1。
+注意两者的类型要一致
+
+
+SQL> SELECT NVL(NULL, 1) AS A, NVL(2, 1) AS B FROM dual;
+
+         A          B
+---------- ----------
+         1          2
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+SELECT
+  NVL(sale_item, 'ALL') AS item,
+  SUM(sale_money) AS money
+FROM
+  sale_report
+GROUP BY
+  ROLLUP(sale_item);
+
+ITEM MONEY
+---- ---------------------------------
+ALL                          741405.00
+A                            733285.00
+B                              2382.00
+C                              5738.00
+
+  4 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT
+2>   ISNULL(sale_item, '总') AS item,
+3>   SUM(sale_money) [money]
+4> FROM
+5>   sale_report
+6> GROUP BY
+7>   sale_item WITH ROLLUP;
+8> go
+item money
+---- ----------------------------------------
+A                                   733285.00
+B                                     2382.00
+C                                     5738.00
+总                                   741405.00
+
+(4 行受影响)
+
+
+
+<hr/>
+语法
+ISNULL ( check_expression , replacement_value )
+如果 check_expression 不为 NULL，则返回它的值， 否则返回 replacement_value。
+ 
+
+
+1> SELECT isnull(NULL, 1) AS A, isnull(2, 1)  AS B
+2> GO
+A           B
+----------- -----------
+          1           2
+
+(1 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+MySQL  的 ISNULL, 只判断 是NULL 返回 1  不是 NULL 返回0
+
+mysql> SELECT ISNULL(1+1);
++-------------+
+| ISNULL(1+1) |
++-------------+
+|           0 |
++-------------+
+1 row in set (0.00 sec)
+
+要使用 类似 如果空，用另外一个值得函数，使用 IFNULL
+mysql> SELECT IFNULL(NULL, 'Hi') A;
++----+
+| A  |
++----+
+| Hi |
++----+
+1 row in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+sqlite> SELECT IFNULL(NULL, 'Hi') A;
+A
+Hi
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

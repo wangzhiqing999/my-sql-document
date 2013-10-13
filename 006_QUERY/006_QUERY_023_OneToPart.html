@@ -1,0 +1,311 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 明细行组合区间段 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> 明细行组合区间段  </h2>
+
+
+<pre><code>
+
+CREATE TABLE test_One (
+	course_name		varchar(10),
+	id  			INT
+);
+
+
+INSERT INTO test_One VALUES('大英',  3);
+INSERT INTO test_One VALUES('大英',  4);
+INSERT INTO test_One VALUES('大英',  5);
+INSERT INTO test_One VALUES('大英',  6);
+INSERT INTO test_One VALUES('大英',  7);
+INSERT INTO test_One VALUES('大英',  8);
+INSERT INTO test_One VALUES('高数',  1);
+INSERT INTO test_One VALUES('高数',  2);
+INSERT INTO test_One VALUES('高数',  6);
+INSERT INTO test_One VALUES('高数',  7);
+INSERT INTO test_One VALUES('高数',  8);
+INSERT INTO test_One VALUES('物理',  1);
+INSERT INTO test_One VALUES('物理',  2);
+INSERT INTO test_One VALUES('物理',  3);
+INSERT INTO test_One VALUES('物理',  7);
+INSERT INTO test_One VALUES('物理',  8);
+
+
+</code></pre>
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+-- 中间查询的临时结果
+SELECT
+  *
+FROM
+  test_One
+MODEL
+  DIMENSION BY (ROW_NUMBER() OVER(ORDER BY course_name, id) AS NO)  -- 按照 流水 为 维度
+  MEASURES(course_name, id, 0 AS Sub_Group) -- 数组的数据为 course_name, id, Sub_Group
+  ( 
+    Sub_Group[ANY] = CASE WHEN id[CURRENTV() - 1] IS PRESENT THEN 
+				-- 不是第一行的情况下，作判断.
+				CASE WHEN course_name[CURRENTV() - 1] = course_name[CURRENTV()] AND id[CURRENTV() - 1] + 1 = id[CURRENTV()] THEN
+					-- 上行课程与本行课程相同， 且上行节数+1 = 本行节数
+					-- 分组=上行分组.
+					Sub_Group[CURRENTV() - 1]
+				ELSE
+					-- 分组变化.
+				    Sub_Group[CURRENTV() - 1] + 1
+				END
+			ELSE 
+				-- 第一行的情况下，返回1.
+				1
+			END
+  )
+ORDER BY
+  NO;
+  
+
+        NO COURSE_NAME                  ID  SUB_GROUP
+---------- -------------------- ---------- ----------
+         1 大英                          3          1
+         2 大英                          4          1
+         3 大英                          5          1
+         4 大英                          6          1
+         5 大英                          7          1
+         6 大英                          8          1
+         7 物理                          1          2
+         8 物理                          2          2
+         9 物理                          3          2
+        10 物理                          7          3
+        11 物理                          8          3
+
+        NO COURSE_NAME                  ID  SUB_GROUP
+---------- -------------------- ---------- ----------
+        12 高数                          1          4
+        13 高数                          2          4
+        14 高数                          6          5
+        15 高数                          7          5
+        16 高数                          8          5
+
+已选择16行。
+
+
+
+COLUMN "COURSE_NAME" FORMAT A15
+COLUMN "SECTION" FORMAT A15
+
+
+
+SELECT
+  COURSE_NAME,
+  TO_CHAR(MIN(id)) || '-' || TO_CHAR(MAX(id)) AS SECTION
+FROM
+(
+SELECT
+  *
+FROM
+  test_One
+MODEL
+  DIMENSION BY (ROW_NUMBER() OVER(ORDER BY course_name, id) AS NO)  -- 按照 流水 为 维度
+  MEASURES(course_name, id, 0 AS Sub_Group) -- 数组的数据为 course_name, id, Sub_Group
+  ( 
+    Sub_Group[ANY] = CASE WHEN id[CURRENTV() - 1] IS PRESENT THEN 
+				-- 不是第一行的情况下，作判断.
+				CASE WHEN course_name[CURRENTV() - 1] = course_name[CURRENTV()] AND id[CURRENTV() - 1] + 1 = id[CURRENTV()] THEN
+					-- 上行课程与本行课程相同， 且上行节数+1 = 本行节数
+					-- 分组=上行分组.
+					Sub_Group[CURRENTV() - 1]
+				ELSE
+					-- 分组变化.
+				    Sub_Group[CURRENTV() - 1] + 1
+				END
+			ELSE 
+				-- 第一行的情况下，返回1.
+				1
+			END
+  )
+ORDER BY
+  NO
+) SubQuery
+GROUP BY
+  COURSE_NAME,
+  SUB_GROUP;
+
+
+
+COURSE_NAME     SECTION
+--------------- ---------------
+大英            3-8
+高数            1-2
+高数            6-8
+物理            1-3
+物理            7-8
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+-- 中间查询的临时结果
+SELECT
+  CASE
+    WHEN @course_name != course_name THEN @rownum:= 1
+	WHEN @course_name = course_name AND @id != id - 1 THEN @rownum:= @rownum + 1
+    ELSE @rownum
+    END AS No,
+  @course_name := course_name AS course_name,
+  @id := id AS id
+FROM
+  (SELECT @rownum:=0) r,
+  (SELECT @course_name:='') p,
+  (SELECT @id:=-1) d,
+  test_One
+ORDER BY
+  course_name, id;
+
++------+-------------+------+
+| No   | course_name | id   |
++------+-------------+------+
+|    1 | 物理        |    1 |
+|    1 | 物理        |    2 |
+|    1 | 物理        |    3 |
+|    2 | 物理        |    7 |
+|    2 | 物理        |    8 |
+|    1 | 大英        |    3 |
+|    1 | 大英        |    4 |
+|    1 | 大英        |    5 |
+|    1 | 大英        |    6 |
+|    1 | 大英        |    7 |
+|    1 | 大英        |    8 |
+|    1 | 高数        |    1 |
+|    1 | 高数        |    2 |
+|    2 | 高数        |    6 |
+|    2 | 高数        |    7 |
+|    2 | 高数        |    8 |
++------+-------------+------+
+16 rows in set (0.00 sec)
+
+
+
+SELECT
+  course_name,
+  CONCAT(Convert(MIN(id), char), '-', Convert(MAX(id), char)) AS section
+FROM
+(
+SELECT
+  CASE
+    WHEN @course_name != course_name THEN @rownum:= 1
+	WHEN @course_name = course_name AND @id != id - 1 THEN @rownum:= @rownum + 1
+    ELSE @rownum
+    END AS No,
+  @course_name := course_name AS course_name,
+  @id := id AS id
+FROM
+  (SELECT @rownum:=0) r,
+  (SELECT @course_name:='') p,
+  (SELECT @id:=-1) d,
+  test_One
+ORDER BY
+  course_name, id
+) subQuery
+GROUP BY
+  course_name, No;
+
+
+
++-------------+---------+
+| course_name | section |
++-------------+---------+
+| 物理        | 1-3     |
+| 物理        | 7-8     |
+| 大英        | 3-8     |
+| 高数        | 1-2     |
+| 高数        | 6-8     |
++-------------+---------+
+5 rows in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

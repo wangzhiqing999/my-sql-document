@@ -1,0 +1,284 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典表 - 表 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典表 </h1>
+
+
+<h2> 表  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    table_name
+  3  FROM
+  4    all_tables
+  5  WHERE
+  6    ROWNUM < 10;
+
+TABLE_NAME
+------------------------------------------------------------
+ICOL$
+CON$
+UNDO$
+PROXY_ROLE_DATA$
+FILE$
+UET$
+IND$
+SEG$
+COL$
+
+9 rows selected.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+SELECT
+  name
+FROM
+  SYSIBM.SYSTABLES
+WHERE
+  -- 数据库表用T表示;数据库视图用V表示
+  type = 'T'
+fetch first 10 rows only;
+
+
+
+-- 获取当前模式下面的用户表
+select
+  tabname
+from
+  syscat.tables
+where
+  tabschema = current schema
+fetch first 10 rows only;
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> select top 10 name from sys.tables
+2> go
+name
+
+------------------------------------------
+BLOCK_TYPE_LINK
+STOCK
+STOCK_BLOCK_LINK
+STOCK_DAY
+SALE_REPORT
+tb
+TestSara
+TestWhyypp
+TestTDWS
+TestWZY
+
+
+(10 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+SELECT
+  table_name  	AS  `表名`,
+  table_type  	AS  `类型`,
+  engine      	AS  `引擎`,
+  VERSION		AS	`版本`,
+  TABLE_COLLATION AS `字符集`
+FROM
+  information_schema.tables
+WHERE
+  table_schema = 'test_utf8'
+ORDER BY
+  table_name DESC;
+
++----------+------------+--------+------+-----------------+
+| 表名     | 类型       | 引擎   | 版本 | 字符集          |
++----------+------------+--------+------+-----------------+
+| test_tab | BASE TABLE | InnoDB |   10 | utf8_general_ci |
++----------+------------+--------+------+-----------------+
+1 row in set (0.01 sec)
+
+
+
+
+SELECT
+  table_name  	AS  `表名`,
+  table_type  	AS  `类型`,
+  engine      	AS  `引擎`,
+  VERSION		AS	`版本`,
+  TABLE_COLLATION AS `字符集`
+FROM
+  information_schema.tables
+WHERE
+  table_schema = 'test'
+ORDER BY
+  table_name DESC;
+
++------------------+------------+--------+------+-------------------+
+| 表名             | 类型       | 引擎   | 版本 | 字符集            |
++------------------+------------+--------+------+-------------------+
+| test_sub_student | BASE TABLE | InnoDB |   10 | latin1_swedish_ci |
+| test_sub2        | BASE TABLE | InnoDB |   10 | latin1_swedish_ci |
+| test_sub         | BASE TABLE | InnoDB |   10 | latin1_swedish_ci |
+| test_rollup_1    | BASE TABLE | InnoDB |   10 | latin1_swedish_ci |
+| test_main_class  | BASE TABLE | InnoDB |   10 | latin1_swedish_ci |
+| test_main2       | BASE TABLE | InnoDB |   10 | latin1_swedish_ci |
+| test_main        | BASE TABLE | InnoDB |   10 | latin1_swedish_ci |
+| testuser         | BASE TABLE | InnoDB |   10 | latin1_swedish_ci |
+| td_testsalary    | BASE TABLE | InnoDB |   10 | latin1_swedish_ci |
+| sale_report      | BASE TABLE | InnoDB |   10 | latin1_swedish_ci |
+| log_table        | BASE TABLE | InnoDB |   10 | latin1_swedish_ci |
++------------------+------------+--------+------+-------------------+
+11 rows in set (0.00 sec)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+E:\SQLite\SQLite\Debug>sqlite Cache.db
+SQLite version 3.7.15 2012-12-12 13:36:53
+Enter ".help" for instructions
+Enter SQL statements terminated with a ";"
+sqlite> .table
+cfurl_cache_blob_data       cfurl_cache_response
+cfurl_cache_receiver_data   cfurl_cache_schema_version
+sqlite>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+SELECT
+  schemaname,
+  tablename,
+  tableowner
+FROM
+  pg_tables
+LIMIT 10;
+
+ schemaname |    tablename     | tableowner
+------------+------------------+------------
+ pg_catalog | pg_statistic     | postgres
+ pg_catalog | pg_type          | postgres
+ public     | test_create_tab  | postgres
+ public     | test_create_tab1 | postgres
+ public     | test_create_tab2 | postgres
+ public     | test_create_tab4 | postgres
+ public     | MR_DEPT          | postgres
+ pg_catalog | pg_authid        | postgres
+ pg_catalog | pg_attribute     | postgres
+ pg_catalog | pg_proc          | postgres
+(10 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+运行 show collections 显示当前数据库下有哪些表.
+
+> show collections
+system.indexes
+users
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

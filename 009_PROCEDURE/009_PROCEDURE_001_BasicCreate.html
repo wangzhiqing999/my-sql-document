@@ -1,0 +1,328 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 存储过程 - 创建时的基本定义与调用 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 存储过程 </h1>
+
+
+<h2>  创建时的基本定义与调用 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+
+注：CREATE OR REPLACE 没有就创建，有的话就更新。
+
+请注意, 定义存储过程内使用的变量, 不需要加 DECLARE 关键字。
+
+多个变量之间用分号分隔。
+
+<pre><code>
+
+SQL> CREATE OR REPLACE PROCEDURE HelloWorld AS
+  2   testvalue1  VARCHAR2(20);
+  3   testvalue2  VARCHAR2(20);
+  4  BEGIN
+  5   dbms_output.put_line('Hello World');
+  6   testvalue1 := 'First Test! ';
+  7   SELECT 'Second Test !' INTO testvalue2 FROM DUAL;  
+  8   dbms_output.put_line( testvalue1 || testvalue2 );
+  9  END HelloWorld;
+ 10  /
+
+过程已创建。
+
+SQL> set serveroutput on
+SQL> 
+SQL> BEGIN
+  2    HelloWorld();
+  3  END;
+  4  /
+Hello World
+First Test! Second Test !
+
+PL/SQL 过程已成功完成。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+
+请注意, 定义存储过程内使用的变量
+
+定义在 BEGIN后面，需要加 DECLARE 关键字。
+
+<pre><code>
+
+DB2 好像没有 print 之类的语句。
+只好 把结果写入临时表
+
+-- db2 -td@
+
+CREATE TABLE test_helloworld(
+  data  varchar(30)
+)@
+
+
+
+CREATE PROCEDURE HelloWorld 
+LANGUAGE SQL 
+BEGIN 
+  DECLARE testvalue1  VARCHAR(20);
+  DECLARE testvalue2  VARCHAR(20);
+  SET testvalue1 = 'First Test! ';
+  SELECT 'Second Test !' INTO testvalue2 FROM SYSIBM.SYSDUMMY1;
+  INSERT INTO test_helloworld 
+    SELECT 'Hello World' FROM SYSIBM.SYSDUMMY1; 
+  INSERT INTO test_helloworld (data)
+	VALUES (testvalue1 || testvalue2);
+END@
+
+
+db2 => call HelloWorld@
+
+  返回状态 = 0 
+
+
+db2 => select * from test_helloworld@
+
+DATA
+------------------------------
+Hello World
+First Test! Second Test !
+
+  2 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+
+
+请注意, 定义存储过程内使用的变量, 需要加 DECLARE 关键字。
+
+多个变量之间用逗号分隔。
+
+<pre><code>
+
+-- 如果当前数据库中,已经存在有存储过程 HelloWorld, 那么先删除掉.
+IF EXISTS ( SELECT 1 FROM sys.procedures WHERE name = 'HelloWorld')  
+  DROP PROCEDURE HelloWorld
+GO
+
+-- 创建存储过程 HelloWorld
+CREATE PROCEDURE HelloWorld AS
+DECLARE
+     @testvalue1 AS VARCHAR(20),
+     @testvalue2 AS VARCHAR(20);
+BEGIN
+     PRINT 'Hello World';
+     SET @testvalue1 = 'First Test !';
+     SELECT @testvalue2 = 'Second Test !';
+     PRINT( @testvalue1 + @testvalue2);
+END;
+go
+
+
+DECLARE @RC int
+EXECUTE @RC = HelloWorld
+PRINT @RC
+go
+
+Hello World
+First Test !Second Test !
+0
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+
+
+MySQL 存储过程名字后面的“()”是必须的，即使没有一个参数，也需要“()”
+
+<pre><code>
+
+
+
+DELIMITER //
+
+CREATE PROCEDURE HelloWorld()
+BEGIN
+  DECLARE testvalue1 VARCHAR(20);
+  DECLARE testvalue2 VARCHAR(20);
+  SELECT 'Hello World';
+  SET testvalue1 = 'First Test !';
+  SELECT 'Second Test !' INTO testvalue2;
+  SELECT  CONCAT( testvalue1 , testvalue2 );
+END //
+
+DELIMITER ;
+
+
+mysql> call HelloWorld();
++-------------+
+| Hello World |
++-------------+
+| Hello World |
++-------------+
+1 row in set (0.00 sec)
+
++-----------------------------------+
+| CONCAT( testvalue1 , testvalue2 ) |
++-----------------------------------+
+| First Test !Second Test !         |
++-----------------------------------+
+1 row in set (0.01 sec)
+
+Query OK, 0 rows affected (0.02 sec)
+
+
+<hr/>
+
+通过执行下面的语句， 可以查看目前存储过程的源代码：
+
+SHOW CREATE PROCEDURE HelloWorld;
+
+输出略.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+PostgreSQL 好像没有专门的 CREATE OR REPLACE PROCEDURE 
+
+全部都是 FUNCTION 的样子。
+对于没有返回值的。 可以通过 RETURNS void  来实现。
+
+要更新一个现有函数的定义，使用 CREATE OR REPLACE FUNCTION。 
+我们不能用这个方法修改一个函数的名字或者参数类型（如果你这么干，那么你就会创建一个新的，不同的函数）。 
+同样，CREATE OR REPLACE FUNCTION 也不会允许你修改一个现有函数的返回类型。 
+要做这些事情，你必须删除并重新创建函数。 
+（如果使用 OUT 参数，那就意味着除了删除函数，你不能修改任何 OUT 参数的类型或者名字。）
+
+
+如果你删除然后重建一个函数，新函数和旧的将是不同的实体；你就需要删除现有引用了老函数的规则，视图，触发器等等。 
+使用 CREATE OR REPLACE FUNCTION 可以在不破坏引用该函数的对象的前提下修改函数定义。
+
+
+好像没有 print 之类的语句。
+只好 把结果写入临时表
+
+Test=# CREATE TABLE test_helloworld(
+Test(#   data  varchar(30)
+Test(# );
+CREATE TABLE
+Test=#
+
+
+请注意, 定义存储过程内使用的变量, 需要定义在 BEGIN 之前， 需要加 DECLARE 关键字。
+多个变量之间用分号分隔。
+
+
+Test=# CREATE OR REPLACE FUNCTION HelloWorld() RETURNS void AS
+Test-# $$
+Test$# DECLARE
+Test$#   testvalue1  VARCHAR(20);
+Test$#   testvalue2  VARCHAR(20);
+Test$# BEGIN
+Test$#   testvalue1 := 'First Test! ';
+Test$#   SELECT 'Second Test !' INTO testvalue2;
+Test$#   INSERT INTO test_helloworld
+Test$#     SELECT 'Hello World' ;
+Test$#   INSERT INTO test_helloworld (data)
+Test$#     VALUES (testvalue1 || testvalue2);
+Test$# END;
+Test$# $$
+Test-# LANGUAGE plpgsql;
+CREATE FUNCTION
+Test=#
+Test=# SELECT HelloWorld();
+ helloworld
+------------
+
+(1 行记录)
+
+
+Test=# select * from test_helloworld;
+           data
+---------------------------
+ Hello World
+ First Test! Second Test !
+(2 行记录)
+
+
+Test=#
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

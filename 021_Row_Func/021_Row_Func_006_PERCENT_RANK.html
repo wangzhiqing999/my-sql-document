@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 统计分析函数 - PERCENT_RANK  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 统计分析函数 </h1>
+
+
+<h2>  PERCENT_RANK </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+PERCENT_RANK
+PERCENT_RANK(x) = (rank of row in its partition - 1) / (number of rows in the partition - 1)
+和CUME_DIST（累积分配）函数类似，对于一个组中给定的行来说，在计算那行的序号时，先减1，然后除以n-1（n为组中所有的行数）。
+该函数总是返回0～1（包括1）之间的数。RANK函数对于等值的返回序列值是一样的
+
+按照分数 排名 从高到底 (这里把 PERCENT_RANK 作了乘10的处理，以便与其他的作比较.)
+
+SELECT
+  10 * PERCENT_RANK() OVER( ORDER BY SUM(grade) DESC) AS PERCENT,
+  student_name,
+  SUM(grade) AS AllGrade
+FROM
+  test_course
+GROUP BY
+  student_name;
+
+
+   PERCENT STUDENT_NA   ALLGRADE
+---------- ---------- ----------
+         0 奎                185
+         0 甲                185
+2.22222222 乙                165
+2.22222222 壬                165
+4.44444444 丙                145
+5.55555556 辛                140
+6.66666667 丁                125
+7.77777778 庚                120
+8.88888889 戊                105
+        10 己                100
+
+已选择10行。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 聚集函数 - 返回数组 array_agg </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 聚集函数 </h1>
+
+
+<h2> 返回数组 array_agg  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+CREATE TABLE TestTitle (
+  name   VARCHAR(10),
+  seq    INT,
+  title  VARCHAR(10)
+);
+ 
+INSERT INTO TestTitle VALUES ('张三', 3, '程序员');
+INSERT INTO TestTitle VALUES ('张三', 1, '系统管理员');
+INSERT INTO TestTitle VALUES ('张三', 2, '网络管理员');
+INSERT INTO TestTitle VALUES ('李四', 2, '项目经理');
+INSERT INTO TestTitle VALUES ('李四', 1, '系统分析员');
+
+
+因为是少量测试，  因此使用上面这个测试表.
+
+SELECT
+  name,
+  array_agg(title)
+FROM
+  TestTitle
+GROUP BY
+  name;
+
+
+ name |           array_agg
+------+--------------------------------
+ 李四 | {项目经理,系统分析员}
+ 张三 | {程序员,系统管理员,网络管理员}
+(2 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

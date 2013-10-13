@@ -1,0 +1,335 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数学函数 -  随机数 RAND </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数学函数 </h1>
+
+
+<h2> 随机数 RAND   </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+DBMS_RANDOM.VALUE函数
+
+
+1. 产生一个介于0和1之间（不包含0和1）的38位精度的随机数
+
+SQL> SELECT DBMS_RANDOM.VALUE FROM dual;
+
+     VALUE
+----------
+.881021859
+
+
+
+2. 产生一个介于指定范围之内的38位精度的随机数
+
+SQL> SELECT DBMS_RANDOM.VALUE(1,  9999)  FROM dual;
+
+DBMS_RANDOM.VALUE(1,9999)
+-------------------------
+               4261.38448
+
+
+NORMAL函数返回服从正态分布的一组数。
+此正态分布标准偏差为1，期望值为0。  
+这个函数返回的数值中有68%是介于-1与+1之间，  
+95%介于-2与+2之间，99%介于-3与+3之间。  
+
+SQL> select dbms_random.normal from dual;
+
+    NORMAL
+----------
+ 1.8254056
+
+SQL> select dbms_random.normal from dual;
+
+    NORMAL
+----------
+-1.2807477
+
+SQL> select dbms_random.normal from dual;
+
+    NORMAL
+----------
+1.24331216
+
+
+
+
+DBMS_RANDOM.STRING函数
+
+1. ‘u’或’U’ 返回一个由大写字母组成的字符串
+
+SQL> SELECT DBMS_RANDOM.STRING('u',  10)  FROM dual;
+
+DBMS_RANDOM.STRING('U',10)
+----------------------------------------------------
+RNRTHYISXA
+
+
+2. ‘l’或’L’ 返回一个由小写字母组成的字符串
+
+SQL> SELECT DBMS_RANDOM.STRING('L',  10)  FROM dual;
+
+DBMS_RANDOM.STRING('L',10)
+----------------------------------------------------
+xfkbghazix
+
+
+3. ‘a’或’A’ 返回一个由大写字母和小写字母组成的字符串
+
+SQL> SELECT DBMS_RANDOM.STRING('a',  10)  FROM dual;
+
+DBMS_RANDOM.STRING('A',10)
+------------------------------------------------------
+tJjflPnOog
+
+
+4. ‘x’或’X’ 返回一个由大写字母和数字组成的字符串
+
+SQL> SELECT DBMS_RANDOM.STRING('X',  10)  FROM dual;
+
+DBMS_RANDOM.STRING('X',10)
+----------------------------------------------------
+C90O9ENSFO
+
+5. ‘p’或’P’ 返回一个由任意的可打印字符组成的字符串
+
+
+SQL> SELECT DBMS_RANDOM.STRING('p',  10)  FROM dual;
+
+DBMS_RANDOM.STRING('P',10)
+-----------------------------------------------------
+|Ri\QVxRGi
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => SELECT
+db2 (cont.) =>   RAND(100)
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+1
+------------------------
+  +1.11392559587390E-002
+
+  1 条记录已选择。
+
+db2 =>
+db2 => SELECT
+db2 (cont.) =>   RAND()
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+1
+------------------------
+  +3.71105075228126E-002
+
+  1 条记录已选择。
+
+db2 =>
+db2 => SELECT
+db2 (cont.) =>   RAND()
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+1
+------------------------
+  +1.65257728812525E-001
+
+  1 条记录已选择。
+
+  
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+返回从 0 到 1 之间的随机 float 值。
+
+
+参数
+seed 
+提供种子值的整数表达式（tinyint、smallint 或 int）。
+如果未指定 seed，则 Microsoft SQL Server 2005 数据库引擎 随机分配种子值。
+对于指定的种子值，返回的结果始终相同。
+
+
+1> SELECT RAND(100)
+2> go
+
+------------------------
+      0.7154366573674853
+
+(1 行受影响)
+
+1> SELECT RAND()
+2> go
+
+------------------------
+     0.52387284052730643
+
+(1 行受影响)
+1> SELECT RAND()
+2> go
+
+------------------------
+     0.92388223999987373
+
+(1 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+RAND() RAND(N) 
+返回一个随机浮点值 v ，范围在 0 到1 之间 (即, 其范围为 0 ≤ v ≤ 1.0)。若已指定一个整数参数 N ，则它被用作种子值，用来产生重复序列。  
+mysql> SELECT RAND();
+        -> 0.9233482386203
+mysql> SELECT RAND(20);
+        -> 0.15888261251047
+mysql> SELECT RAND(20);
+        -> 0.15888261251047
+mysql> SELECT RAND();
+        -> 0.63553050033332
+mysql> SELECT RAND();
+        -> 0.70100469486881
+mysql> SELECT RAND(20);
+        -> 0.15888261251047
+		
+若要在i ≤ R ≤ j 这个范围得到一个随机整数R ，
+需要用到表达式 FLOOR(i + RAND() * (j – i + 1))。
+
+例如， 若要在7 到 12 的范围（包括7和12）内得到一个随机整数, 可使用以下语句：
+SELECT FLOOR(7 + (RAND() * 6));
+
+在ORDER BY语句中，不能使用一个带有RAND()值的列，
+原因是 ORDER BY 会计算列的多重时间。然而，可按照如下的随机顺序检索数据行： 
+mysql> SELECT * FROM tbl_name ORDER BY RAND();
+
+ORDER BY RAND()同 LIMIT 的结合从一组列中选择随机样本很有用：
+mysql> SELECT * FROM table1, table2 WHERE a=b AND c<d
+    -> ORDER BY RAND() LIMIT 1000;
+
+注意，在WHERE语句中，WHERE每执行一次， RAND()就会被再计算一次。
+RAND()的作用不是作为一个精确的随机发生器，
+而是一种用来发生在同样的 MySQL版本的平台之间的可移动ad hoc随机数的快速方式。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+sqlite> select random();
+random()
+-7633278487818744195
+sqlite> select random();
+random()
+309378117625284613
+sqlite> select random();
+random()
+-9050867229128192162
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+-- 返回 0.0 到 1.0 之间的随机数值.
+
+Test=# select random();
+      random
+-------------------
+ 0.249064401723444
+(1 行记录)
+
+
+Test=# select random();
+      random
+-------------------
+ 0.459389435127378
+(1 行记录)
+
+
+
+
+setseed(dp)	为随后的 random() 调用设置种子
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

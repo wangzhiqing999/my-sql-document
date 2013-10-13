@@ -1,0 +1,487 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 大容量导入/导出操作 - 使用外部表 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 大容量导入/导出操作 </h1>
+
+
+<h2> 使用外部表  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+D:\temp>sqlldr userid=test/test123 control=test_main_c.ctl data=test_main_c.dat
+external_table=generate_only
+SQL*Loader: Release 10.2.0.1.0 - Production on 星期日 3月 13 16:25:27 2011
+Copyright (c) 1982, 2005, Oracle.  All rights reserved.
+
+external_table=generate_only 意味着 SQLLDR 不加载任何数据，只是会生成所执行的 SQL 语句，保存在日志文件中。
+
+程序执行完毕以后，打开 当前目录下的  test_main_c.log 文件
+
+
+SQL*Loader: Release 10.2.0.1.0 - Production on 星期日 3月 13 16:25:27 2011
+Copyright (c) 1982, 2005, Oracle.  All rights reserved.
+
+控制文件:      test_main_c.ctl
+数据文件:      test_main_c.dat
+  错误文件:    test_main_c.bad
+  废弃文件:    未作指定
+(可废弃所有记录)
+要加载的数: ALL
+要跳过的数: 0
+允许的错误: 50
+继续:    未作指定
+所用路径:       外部表
+
+表 TEST_MAIN,已加载从每个逻辑记录
+插入选项对此表 INSERT 生效
+   列名                        位置      长度  中止 包装数据类型
+------------------------------ ---------- ----- ---- ---- ---------------------
+ID                                  FIRST     *  WHT      CHARACTER            
+VALUE                                NEXT     *  WHT      CHARACTER            
+
+
+
+文件需要 CREATE DIRECTORY 语句
+------------------------------------------------------------------------
+CREATE DIRECTORY SYS_SQLLDR_XT_TMPDIR_00000 AS 'D:\temp'
+
+
+用于外部表的 CREATE TABLE 语句:
+------------------------------------------------------------------------
+CREATE TABLE "SYS_SQLLDR_X_EXT_TEST_MAIN" 
+(
+  "ID" NUMBER(38),
+  "VALUE" VARCHAR2(10)
+)
+ORGANIZATION external 
+(
+  TYPE oracle_loader
+  DEFAULT DIRECTORY SYS_SQLLDR_XT_TMPDIR_00000
+  ACCESS PARAMETERS 
+  (
+    RECORDS DELIMITED BY NEWLINE CHARACTERSET ZHS16GBK
+    BADFILE 'SYS_SQLLDR_XT_TMPDIR_00000':'test_main_c.bad'
+    LOGFILE 'test_main_c.log_xt'
+    READSIZE 1048576
+    FIELDS TERMINATED BY WHITESPACE LDRTRIM 
+    REJECT ROWS WITH ALL NULL FIELDS 
+    (
+      "ID" CHAR(255)
+        TERMINATED BY WHITESPACE,
+      "VALUE" CHAR(255)
+        TERMINATED BY WHITESPACE
+    )
+  )
+  location 
+  (
+    'test_main_c.dat'
+  )
+)REJECT LIMIT UNLIMITED;
+
+
+用于加载内部表的 INSERT 语句:
+------------------------------------------------------------------------
+INSERT /*+ append */ INTO TEST_MAIN 
+(
+  ID,
+  VALUE
+)
+SELECT 
+  "ID",
+  "VALUE"
+FROM "SYS_SQLLDR_X_EXT_TEST_MAIN"
+
+
+用于清除由以前的语句创建的对象的语句:
+------------------------------------------------------------------------
+DROP TABLE "SYS_SQLLDR_X_EXT_TEST_MAIN"
+DROP DIRECTORY SYS_SQLLDR_XT_TMPDIR_00000
+
+从 星期日 3月  13 16:25:27 2011 开始运行
+在 星期日 3月  13 16:25:27 2011 处运行结束
+
+经过时间为: 00: 00: 00.26
+CPU 时间为: 00: 00: 00.08
+
+
+在 SQL Plus 中，执行上面的红色的语句后，外部表就被创建了。
+
+SQL> SELECT 
+  2    "ID",
+  3    "VALUE"
+  4  FROM "SYS_SQLLDR_X_EXT_TEST_MAIN";
+
+        ID VALUE
+---------- ----------
+         1 ONE
+         2 TWO
+
+
+SQL> select * from test_main;
+        ID VALUE
+---------- ----------
+         2 ONE
+         3 TWO
+
+可以使用 MERGE 来实现，如果有，就更新，如果没有，就插入。
+
+SQL> MERGE INTO test_main 
+  2  USING SYS_SQLLDR_X_EXT_TEST_MAIN
+  3  ON ( test_main.id = SYS_SQLLDR_X_EXT_TEST_MAIN.id )    -- 条件是 id 相同
+  4  WHEN MATCHED THEN UPDATE SET 
+  5    test_main.value = SYS_SQLLDR_X_EXT_TEST_MAIN.value   -- 匹配的时候，更新
+  6  WHEN NOT MATCHED THEN INSERT VALUES(
+  7    SYS_SQLLDR_X_EXT_TEST_MAIN.id, SYS_SQLLDR_X_EXT_TEST_MAIN.value) -- 源表有，目标表没有，插入
+  8  ;
+
+2 行已合并。
+
+SQL> select * from test_main;
+
+        ID VALUE
+---------- ----------
+         1 ONE
+         2 TWO
+         3 TWO
+
+
+假如需要换个数据文件
+例如 test_main_c2.dat
+SQL> ALTER TABLE "SYS_SQLLDR_X_EXT_TEST_MAIN"
+  2    LOCATION( 'test_main_c2.dat');
+
+表已更改。
+
+SQL> SELECT 
+  2    "ID",
+  3    "VALUE"
+  4  FROM "SYS_SQLLDR_X_EXT_TEST_MAIN"
+  5  ;
+
+        ID VALUE
+---------- ----------
+         8 Eight
+        10 Ten
+
+
+如果需要一次处理多个文件
+例如 test_main_c.dat 与 test_main_c2.dat
+SQL> ALTER TABLE "SYS_SQLLDR_X_EXT_TEST_MAIN"
+  2    LOCATION( 'test_main_c.dat', 'test_main_c2.dat');
+
+表已更改。
+
+SQL> SELECT 
+  2    "ID",
+  3    "VALUE"
+  4  FROM "SYS_SQLLDR_X_EXT_TEST_MAIN"
+  5  ;
+
+        ID VALUE
+---------- ----------
+         1 ONE
+         2 TWO
+         8 Eight
+        10 Ten
+
+测试完毕后，清理现场
+DROP TABLE "SYS_SQLLDR_X_EXT_TEST_MAIN";
+DROP DIRECTORY SYS_SQLLDR_XT_TMPDIR_00000;
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SQL Server 导入 IDENTITY 类型的数据。
+
+-- 主表
+CREATE TABLE test_main (
+  id int identity(1, 1) PRIMARY KEY,
+  value varchar(10)
+);
+
+-- 子表
+CREATE TABLE test_sub (
+  id int identity(1, 1) PRIMARY KEY,
+  main_id INT,
+  value varchar(10)
+);
+
+-- 测试数据
+INSERT INTO test_main
+SELECT 'A' UNION ALL
+SELECT 'B' UNION ALL
+SELECT 'C';
+
+INSERT INTO test_sub
+SELECT 1, 'AA' UNION ALL
+SELECT 2, 'BB' UNION ALL
+SELECT 3, 'CC';
+
+SELECT 
+  test_main.value, test_sub.value
+FROM
+  test_main JOIN test_sub ON (test_main.id = test_sub.main_id);
+
+value      value
+---------- ----------
+A          AA
+B          BB
+C          CC
+
+-- 删除数据，造成数据不连续
+DELETE FROM test_main WHERE id = 2;
+DELETE FROM test_sub WHERE main_id = 2;
+
+
+再次执行前面的查询
+value      value
+---------- ----------
+A          AA
+C          CC
+
+
+将数据通过 BCP 导出
+BCP [testDev].[dbo].[test_main] out test_main_c.dat -c -T -S "localhost\SQLEXPRESS"
+BCP [testDev].[dbo].[test_sub] out test_sub_c.dat -c -T -S "localhost\SQLEXPRESS"
+
+
+将数据通过 BCP 导入到 另外一个数据库
+BCP [testWork].[dbo].[test_main] in test_main_c.dat -c -T -S "localhost\SQLEXPRESS"
+BCP [testWork].[dbo].[test_sub] in test_sub_c.dat -c -T -S "localhost\SQLEXPRESS"
+
+在 testWork 数据库中查询
+
+1> select * from test_main
+2> go
+id          value
+----------- ----------
+          1 A
+          2 C
+
+1> select * from test_sub
+2> go
+id          main_id     value
+----------- ----------- ----------
+          1           1 AA
+          2           3 CC
+
+由于主表的 ID 重新生成了，父子关系不匹配。
+
+
+BCP 导出格式文件
+bcp [testDev].[dbo].[test_main] format nul -f test_main.fmt -c -T -S "localhost\SQLEXPRESS"
+bcp [testDev].[dbo].[test_sub] format nul -f test_sub.fmt -c -T -S "localhost\SQLEXPRESS"
+
+
+使用 OPENROWSET 读取外部数据文件。
+SELECT * FROM
+  OPENROWSET( BULK 'E:\Temp\test_main_c.dat',
+    FORMATFILE = 'E:\Temp\test_main.fmt') AS a;
+
+id           value
+------------ ----------
+1            A
+3            C
+
+-- 首先清空目标表数据
+TRUNCATE TABLE test_main;
+go
+-- 关闭自增ID
+SET IDENTITY_INSERT test_main ON
+go
+-- 插入数据
+INSERT INTO test_main(id, value)
+  SELECT * FROM
+    OPENROWSET( BULK 'E:\Temp\test_main_c.dat',
+      FORMATFILE = 'E:\Temp\test_main.fmt') AS a;
+go
+-- 开启自增.
+SET IDENTITY_INSERT test_main OFF
+go
+
+
+-- 首先清空目标表数据
+TRUNCATE TABLE test_sub;
+go
+-- 关闭自增ID
+SET IDENTITY_INSERT test_sub ON
+go
+-- 插入数据
+INSERT INTO test_sub(id, main_id, value)
+  SELECT * FROM
+    OPENROWSET( BULK 'E:\Temp\test_sub_c.dat',
+      FORMATFILE = 'E:\Temp\test_sub.fmt') AS a;
+go
+-- 开启自增.
+SET IDENTITY_INSERT test_sub OFF
+go
+
+-- 核对导入结果
+1> select * from test_main
+2> go
+id          value
+----------- ----------
+          1 A
+          3 C
+
+(2 行受影响)
+1> select * from test_sub
+2> go
+id          main_id     value
+----------- ----------- ----------
+          1           1 AA
+          3           3 CC
+
+(2 行受影响)
+
+-- 查看导入处理完毕后，自增ID的状态.
+
+1> DBCC CHECKIDENT('test_main', NORESEED)
+2> go
+检查标识信息: 当前标识值 '3'，当前列值 '3'。
+DBCC 执行完毕。如果 DBCC 输出了错误信息，请与系统管理员联系。
+
+1> DBCC CHECKIDENT('test_sub', NORESEED)
+2> go
+检查标识信息: 当前标识值 '3'，当前列值 '3'。
+DBCC 执行完毕。如果 DBCC 输出了错误信息，请与系统管理员联系。
+
+
+<hr/>
+更加省事，简单的处理方式：
+
+可以将包含标识值的数据文件大容量导入到 Microsoft SQL Server 实例中。默认情况下，将忽略导入的数据文件中标识列的值，SQL Server 自动分配唯一值。这些唯一值基于在表创建期间指定的种子和增量值。 
+
+如果该数据文件表中的标识符列不包含值，则使用格式化文件来指定导入数据时应跳过表中的标识符列。SQL Server 自动为此列分配唯一值。
+
+若要防止 SQL Server 在将数据行大容量导入到表中时分配标识值，请使用相应的保留标识命令限定符。在您指定保留标识限定符后，SQL Server 将在该数据文件中使用标识值。这些限定符如下：
+
+命令	保留标识限定符	限定符类型
+Bcp	-E	开关
+BULK INSERT	KEEPIDENTITY	参数
+INSERT ...SELECT * FROM OPENROWSET(BULK...)	KEEPIDENTITY	表提示
+
+BCP 方式
+BCP [testWork].[dbo].[test_main] in test_main_c.dat -c -E -T -S "localhost\SQLEXPRESS"
+BCP [testWork].[dbo].[test_sub] in test_sub_c.dat -c -E -T -S "localhost\SQLEXPRESS"
+
+
+BULK INSERT 方式
+BULK INSERT test_main 
+   FROM 'E:\Temp\test_main_c.dat' 
+   WITH (
+      KEEPIDENTITY,
+      DATAFILETYPE='char'
+   );
+
+BULK INSERT test_sub
+   FROM 'E:\Temp\test_sub_c.dat' 
+   WITH (
+      KEEPIDENTITY,
+      DATAFILETYPE='char'
+   );
+
+INSERT ...SELECT * FROM OPENROWSET(BULK...) 方式
+
+INSERT INTO test_main
+  with (KEEPIDENTITY)
+  (id, value)
+  SELECT * FROM
+    OPENROWSET( BULK 'E:\Temp\test_main_c.dat',
+      FORMATFILE = 'E:\Temp\test_main.fmt') AS a;
+
+
+INSERT INTO test_sub
+  with (KEEPIDENTITY)
+  (id, main_id, value)
+  SELECT * FROM
+    OPENROWSET( BULK 'E:\Temp\test_sub_c.dat',
+      FORMATFILE = 'E:\Temp\test_sub.fmt') AS a;
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

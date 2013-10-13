@@ -1,0 +1,268 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 触发器 - 使用触发器 实现 等价于外键的 UPDATE CASCADE 的功能  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 触发器 </h1>
+
+
+<h2> 使用触发器 实现 等价于外键的 UPDATE CASCADE 的功能  </h2>
+
+
+<pre><code>
+
+测试表/数据。 参考 使用触发器 实现 等价于外键的 DELETE CASCADE 的功能 的章节.
+
+</code></pre>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+CREATE OR REPLACE TRIGGER tr_t_test_main_Update
+  BEFORE UPDATE ON t_test_main
+FOR EACH ROW
+BEGIN
+  UPDATE t_test_sub 
+  SET main_id = :NEW.id
+  WHERE main_id = :OLD.id;
+END;
+/
+
+
+SQL> UPDATE t_test_main SET id = 100 WHERE id = 2;
+
+已更新 1 行。
+
+SQL> SELECT * FROM t_test_sub;
+
+        ID    MAIN_ID VALUE
+---------- ---------- --------------------
+         2        100 TWOTWO
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+CREATE TRIGGER tr_t_test_main_Update
+  ON t_test_main
+  FOR UPDATE
+AS
+BEGIN
+  -- 注： 遇到主键一次更新多行的情况， 水有点深。 
+  WITH myInserted AS (
+    SELECT ROW_NUMBER() OVER (ORDER BY (SELECT 1)) AS myNO, inserted.* FROM inserted
+  ),
+  myDeleted AS (
+    SELECT ROW_NUMBER() OVER (ORDER BY (SELECT 1)) AS myNO, deleted.* FROM deleted
+  )
+  UPDATE 
+    t_test_sub 
+  SET 
+    main_id = myInserted.id
+  FROM
+    t_test_sub 
+	  JOIN myDeleted
+	    ON (t_test_sub.main_id = myDeleted.id)
+	  JOIN myInserted
+	    ON (myDeleted.myNO = myInserted.myNO);
+END;
+go
+
+
+-- 为测试多行的效果， 增加一些才测试数据.
+
+-- 插入测试主表数据.
+INSERT INTO t_test_main(id, value) 
+SELECT 11, 'AA' UNION ALL
+SELECT 12, 'BB' UNION ALL
+SELECT 13, 'CC' UNION ALL
+SELECT 14, 'DD' UNION ALL
+SELECT 15, 'EE';
+
+-- 插入测试子表数据.
+INSERT INTO t_test_sub(id, main_id, value) 
+SELECT 11, 11, 'AAAA' UNION ALL
+SELECT 12, 12, 'BBBB' UNION ALL
+SELECT 13, 13, 'CCCC' UNION ALL
+SELECT 14, 14, 'DDDD' UNION ALL
+SELECT 15, 15, 'EEEE';
+
+
+-- 一条 sql 更新多行数据.
+1> UPDATE t_test_main SET id = id + 10;
+2> GO
+
+(6 行受影响)
+1>
+2> SELECT * FROM t_test_sub;
+3> GO
+id          main_id     value
+----------- ----------- ----------
+          2          12 TWOTWO
+         11          21 AAAA
+         12          22 BBBB
+         13          23 CCCC
+         14          24 DDDD
+         15          25 EEEE
+
+(6 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+DELIMITER //
+
+
+CREATE TRIGGER tr_t_test_main_Update
+  BEFORE UPDATE ON t_test_main
+FOR EACH ROW
+BEGIN
+  UPDATE t_test_sub 
+  SET main_id = NEW.id
+  WHERE main_id = OLD.id;
+END;
+//
+
+DELIMITER ;
+
+
+
+
+mysql> UPDATE t_test_main SET id = 100 WHERE id = 2;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> SELECT * FROM t_test_sub;
++----+---------+--------+
+| id | main_id | value  |
++----+---------+--------+
+|  2 |     100 | TWOTWO |
++----+---------+--------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+-- 创建 触发器函数.
+-- 注： 这个触发器名字，与前面测试 DELETE CASCADE 的触发器名称相同
+-- 因此，本触发器创建后， 将自动覆盖掉上次创建的触发器.
+CREATE OR REPLACE FUNCTION TrDeleteTTestMain()  RETURNS trigger AS $tr_t_test_main_Del$
+BEGIN
+  UPDATE t_test_sub 
+  SET main_id = NULL
+  WHERE main_id = OLD.id;
+  RETURN OLD;
+END;
+$tr_t_test_main_Del$ LANGUAGE plpgsql;
+
+
+-- 触发器不用重复创建了， 因为本次只修改了触发器函数。 触发器定义不需要修改。
+/*
+CREATE TRIGGER tr_t_test_main_Del 
+  BEFORE DELETE ON t_test_main
+  FOR EACH ROW EXECUTE 
+  PROCEDURE TrDeleteTTestMain();
+*/
+
+
+Test=# delete from  t_test_main  where id = 100;
+DELETE 1
+Test=#
+Test=# select * from t_test_sub;
+ id | main_id | value
+----+---------+--------
+  2 |         | TWOTWO
+(1 行记录)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

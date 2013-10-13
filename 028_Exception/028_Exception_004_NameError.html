@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 异常处理 - 自定义错误-简单命名 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 异常处理 </h1>
+
+
+<h2> 自定义错误-简单命名  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> DECLARE
+  2    -- 测试异常.
+  3    e_test_exception EXCEPTION;
+  4  BEGIN
+  5
+  6    -- 直接抛出异常，测试下面的捕获
+  7    RAISE e_test_exception;
+  8
+  9    EXCEPTION
+ 10      WHEN e_test_exception THEN
+ 11        dbms_output.put_line('Test Error !');
+ 12      WHEN OTHERS THEN
+ 13        dbms_output.put_line('OTHERS Error!');
+ 14  END;
+ 15  /
+Test Error !
+
+PL/SQL procedure successfully completed.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => BEGIN
+db2 (cont.) =>   DECLARE overflow CONDITION FOR SQLSTATE '80000';
+db2 (cont.) =>   SIGNAL overflow;
+db2 (cont.) => END
+db2 (cont.) => @
+DB21034E  该命令被当作 SQL 语句来处理，因为它是无效的“命令行处理器”命令。在
+SQL 处理期间，它返回：
+SQL0438N  应用程序发生错误或警告，其诊断文本为：""。  SQLSTATE=80000
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+MySQL 5.5 新特性。
+SIGNAL  语句，用于抛出异常的处理.
+
+
+DELIMITER //
+
+CREATE PROCEDURE p_test_exception (pval INT)
+BEGIN
+  -- 定义一个异常. 名称为 specialty，  异常状态为  45000
+  DECLARE specialty CONDITION FOR SQLSTATE '45000';
+
+  IF pval = 1 THEN
+    -- 当 SQLSTATE 以 01 开头的，表示 警告，不会中断存储过程执行，也不会回滚
+    SIGNAL SQLSTATE '01000'
+      SET MESSAGE_TEXT = '警告！某些处理可能不正常了！';
+  ELSEIF pval = 2 THEN
+    -- 当 SQLSTATE 以 02 开头的， 表示 NOT FOUND
+    SIGNAL SQLSTATE '02000'
+      SET MESSAGE_TEXT = 'NOT FOUND';
+  ELSEIF pval = 3 THEN
+    -- 当 SQLSTATE 开头 大于 02 的， 表示 异常了， 存储过程将结束执行，并返回。
+    SIGNAL SQLSTATE '03000'
+      SET MESSAGE_TEXT = '03000 异常';
+  ELSEIF pval = 4 THEN
+    SIGNAL specialty
+      SET MESSAGE_TEXT = '指定名称的异常！';
+  ELSE
+    SIGNAL SQLSTATE '40000'
+      SET MESSAGE_TEXT = 'ordinary exception.', MYSQL_ERRNO = 1001;
+  END IF;
+  
+  -- 这行如果能输出，表示前面执行正常，或者仅仅抛出的是警告。
+  SELECT 'OK' AS RESULT;
+  
+END;
+//
+
+DELIMITER ;
+
+
+
+mysql> call p_test_exception(1);
++--------+
+| RESULT |
++--------+
+| OK     |
++--------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected, 1 warning (0.00 sec)
+
+
+mysql> call p_test_exception(2);
+ERROR 1643 (02000): NOT FOUND
+
+
+mysql> call p_test_exception(3);
+ERROR 1644 (03000): 03000 异常
+
+
+mysql> call p_test_exception(4);
+ERROR 1644 (45000): 指定名称的异常！
+
+
+mysql> call p_test_exception(5);
+ERROR 1001 (40000): ordinary exception.
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

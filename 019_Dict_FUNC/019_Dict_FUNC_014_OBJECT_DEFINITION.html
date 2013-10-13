@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典类函数 - 返回定义的源文本 OBJECT_DEFINITION  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典类函数 </h1>
+
+
+<h2>  返回定义的源文本 OBJECT_DEFINITION </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+OBJECT_DEFINITION ( object_id )
+参数
+object_id
+要使用的对象的 ID。object_id 的数据类型为 int，并假定表示当前数据库上下文中的对象。
+
+SQL Server 数据库引擎 假定 object_id 位于当前数据库上下文中。对象定义的排序规则始终与调用数据库上下文的排序规则匹配。
+
+OBJECT_DEFINITION 适用于以下对象类型：
+C = 检查约束
+D = 默认值（约束或独立）
+P = SQL 存储过程
+FN = SQL 标量函数
+R = 规则 
+RF = 复制筛选器过程
+TR = SQL 触发器（架构范围内的 DML 触发器，或数据库或服务器范围内的 DDL 触发器）
+IF = SQL 内联表值函数
+TF = SQL 表值函数
+V = 视图
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

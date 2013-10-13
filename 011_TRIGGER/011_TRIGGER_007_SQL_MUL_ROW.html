@@ -1,0 +1,275 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 触发器 - SQL Server INSERT/UPDATE/DELETE多行 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 触发器 </h1>
+
+
+<h2> SQL Server INSERT/UPDATE/DELETE多行  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+
+
+  <tr>
+    <td> SQL Server 例子1 </td>
+    <td>
+<pre><code>
+
+1> CREATE TRIGGER AfterAllTest2
+2>    ON test_trigger_table
+3>    FOR INSERT,UPDATE,DELETE
+4> AS
+5> DECLARE
+6>   @InsertCount INT,
+7>   @DeleteCount INT;
+8> BEGIN
+9>   PRINT('AFTER ALL 2');
+10>   SELECT @InsertCount = COUNT(1) FROM inserted;
+11>   SELECT @DeleteCount = COUNT(2) FROM deleted;
+12>   PRINT('@InsertCount=' + STR(@InsertCount) );
+13>   PRINT('@DeleteCount=' + STR(@DeleteCount) );
+14> END;
+15> go
+1> INSERT INTO test_trigger_table(id, name) VALUES (1, 'ABC');
+2> go
+AFTER ALL
+INSERTING
+AFTER ALL 2
+@InsertCount=         1
+
+(1 行受影响)
+@DeleteCount=         0
+1> INSERT INTO test_trigger_table(id, name) VALUES (2, 'DEF');
+2> go
+AFTER ALL
+INSERTING
+AFTER ALL 2
+@InsertCount=         1
+
+(1 行受影响)
+@DeleteCount=         0
+1>  insert into test_trigger_table  select * from test_trigger_table;
+2> go
+AFTER ALL
+INSERTING
+AFTER ALL 2
+@InsertCount=         2
+
+(2 行受影响)
+@DeleteCount=         0
+1> UPDATE test_trigger_table SET name = 'XYZ' WHERE id = 1;
+2> go
+AFTER ALL
+UPDATING
+AFTER ALL 2
+@InsertCount=         2
+
+(2 行受影响)
+@DeleteCount=         2
+1>
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server 例子2 </td>
+    <td>
+<pre><code>
+
+由于 SQL Server 的触发器， 没有 FOR EACH ROW 的选项， 有时候不正确的使用 inserted 与 deleted 可能会有点麻烦。
+
+
+下面来一个简单的例子
+
+
+--假设这个A是主表
+
+CREATE TABLE A(
+  AID INT IDENTITY(1, 1) PRIMARY KEY,
+  money INT
+);
+
+
+-- 假设这个B是 日志表， 负责记录 A表 发生的变化。
+CREATE TABLE B(
+  BID INT IDENTITY(1, 1) PRIMARY KEY,
+  AID INT,
+  money INT
+);
+go
+
+
+-- 假设这个C也是日志表， 负责记录 A表 发生的变化。 
+
+-- 但是这个C表是用于演示 不正确使用的例子。
+
+CREATE TABLE C(
+  CID INT IDENTITY(1, 1) PRIMARY KEY,
+  AID INT,
+  money INT
+);
+go
+
+
+
+-- 测试的存储过程
+
+-- 当 A 表 插入 / 更新 / 删除的时候i， 都触发。
+CREATE TRIGGER AfterA
+ ON A
+FOR INSERT,UPDATE,DELETE
+AS
+  DECLARE @aid INT, @money INT;
+BEGIN
+
+  IF EXISTS(SELECT 1 FROM inserted) AND NOT EXISTS(SELECT 1 FROM deleted)
+  BEGIN
+    -- 插入触发.
+    -- 正确的使用.
+    INSERT INTO B
+    SELECT
+      inserted.aid,
+      inserted.money
+    FROM
+      inserted;
+    
+    -- 不正确的使用.
+    SELECT @aid = aid, @money = money FROM inserted;
+    INSERT INTO C VALUES ( @aid, @money);
+  END;
+ 
+  IF EXISTS(SELECT 1 FROM inserted) AND EXISTS(SELECT 1 FROM deleted)
+  BEGIN
+    -- 更新触发.
+    -- 正确的使用.
+    INSERT INTO B
+    SELECT
+      inserted.aid,
+      inserted.money - deleted.money
+    FROM
+      inserted, deleted
+    WHERE
+      inserted.AID = deleted.AID;
+      
+    -- 不正确的使用.
+    SELECT @aid = aid, @money = money FROM inserted;
+    SELECT @money = @money - money FROM deleted;
+    INSERT INTO C VALUES ( @aid, @money);
+  END;
+ 
+  IF NOT EXISTS(SELECT 1 FROM inserted) AND EXISTS(SELECT 1 FROM deleted)
+  BEGIN
+    -- 删除触发
+    -- 正确的使用.
+    INSERT INTO B
+    SELECT
+      deleted.aid,
+      0 - deleted.money
+    FROM
+      deleted;
+      
+    -- 不正确的使用.
+    SELECT @aid = aid, @money = 0 - money FROM deleted;
+    INSERT INTO C VALUES ( @aid, @money);
+  END;
+END;
+go
+
+
+-- 一条SQL语句，插入一条数据
+INSERT INTO A VALUES (100);
+
+-- 一条SQL语句，插入多条数据
+INSERT INTO A
+  SELECT 10
+  UNION ALL SELECT 20;
+GO
+
+-- 一条SQL语句，更新一条数据
+UPDATE A SET money = money - 50 WHERE AID = 1;
+
+-- 一条SQL语句，更新多条数据
+UPDATE A SET money = money + 50 WHERE AID != 1;
+GO
+
+-- 一条SQL语句，删除一条数据
+DELETE FROM A WHERE AID = 1;
+
+-- 一条SQL语句，删除多条数据
+DELETE FROM A WHERE AID != 1;
+GO
+
+
+SELECT * FROM B
+GO
+BID         AID         money
+----------- ----------- -----------
+          1           1         100
+          2           3          20
+          3           2          10
+          4           1         -50
+          5           3          50
+          6           2          50
+          7           1         -50
+          8           3         -70
+          9           2         -60
+
+(9 行受影响)
+
+
+SELECT * FROM C
+go
+CID         AID         money
+----------- ----------- -----------
+          1           1         100
+          2           2          10
+          3           1         -50
+          4           2          30
+          5           1         -50
+          6           2         -60
+
+(6 行受影响)
+
+
+
+在SQL Server的触发器当中。如果简单的
+
+SELECT @aid = aid, @money = money FROM inserted;
+
+那么，当 SQL 语句是同时更新多条记录的时候， 就会有后面的数据，没有被触发器处理掉。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

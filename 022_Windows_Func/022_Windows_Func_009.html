@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 窗口函数 - PERCENTILE_CONT | PERCENTILE_DISC </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 窗口函数 </h1>
+
+
+<h2> PERCENTILE_CONT | PERCENTILE_DISC  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+PERCENTILE_CONT
+  返回一个与输入的分布百分比值相对应的数据值，分布百分比的计算方法见函数 PERCENT_RANK
+
+PERCENTILE_DISC
+  返回一个与输入的分布百分比值相对应的数据值，分布百分比的计算方法见函数CUME_DIST，如果没有正好对应的数据值，就取大于该分布值的下一个值。
+  注意：本函数与PERCENTILE_CONT的区别在找不到对应的分布值时返回的替代值的计算方法不同
+
+
+SELECT
+  student_name,
+  grade,
+  PERCENT_RANK() OVER( ORDER BY grade) AS "PERCENT_RANK",
+  CUME_DIST() OVER( ORDER BY grade) AS "CUME_DIST"
+FROM
+  test_course;
+
+STUDENT_NA      GRADE PERCENT_RANK  CUME_DIST
+---------- ---------- ------------ ----------
+戊                 50            0        .15
+己                 50            0        .15
+己                 50            0        .15
+戊                 55   .157894737         .2
+庚                 60   .210526316        .35
+庚                 60   .210526316        .35
+丁                 60   .210526316        .35
+丁                 65   .368421053         .4
+辛                 70   .421052632        .55
+辛                 70   .421052632        .55
+丙                 70   .421052632        .55
+
+STUDENT_NA      GRADE PERCENT_RANK  CUME_DIST
+---------- ---------- ------------ ----------
+丙                 75   .578947368         .6
+壬                 80   .631578947         .7
+乙                 80   .631578947         .7
+乙                 85   .736842105         .8
+壬                 85   .736842105         .8
+奎                 90   .842105263         .9
+甲                 90   .842105263         .9
+奎                 95   .947368421          1
+甲                 95   .947368421          1
+
+已选择20行。
+
+
+
+SELECT
+  PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY grade) AS CONT,
+  PERCENTILE_DISC(0.5) WITHIN GROUP (ORDER BY grade) AS DISC
+FROM
+  test_course
+ORDER BY
+  course_name;
+
+      CONT       DISC
+---------- ----------
+        70         70
+
+
+SELECT
+  PERCENTILE_CONT(0.15) WITHIN GROUP (ORDER BY grade) AS CONT,
+  PERCENTILE_DISC(0.15) WITHIN GROUP (ORDER BY grade) AS DISC
+FROM
+  test_course
+ORDER BY
+  course_name;
+
+      CONT       DISC
+---------- ----------
+     54.25         50
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

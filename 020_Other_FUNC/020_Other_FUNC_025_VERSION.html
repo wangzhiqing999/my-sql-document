@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 其他函数 - 获取数据库当前的版本 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 其他函数 </h1>
+
+
+<h2> 获取数据库当前的版本  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> select * from V$VERSION;
+
+BANNER
+--------------------------------------------------------------------------------
+Oracle Database 10g Express Edition Release 10.2.0.1.0 - Product
+PL/SQL Release 10.2.0.1.0 - Production
+CORE    10.2.0.1.0      Production
+TNS for 32-bit Windows: Version 10.2.0.1.0 - Production
+NLSRTL Version 10.2.0.1.0 - Production
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+db2 => select * from sysibm.sysversions;
+
+VERSIONNUMBER VERSION_TIMESTAMP          AUTHID
+
+          VERSIONBUILDLEVEL
+------------- -------------------------- ---------------------------------------
+--------------------------------------------------------------------------------
+--------- ------------------------------
+      9070100 2012-11-19-17.25.40.601000 TEST
+
+          s091114
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+1> select @@version
+2> go
+
+
+
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+------------------------------------------------------------
+Microsoft SQL Server 2008 R2 (RTM) - 10.50.1600.1 (X64)
+        Apr  2 2010 15:48:46
+        Copyright (c) Microsoft Corporation
+        Express Edition with Advanced Services (64-bit) on Windows NT 6.1 <X64>
+(Build 7601: Service Pack 1)
+
+
+
+(1 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+sqlite> select sqlite_version();
+sqlite_version()
+3.7.15
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+Test=# select version();
+                           version
+-------------------------------------------------------------
+ PostgreSQL 9.2.4, compiled by Visual C++ build 1600, 32-bit
+(1 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

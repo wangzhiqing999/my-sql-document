@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典类函数 - 获取指定类型 ID 的未限定的类型名称 TYPE_NAME  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典类函数 </h1>
+
+
+<h2> 获取指定类型 ID 的未限定的类型名称 TYPE_NAME  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+TYPE_NAME ( type_id ) 
+参数
+type_id
+要使用的类型的 ID。type_id 的数据类型为 int，它可以引用调用方有权访问的任意架构中的类型。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+format_type(type_oid, typemod):获取一个数据类型的 SQL 名称
+
+
+SELECT
+  attname,
+  attnum,
+  atttypid AS "数据类型ID",
+  format_type(atttypid, null)  AS  "数据类型"
+FROM
+  pg_attribute
+WHERE
+  attrelid = 'test_main'::regclass;
+  
+
+
+
+ attname  | attnum | 数据类型ID |     数据类型
+----------+--------+------------+-------------------
+ tableoid |     -7 |         26 | oid
+ cmax     |     -6 |         29 | cid
+ xmax     |     -5 |         28 | xid
+ cmin     |     -4 |         29 | cid
+ xmin     |     -3 |         28 | xid
+ ctid     |     -1 |         27 | tid
+ id       |      1 |         23 | integer
+ value    |      2 |       1043 | character varying
+(8 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

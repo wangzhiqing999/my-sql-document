@@ -1,0 +1,327 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 提示 Hint - 查询提示  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 提示 Hint </h1>
+
+
+<h2> 查询提示  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+<query_hint > ::= 
+{ { HASH | ORDER } GROUP 
+  | { CONCAT | HASH | MERGE } UNION 
+  | { LOOP | MERGE | HASH } JOIN 
+  | FAST number_rows 
+  | FORCE ORDER 
+  | MAXDOP number_of_processors 
+  | OPTIMIZE FOR ( @variable_name = literal_constant [ , ...n ] ) 
+  | PARAMETERIZATION { SIMPLE | FORCED }
+  | RECOMPILE
+  | ROBUST PLAN 
+  | KEEP PLAN 
+  | KEEPFIXED PLAN
+  | EXPAND VIEWS 
+  | MAXRECURSION number 
+  | USE PLAN N'xml_plan'
+}
+
+
+{ HASH | ORDER } GROUP
+指定在查询的 GROUP BY、DISTINCT 或 COMPUTE 子句中所说明的聚合应使用哈希或排列。
+
+SELECT
+  main_id,
+  COUNT(1)
+FROM
+  [Work].[test_sub]
+GROUP BY
+  main_id;
+
+
+手动调整为 ORDER GROUP
+SELECT
+  main_id,
+  COUNT(1)
+FROM
+  [Work].[test_sub]
+GROUP BY
+  main_id
+OPTION (ORDER GROUP);
+
+
+{ MERGE |HASH |CONCAT } UNION
+指定所有 UNION 运算由合并、哈希或串联 UNION 集执行。如果指定了多个 UNION 提示，查询优化器就会从这些指定的提示中选择开销最少的策略。
+
+SELECT
+  id,
+  value
+FROM
+  [Work].[test_Main]
+UNION
+SELECT
+  id,
+  value
+FROM
+  [Work].[test_sub];
+
+手动调整为 HASH
+
+SELECT
+  id,
+  value
+FROM
+  [Work].[test_Main]
+UNION
+SELECT
+  id,
+  value
+FROM
+  [Work].[test_sub]
+OPTION (HASH UNION);
+
+
+{ LOOP | MERGE | HASH } JOIN
+指定整个查询中的所有联接操作由 LOOP JOIN、MERGE JOIN 或 HASH JOIN 执行。
+如果指定了多个联接提示，则优化器从允许的联接策略中选择开销最少的联接策略。
+
+如果在同一个查询中还为一对特定的表指定了联接提示，则虽然仍须遵守查询提示，
+但该联接提示将优先联接这两个表。因此，为这对表指定的联接提示可能只限制选择查询提示中允许的联接方法。
+
+FAST number_rows
+指定对查询进行优化，以便快速检索第一个 number_rows.。该值是非负整数。
+在返回第一个 number_rows 后，查询继续执行并生成完整的结果集。
+
+
+SELECT
+  test_main.id AS main_id,
+  test_main.value AS main_value,
+  test_sub.id  AS  sub_id,
+  test_sub.value AS sub_value
+FROM
+  [Work].test_main
+    JOIN [Work].test_sub
+      ON test_main.id = test_sub.main_id
+WHERE
+  test_main.value LIKE 'PK%'
+OPTION (FAST 10);
+  
+
+FORCE ORDER
+指定在查询优化过程中保持由查询语法指示的联接顺序。
+
+SELECT * FROM Table1, Table2, View1, Table3
+WHERE Table1.Col1 = Table2.Col1 
+AND Table2.Col1 = View1.Col1
+AND View1.Col2 = Table3.Col2
+OPTION (FORCE ORDER)
+ 
+而且 View1 的定义如下。
+
+CREATE VIEW View1 AS
+SELECT Colx, Coly FROM TableA, TableB
+WHERE TableA.ColZ = TableB.Colz
+ 
+
+查询计划中的联接顺序是 Table1、Table2、TableA、TableB、Table3。
+
+
+
+OPTIMIZE FOR
+在编译和优化查询时提示查询优化器对本地变量使用特定值。
+仅在查询优化期间使用该值，在查询执行期间不使用该值。
+OPTIMIZE FOR 可以抵消优化器的参数检测行为，也可在创建计划指南时使用。
+
+
+@variable_name 
+在查询中使用的本地变量的名称，可以为其分配用于 OPTIMIZE FOR 查询提示的值。
+
+literal_constant 
+要分配给 @variable_name 并用于 OPTIMIZE FOR 查询提示的文字常量值。
+literal_constant 只在查询优化期间使用，在查询执行期间不作为 @variable_name 的值使用。
+literal_constant 可以是任意可用文字常量表示的 SQL Server 系统数据类型。
+literal_constant 的数据类型必须可隐式转换为查询中 @variable_name 所引用的数据类型。
+
+, …n 
+指示可以为多个 @variable_name 分配用于 OPTIMIZE FOR 查询提示的 literal_constant。
+
+
+
+DECLARE @mainValue VARCHAR(32);
+SELECT
+  test_main.id AS main_id,
+  test_main.value AS main_value,
+  test_sub.id  AS  sub_id,
+  test_sub.value AS sub_value
+FROM
+  [Work].test_main
+    JOIN [Work].test_sub
+      ON test_main.id = test_sub.main_id
+WHERE
+  test_main.value = @mainValue
+OPTION( OPTIMIZE FOR (@mainValue = 'sysproxies') );
+
+
+
+
+
+PARAMETERIZATION { SIMPLE | FORCED }
+指定在编译查询时 SQL Server 查询优化器应用于此查询的参数化规则。
+
+重要提示： 
+PARAMETERIZATION 查询提示只能在计划指南中指定。不能直接在查询中指定该查询提示。
+SIMPLE 指示查询优化器尝试进行简单参数化。
+FORCED 指示优化器尝试进行强制参数化。
+PARAMETERIZATION 查询提示用于覆盖计划指南中 PARAMETERIZATION 数据库 SET 选项的当前设置。
+
+
+
+
+RECOMPILE
+指示 SQL Server 2005 数据库引擎在执行为查询生成的计划后将其丢弃，
+从而在下次执行同一查询时强制查询优化器重新编译查询计划。
+如果未指定 RECOMPILE，数据库引擎将缓存查询计划并重新使用它们。
+在编译查询计划时，RECOMPILE 查询提示将使用查询中任意本地变量的当前值，
+如果查询位于存储过程中，这些当前值将传递给任意参数。
+
+
+
+
+ROBUST PLAN
+强制查询优化器尝试一个计划，该计划可能以性能为代价获得最大可能的行大小。
+处理查询时，中间表和运算符可能需要存储和处理比输入行宽的行。
+在有些情况下，行可能很宽，以致某个运算符无法处理行。
+如果发生这种情况，数据库引擎将在查询执行过程中生成错误。
+通过使用 ROBUST PLAN，可以指示查询优化器不考虑可能会遇到该问题的所有查询计划。
+
+
+如果不能使用这样的计划，查询优化器将返回错误而不是延迟对查询执行的错误检测。
+行可以包含可变长度列；数据库引擎允许将行大小定义为超过数据库引擎处理能力的最大可能的大小。
+通常，应用程序存储实际大小在数据库引擎处理能力范围内的行，
+而不管最大可能大小。如果数据库引擎遇到过长的行，则返回执行错误。
+
+
+
+
+KEEP PLAN
+强制查询优化器对查询放宽估计的重新编译阈值。
+当对表的索引列更改（通过运行 UPDATE、DELETE 或 INSERT 语句）达到估计数目时自动重新编译查询，
+该估计数目即为估计的重新编译阈值。指定 KEEP PLAN 可确保当表有多个更新时不会频繁地对查询进行重新编译。
+
+
+
+KEEPFIXED PLAN
+强制查询优化器不因统计信息的更改而重新编译查询。
+指定 KEEPFIXED PLAN 可确保仅当更改基础表的架构或在那些表上执行 sp_recompile 时才重新编译查询。
+
+
+
+EXPAND VIEWS
+指定展开索引视图，而且查询优化器不将任何索引视图看作是查询中任何部分的替代。当视图名称由查询文本中的视图定义替换时，视图将展开。
+实际上，该查询提示不允许在查询计划中直接使用索引视图和直接在索引视图上使用索引。
+只有在查询的 SELECT 部分中直接引用视图，而且指定 WITH (NOEXPAND) 或 WITH (NOEXPAND, INDEX( index_val [ ,...n ] ) ) 时，才不展开索引视图。。
+有关查询提示 WITH (NOEXPAND) 的详细信息，请参阅 FROM (Transact-SQL)。
+只有语句的 SELECT 部分的视图（包括 INSERT、UPDATE 和 DELETE 语句中的视图）才受提示影响。
+
+
+
+MAXRECURSION number
+指定该查询允许的最大递归数。number 是介于 0 至 32767 之间的非负整数。如果指定 0，则没有限制。如果未指定此选项，则对服务器的默认限制为 100。 
+当在查询执行期间达到指定或默认的 MAXRECURSION 数量限制时，将结束查询并返回错误。
+由于此错误，该语句的所有结果都被回滚。如果该语句为 SELECT 语句，
+则可能会返回部分结果或不返回结果。所返回的任何部分结果都可能无法包括超过指定最大递归级别的递归级别上的所有行。
+
+
+
+USE PLAN N'xml_plan'
+强制查询优化器对查询使用由 'xml_plan' 指定的现有查询计划。有关详细信息，请参阅使用计划强制来指定查询计划。不能使用 INSERT、UPDATE 或 DELETE 语句指定 USE PLAN。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

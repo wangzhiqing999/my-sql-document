@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库会话的基本参数设置 SET - 是否自动回滚 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库会话的基本参数设置 SET </h1>
+
+
+<h2> 是否自动回滚  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SET XACT_ABORT { ON | OFF }
+
+备注
+当 SET XACT_ABORT 为 ON 时，如果执行 Transact-SQL 语句产生运行时错误，则整个事务将终止并回滚。 
+当 SET XACT_ABORT 为 OFF 时，有时只回滚产生错误的 Transact-SQL 语句，而事务将继续进行处理。如果错误很严重，那么即使 SET XACT_ABORT 为 OFF，也可能回滚整个事务。OFF 是默认设置。
+编译错误（如语法错误）不受 SET XACT_ABORT 的影响。
+对于大多数 OLE DB 提供程序（包括 SQL Server），必须将隐式或显示事务中的数据修改语句中的 XACT_ABORT 设置为 ON。唯一不需要该选项的情况是在提供程序支持嵌套事务时。有关详细信息，请参阅分布式查询和分布式事务。 
+SET XACT_ABORT 的设置是在执行或运行时设置，而不是在分析时设置。
+
+
+1> SELECT * FROM test_main;
+2> GO
+id          value
+----------- ----------
+          1 ONE1
+          2 TWO1
+          3 Three1
+          4 FOUR1
+
+(4 行受影响)
+1>
+2> SET XACT_ABORT ON;
+3> GO
+1>
+2> BEGIN TRANSACTION;
+3> INSERT INTO test_main VALUES (7, 'A');
+4> INSERT INTO test_main VALUES (8, 'B');
+5> INSERT INTO test_main VALUES (8, 'C');
+6> INSERT INTO test_main VALUES (9, 'D');
+7> COMMIT TRANSACTION;
+8> GO
+
+(1 行受影响)
+消息 2627，级别 14，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，第 5 行
+违反了 PRIMARY KEY 约束 'PK__test_main__15502E78'。不能在对象 'dbo.test_main' 中
+插入重复键。
+1> SELECT * FROM test_main;
+2> GO
+id          value
+----------- ----------
+          1 ONE1
+          2 TWO1
+          3 Three1
+          4 FOUR1
+
+(4 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

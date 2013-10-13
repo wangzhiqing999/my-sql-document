@@ -1,0 +1,226 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 执行外部 sql 文件  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 执行外部 sql 文件 </h1>
+
+
+<h2>   </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+在 sqlplus 运行后。
+先连接上数据库
+
+然后使用
+
+@sql文件名.sql
+
+(注： 该 sql 文件， 需要在当前目录下)
+
+
+<hr/>
+
+如果需要在  cmd  的 批处理的方式下， 运行外部 SQL 文件的话。
+可以通过 加命令行参数的方式来实现。
+
+
+test.sql 文件内容如下：
+
+
+create table test_sqlplus (
+	id	int,
+	val	varchar(10)
+);
+INSERT  INTO  test_sqlplus VALUES( 1, 'A');
+INSERT  INTO  test_sqlplus VALUES( 2, 'B');
+COMMIT;
+EXIT
+
+
+
+E:\Temp>sqlplus test/test@vbpos @test.sql
+SQL*Plus: Release 9.2.0.1.0 - Production on 星期五 4月 26 12:37:12 2013
+Copyright (c) 1982, 2002, Oracle Corporation.  All rights reserved.
+连接到:
+Oracle Database 10g Express Edition Release 10.2.0.1.0 - Production
+表已创建。
+已创建 1 行。
+已创建 1 行。
+提交完成。
+从Oracle Database 10g Express Edition Release 10.2.0.1.0 - Production中断开
+E:\Temp>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+使用 sqlcmd  带参数的运行方式
+
+sqlcmd -E -S "localhost\SQLEXPRESS" -i "000_SelectDatabase.sql" "MyRule_SQLServerTable_DropAll.sql"
+
+注：   -i  表示外部的文件
+多个 sql 文件， 可按顺序， 依次排列下去
+用 空格作为分隔符号
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+使用下面的方式来处理.
+source  sql文件.sql
+
+(注： 该 sql 文件， 需要在当前目录下)
+
+
+mysql> use test2
+Database changed
+
+mysql> source test.sql
+Query OK, 0 rows affected (0.00 sec)
+
+Query OK, 0 rows affected (0.00 sec)
+
+......
+
+
+
+
+如果需要在 操作系统级别上, 执行 sql 文件。
+使用的命令格式如下：
+
+
+mysql -h localhost -u roster -p &lt; 重新创建数据库.sql
+
+其中 -h 后面跟的是主机名 -u 后面跟的是用户名
+-p 则是没有办法，必须手动输入一次密码。
+
+假如需要一次执行多个 sql 文件。
+
+那么，可以在那个执行的 sql 文件里面，定义多个 source sql文件
+
+
+重新创建数据库.sql 文件内容：
+
+source 0010_Database.sql
+source 0050_Table.sql
+source 0100_TestData.sql
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+-- 对于 localhost:5432 服务器上的 Test2 数据库。 执行外部的 test_data.sql 文件
+
+F:\PostgreSQL\9.2\bin>psql.exe -h localhost -U test -p 5432 -d Test2 &lt; test_data.sql
+
+用户 test 的口令：test
+
+SET
+SET
+SET
+SET
+SET
+CREATE SCHEMA
+ALTER SCHEMA
+CREATE EXTENSION
+COMMENT
+CREATE EXTENSION
+COMMENT
+......
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - SQL Server 聚集索引/非聚集索引 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> SQL Server 聚集索引/非聚集索引 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+聚集索引：
+  该索引中键值的逻辑顺序决定了表中相应行的物理顺序。
+
+如果用 新华字典 作例子来一个例子的话。
+  [拼音]就可以看作是聚集索引
+    例如 吖、阿、啊 在字典的最前面。
+    左、作、坐 在字典的最后面。
+    拼音[逻辑顺序]很接近，在字典中页数的位置[物理顺序]也很接近。
+
+适用场合：
+  含有大量非重复值的列
+  使用BETWEEN,&gt;,&gt;=,&lt;或&lt;=返回一个范围值的列
+  被连续访问的列
+  返回大型结果集的查询
+  经常被使用连接或GROUP BY子句的查询访问的列
+
+
+
+非聚集索引：
+  非聚集索引与聚集索引一样有 B 树结构，但是有两个重大差别：
+  数据行不按非聚集索引键的顺序排序和存储。
+  非聚集索引的叶层不包含数据页。
+  相反，叶节点包含索引行。每个索引行包含非聚集键值以及一个或多个行定位器，
+  这些行定位器指向有该键值的数据行（如果索引不唯一，则可能是多行）。
+
+如果用 新华字典 作例子来一个例子的话。
+  [笔画]就可以看作是非聚集索引
+    例如 化 仇 仃 仅 仂 这几个字，都是 单人旁，笔画数相同的。
+    笔画[逻辑顺序]很接近，在字典中页数的位置[物理顺序]则在不同的位置上。
+
+适用场合：
+  含有大量非重复值的列
+  非连续访问的列
+  返回小型结果集的查询
+
+-- 由于 SQL SERVER 默认是在主键上建立聚集索引的。
+-- 一个表，又只允许有一个 聚集索引。
+-- 这里创建主键的时候，要指定这个主键，使用非聚集索引
+CREATE TABLE TestDoc(
+  id 			INT identity(1, 1),
+  createDate  	DATETIME,
+  owner			VARCHAR(10),
+  docInfo		TEXT,
+  PRIMARY KEY NONCLUSTERED (id)
+);
+go
+
+
+-- 创建非聚集索引
+CREATE NONCLUSTERED INDEX idx_TestDoc ON TestDoc(createDate);
+Go
+
+
+-- 删除前面创建的索引
+DROP INDEX idx_TestDoc ON TestDoc;
+go
+
+-- 创建新的聚集索引
+CREATE CLUSTERED INDEX idx_TestDoc ON TestDoc(createDate);
+Go
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 视图 - 多表关联视图 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 视图 </h1>
+
+
+<h2>  多表关联视图 </h2>
+
+
+目标：测试 通过触发器实现“可更新视图”
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> CREATE VIEW v_main_sub AS
+  2  SELECT
+  3    test_main.id AS main_id,
+  4    test_main.value AS main_value,
+  5    test_sub.id  AS  sub_id,
+  6    test_sub.value AS sub_value
+  7  FROM	
+  8    test_main, test_sub
+  9  WHERE
+ 10    test_main.id = test_sub.main_id;
+
+View created.
+
+SQL> SELECT * FROM v_main_sub;
+
+   MAIN_ID MAIN_VALUE               SUB_ID SUB_VALUE
+---------- -------------------- ---------- --------------------
+         1 ONE                           1 ONEONE
+         2 TWO                           2 TWOTWO
+
+SQL> SELECT * FROM v_main_sub;
+
+   MAIN_ID MAIN_VALUE               SUB_ID SUB_VALUE
+---------- -------------------- ---------- --------------------
+         1 ONE                           1 ONEONE
+         2 TWO                           2 TWOTWO
+
+SQL> UPDATE v_main_sub
+  2    SET main_value='ONX'
+  3    WHERE main_id = 1;
+  SET main_value='ONX'
+      *
+ERROR at line 2:
+ORA-01779: cannot modify a column which maps to a non key-preserved table
+
+SQL> UPDATE v_main_sub
+  2    SET sub_value='ONXONX'
+  3    WHERE main_id = 1;
+
+1 row updated.
+
+SQL> CREATE OR REPLACE TRIGGER v_main_sub_trigger
+  2  INSTEAD OF
+  3  DELETE ON v_main_sub
+  4  FOR EACH ROW
+  5  BEGIN
+  6    DBMS_OUTPUT.PUT_LINE(:old.main_id);
+  7    DBMS_OUTPUT.PUT_LINE(:old.sub_id);
+  8  END;
+  9  /
+
+Trigger created.
+
+SQL> set serveroutput on
+SQL> DELETE FROM v_main_sub WHERE main_id = 1;
+1
+1
+
+1 row deleted.
+
+SQL> DELETE FROM v_main_sub WHERE sub_id = 1;
+1
+1
+
+1 row deleted.
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+1> CREATE VIEW v_main_sub AS
+2> SELECT
+3>   test_main.id AS main_id,
+4>   test_main.value AS main_value,
+5>   test_sub.id  AS  sub_id,
+6>   test_sub.value AS sub_value
+7> FROM
+8>   test_main, test_sub
+9> WHERE
+10>   test_main.id = test_sub.main_id;
+11> go
+
+1> SELECT * FROM v_main_sub;
+2> go
+main_id     main_value sub_id      sub_value
+----------- ---------- ----------- ----------
+          1 ONE                  1 ONEONE
+          2 TWO                  2 TWOTWO
+
+(2 行受影响)
+
+1> UPDATE v_main_sub
+2> SET main_value='ONX'
+3> WHERE main_id = 1;
+4> go
+
+(1 行受影响)
+
+1> UPDATE v_main_sub
+2> SET sub_value='ONXONX'
+3> WHERE main_id = 1;
+4> go
+
+(1 行受影响)
+
+
+1> DELETE FROM v_main_sub WHERE main_id = 1;
+2> go
+消息 4405，级别 16，状态 1，服务器 GMJ-PC\SQLEXPRESS，第 1 行
+视图或函数 'v_main_sub' 不可更新，因为修改会影响多个基表。
+
+1> CREATE TRIGGER  v_main_sub_trigger
+2> ON  v_main_sub
+3> INSTEAD OF DELETE
+4> AS
+5> DECLARE
+6>   @main_id  INT,
+7>   @sub_id   INT;
+8> BEGIN
+9>   SELECT @main_id=main_id, @sub_id=sub_id FROM deleted;
+10>
+11>
+12>   PRINT(@main_id);
+13>   PRINT(@sub_id);
+14> END;
+15> go
+
+1> DELETE FROM v_main_sub WHERE main_id = 1;
+2> go
+1
+1
+
+(1 行受影响)
+1> DELETE FROM v_main_sub WHERE sub_id = 1;
+2> go
+1
+1
+
+(1 行受影响)
+
+
+对于多表关联的视图， 删除的时候，需要人为的去判断
+例如当 主表 和 子表，都只有一条记录的情况下。
+无法判断 本次删除， 是要删除掉一个子表的记录，留下主表的。
+还是 主表 子表的数据，一同删除。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

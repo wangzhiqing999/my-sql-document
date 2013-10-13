@@ -1,0 +1,216 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2>  多行转一行 （填充数据）  </h2>
+
+<pre><code>
+
+a表
+id     name
+1     AA
+2     BB
+3     CC
+
+b表
+id    type    describe
+1      1,2     XXX
+2      2,3      YYY
+
+b表的type的值，是关联了a表id
+希望查询b表的结果是
+id   typeName   describe
+1    AA,BB      XXX
+2    BB,CC      YYY
+
+
+
+
+
+CREATE TABLE a (
+  id  		int,
+  a_name  	varchar(4)
+);
+ 
+INSERT INTO a VALUES(1, 'AA');
+INSERT INTO a VALUES(2, 'BB');
+INSERT INTO a VALUES(3, 'CC');
+
+
+
+ 
+CREATE TABLE B (
+  id    		INT,
+  b_type    	varchar(20),
+  b_describe  	varchar(20)
+);
+ 
+INSERT INTO b VALUES(1,  '1,2',   'XXX');
+INSERT INTO b VALUES(2,  '2,3',   'YYY');
+
+
+</code></pre>
+
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+COLUMN typeName FORMAT A20
+
+SELECT
+  id,
+  (
+  SELECT 
+	string_agg(a.a_name) 
+  FROM a 
+  WHERE 
+    INSTR( ',' ||  b.b_type || ',', ',' || CAST(a.id as char) || ',') > 0
+  ) AS typeName,
+  b_describe
+FROM
+  b;
+
+
+        ID TYPENAME             B_DESCRIBE
+---------- -------------------- ----------------------------------------
+         1 AA,BB                XXX
+         2 BB,CC                YYY
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SELECT
+  id,
+  cast(
+  STUFF(
+    (
+    SELECT
+      ',' + a_name
+    FROM
+      a
+    WHERE
+      CHARINDEX( ',' + RTRIM(cast(a.id as char)) + ',',  ',' + b.b_type + ',' ) > 0
+    FOR XML PATH('')
+    ), 1, 1, '') 
+  as varchar(10))	
+  AS typeName,
+  b_describe
+FROM
+  b;
+  
+id          typeName   b_describe
+----------- ---------- --------------------
+          1 AA,BB      XXX
+          2 BB,CC      YYY
+
+(2 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+SELECT
+  id,
+  (
+  SELECT 
+    GROUP_CONCAT(a.a_name) 
+  FROM a 
+  WHERE 
+    INSTR(CONCAT(',',  b.b_type, ','), CONCAT(',', CAST(a.id as char), ',')) > 0
+  ) AS typeName,
+  b_describe
+FROM
+  b;
+ 
+   
++------+----------+------------+
+| id   | typeName | b_describe |
++------+----------+------------+
+|    1 | AA,BB    | XXX        |
+|    2 | BB,CC    | YYY        |
++------+----------+------------+
+2 rows in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

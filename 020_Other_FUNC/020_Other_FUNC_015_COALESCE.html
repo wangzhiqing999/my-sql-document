@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 其他函数 - 取得第一个非空数据 COALESCE </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 其他函数 </h1>
+
+
+<h2>  取得第一个非空数据 COALESCE  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    COALESCE(10*1, NULL, NULL, NULL, NULL)  A,
+  3    COALESCE(NULL, 10*2, NULL, NULL, NULL)  B,
+  4    COALESCE(NULL, NULL, 10*3, NULL, NULL)  C,
+  5    COALESCE(NULL, NULL, NULL, 10*4, NULL)  D,
+  6    COALESCE(NULL, NULL, NULL, NULL, 10*5)  E
+  7  FROM
+  8    dual;
+
+         A          B          C          D          E
+---------- ---------- ---------- ---------- ----------
+        10         20         30         40         50
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => SELECT
+db2 (cont.) =>   COALESCE(10*1, NULL, NULL, NULL, NULL)  A,
+db2 (cont.) =>   COALESCE(NULL, 10*2, NULL, NULL, NULL)  B,
+db2 (cont.) =>   COALESCE(NULL, NULL, 10*3, NULL, NULL)  C,
+db2 (cont.) =>   COALESCE(NULL, NULL, NULL, 10*4, NULL)  D,
+db2 (cont.) =>   COALESCE(NULL, NULL, NULL, NULL, 10*5)  E
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+A           B           C           D           E
+----------- ----------- ----------- ----------- -----------
+         10          20          30          40          50
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT
+2>   COALESCE(10*1, NULL, NULL, NULL, NULL)  A,
+3>   COALESCE(NULL, 10*2, NULL, NULL, NULL)  B,
+4>   COALESCE(NULL, NULL, 10*3, NULL, NULL)  C,
+5>   COALESCE(NULL, NULL, NULL, 10*4, NULL)  D,
+6>   COALESCE(NULL, NULL, NULL, NULL, 10*5)  E
+7> go
+A           B           C           D           E
+----------- ----------- ----------- ----------- -----------
+         10          20          30          40          50
+
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT
+    ->   COALESCE(10*1, NULL, NULL, NULL, NULL)  A,
+    ->   COALESCE(NULL, 10*2, NULL, NULL, NULL)  B,
+    ->   COALESCE(NULL, NULL, 10*3, NULL, NULL)  C,
+    ->   COALESCE(NULL, NULL, NULL, 10*4, NULL)  D,
+    ->   COALESCE(NULL, NULL, NULL, NULL, 10*5)  E;
++------+------+------+------+------+
+| A    | B    | C    | D    | E    |
++------+------+------+------+------+
+|   10 |   20 |   30 |   40 |   50 |
++------+------+------+------+------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+SELECT
+  COALESCE(10*1, NULL, NULL, NULL, NULL)  A,
+  COALESCE(NULL, 10*2, NULL, NULL, NULL)  B,
+  COALESCE(NULL, NULL, 10*3, NULL, NULL)  C,
+  COALESCE(NULL, NULL, NULL, 10*4, NULL)  D,
+  COALESCE(NULL, NULL, NULL, NULL, 10*5)  E;
+
+A|B|C|D|E
+10|20|30|40|50
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+Test=# SELECT
+Test-#   COALESCE(10*1, NULL, NULL, NULL, NULL)  A,
+Test-#   COALESCE(NULL, 10*2, NULL, NULL, NULL)  B,
+Test-#   COALESCE(NULL, NULL, 10*3, NULL, NULL)  C,
+Test-#   COALESCE(NULL, NULL, NULL, 10*4, NULL)  D,
+Test-#   COALESCE(NULL, NULL, NULL, NULL, 10*5)  E;
+ a  | b  | c  | d  | e
+----+----+----+----+----
+ 10 | 20 | 30 | 40 | 50
+(1 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 提示 Hint - Index提示   </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 提示 Hint </h1>
+
+
+<h2>  Index提示 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+INDEX提示 
+普通索引提示，用于在多个索引中，指定使用哪一个。
+例如：
+SELECT /*+ index(表名, 索引名) */ * FROM 表 WHERE 查询条件。
+
+INDEX_JOIN提示
+用于使用索引连接作为访问路径。
+例如下面的查询，2个检索条件，分别用2个索引进行处理，然后再关联。
+SELECT /*+ INDEX_JOIN(e emp_manager_ix emp_department_ix) */ department_id
+  FROM employees e
+  WHERE manager_id < 110
+    AND department_id < 50;
+
+INDEX_ASC提示
+要求索引处理过程中按升序处理。
+
+INDEX_COMBINE提示
+强制使用位图索引为表的访问路径.
+
+INDEX_DESC提示
+要求索引处理过程中按降序处理。
+
+INDEX_FFS提示
+使用索引快速万全扫描来替换全表扫描。
+例1：
+SELECT /*+ INDEX_FFS(e emp_name_ix) */ first_name
+  FROM employees e;
+
+例2：
+CREATE INDEX dept_job_idx 
+  ON emp(deptno, job);
+
+SELECT
+  /*+ INDEX_FFS(emp, dept_job_idx) */
+  *
+FROM
+  emp
+WHERE
+  job = 'SALESMAN';
+
+USE_CONCAT 提示
+为查询中的OR使用 UNION ALL执行计划。
+
+SELECT /*+ USE_CONCAT */ *
+  FROM employees e
+  WHERE manager_id = 108
+     OR department_id = 110;
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+INDEX提示 
+普通索引提示，用于在多个索引中，指定使用哪一个。
+例如：
+SELECT 
+  *  
+FROM 
+  MeterData WITH (INDEX(rt))  
+WHERE 
+  main.meterID = 'ABC' 
+  AND main.readtime < GETDATE()
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

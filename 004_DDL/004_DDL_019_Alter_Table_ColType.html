@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - 修改表 - 修改列的数据类型 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 修改表 - 修改列的数据类型 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> ALTER TABLE test_tab
+  2    MODIFY age SMALLINT;
+
+Table altered.
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+db2 => ALTER TABLE WZQ.TEST_TAB ALTER COLUMN NAME SET DATA TYPE VARCHAR ( 20 ) ;
+DB20000I  SQL 命令成功完成。
+
+db2 => ALTER TABLE WZQ.TEST_TAB ALTER COLUMN age SET DATA TYPE smallint ;
+DB20000I  SQL 命令成功完成。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+
+对于存在 约束的列。
+
+需要先删除约束，
+再修改列。
+
+<pre><code>
+
+1> ALTER TABLE test_tab
+2>   ALTER COLUMN age TINYINT;
+3> go
+消息 5074，级别 16，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+对象'test_tab_age_check' 依赖于 列'age'。
+消息 4922，级别 16，状态 9，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+由于一个或多个对象访问此列，ALTER TABLE ALTER COLUMN age 失败。
+1> ALTER TABLE test_tab
+2>   DROP test_tab_age_check;
+3> go
+1> ALTER TABLE test_tab
+2>   ALTER COLUMN age TINYINT;
+3> go
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+使用 CHANGE COLUMN 来修改列的数据类型，还必须 设置 列名。
+<br/>
+使用 MODIFY COLUMN 不用输入2次列名。
+
+<pre><code>
+
+mysql> ALTER TABLE test_tab
+    ->   CHANGE COLUMN age age TINYINT;
+    -> //
+Query OK, 0 rows affected (0.16 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> ALTER TABLE test_tab
+    ->   MODIFY COLUMN age BIGINT NOT NULL;
+    -> //
+Query OK, 0 rows affected (0.14 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+不支持
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# ALTER TABLE test_tab
+Test-#   ALTER COLUMN  age TYPE SMALLINT;
+ALTER TABLE
+
+
+Test=# \d test_tab;
+       资料表 "public.test_tab"
+ 栏位 |         型别          | 修饰词
+------+-----------------------+--------
+ id   | integer               | 非空
+ name | character varying(10) |
+ age  | smallint              |
+ val2 | character varying(10) |
+索引：
+    "pk_test_tab" PRIMARY KEY, btree (id)
+检查约束限制
+    "test_tab_age_check" CHECK (age > 0 AND age < 150)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

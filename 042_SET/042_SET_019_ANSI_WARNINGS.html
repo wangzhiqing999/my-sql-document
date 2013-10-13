@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库会话的基本参数设置 SET  - 错误警告的提示 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库会话的基本参数设置 SET </h1>
+
+
+<h2> 错误警告的提示  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SET ANSI_WARNINGS { ON | OFF }
+
+备注
+SET ANSI_WARNINGS 可以影响下列情况： 
+
+设置为 ON 时，如果聚合函数（如 SUM、AVG、MAX、MIN、STDEV、STDEVP、VAR、VARP 或 COUNT）中出现空值，将生成警告消息。
+设置为 OFF 时，不发出警告。
+
+
+设置为 ON 时，被零除错误和算术溢出错误将导致回滚语句，并生成错误消息。
+设置为 OFF 时，被零除错误和算术溢出错误将导致返回空值。
+如果在 character、Unicode 或 binary 列上尝试执行 INSERT 或 UPDATE 操作，
+而这些列中的新值长度超出最大列大小，则将出现被零除错误和算术溢出错误导致返回空值的行为。
+如果 SET ANSI_WARNINGS 为 ON，则将按 SQL-92 标准的规定取消 INSERT 或 UPDATE。
+字符列的尾随空格和二进制列的尾随零都将被忽略。设置为 OFF 时，数据将剪裁为列的大小，并且语句执行成功。 
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

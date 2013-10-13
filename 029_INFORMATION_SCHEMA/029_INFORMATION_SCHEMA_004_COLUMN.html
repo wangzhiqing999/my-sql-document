@@ -1,0 +1,259 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典表 - 列 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典表 </h1>
+
+
+<h2>  列 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    column_name
+  3  FROM
+  4    all_tab_columns
+  5  WHERE
+  6    table_name = 'SALE_REPORT';
+
+COLUMN_NAME
+------------------------------------
+SALE_DATE
+SALE_ITEM
+SALE_MONEY
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+SELECT
+  name  	AS "列名",
+  colno    	AS "列索引",
+  coltype 	AS "数据类型",
+  nulls     AS "可以为空"
+FROM 
+  SYSIBM.SYSCOLUMNS
+WHERE
+  tbname = 'TEST_MAIN';
+
+
+或者
+
+SELECT
+  colname  AS "列名",
+  colno    AS "列索引",
+  typename AS "数据类型",
+  nulls    AS "可以为空"
+FROM
+  SYSCAT.COLUMNS
+WHERE
+  tabname = 'TEST_MAIN';
+  
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SELECT
+   col.name AS 列名,
+   typ.name as 数据类型,
+   col.max_length AS 占用字节数,
+   col.precision AS 数字长度,
+   col.scale AS 小数位数,
+   col.is_nullable  AS 是否允许非空,
+   col.is_identity  AS 是否自增,
+   case when exists 
+      ( SELECT 1 
+        FROM 
+          sys.indexes idx 
+            join sys.index_columns idxCol 
+            on (idx.object_id = idxCol.object_id)
+         WHERE
+            idx.object_id = col.object_id
+            AND idxCol.index_column_id = col.column_id 
+            AND idx.is_primary_key = 1
+       ) THEN 1 ELSE 0 END  AS 是否是主键
+FROM
+  sys.columns col left join sys.types typ on (col.system_type_id = typ.system_type_id AND col.user_type_id = typ.user_type_id)
+WHERE
+  col.object_id =
+(SELECT object_id FROM sys.tables WHERE name = 'test_table')
+
+
+
+
+<hr/>
+
+简单一点的写法：
+
+select 
+  * 
+from 
+  sys.columns
+WHERE
+  object_id = OBJECT_ID('test_default');
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE, COLUMN_DEFAULT
+    -> FROM
+    ->   INFORMATION_SCHEMA.COLUMNS
+    -> WHERE
+    ->   table_name = 'test_main'
+    ->   AND table_schema = 'test'
+    -> //
++-------------+-----------+-------------+----------------+
+| COLUMN_NAME | DATA_TYPE | IS_NULLABLE | COLUMN_DEFAULT |
++-------------+-----------+-------------+----------------+
+| id          | int       | NO          | 0              |
+| value       | varchar   | YES         | NULL           |
++-------------+-----------+-------------+----------------+
+2 rows in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+只能查询 创建表的 SQL 语句.
+
+
+sqlite> .header on
+
+
+sqlite> select * from sqlite_master where type='table' AND name='cfurl_cache_schema_version';
+
+
+type|name|tbl_name|rootpage|sql
+table|cfurl_cache_schema_version|cfurl_cache_schema_version|3|CREATE TABLE cfurl
+_cache_schema_version(schema_version INTEGER)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+SELECT
+  attname,
+  attnum
+FROM
+  pg_attribute
+WHERE
+  attrelid = 'test_main'::regclass
+  AND attnum &gt; 0;
+
+ attname | attnum
+---------+--------
+ id      |      1
+ value   |      2
+(2 行记录)
+
+
+注：
+attnum：
+The number of the column. 
+Ordinary columns are numbered from 1 up. 
+System columns, such as oid, have (arbitrary) negative numbers.
+
+
+<hr/>
+
+SELECT
+  table_name,
+  column_name,
+  ordinal_position
+FROM
+  INFORMATION_SCHEMA.COLUMNS
+WHERE
+  table_name = 'test_main';
+
+
+ table_name | column_name | ordinal_position
+------------+-------------+------------------
+ test_main  | id          |                1
+ test_main  | value       |                2
+(2 行记录)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

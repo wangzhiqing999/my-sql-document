@@ -1,0 +1,771 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 日期函数 - 日期组成部分的取得 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 日期函数 </h1>
+
+
+<h2>  日期组成部分的取得 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+基本上使用 TO_CHAR 来获取
+
+Session altered.
+
+SQL> SELECT
+  2    TO_CHAR(SYSDATE, 'YYYY') AS  year,
+  3    TO_CHAR(SYSDATE, 'MM') AS  month,
+  4    TO_CHAR(SYSDATE, 'DD') AS  day,
+  5    TO_CHAR(SYSDATE, 'DAY') AS  Week
+  6  FROM DUAL;
+
+YEAR     MONT DAY  WEEK
+-------- ---- ---- ------------------
+2010     08   31   TUESDAY
+
+SQL> SELECT 'Year' AS date_title,  TO_CHAR(SYSDATE, 'YYYY') AS date_value  FROM
+DUAL
+  2  UNION ALL
+  3  SELECT 'Quarter' AS date_title,  TO_CHAR(SYSDATE, 'Q') AS date_value  FROM
+DUAL
+  4  UNION ALL
+  5  SELECT 'Month' AS date_title,  TO_CHAR(SYSDATE, 'MM') AS date_value  FROM D
+UAL
+  6  UNION ALL
+  7  SELECT 'Day' AS date_title,  TO_CHAR(SYSDATE, 'DD') AS date_value  FROM DUA
+L
+  8  UNION ALL
+  9  SELECT 'Week Of Year' AS date_title,  TO_CHAR(SYSDATE, 'IW') AS date_value
+ FROM DUAL
+ 10  UNION ALL
+ 11  SELECT 'Day Of Week' AS date_title,  TO_CHAR(SYSDATE, 'D') AS date_value  F
+ROM DUAL
+ 12  UNION ALL
+ 13  SELECT 'Day Of Year' AS date_title,  TO_CHAR(SYSDATE, 'DDD') AS date_value
+ FROM DUAL
+ 14  UNION ALL
+ 15  SELECT 'Hour' AS date_title,  TO_CHAR(SYSDATE, 'HH24') AS date_value  FROM
+DUAL
+ 16  UNION ALL
+ 17  SELECT 'minute' AS date_title,  TO_CHAR(SYSDATE, 'MI') AS date_value  FROM
+DUAL
+ 18  UNION ALL
+ 19  SELECT 'Second' AS date_title,  TO_CHAR(SYSDATE, 'SS') AS date_value  FROM
+DUAL;
+
+DATE_TITLE               DATE_VAL
+------------------------ --------
+Year                     2010
+Quarter                  3
+Month                    08
+Day                      31
+Week Of Year             35
+Day Of Week              3
+Day Of Year              243
+Hour                     17
+minute                   53
+Second                   41
+
+10 rows selected.
+
+
+也可以使用 EXTRACT 函数
+SQL> SELECT '年' AS "标题", EXTRACT(YEAR FROM SYSDATE) AS "数值" FROM dual UNION ALL
+  2  SELECT '月' AS "标题", EXTRACT(MONTH FROM SYSDATE) AS "数值" FROM dual UNION ALL
+  3  SELECT '日' AS "标题", EXTRACT(DAY FROM SYSDATE) AS "数值" FROM dual;
+
+标       数值
+-- ----------
+年       2011
+月          6
+日         14
+
+
+<hr/>
+注意：如果尝试获取 时分秒， 用 EXTRACT(HOUR FROM SYSDATE) 将报错.
+
+SQL> SELECT EXTRACT(HOUR FROM SYSDATE) FROM dual;
+SELECT EXTRACT(HOUR FROM SYSDATE) FROM dual
+                         *
+ERROR 位于第 1 行:
+ORA-30076: 对析出来源无效的析出字段
+
+
+错误原因， 时分秒仅仅针对 TIMESTAMP 数据类型的情况.
+
+解决办法如下：
+
+SQL> SELECT '时' AS "标题",  EXTRACT(HOUR FROM LOCALTIMESTAMP) FROM dual  UNION ALL
+  2  SELECT '分' AS "标题",  EXTRACT(MINUTE FROM LOCALTIMESTAMP) FROM dual  UNION ALL
+  3  SELECT '秒' AS "标题",  EXTRACT(SECOND FROM LOCALTIMESTAMP) FROM dual;
+
+标题   EXTRACT(HOURFROMLOCALTIMESTAMP)
+------ -------------------------------
+时                                  17
+分                                  41
+秒                              26.645
+
+SQL> select LOCALTIMESTAMP FROM dual;
+
+LOCALTIMESTAMP
+---------------------------------------------------------------------------
+09-5月 -13 05.41.35.888000 下午
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+年月日时分秒 全函数。
+
+SELECT '年'  AS  日期部分,  YEAR(CURRENT_TIMESTAMP) AS 数值 FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '季度'  AS  日期部分,  QUARTER(CURRENT_TIMESTAMP) AS 数值 FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '月'  AS  日期部分,  MONTH(CURRENT_TIMESTAMP) AS 数值 FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '日'  AS  日期部分,  DAY(CURRENT_TIMESTAMP) AS 数值 FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '第几周'  AS  日期部分,   WEEK(CURRENT_TIMESTAMP) AS 数值 FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '周中第几天'  AS  日期部分,   DAYOFWEEK(CURRENT_TIMESTAMP) AS 数值 FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '年中第几天'  AS  日期部分,   DAYOFYEAR(CURRENT_TIMESTAMP) AS 数值 FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '时'  AS  日期部分,   HOUR(CURRENT_TIMESTAMP) AS 数值 FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '分'  AS  日期部分,   MINUTE(CURRENT_TIMESTAMP) AS 数值 FROM SYSIBM.SYSDUMMY1
+UNION ALL
+SELECT '秒'  AS  日期部分,   SECOND(CURRENT_TIMESTAMP) AS 数值 FROM SYSIBM.SYSDUMMY1
+;
+
+日期部分        数值
+--------------- -----------
+分                       31
+时                       19
+年中第几天              279
+周中第几天                5
+第几周                   41
+日                        6
+月                       10
+季度                      4
+年                     2011
+秒                       26
+
+  10 条记录已选择。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+年、月、日有单独函数，其他的由 DATEPART 获取
+
+1> SELECT '年'  AS  '日期部分',  YEAR(GETDATE()) AS [数值]
+2> UNION ALL
+3> SELECT '季度'  AS  '日期部分',  DATEPART(qq, GETDATE()) AS [数值]
+4> UNION ALL
+5> SELECT '月'  AS  '日期部分',  MONTH(GETDATE()) AS [数值]
+6> UNION ALL
+7> SELECT '日'  AS  '日期部分',  DAY(GETDATE()) AS [数值]
+8> UNION ALL
+9> SELECT '第几周'  AS  '日期部分',   DATEPART(ww, GETDATE()) AS [数值]
+10> UNION ALL
+11> SELECT '周中第几天'  AS  '日期部分',   DATEPART(dw, GETDATE()) AS [数值]
+12> UNION ALL
+13> SELECT '年中第几天'  AS  '日期部分',   DATEPART(dy, GETDATE()) AS [数值]
+14> UNION ALL
+15> SELECT '时'  AS  '日期部分',   DATEPART(hh, GETDATE()) AS [数值]
+16> UNION ALL
+17> SELECT '分'  AS  '日期部分',   DATEPART(mi, GETDATE()) AS [数值]
+18> UNION ALL
+19> SELECT '秒'  AS  '日期部分',   DATEPART(ss, GETDATE()) AS [数值]
+20> go
+日期部分       数值
+---------- -----------
+年                 2010
+季度                   3
+月                    8
+日                   31
+第几周                 36
+周中第几天                3
+年中第几天              243
+时                   17
+分                   45
+秒                   25
+
+(10 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT 'NOW' DisplayMode, NOW() B
+    -> UNION ALL
+    -> SELECT 'Second' DisplayMode, Second(NOW()) B
+    -> UNION ALL
+    -> SELECT 'Minute' DisplayMode, MINUTE(NOW()) B
+    -> UNION ALL
+    -> SELECT 'Hour' DisplayMode, Hour(NOW()) B
+    -> UNION ALL
+    -> SELECT 'Day' DisplayMode, DAY(NOW()) B
+    -> UNION ALL
+    -> SELECT 'Week' DisplayMode, Week(NOW()) B
+    -> UNION ALL
+    -> SELECT 'Month' DisplayMode, Month(NOW()) B
+    -> UNION ALL
+    -> SELECT 'Year' DisplayMode, Year(NOW()) B;
++-------------+---------------------+
+| DisplayMode | B                   |
++-------------+---------------------+
+| NOW         | 2010-10-22 20:43:09 |
+| Second      | 9                   |
+| Minute      | 43                  |
+| Hour        | 20                  |
+| Day         | 22                  |
+| Week        | 42                  |
+| Month       | 10                  |
+| Year        | 2010                |
++-------------+---------------------+
+8 rows in set (0.00 sec)
+
+
+
+<hr/>
+
+
+ 默认情况下， 这个 WEEK ( 日期 )  是 每把周日，作为一周的开始。
+ 
+去查询了一下手册，看到这个 WEEK 函数， 还可以额外再跟一个 参数。
+这个参数决定了， 使用星期几，来作为 一周的开始。
+以及用什么样的逻辑，来计算 一年里面， 第一周的计算方式。
+ 
+这个参数的描述如下：
+参数值
+每周第一天
+是星期几
+返回值
+范围
+第一周是怎么计算的？
+0
+星期天
+0-53
+遇到本年的第一个星期天开始，是第一周。
+前面的计算为第0周。
+1
+星期一
+0-53
+假如第一周能超过3天，那么计算为本年的第一周。否则为第0周
+可以理解为
+如果1月1号～4号是星期一，那么本年第一周开始。（之前的是第零周）
+如果1月5号以后是星期一，那么现在开始，是本年的第二周了，之前的是第一周。
+2
+星期天
+1-53
+遇到本年的第一个星期天开始，是第一周。
+前面的计算为上年度的第5x周。
+3
+星期一
+1-53
+假如第一周能超过3天，那么计算为本年的第一周。否则为上年度的第5x周。
+可以理解为
+如果1月1号～4号是星期一，那么本年第一周开始。（之前的是第5x周）
+如果1月5号以后是星期一，那么现在开始，是本年的第二周了，之前的是第一周。
+4
+星期天
+0-53
+假如第一周能超过3天，那么计算为本年的第一周。否则为第0周
+可以理解为
+如果1月1号～4号是星期天，那么本年第一周开始。（之前的是第零周）
+如果1月5号以后是星期天，那么现在开始，是本年的第二周了，之前的是第一周。
+5
+星期一
+0-53
+遇到本年的第一个星期一开始，是第一周。
+前面的计算为第0周。
+6
+星期天
+1-53
+假如第一周能超过3天，那么计算为本年的第一周。否则为上年度的第5x周。
+可以理解为
+如果1月1号～4号是星期天，那么本年第一周开始。（之前的是第5x周）
+如果1月5号以后是星期天，那么现在开始，是本年的第二周了，之前的是第一周。
+7
+星期一
+1-53
+遇到本年的第一个星期一开始，是第一周。
+前面的计算为上年度的第5x周。
+ 
+下面是 测试表 与 测试数据
+CREATE TABLE test_YEARWEEK (
+  test  date
+);
+ 
+INSERT INTO test_YEARWEEK
+  SELECT '2009-01-01' UNION ALL
+  SELECT '2009-01-02' UNION ALL
+  SELECT '2009-01-03' UNION ALL
+  SELECT '2009-01-04' UNION ALL
+  SELECT '2009-01-05' UNION ALL
+  SELECT '2009-01-06' UNION ALL
+  SELECT '2009-01-07' UNION ALL  
+  SELECT '2009-12-25' UNION ALL
+  SELECT '2009-12-26' UNION ALL
+  SELECT '2009-12-27' UNION ALL
+  SELECT '2009-12-28' UNION ALL
+  SELECT '2009-12-29' UNION ALL
+  SELECT '2009-12-30' UNION ALL
+  SELECT '2009-12-31' UNION ALL
+  SELECT '2010-01-01' UNION ALL
+  SELECT '2010-01-02' UNION ALL
+  SELECT '2010-01-03' UNION ALL
+  SELECT '2010-01-04' UNION ALL
+  SELECT '2010-01-05' UNION ALL
+  SELECT '2010-01-06' UNION ALL
+  SELECT '2010-01-07';
+ 
+ 
+下面是 查询语句与结果。
+ 
+select
+  test,
+  DATE_FORMAT(test, '%W') AS W,
+  WEEK( test, 0) AS `0`,
+  WEEK( test, 1) AS `1`,
+  WEEK( test, 2) AS `2`,
+  WEEK( test, 3) AS `3`,
+  WEEK( test, 4) AS `4`,
+  WEEK( test, 5) AS `5`,
+  WEEK( test, 6) AS `6`,
+  WEEK( test, 7) AS `7`
+FROM
+  test_YEARWEEK;
+ 
+
++------------+-----------+------+------+------+------+------+------+------+------+
+| test       | W         | 0    | 1    | 2    | 3    | 4    | 5    | 6    | 7    |
++------------+-----------+------+------+------+------+------+------+------+------+
+| 2009-01-01 | Thursday  |    0 |    1 |   52 |    1 |    0 |    0 |   53 |   52 |
+| 2009-01-02 | Friday    |    0 |    1 |   52 |    1 |    0 |    0 |   53 |   52 |
+| 2009-01-03 | Saturday  |    0 |    1 |   52 |    1 |    0 |    0 |   53 |   52 |
+| 2009-01-04 | Sunday    |    1 |    1 |    1 |    1 |    1 |    0 |    1 |   52 |
+| 2009-01-05 | Monday    |    1 |    2 |    1 |    2 |    1 |    1 |    1 |    1 |
+| 2009-01-06 | Tuesday   |    1 |    2 |    1 |    2 |    1 |    1 |    1 |    1 |
+| 2009-01-07 | Wednesday |    1 |    2 |    1 |    2 |    1 |    1 |    1 |    1 |
+
+| 2009-12-25 | Friday    |   51 |   52 |   51 |   52 |   51 |   51 |   51 |   51 |
+| 2009-12-26 | Saturday  |   51 |   52 |   51 |   52 |   51 |   51 |   51 |   51 |
+| 2009-12-27 | Sunday    |   52 |   52 |   52 |   52 |   52 |   51 |   52 |   51 |
+| 2009-12-28 | Monday    |   52 |   53 |   52 |   53 |   52 |   52 |   52 |   52 |
+| 2009-12-29 | Tuesday   |   52 |   53 |   52 |   53 |   52 |   52 |   52 |   52 |
+| 2009-12-30 | Wednesday |   52 |   53 |   52 |   53 |   52 |   52 |   52 |   52 |
+| 2009-12-31 | Thursday  |   52 |   53 |   52 |   53 |   52 |   52 |   52 |   52 |
+
+| 2010-01-01 | Friday    |    0 |    0 |   52 |   53 |    0 |    0 |   52 |   52 |
+| 2010-01-02 | Saturday  |    0 |    0 |   52 |   53 |    0 |    0 |   52 |   52 |
+| 2010-01-03 | Sunday    |    1 |    0 |    1 |   53 |    1 |    0 |    1 |   52 |
+| 2010-01-04 | Monday    |    1 |    1 |    1 |    1 |    1 |    1 |    1 |    1 |
+| 2010-01-05 | Tuesday   |    1 |    1 |    1 |    1 |    1 |    1 |    1 |    1 |
+| 2010-01-06 | Wednesday |    1 |    1 |    1 |    1 |    1 |    1 |    1 |    1 |
+| 2010-01-07 | Thursday  |    1 |    1 |    1 |    1 |    1 |    1 |    1 |    1 |
++------------+-----------+------+------+------+------+------+------+------+------+
+ 
+ 
+
+
+<hr/>
+
+mysql> SELECT 'DAYOFWEEK Sunday=1' DisplayMode, DAYOFWEEK(NOW()) B
+    -> UNION ALL
+    -> SELECT 'DAYOFMONTH' DisplayMode, DAYOFMONTH(NOW()) B
+    -> UNION ALL
+    -> SELECT 'DayOfYear' DisplayMode, DAYOFYEAR(NOW()) B
+    -> UNION ALL
+    -> SELECT 'Eng Week' DisplayMode, DAYNAME(NOW()) B
+    -> UNION ALL
+    -> SELECT 'Eng Month' DisplayMode, MONTHNAME(NOW()) B;
++--------------------+---------+
+| DisplayMode        | B       |
++--------------------+---------+
+| DAYOFWEEK Sunday=1 | 6       |
+| DAYOFMONTH         | 22      |
+| DayOfYear          | 295     |
+| Eng Week           | Friday  |
+| Eng Month          | October |
++--------------------+---------+
+5 rows in set (0.00 sec)
+
+
+
+mysql> SELECT '年' AS name,  EXTRACT(YEAR FROM NOW())  AS value
+    -> UNION ALL
+    -> SELECT '年月' AS name,  EXTRACT(YEAR_MONTH FROM NOW())  AS value
+    -> UNION ALL
+    -> SELECT '月' AS name, EXTRACT(MONTH FROM NOW())  AS value
+    -> UNION ALL
+    -> SELECT '日' AS name, EXTRACT(DAY FROM NOW())  AS value
+    -> UNION ALL
+    -> SELECT '时' AS name, EXTRACT(HOUR FROM NOW())  AS value
+    -> UNION ALL
+    -> SELECT '分' AS name, EXTRACT(MINUTE FROM NOW())  AS value
+    -> UNION ALL
+    -> SELECT '秒' AS name, EXTRACT(SECOND FROM NOW())  AS value;
++------+--------+
+| name | value  |
++------+--------+
+| 年   |   2013 |
+| 年月 | 201304 |
+| 月   |      4 |
+| 日   |      7 |
+| 时   |      9 |
+| 分   |     27 |
+| 秒   |     43 |
++------+--------+
+7 rows in set (0.00 sec)
+
+
+
+<hr/>
+
+mysql 还有一个  TO_DAYS 函数， 用于返回 从年份0开始的天数
+
+
+mysql> select TO_DAYS( '2010-01-01') A,  2010*365 + (2010/4) B;
++--------+-----------+
+| A      | B         |
++--------+-----------+
+| 734138 | 734152.50 |
++--------+-----------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+SELECT
+	strftime('%Y', 'now') as "年",
+	strftime('%m', 'now') as "月",
+	strftime('%d', 'now') as "日",
+	strftime('%W', 'now') as "周数",
+	strftime('%w', 'now') as "星期",
+	strftime('%H', 'now') as "时",
+	strftime('%M', 'now') as "分",
+	strftime('%S', 'now') as "秒";
+
+年|月|日|周数|星期|时|分|秒
+2012|12|19|51|3|05|54|08
+
+说明：
+%d   day of month: 00  
+%f   fractional seconds: SS.SSS  
+%H   hour: 00-24  
+%j   day of year: 001-366  
+%J   Julian day number  
+%m   month: 01-12  
+%M   minute: 00-59  
+%s   seconds since 1970-01-01  
+%S   seconds: 00-59  
+%w   day of week 0-6 with Sunday==0  
+%W   week of year: 00-53  
+%Y   year: 0000-9999  
+%%   %  
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+使用 EXTRACT 函数
+
+SELECT now();
+
+SELECT '千年' 		AS "标题",   	EXTRACT(millennium FROM now()) 	AS "数值"	UNION ALL
+SELECT '世纪' 		AS "标题",   	EXTRACT(century FROM now()) 	AS "数值"	UNION ALL
+SELECT '十年' 		AS "标题",   	EXTRACT(decade FROM now()) 		AS "数值" 	UNION ALL
+SELECT '年' 		AS "标题", 		EXTRACT(YEAR FROM now()) 		AS "数值"   UNION ALL
+SELECT '季度' 		AS "标题", 		EXTRACT(quarter FROM now()) 	AS "数值"   UNION ALL
+SELECT '月' 		AS "标题", 		EXTRACT(MONTH FROM now()) 		AS "数值"  	UNION ALL
+SELECT '日' 		AS "标题", 		EXTRACT(DAY FROM now()) 		AS "数值" 	UNION ALL
+SELECT '第几周'		AS "标题", 		EXTRACT(week FROM now()) 		AS "数值" 	UNION ALL
+SELECT '星期几'		AS "标题", 		EXTRACT(dow FROM now()) 		AS "数值" 	UNION ALL
+SELECT '年中第几天' AS "标题",		EXTRACT(doy FROM now()) 		AS "数值" 	UNION ALL
+SELECT '时区' 		AS "标题",		EXTRACT(timezone FROM now())	AS "数值" 	UNION ALL
+SELECT '时区小时'	AS "标题",		EXTRACT(timezone_hour FROM now())	AS "数值" 	UNION ALL
+SELECT '时区分'		AS "标题",		EXTRACT(timezone_minute FROM now())	AS "数值" 	UNION ALL
+SELECT '时' 		AS "标题",		EXTRACT(hour FROM now()) 		AS "数值" 	UNION ALL
+SELECT '分' 		AS "标题",		EXTRACT(minute FROM now()) 		AS "数值" 	UNION ALL
+SELECT '秒' 		AS "标题",		EXTRACT(second FROM now()) 		AS "数值";
+
+
+
+
+
+            now
+----------------------------
+ 2013-04-09 12:14:51.412+08
+(1 行记录)
+
+
+
+    标题    |  数值
+------------+--------
+ 千年       |      3
+ 世纪       |     21
+ 十年       |    201
+ 年         |   2013
+ 季度       |      2
+ 月         |      4
+ 日         |      9
+ 第几周     |     15
+ 星期几     |      2
+ 年中第几天 |     99
+ 时区       |  28800
+ 时区小时   |      8
+ 时区分     |      0
+ 时         |     12
+ 分         |     14
+ 秒         | 51.462
+(16 行记录)
+
+
+
+extract 函数主要的用途是做运算用。 
+
+
+<hr/>
+
+对于用于显示的日期/时间数值格式化， 还是使用  TO_CHAR  函数.
+
+
+
+
+格式字符串列表如下：
+
+<table border="1">
+<tr>
+	<td>模式</td><td>描述</td>
+</tr>
+<tr>
+	<td>HH</td><td>一天的小时数 （01-12）</td>
+</tr>
+<tr>
+	<td>HH12</td><td>一天的小时数 （01-12）</td>
+</tr>
+<tr>
+	<td>HH24</td><td>一天的小时数 （00-23）</td>
+</tr>
+<tr>
+	<td>MI</td><td>分钟 （00-59）</td>
+</tr>
+<tr>
+	<td>SS</td><td>秒 （00-59）</td>
+</tr>
+<tr>
+	<td>MS</td><td>毫秒 (000-999)</td>
+</tr>
+<tr>
+	<td>US</td><td>微秒 (000000-999999)</td>
+</tr>
+<tr>
+	<td>SSSS</td><td>午夜后的秒 （0-86399）</td>
+</tr>
+<tr>
+	<td>AM 或 A.M. 或 PM 或 P.M.</td><td>正午标识（大写）</td>
+</tr>
+<tr>
+	<td>am 或 a.m. 或 pm 或 p.m.</td><td>正午标识（小写）</td>
+</tr>
+<tr>
+	<td>Y,YYY</td><td>带逗号的年（4 和更多位）</td>
+</tr>
+<tr>
+	<td>YYYY</td><td>年（4和更多位）</td>
+</tr>
+<tr>
+	<td>YYY</td><td>年的后三位</td>
+</tr>
+<tr>
+	<td>YY</td><td>年的后两位</td>
+</tr>
+<tr>
+	<td>Y</td><td>年的最后一位</td>
+</tr>
+<tr>
+	<td>IYYY</td><td>ISO 年（4位或更多位）</td>
+</tr>
+<tr>
+	<td>IYY</td><td>ISO 年的最后 3 位</td>
+</tr>
+<tr>
+	<td>IY</td><td>ISO 年的最后 2 位</td>
+</tr>
+<tr>
+	<td>I</td><td>ISO 年的最后一位</td>
+</tr>
+<tr>
+	<td>BC 或 B.C. 或 AD 或 A.D.</td><td>纪元标识（大写）</td>
+</tr>
+<tr>
+	<td>bc 或 b.c. 或 ad 或 a.d.</td><td>纪元标识（小写）</td>
+</tr>
+<tr>
+	<td>MONTH</td><td>全长大写月份名（空白填充为9字符）</td>
+</tr>
+<tr>
+	<td>Month</td><td>全长混合大小写月份名（空白填充为9字符）</td>
+</tr>
+<tr>
+	<td>month</td><td>全长小写月份名（空白填充为9字符）</td>
+</tr>
+<tr>
+	<td>MON</td><td>大写缩写月份名（3字符）</td>
+</tr>
+<tr>
+	<td>Mon</td><td>缩写混合大小写月份名（3字符）</td>
+</tr>
+<tr>
+	<td>mon</td><td>小写缩写月份名（3字符）</td>
+</tr>
+<tr>
+	<td>MM</td><td>月份号（01-12）</td>
+</tr>
+<tr>
+	<td>DAY</td><td>全长大写日期名（空白填充为9字符）</td>
+</tr>
+<tr>
+	<td>Day</td><td>全长混合大小写日期名（空白填充为9字符）</td>
+</tr>
+<tr>
+	<td>day</td><td>全长小写日期名（空白填充为9字符）</td>
+</tr>
+<tr>
+	<td>DY</td><td>缩写大写日期名（3字符）</td>
+</tr>
+<tr>
+	<td>Dy</td><td>缩写混合大小写日期名（3字符）</td>
+</tr>
+<tr>
+	<td>dy</td><td>缩写小写日期名（3字符）</td>
+</tr>
+<tr>
+	<td>DDD</td><td>一年里的日子（001-366）</td>
+</tr>
+<tr>
+	<td>DD</td><td>一个月里的日子（01-31）</td>
+</tr>
+<tr>
+	<td>D</td><td>一周里的日子（1-7；周日是1）</td>
+</tr>
+<tr>
+	<td>W</td><td>一个月里的周数（1-5）（第一周从该月第一天开始）</td>
+</tr>
+<tr>
+	<td>WW</td><td>一年里的周数（1-53）（第一周从该年的第一天开始）</td>
+</tr>
+<tr>
+	<td>IW</td><td>ISO 一年里的周数（第一个星期四在第一周里）</td>
+</tr>
+<tr>
+	<td>CC</td><td>世纪（2 位）</td>
+</tr>
+<tr>
+	<td>J</td><td>儒略日（自公元前4712年1月1日来的天数）</td>
+</tr>
+<tr>
+	<td>Q</td><td>季度</td>
+</tr>
+<tr>
+	<td>RM</td><td>罗马数字的月份（I-XII；I=JAN）（大写）</td>
+</tr>
+<tr>
+	<td>rm</td><td>罗马数字的月份（I-XII；I=JAN）（小写）</td>
+</tr>
+<tr>
+	<td>TZ</td><td>时区名 （大写）</td>
+</tr>
+<tr>
+	<td>tz</td><td>时区名 （小写）</td>
+</tr>
+</table>
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 触发器 - 触发器的临时禁用 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 触发器 </h1>
+
+
+<h2>  触发器的临时禁用 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+-- 首先查询触发器信息
+SELECT
+  trigger_name,
+  status
+FROM
+  user_triggers
+WHERE
+  table_name='TEST_TRIGGER_TABLE';
+
+TRIGGER_NAME                                                 STATUS
+------------------------------------------------------------ ----------------
+AFTERDELETETEST                                              ENABLED
+
+
+-- 临时禁用触发器
+ALTER TRIGGER AFTERDELETETEST  DISABLE;
+
+
+-- 再次查询触发器信息
+TRIGGER_NAME                                                 STATUS
+------------------------------------------------------------ ----------------
+AFTERDELETETEST                                              DISABLED
+
+
+-- 恢复触发器
+ALTER TRIGGER AFTERDELETETEST  ENABLE;
+
+
+-- 再次查询触发器信息
+TRIGGER_NAME                                                 STATUS
+------------------------------------------------------------ ----------------
+AFTERDELETETEST                                              ENABLED
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

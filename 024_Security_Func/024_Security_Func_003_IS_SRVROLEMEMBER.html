@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 安全函数 - IS_SRVROLEMEMBER </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 安全函数 </h1>
+
+
+<h2>  指明当前的用户登录是否是指定的服务器角色的成员 IS_SRVROLEMEMBER </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+login 的数据类型为 sysname，默认值为 NULL。如果未指定，那么使用当前用户的登录帐户。
+0 login 不是 role 的成员。 
+1 login 是 role 的成员。 
+NULL role 或 login 是无效的。
+
+
+1> SELECT
+2>   IS_SRVROLEMEMBER ('dbcreator'),
+3>   IS_SRVROLEMEMBER ('sysadmin', 'BUILTIN\Users'),
+4>   IS_SRVROLEMEMBER ('setupadmin', 'stock')
+5> go
+
+----------- ----------- -----------
+          1           0           1
+
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

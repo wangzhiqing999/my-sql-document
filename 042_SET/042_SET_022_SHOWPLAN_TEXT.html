@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库会话的基本参数设置 SET  - 查看查询计划文本 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库会话的基本参数设置 SET </h1>
+
+
+<h2> 查看查询计划文本  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SET SHOWPLAN_TEXT { ON | OFF }
+
+备注
+SET SHOWPLAN_TEXT 的设置是在执行或运行时设置的，而不是在分析时设置的。
+当 SET SHOWPLAN_TEXT 为 ON 时，SQL Server 将返回每个 Transact-SQL 语句的执行信息，但不执行语句。将该选项设置为 ON 以后，将返回有关所有后续 SQL Server 2005 语句的执行计划信息，直到将该选项设置为 OFF 为止。例如，如果在 SET SHOWPLAN_TEXT 为 ON 时执行 CREATE TABLE 语句，SQL Server 将从涉及同一个表的后续 SELECT 语句返回错误信息，以便通知用户：指定的表不存在。因此，对该表的后续引用将失败。如果 SET SHOWPLAN_TEXT 是 OFF，SQL Server 将执行语句，但不生成包含执行计划信息的报表。
+SET SHOWPLAN_TEXT 旨在返回可由 Microsoft Win32 命令提示符应用程序（如 osql 实用工具）读取的输出。SET SHOWPLAN_ALL 则返回更详细的输出，以使专门处理其输出的程序进行处理。
+不能在存储过程中指定 SET SHOWPLAN_TEXT 和 SET SHOWPLAN_ALL。它们必须是批处理中的唯一语句。
+SET SHOWPLAN_TEXT 将信息作为行集返回，行集形成一个层次结构树，用以表示 SQL Server 查询处理器在执行每条语句时所采取的步骤。输出中反映的每条语句都包含一个含有语句文本的行，后面跟有几个含有执行步骤详细信息的行。下表显示输出中包含的列。
+
+列名  说明  
+StmtText
+ 对于不是 PLAN_ROW 类型的行，该列包含 Transact-SQL 语句的文本。对于 PLAN_ROW 类型的行，该列包含对操作的说明。该列包含物理运算符，也可以选择包含逻辑运算符。该列的后面还可以跟有由物理运算符决定的说明。有关物理运算符的详细信息，请参阅 SET SHOWPLAN_ALL (Transact-SQL) 中的 Argument 列。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

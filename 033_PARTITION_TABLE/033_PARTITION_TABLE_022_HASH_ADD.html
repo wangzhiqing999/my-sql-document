@@ -1,0 +1,141 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 分区表 - Hash分区-增加分区  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 分区表 </h1>
+
+
+<h2>  Hash分区-增加分区 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> ALTER TABLE sale_item
+  2    ADD PARTITION pNewHash;
+表已更改。
+
+SQL> ALTER TABLE sale_item
+  2    ADD PARTITION;
+表已更改。
+
+
+SQL> SELECT
+  2    partition_name
+  3  FROM
+  4    user_tab_partitions
+  5  WHERE
+  6    table_name = 'SALE_ITEM';
+
+PARTITION_NAME
+------------------------------
+PNEWHASH
+SYS_P21
+SYS_P22
+SYS_P23
+SYS_P24
+SYS_P25
+
+已选择6行。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+要增加分区的数量从4到14 (增加10个) 
+mysql> ALTER TABLE sale_item ADD PARTITION PARTITIONS 10;
+Query OK, 0 rows affected (0.92 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+核对结果
+mysql> SHOW CREATE TABLE sale_item\G
+*************************** 1. row ***************************
+       Table: sale_item
+Create Table: CREATE TABLE `sale_item` (
+  `id` int(11) NOT NULL,
+  `item_name` varchar(10) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1
+/*!50100 PARTITION BY HASH (id)
+PARTITIONS 14 */
+1 row in set (0.02 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

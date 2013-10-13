@@ -1,0 +1,426 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 树形结构 复制 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> 树形结构 复制  </h2>
+
+由于树形结构复制的话，主键需要自增处理， 因此这里不写统一的表了.
+
+<pre><code>
+
+
+
+
+</code></pre>
+
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+
+
+
+<pre><code>
+
+
+<h3> 表结构与基础数据 </h3>
+
+CREATE TABLE test_tree_copy (
+  test_id   INT  NOT NULL,
+  pid       INT,
+  test_val  VARCHAR(10),
+  PRIMARY KEY (test_id)
+);
+
+
+INSERT INTO test_tree_copy VALUES(1, NULL,   '.NET');
+INSERT INTO test_tree_copy VALUES(2, 1,      'C#');
+INSERT INTO test_tree_copy VALUES(3, 1,      'J#');
+INSERT INTO test_tree_copy VALUES(4, 1,      'ASP.NET');
+INSERT INTO test_tree_copy VALUES(5, 1,      'VB.NET');
+
+INSERT INTO test_tree_copy VALUES(6, NULL,   'J2EE');
+INSERT INTO test_tree_copy VALUES(7, 6,      'EJB');
+INSERT INTO test_tree_copy VALUES(8, 6,      'Servlet');
+INSERT INTO test_tree_copy VALUES(9, 6,      'JSP');
+
+INSERT INTO test_tree_copy VALUES(10, NULL,  'Database');
+INSERT INTO test_tree_copy VALUES(11, 10,    'DB2');
+INSERT INTO test_tree_copy VALUES(12, 10,    'MySQL');
+INSERT INTO test_tree_copy VALUES(13, 10,    'Oracle');
+INSERT INTO test_tree_copy VALUES(14, 10,    'SQL Server');
+
+
+INSERT INTO test_tree_copy VALUES(15, 13,    'PL/SQL');
+INSERT INTO test_tree_copy VALUES(16, 15,    'Function');
+INSERT INTO test_tree_copy VALUES(17, 15,    'Procedure');
+INSERT INTO test_tree_copy VALUES(18, 15,    'Package');
+INSERT INTO test_tree_copy VALUES(19, 15,    'Cursor');
+
+INSERT INTO test_tree_copy VALUES(20, 14,    'T-SQL');
+
+
+<h3> 用于自动递增的序列号 </h3>
+
+CREATE SEQUENCE seq_test_tree_copy
+  increment by 1    -- 每次递增1
+  start with 100       -- 从100开始
+  nomaxvalue      -- 没有最大值
+  minvalue 1       -- 最小值=1
+  NOCYCLE;
+
+
+<h3> 用于复制树型结构的存储过程. </h3>
+
+
+CREATE OR REPLACE PROCEDURE copy_test_tree(
+  p_source_id  		   INT,
+  p_new_parent_id      INT     DEFAULT   NULL
+)
+AS
+  v_new_id             INT;
+BEGIN
+
+  -- 获取一个新的 流水号.
+  SELECT seq_test_tree_copy.nextval INTO v_new_id  FROM dual;
+
+  -- 数据插入.
+  INSERT INTO test_tree_copy(
+	test_id,   pid,   test_val
+  ) 
+  SELECT
+    v_new_id,  p_new_parent_id,  test_val  
+  FROM
+    test_tree_copy
+  WHERE
+    test_id = p_source_id;
+  
+  -- 递归复制 子节点.
+  FOR subDataRec in (SELECT * FROM test_tree_copy WHERE pid = p_source_id)
+  LOOP
+    copy_test_tree( subDataRec.test_id,  v_new_id);
+  END LOOP;
+  
+END copy_test_tree;
+/
+
+
+<h3> 测试运行. </h3>
+
+BEGIN
+  -- 复制 .NET
+  copy_test_tree(1);
+END;
+/
+
+-- 核对复制结果.
+SQL> select * from test_tree_copy where test_id >= 100;
+
+   TEST_ID        PID TEST_VAL
+---------- ---------- --------------------
+       100            .NET
+       101        100 C#
+       102        100 J#
+       103        100 ASP.NET
+       104        100 VB.NET
+
+
+BEGIN
+  -- 复制 Database
+  copy_test_tree(10);
+END;
+/
+
+-- 核对复制结果.
+SQL> select * from test_tree_copy where test_id >=  105;
+
+   TEST_ID        PID TEST_VAL
+---------- ---------- --------------------
+       105            Database
+       106        105 DB2
+       107        105 MySQL
+       108        105 Oracle
+       109        108 PL/SQL
+       110        109 Function
+       111        109 Procedure
+       112        109 Package
+       113        109 Cursor
+       114        105 SQL Server
+       115        114 T-SQL
+
+已选择11行。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+
+<h3> 表结构与基础数据 </h3>
+
+CREATE TABLE test_tree_copy (
+  test_id   INT  identity(1,1),
+  pid       INT,
+  test_val  VARCHAR(10),
+  PRIMARY KEY (test_id)
+);
+GO
+
+-- 允许将显式值插入表的标识列中
+SET IDENTITY_INSERT test_tree_copy ON
+go
+
+
+INSERT INTO test_tree_copy(test_id, pid, test_val) VALUES(1, NULL,   '.NET');
+INSERT INTO test_tree_copy(test_id, pid, test_val) VALUES(2, 1,      'C#');
+INSERT INTO test_tree_copy(test_id, pid, test_val) VALUES(3, 1,      'J#');
+INSERT INTO test_tree_copy(test_id, pid, test_val) VALUES(4, 1,      'ASP.NET');
+INSERT INTO test_tree_copy(test_id, pid, test_val) VALUES(5, 1,      'VB.NET');
+
+INSERT INTO test_tree_copy(test_id, pid, test_val) VALUES(6, NULL,   'J2EE');
+INSERT INTO test_tree_copy(test_id, pid, test_val) VALUES(7, 6,      'EJB');
+INSERT INTO test_tree_copy(test_id, pid, test_val) VALUES(8, 6,      'Servlet');
+INSERT INTO test_tree_copy(test_id, pid, test_val) VALUES(9, 6,      'JSP');
+
+INSERT INTO test_tree_copy(test_id, pid, test_val) VALUES(10, NULL,  'Database');
+INSERT INTO test_tree_copy(test_id, pid, test_val) VALUES(11, 10,    'DB2');
+INSERT INTO test_tree_copy(test_id, pid, test_val) VALUES(12, 10,    'MySQL');
+INSERT INTO test_tree_copy(test_id, pid, test_val) VALUES(13, 10,    'Oracle');
+INSERT INTO test_tree_copy(test_id, pid, test_val) VALUES(14, 10,    'SQL Server');
+INSERT INTO test_tree_copy(test_id, pid, test_val) VALUES(15, 13,    'PL/SQL');
+INSERT INTO test_tree_copy(test_id, pid, test_val) VALUES(16, 15,    'Function');
+INSERT INTO test_tree_copy(test_id, pid, test_val) VALUES(17, 15,    'Procedure');
+INSERT INTO test_tree_copy(test_id, pid, test_val) VALUES(18, 15,    'Package');
+INSERT INTO test_tree_copy(test_id, pid, test_val) VALUES(19, 15,    'Cursor');
+INSERT INTO test_tree_copy(test_id, pid, test_val) VALUES(20, 14,    'T-SQL');
+GO
+
+--不允许将显式值插入表的标识列中
+SET IDENTITY_INSERT test_tree_copy OFF
+go
+
+-- 重置ID
+DBCC CHECKIDENT('test_tree_copy', RESEED, 100)
+go
+
+
+
+<h3> 用于复制树型结构的存储过程. </h3>
+
+
+CREATE PROCEDURE copy_test_tree
+  @source_id  		   INT,
+  @new_parent_id       INT   =   NULL
+AS
+BEGIN
+
+  -- 新的 ID.
+  DECLARE @newID  INT;
+
+  -- 数据插入.
+  INSERT INTO test_tree_copy(
+	pid,   test_val
+  ) 
+  SELECT
+    @new_parent_id,  test_val  
+  FROM
+    test_tree_copy
+  WHERE
+    test_id = @source_id;
+
+  -- 获取上一行语句，插入的 自增id.
+  SELECT @newID = SCOPE_IDENTITY();
+
+  
+  -- 递归处理 子节点.
+
+  -- 新的 子ID.
+  DECLARE @newSubID  INT;
+
+  -- 定义游标.
+  <span class="KeyInfo">
+  -- 注意：这里的  “LOCAL”  关键字很重要。 因为存储过程是递归的。
+  -- 缺少这个“LOCAL”  关键字， 将导致 存储过程执行过程中， 报  名为 'c_sub_data' 的游标已存在。 的错误！
+  </span>
+  DECLARE c_sub_data CURSOR LOCAL FAST_FORWARD FOR
+    SELECT test_id FROM test_tree_copy WHERE pid = @source_id;
+  -- 打开游标.
+  OPEN c_sub_data;
+ 
+  WHILE 1=1
+  BEGIN
+    -- 填充数据.
+    FETCH NEXT FROM c_sub_data INTO @newSubID;
+    -- 假如未检索到数据，退出循环.
+    IF @@fetch_status != 0 BREAK;
+
+	-- 递归调用存储过程
+    EXECUTE  copy_test_tree  @newSubID,  @newID ;
+  END;
+  
+  -- 关闭游标
+  CLOSE c_sub_data;
+  -- 释放游标.
+  DEALLOCATE c_sub_data;
+
+END
+GO
+
+
+
+
+
+<h3> 测试运行. </h3>
+
+BEGIN
+  -- 复制 .NET
+  EXECUTE copy_test_tree 1;
+END
+GO
+
+
+
+-- 核对复制结果.
+1> select * from test_tree_copy where test_id >= 100;
+2> GO
+test_id     pid         test_val
+----------- ----------- ----------
+        101        NULL .NET
+        102         101 C#
+        103         101 J#
+        104         101 ASP.NET
+        105         101 VB.NET
+
+(5 行受影响)
+
+BEGIN
+  -- 复制 Database
+  EXECUTE copy_test_tree 10;
+END
+GO
+
+
+
+1> -- 核对复制结果.
+2> select * from test_tree_copy where test_id >=  106;
+3> go
+test_id     pid         test_val
+----------- ----------- ----------
+        106        NULL Database
+        107         106 DB2
+        108         106 MySQL
+        109         106 Oracle
+        110         109 PL/SQL
+        111         110 Function
+        112         110 Procedure
+        113         110 Package
+        114         110 Cursor
+        115         106 SQL Server
+        116         115 T-SQL
+
+(11 行受影响)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

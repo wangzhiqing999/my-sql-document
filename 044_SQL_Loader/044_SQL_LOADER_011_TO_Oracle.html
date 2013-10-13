@@ -1,0 +1,253 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 大容量导入/导出操作 - 从其他数据库导出，导入到 Oracle </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 大容量导入/导出操作 </h1>
+
+
+<h2> 从其他数据库导出，导入到 Oracle   </h2>
+
+
+
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+-- 注意事项。
+-- 1. 分隔字符的选择.
+-- 2. NULL 的处理
+-- 3. DATETIME 的处理
+
+
+
+CREATE TABLE test_to_oracle (
+  id  int  		identity(1,1),
+  value  		varchar(50),
+  create_date  	datetime
+);
+GO
+
+INSERT INTO test_to_oracle
+SELECT 'ABC,DEF', '2012-12-12 12:12:12' UNION ALL
+SELECT 'OPQ', NULL UNION ALL
+SELECT NULL,  '2011-11-11 11:11:11'  UNION ALL
+SELECT 'TEST''XYZ', '2010-10-10 10:10:10';
+GO
+
+
+导出： <span class="KeyInfo">（注意，这里的  -t;  意思就是用 ; 作为 列之间的分隔字符， 选择分隔字符以前， 需要先确认， 数据库表的字段里面， 不要有这个分隔字符） </span>
+E:\Temp>BCP [test].[dbo].[test_to_oracle] out test_to_oracle.dat -c -t; -T -S "localhost\SQLEXPRESS"
+
+开始复制...
+
+已复制 4 行。
+网络数据包大小(字节): 4096
+总时钟时间(毫秒)     : 15     平均值: (每秒 266.67 行。)
+
+
+导出文件内容：
+E:\Temp>type  test_to_oracle.dat
+1;ABC,DEF;2012-12-12 12:12:12.000
+2;OPQ;
+3;;2011-11-11 11:11:11.000
+4;TEST'XYZ;2010-10-10 10:10:10.000
+
+
+
+
+Oracle 中的表
+
+CREATE TABLE test_to_oracle (
+  id  			int,
+  value  		varchar2(50),
+  create_date  	date
+);
+
+
+
+导入到 Oracle 的 控制文件  test_to_oracle.ctl
+<span class="KeyInfo">
+(注意1： 这里的 TRAILING NULLCOLS  意味着如果内容为空字符串， 那么按照  NULL 来处理)
+(注意2： 这里的 DATE  'YYYY-MM-DD HH24:MI:SS".000"'  因为 SQL Server 导出的文件中， DATETIME 格式的， 秒后面带有.000， 如果原始数据包含毫秒的话，估计要折腾了。)
+</span>
+LOAD DATA
+INTO TABLE test_to_oracle
+FIELDS TERMINATED BY ';'
+TRAILING NULLCOLS
+(
+id,
+value,
+create_date		DATE  'YYYY-MM-DD HH24:MI:SS".000"'
+)
+
+
+
+运行导入命令
+E:\Temp>sqlldr userid=test/test@vbpos control=test_to_oracle.ctl data=test_to_oracle.dat
+
+SQL*Loader: Release 9.2.0.1.0 - Production on 星期二 4月 23 14:38:13 2013
+
+Copyright (c) 1982, 2002, Oracle Corporation.  All rights reserved.
+
+达到提交点，逻辑记录计数4
+
+
+查看日志文件 test_to_oracle.log 未发现异常.
+
+
+
+
+Oracle 中查询数据.
+
+COLUMN "value" FORMAT A20
+COLUMN "create_date" FORMAT A20
+SELECT * FROM test_to_oracle;
+
+        ID VALUE                CREATE_DATE
+---------- -------------------- --------------------
+         1 ABC,DEF              2012-12-12 12:12:12
+         2 OPQ
+         3                      2011-11-11 11:11:11
+         4 TEST'XYZ             2010-10-10 10:10:10
+
+
+<hr/>
+
+经过调查测试以后， 如果遇到 文本文件中， 时间带有毫秒的， 可以通过   TIMESTAMP 'yyyy-mm-dd hh24:mi:ssxff'  来处理
+
+
+
+导入到 Oracle 的 控制文件  test_to_oracle.ctl
+
+LOAD DATA
+INTO TABLE test_to_oracle
+FIELDS TERMINATED BY ';'
+TRAILING NULLCOLS
+(
+id,
+value,
+create_date <span class="KeyInfo"> TIMESTAMP 'yyyy-mm-dd hh24:mi:ssxff' </span>
+)
+
+
+E:\Temp>type  test_to_oracle.dat
+1;ABC,DEF;2012-12-12 12:12:12.123
+2;OPQ;
+3;;2011-11-11 11:11:11.456
+4;TEST'XYZ;2010-10-10 10:10:10.789
+
+
+
+E:\Temp>sqlldr userid=test/test@vbpos control=test_to_oracle.ctl data=test_to_oracle.dat
+
+SQL*Loader: Release 9.2.0.1.0 - Production on 星期二 4月 23 15:00:30 2013
+
+Copyright (c) 1982, 2002, Oracle Corporation.  All rights reserved.
+
+达到提交点，逻辑记录计数4
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

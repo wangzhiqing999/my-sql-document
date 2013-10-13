@@ -1,0 +1,242 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 触发器 - INSERT/UPDATE/DELETE行为判断 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 触发器 </h1>
+
+
+<h2> INSERT/UPDATE/DELETE行为判断  </h2>
+
+
+测试此处时，先删除前面的3个触发器
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> CREATE OR REPLACE TRIGGER BeforeAllTest
+  2    BEFORE INSERT OR UPDATE OR DELETE ON test_trigger_table
+  3  FOR EACH ROW
+  4  BEGIN
+  5    dbms_output.put_line('BEFORE ALL');
+  6    IF INSERTING THEN
+  7      dbms_output.put_line('INSERTING!');
+  8    END IF;
+  9    IF UPDATING THEN
+ 10      dbms_output.put_line('UPDATING!');
+ 11    END IF;
+ 12    IF DELETING THEN
+ 13      dbms_output.put_line('DELETING!');
+ 14    END IF;
+ 15  END;
+ 16  /
+
+Trigger created.
+
+SQL> INSERT INTO test_trigger_table(id, name) VALUES (1, 'ABC');
+BEFORE ALL
+INSERTING!
+
+1 row created.
+
+SQL> UPDATE test_trigger_table SET name = 'XYZ' WHERE id = 1;
+BEFORE ALL
+UPDATING!
+
+1 row updated.
+
+SQL> DELETE FROM test_trigger_table WHERE id = 1;
+BEFORE ALL
+DELETING!
+
+1 row deleted.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> CREATE TRIGGER AfterAllTest
+2>   ON test_trigger_table
+3>   FOR INSERT,UPDATE,DELETE
+4> AS
+5> BEGIN
+6>   PRINT('AFTER ALL');
+7>   IF EXISTS(SELECT 1 FROM inserted) AND NOT EXISTS(SELECT 1 FROM deleted)
+8>   BEGIN
+9>     PRINT('INSERTING');
+10>   END;
+11>   IF EXISTS(SELECT 1 FROM inserted) AND EXISTS(SELECT 1 FROM deleted)
+12>   BEGIN
+13>     PRINT('UPDATING');
+14>   END;
+15>   IF NOT EXISTS(SELECT 1 FROM inserted) AND EXISTS(SELECT 1 FROM deleted)
+16>   BEGIN
+17>     PRINT('DELETING');
+18>   END;
+19> END;
+20> go
+1> INSERT INTO test_trigger_table(id, name) VALUES (1, 'ABC');
+2> UPDATE test_trigger_table SET name = 'XYZ' WHERE id = 1;
+3> DELETE FROM test_trigger_table WHERE id = 1;
+4> go
+AFTER ALL
+INSERTING
+
+(1 行受影响)
+AFTER ALL
+UPDATING
+AFTER ALL
+DELETING
+1>
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# truncate table log_table;
+TRUNCATE TABLE
+
+
+-- 创建 触发器函数.
+CREATE FUNCTION TrIUDTest()  RETURNS trigger AS $tr_iud_test$
+BEGIN
+  INSERT INTO log_table VALUES ( 'BEFORE ALL'); 
+  IF (TG_OP = 'INSERT') THEN
+    INSERT INTO log_table VALUES ( 'INSERTING'); 
+    RETURN NEW;
+  ELSIF (TG_OP = 'UPDATE') THEN
+    INSERT INTO log_table VALUES ( 'UPDATEING'); 
+    RETURN NEW;
+  END IF;
+  
+  INSERT INTO log_table VALUES ( 'DELETEING'); 
+  -- 删除情况下，如果是 BEFORE 的触发器，需要返回 OLD.
+  RETURN OLD;
+END;
+$tr_iud_test$ LANGUAGE plpgsql;
+
+
+
+-- 定义触发器.
+-- 前面定义的已删除.
+CREATE TRIGGER tr_iud_test 
+  BEFORE  INSERT OR UPDATE OR DELETE  ON test_trigger_table
+  FOR EACH ROW EXECUTE 
+  PROCEDURE TrIUDTest();
+
+  
+Test=# INSERT INTO test_trigger_table(id, name) VALUES (1, 'ABC');
+INSERT 0 1
+Test=# UPDATE test_trigger_table SET name = 'XYZ' WHERE id = 1;
+UPDATE 1
+Test=# DELETE FROM test_trigger_table WHERE id = 1;
+DELETE 1
+Test=#
+
+
+-- 核对结果.
+Test=# select * from test_trigger_table;
+ id | name | val
+----+------+-----
+(0 行记录)
+
+
+Test=# select * from log_table;
+  log_text
+------------
+ BEFORE ALL
+ INSERTING
+ BEFORE ALL
+ UPDATEING
+ BEFORE ALL
+ DELETEING
+(6 行记录)
+
+
+  
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

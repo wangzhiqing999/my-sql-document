@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 聚集函数 - 相关系数 CORR </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 聚集函数 </h1>
+
+
+<h2> 相关系数 CORR  </h2>
+
+
+
+返回一对表达式的相关系数，它是如下的缩写：
+COVAR_POP(expr1,expr2)/STDDEV_POP(expr1)*STDDEV_POP(expr2))
+从统计上讲，相关性是变量之间关联的强度，变量之间的关联意味着在某种程度上一个变量的值可由其它的值进行预测。
+通过返回一个-1~1之间的一个数, 相关系数给出了关联的强度，0表示不相关。
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    sale_item,
+  3    CORR(
+  4      TO_NUMBER(TO_CHAR(sale_date, 'DD')),
+  5      sale_money) AS A
+  6  FROM
+  7    sale_report
+  8  GROUP BY
+  9    sale_item;
+
+SA          A
+-- ----------
+A
+B  .011893177
+C           1
+
+对结果有疑惑，可去前面找到创建测试数据的那段存储过程，可以明白。
+
+
+CORR_S
+CORR_K
+适合非参数相关或者级别关联，具体还需要进一步测试
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

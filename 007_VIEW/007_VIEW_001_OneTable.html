@@ -1,0 +1,298 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 视图 - 单表简单视图 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 视图 </h1>
+
+
+<h2> 单表简单视图  </h2>
+
+目标：测试 视图的可更新性
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> CREATE VIEW
+  2    V_SALE_REPORT
+  3  AS
+  4    SELECT
+  5      *
+  6    FROM
+  7      SALE_REPORT;
+
+View created.
+
+SQL> INSERT INTO v_sale_report (
+  2    sale_date, sale_item, sale_money
+  3  ) VALUES (
+  4    TO_DATE('2012.01.01', 'YYYY.MM.DD'), 'X', 1
+  5  );
+
+1 row created.
+
+SQL> alter session set NLS_DATE_FORMAT="YYYY.MM.DD";
+
+Session altered.
+
+SQL> SELECT
+  2    *
+  3  FROM
+  4    sale_report
+  5  WHERE
+  6    sale_date = TO_DATE('2012.01.01', 'YYYY.MM.DD');
+
+SALE_DATE  SALE SALE_MONEY
+---------- ---- ----------
+2012.01.01 X             1
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => CREATE VIEW
+db2 (cont.) =>   V_SALE_REPORT
+db2 (cont.) => AS
+db2 (cont.) =>   SELECT
+db2 (cont.) =>     *
+db2 (cont.) =>   FROM
+db2 (cont.) =>     SALE_REPORT;
+DB20000I  SQL 命令成功完成。
+
+db2 => INSERT INTO v_sale_report (
+db2 (cont.) =>   sale_date, sale_item, sale_money
+db2 (cont.) => ) VALUES (
+db2 (cont.) =>   TO_DATE('2012.01.01', 'YYYY.MM.DD'), 'X', 1
+db2 (cont.) => );
+DB20000I  SQL 命令成功完成。
+db2 =>
+db2 => SELECT
+db2 (cont.) =>   *
+db2 (cont.) => FROM
+db2 (cont.) =>   sale_report
+db2 (cont.) => WHERE
+db2 (cont.) =>   sale_date = TO_DATE('2012.01.01', 'YYYY.MM.DD');
+
+SALE_DATE  SALE_ITEM SALE_MONEY
+---------- --------- ------------
+2012-01-01 X                 1.00
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> CREATE VIEW
+2>   V_SALE_REPORT
+3> AS
+4>   SELECT
+5>     *
+6>   FROM
+7>     sale_report;
+8> go
+
+1> INSERT INTO v_sale_report (
+2>   sale_date, sale_item, sale_money
+3> ) VALUES (
+4>   CONVERT(DATETIME, '2012-01-02 09:06:18', 120), 'X', 1
+5> );
+6> go
+
+(1 行受影响)
+
+1> SELECT
+2>   *
+3> FROM
+4>   sale_report
+5> WHERE
+6>   sale_date = CONVERT(DATETIME, '2012-01-02 09:06:18', 120)
+7> go
+SALE_DATE               SALE_ITEM SALE_MONEY
+----------------------- --------- ------------
+2012-01-02 09:06:18.000 X                 1.00
+
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> CREATE VIEW
+    ->   V_SALE_REPORT
+    -> AS
+    ->   SELECT
+    ->     *
+    ->   FROM
+    ->     SALE_REPORT;
+    -> //
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> INSERT INTO v_sale_report (
+    ->   sale_date, sale_item, sale_money
+    -> ) VALUES (
+    ->   '2012-01-02 09:06:18', 'X', 1
+    -> );
+    -> //
+Query OK, 1 row affected (0.03 sec)
+
+mysql> SELECT * FROM sale_report
+    -> WHERE SALE_ITEM = 'X'
+    -> //
++---------------------+-----------+------------+
+| SALE_DATE           | SALE_ITEM | SALE_MONEY |
++---------------------+-----------+------------+
+| 2012-01-02 09:06:18 | X         |       1.00 |
++---------------------+-----------+------------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+	
+SQLite 视图可创建
+
+但是默认都不能修改。
+
+这点不同于其他数据库。其他数据库，单表无条件的视图，还是可更新的。
+
+<pre><code>
+
+sqlite>  CREATE VIEW
+   ...>    V_SALE_REPORT
+   ...>  AS
+   ...>    SELECT
+   ...>      *
+   ...>    FROM
+   ...>      SALE_REPORT;
+
+sqlite> INSERT INTO v_sale_report (
+   ...>   sale_date, sale_item, sale_money
+   ...> ) VALUES (
+   ...>   '2012-01-02 09:06:18', 'X', 1
+   ...> );
+Error: cannot modify V_SALE_REPORT because it is a view
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# CREATE VIEW
+Test-#   V_SALE_REPORT
+Test-# AS
+Test-#   SELECT
+Test-#     *
+Test-#   FROM
+Test-#     SALE_REPORT;
+CREATE VIEW
+Test=#
+
+Test=# INSERT INTO v_sale_report (
+Test(#   sale_date, sale_item, sale_money
+Test(# ) VALUES (
+Test(#   '2012.01.01', 'X', 1
+Test(# );
+错误:  无法插入到视图"v_sale_report"
+提示:  你需要一个无条件的 ON INSERT DO INSTEAD 规则或者INSTEAD OF INSERT触发器.
+Test=#
+
+
+默认情况下不可直接作更新处理.
+
+
+通过定义一个 PostgreSQL 中的 “规则”， 来实现， 当向 v_sale_report 视图中插入数据的时候， 实际去完成向 SALE_REPORT 表执行插入的处理。
+CREATE RULE  rule_ins_v_sale_report AS 
+	ON INSERT TO v_sale_report  
+	DO INSTEAD 
+      INSERT INTO SALE_REPORT VALUES (NEW.sale_date, NEW.sale_item, NEW.sale_money);
+
+
+Test=# INSERT INTO v_sale_report (
+Test(#   sale_date, sale_item, sale_money
+Test(# ) VALUES (
+Test(#   '2012.01.01', 'X', 1
+Test(# );
+INSERT 0 1
+Test=#
+
+
+Test=# SELECT * FROM v_sale_report WHERE sale_item = 'X';
+ sale_date  | sale_item | sale_money
+------------+-----------+------------
+ 2012-01-01 | X         |       1.00
+(1 行记录)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 聚集函数 - 总体协方差 COVAR_POP </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 聚集函数 </h1>
+
+
+<h2> 总体协方差 COVAR_POP  </h2>
+
+
+
+
+为了提高试验的精确性和准确性，对处理以外的一切条件都需要采取有效措施严加控制，
+使它们在各处理间尽量一致，这叫试验控制。
+
+但在有些情况下，即使作出很大努力也难以使试验控制达到预期目的。
+
+例如：研究几种配合饲料对猪的增重效果，希望试验仔猪的初始重相同，因为仔猪的初始重不同，将影响到猪的增重。
+
+经研究发现：增重与初始重之间存在线性回归关系。
+
+但是，在实际试验中很难满足试验仔猪初始重相同这一要求。
+这时可利用仔猪的初始重(记为x)与其增重(记为y)的回归关系，
+将仔猪增重都矫正为初始重相同时的增重，于是初始重不同对仔猪增重的影响就消除了。
+
+由于矫正后的增重是应用统计方法将初始重控制一致而得到的，故叫统计控制。
+
+统计控制是试验控制的一种辅助手段。经过这种矫正，试验误差将减小，
+
+对试验处理效应估计更为准确。若y的变异主要由x的不同造成(处理没有显著效应)，
+则各矫正后的 间将没有显著差异(但原y间的差异可能是显著的)。
+若y的变异除掉x不同的影响外，尚存在不同处理的显著效应，
+则可期望各 间将有显著差异(但原y间差异可能是不显著的)。
+
+此外，矫正后的 和原y的大小次序也常不一致。
+所以，处理平均数的回归矫正和矫正平均数的显著性检验，能够提高试验的准确性和精确性，
+
+从而更真实地反映试验实际。这种将回归分析与方差分析结合在一起，对试验数据进行分析的方法，叫做协方差分析(analysis of covariance)。
+
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    sale_item,
+  3    COVAR_POP(
+  4      TO_NUMBER(TO_CHAR(sale_date, 'DD')), 
+  5      sale_money) AS A
+  6  FROM
+  7    sale_report
+  8  GROUP BY
+  9    sale_item;
+
+SA          A
+-- ----------
+A           0
+B  .360698067
+C  77.3739613
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

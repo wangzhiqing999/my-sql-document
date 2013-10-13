@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 窗口函数 - FIRST/LAST </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 窗口函数 </h1>
+
+
+<h2> FIRST/LAST  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+这里需要注意，不要与 FIRST_VALUE and LAST_VALUE 混淆。
+
+FIRST/LAST 需要在 KEEP (DENSE_RANK ) 中使用。
+
+用途是在一个 特定的范围内，取最小/最大的数值。 避免 额外的再写 表关联 或者 嵌套的子查询 。
+
+
+SELECT
+  course_name,
+  student_name,
+  grade,
+  AVG(grade)
+    KEEP (DENSE_RANK FIRST ORDER BY grade)
+      OVER (PARTITION BY course_name) AS "本门课程最低分",
+  AVG(grade)
+    KEEP (DENSE_RANK LAST  ORDER BY grade)
+      OVER (PARTITION BY course_name) AS "本门课程最高分"
+FROM
+  test_course;
+
+
+COURSE_NAM STUDENT_NA      GRADE 本门课程最低分 本门课程最高分
+---------- ---------- ---------- -------------- --------------
+数学       壬                 85             50             95
+数学       辛                 70             50             95
+数学       庚                 60             50             95
+数学       己                 50             50             95
+数学       奎                 95             50             95
+数学       丁                 60             50             95
+数学       丙                 70             50             95
+数学       乙                 80             50             95
+数学       甲                 90             50             95
+数学       戊                 50             50             95
+语文       奎                 90             50             95
+
+COURSE_NAM STUDENT_NA      GRADE 本门课程最低分 本门课程最高分
+---------- ---------- ---------- -------------- --------------
+语文       壬                 80             50             95
+语文       辛                 70             50             95
+语文       庚                 60             50             95
+语文       己                 50             50             95
+语文       戊                 55             50             95
+语文       丁                 65             50             95
+语文       丙                 75             50             95
+语文       甲                 95             50             95
+语文       乙                 85             50             95
+
+已选择20行。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

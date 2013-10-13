@@ -1,0 +1,260 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 外键约束 - DELETE CASCADE 方式 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 外键约束 </h1>
+
+
+<h2> DELETE CASCADE 方式  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> -- 创建外键(使用 ON DELETE CASCADE 选项，删除主表的时候，同时删除子表)
+SQL> ALTER TABLE test_sub
+  2    ADD CONSTRAINT main_id_cons
+  3      FOREIGN KEY (main_id)  REFERENCES  test_main  ON DELETE CASCADE;
+
+Table altered.
+
+SQL>
+SQL> -- 测试删除主表数据. 将成功地执行.
+SQL> DELETE
+  2    TEST_MAIN
+  3  WHERE
+  4    ID = 1;
+
+1 row deleted.
+
+SQL>
+SQL> -- 测试检索子表，应该只有一条 main_id = 2 的数据.
+SQL> SELECT
+  2    *
+  3  FROM
+  4    test_sub;
+
+        ID    MAIN_ID VALUE
+---------- ---------- --------------------
+         2          2 TWOTWO
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => ALTER TABLE test_sub
+db2 (cont.) =>   ADD CONSTRAINT main_id_cons
+db2 (cont.) =>     FOREIGN KEY (main_id)
+db2 (cont.) =>       REFERENCES  test_main  ON DELETE CASCADE;
+DB20000I  SQL 命令成功完成。
+
+db2 => -- 测试删除主表数据. 将成功地执行.
+db2 => DELETE
+db2 (cont.) =>   TEST_MAIN
+db2 (cont.) => WHERE
+db2 (cont.) =>   ID = 1;
+DB20000I  SQL 命令成功完成。
+
+-- 测试检索子表，应该只有一条 main_id = 2 的数据.
+db2 =>  SELECT * FROM test_sub;
+
+ID          MAIN_ID     VALUE
+----------- ----------- ----------
+          2           2 TWOTWO
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> -- 创建外键(使用 ON DELETE CASCADE 选项，删除主表的时候，同时删除子表)
+2> ALTER TABLE test_sub
+3>   ADD CONSTRAINT main_id_cons
+4>     FOREIGN KEY (main_id)  REFERENCES  test_main  ON DELETE CASCADE;
+5>
+6> -- 测试删除主表数据. 将成功地执行.
+7> DELETE
+8>   TEST_MAIN
+9> WHERE
+10>   ID = 1;
+11>
+12> -- 测试检索子表，应该只有一条 main_id = 2 的数据.
+13> SELECT
+14>   *
+15> FROM
+16>   test_sub;
+17>
+18> go
+
+(1 行受影响)
+id          main_id     value
+----------- ----------- ----------
+          2           2 TWOTWO
+
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> ALTER TABLE test_sub
+    ->   ADD CONSTRAINT main_id_cons
+    ->   FOREIGN KEY (main_id)
+    ->   REFERENCES  test_main(id)
+    ->   ON DELETE CASCADE//
+Query OK, 2 rows affected (0.16 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> DELETE FROM
+    ->   test_main
+    -> WHERE
+    ->   id = 1;
+    -> //
+Query OK, 1 row affected (0.02 sec)
+
+mysql> SELECT
+    ->   *
+    -> FROM
+    ->   test_sub;
+    -> //
++----+---------+--------+
+| id | main_id | value  |
++----+---------+--------+
+|  2 |       2 | TWOTWO |
++----+---------+--------+
+1 row in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+
+DROP TABLE test_sub;
+
+CREATE TABLE test_sub (
+  id      INT   PRIMARY KEY,
+  main_id INT   REFERENCES  test_main(id)  ON DELETE CASCADE,
+  value   VARCHAR(10)
+);
+
+sqlite> INSERT INTO test_sub(id, main_id, value) VALUES (1, 1, 'ONEONE');
+sqlite> INSERT INTO test_sub(id, main_id, value) VALUES (2, 2, 'TWOTWO');
+sqlite>
+sqlite> DELETE FROM test_main WHERE id = 1;
+sqlite> select * from test_sub;
+2|2|TWOTWO
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# ALTER TABLE test_sub
+Test-#   ADD CONSTRAINT main_id_cons
+Test-#     FOREIGN KEY (main_id)  REFERENCES  test_main ON DELETE CASCADE;
+ALTER TABLE
+
+
+Test=#
+Test=# DELETE FROM test_main WHERE ID = 1;
+DELETE 1
+
+
+Test=# SELECT * FROM test_sub;
+ id | main_id | value
+----+---------+--------
+  2 |       2 | TWOTWO
+(1 行记录)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+<p>
+测试完毕后，删除 外键约束 
+ALTER TABLE test_sub DROP CONSTRAINT main_id_cons;
+</p>
+
+<p>
+注：MySQL使用下面这个语句删除外键约束
+ALTER TABLE test_sub DROP FOREIGN KEY  main_id_cons;
+</p>
+
+<p>
+注：SQLite 等下要重建表的， 就不折腾了。
+</p>
+
+
+
+</body>
+
+
+</html>

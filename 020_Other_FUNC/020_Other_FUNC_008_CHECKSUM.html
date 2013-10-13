@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 其他函数 - 数据校验 CHECKSUM </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 其他函数 </h1>
+
+
+<h2>  数据校验 CHECKSUM </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+返回按照表的某一行或一组表达式计算出来的校验和值。CHECKSUM 用于生成哈希索引。
+
+1> DROP TABLE #myTable;
+2> CREATE TABLE #myTable (id int, col2 varchar(10));
+3> GO
+1> INSERT INTO #myTable VALUES (1, 'test');
+2> INSERT INTO #myTable VALUES (2, 'test2');
+3> GO
+
+(1 行受影响)
+1> SELECT
+2>   CHECKSUM (*),
+3>   CHECKSUM (id),
+4>   CHECKSUM (col2)
+5> FROM
+6>   #myTable;
+7> GO
+
+----------- ----------- -----------
+-1854252689           1 -1854252673
+ 1586913175           2  1586913207
+
+(2 行受影响)
+1>
+2> UPDATE #myTable
+3> SET col2 = 'TEST'
+4> WHERE id = 1;
+5> GO
+
+(1 行受影响)
+1>
+2> SELECT
+3>   CHECKSUM (*),
+4>   CHECKSUM (id),
+5>   CHECKSUM (col2)
+6> FROM
+7>   #myTable;
+8> GO
+
+----------- ----------- -----------
+-1854252689           1 -1854252673
+ 1586913175           2  1586913207
+
+(2 行受影响)
+
+注：这里看到，默认情况下，大小写不影响 CheckSum结果。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

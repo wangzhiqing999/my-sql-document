@@ -1,0 +1,113 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title>  数学函数 - 二进制转十进制BIN_TO_NUM (Oracle Only)  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数学函数 </h1>
+
+
+<h2> 二进制转十进制BIN_TO_NUM (Oracle Only)  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT 
+  2    BIN_TO_NUM(0,0,0,0,1) AS A,
+  3    BIN_TO_NUM(0,0,0,1,0) AS B,
+  4    BIN_TO_NUM(0,0,1,0,0) AS C,
+  5    BIN_TO_NUM(0,1,0,0,0) AS D,
+  6    BIN_TO_NUM(1,0,0,0,0) AS E,
+  7    BIN_TO_NUM(1,0,1,0,1) AS F
+  8  FROM DUAL; 
+
+         A          B          C          D          E          F
+---------- ---------- ---------- ---------- ---------- ----------
+         1          2          4          8         16         21
+
+此方法对于 某些枚举类型的计算，计算起来很方便。
+参数的数量是可变的
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

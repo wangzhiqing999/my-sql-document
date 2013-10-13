@@ -1,0 +1,329 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 字符函数 - SUBSTRING_INDEX   </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 字符函数 </h1>
+
+
+<h2>  SUBSTRING_INDEX   </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+-- 没有直接的函数.
+CREATE table test (a varchar(100));
+insert into test values('test.abc.oracle.com.cn');
+
+-- 获取第一个.
+SELECT
+  SUBSTR(a, 1, INSTR (a, '.') -1 ) AS Result
+FROM
+  test;
+
+RESULT
+---------
+test
+
+-- 获取第二个.
+select 
+  SUBSTR(a,
+    REGEXP_INSTR (a, '\.', 1, 1) + 1,
+	REGEXP_INSTR (a, '\.', 1, 2) - REGEXP_INSTR (a, '\.', 1, 1) - 1
+  ) AS  Result
+FROM test;
+
+RESULT
+----------
+abc
+
+
+-- 获取第三个.
+select 
+  SUBSTR(a,
+    REGEXP_INSTR (a, '\.', 1, 2) + 1,
+	REGEXP_INSTR (a, '\.', 1, 3) - REGEXP_INSTR (a, '\.', 1, 2) - 1
+  ) AS  Result
+FROM test;
+
+RESULT
+----------
+oracle
+
+
+-- 中间的第 N 个  可参照着修改.
+select 
+  SUBSTR(a,
+    REGEXP_INSTR (a, '\.', 1, <span class="KeyInfo">(N-1)</span>) + 1,
+	REGEXP_INSTR (a, '\.', 1, <span class="KeyInfo">N)</span> - REGEXP_INSTR (a, '\.', 1, <span class="KeyInfo">(N-1)</span>) - 1
+  ) AS  Result
+FROM test;
+
+
+-- 获取最后一个.
+select 
+  SUBSTR( a,  INSTR(a, '.', -1) + 1) 
+FROM test;
+
+SUBSTR(A,INSTR(A,'.',-1)+1)
+----------------------------
+cn
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+-- 没有直接的函数.
+CREATE table test (a varchar(100));
+insert into test values('test.abc.oracle.com.cn');
+
+
+
+-- 获取第一个.
+SELECT
+  LEFT(a, CHARINDEX ('.', a) -1 ) AS Result
+FROM
+  test;
+
+Result
+------------------
+test
+(1 行受影响)
+
+
+-- 获取中间的，水有点深...
+-- 要自己写函数 或者用 xml 了.
+
+
+-- 获取最后一个. 算法就是 对字符反转后， 获取第一个， 然后结果在反转回来.
+SELECT
+  REVERSE(
+    LEFT(REVERSE(a), CHARINDEX ('.', REVERSE(a)) -1 )
+  ) AS Result
+FROM
+  test;
+
+Result
+--------------------
+cn
+(1 行受影响)
+
+
+
+<hr/>
+如果分隔字符为 .  并且分隔项目小于等于4个， 那么可以尝试使用 parsename 来完成相应的处理.
+
+
+SELECT
+  CAST(parsename('192.168.201.13', 4) AS INT)  AS [1网段],
+  CAST(parsename('192.168.201.13', 3) AS INT)  AS [2网段],
+  CAST(parsename('192.168.201.13', 2) AS INT)  AS [3网段],
+  CAST(parsename('192.168.201.13', 1) AS INT)  AS [4网段]
+GO
+
+
+1网段         2网段         3网段         4网段
+----------- ----------- ----------- -----------
+        192         168         201          13
+
+(1 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+SUBSTRING_INDEX(str,delim,count) 
+
+在定界符 delim 以及count 出现前，
+从字符串str返回自字符串。
+若count为正值,则返回最终定界符(从左边开始)左边的一切内容。
+若count为负值，则返回定界符（从右边开始）右边的一切内容。
+
+mysql> SELECT SUBSTRING_INDEX('www.mysql.com', '.', 2);
+        -> 'www.mysql'
+mysql> SELECT SUBSTRING_INDEX('www.mysql.com', '.', -2);
+        -> 'mysql.com'
+
+
+<hr/>
+
+指定要获取第几个的情况下：
+
+CREATE table test (a varchar(100));
+insert into test values('test.abc.oracle.com.cn');
+
+
+-- 获取第一个.
+SELECT SUBSTRING_INDEX(a,  '.',  1) AS Result FROM test;
++--------+
+| Result |
++--------+
+| test   |
++--------+
+1 row in set (0.00 sec)
+
+
+-- 获取第二个.
+SELECT 
+  SUBSTRING_INDEX(a,  '.',  2) AS `前二个`,
+  SUBSTRING_INDEX(a,  '.',  1) AS `前一个`,
+  SUBSTRING(SUBSTRING_INDEX(a,  '.',  2),  LENGTH(SUBSTRING_INDEX(a,  '.',  1)) + 2 )  AS Result 
+FROM test;
+
++----------+--------+--------+
+| 前二个   | 前一个 | Result |
++----------+--------+--------+
+| test.abc | test   | abc    |
++----------+--------+--------+
+1 row in set (0.00 sec)
+
+
+-- 获取第三个.
+SELECT 
+  SUBSTRING_INDEX(a,  '.',  3) AS `前三个`,
+  SUBSTRING_INDEX(a,  '.',  2) AS `前二个`,
+  SUBSTRING(SUBSTRING_INDEX(a,  '.',  3),  LENGTH(SUBSTRING_INDEX(a,  '.',  2)) + 2 )  AS Result 
+FROM test;
++-----------------+----------+--------+
+| 前三个          | 前二个   | Result |
++-----------------+----------+--------+
+| test.abc.oracle | test.abc | oracle |
++-----------------+----------+--------+
+1 row in set (0.00 sec)
+
+
+
+
+
+-- 获取最后一个. 算法就是 对字符反转后， 获取第一个， 然后结果在反转回来.
+-- 这种方法， 用于在 总数量不明确的情况下， 仅仅获取最后一个的处理。
+SELECT
+  REVERSE(SUBSTRING_INDEX(REVERSE(a),  '.',  1)) AS Result
+FROM
+  test;
++--------+
+| Result |
++--------+
+| cn     |
++--------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+注意： 
+这个函数的结果， 与 MySQL 的不同。
+MySQL 的是返回多个的， PostgreSQL 是只返回1个。
+
+
+
+split_part(string text, delimiter text, field int)
+根据 delimiter 分隔 string 返回生成的第 field 个子字串（一为基）。
+
+
+
+Test=# SELECT split_part('www.mysql.com', '.', 1);
+ split_part
+------------
+ www
+(1 行记录)
+
+
+Test=# SELECT split_part('www.mysql.com', '.', 2);
+ split_part
+------------
+ mysql
+(1 行记录)
+
+
+Test=#
+Test=# SELECT split_part('www.mysql.com', '.', -2);
+错误:  字段的位置必须大于0
+Test=#
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

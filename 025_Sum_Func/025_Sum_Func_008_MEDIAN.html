@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 聚集函数 - 中位数 MEDIAN  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 聚集函数 </h1>
+
+
+<h2> 中位数 MEDIAN  </h2>
+
+
+<pre><code>
+
+中位数（Median）统计学名词。
+1、定义：一组数据按从小到大（或从大到小）的顺序依次排列，处在中间位置的一个数（或最中间两个数据的平均数，注意：和众数不同，中位数不一定在这组数据中）。
+2、意义：反映了一组数的一般情况。
+3、中位数的优缺点：中位数是样本数据所占频率的等分线，它不受少数几个极端值的影响，有时用它代表全体数据的一般水平更合适。
+4、在频率分布直方图中，中位数左边和右边的直方图的面积应该相等，由此可以估计中位数的值。
+5、中位数也可表述为第50百分位数，二者等价。
+6、直观印象描述：一半比“我”小，一半比“我”大。
+
+</code></pre>
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    sale_item,
+  3    MEDIAN(sale_money)
+  4  FROM
+  5    sale_report
+  6  GROUP BY
+  7    sale_item;
+
+SA MEDIAN(SALE_MONEY)
+-- ------------------
+A                2009
+B                   7
+C                  16
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

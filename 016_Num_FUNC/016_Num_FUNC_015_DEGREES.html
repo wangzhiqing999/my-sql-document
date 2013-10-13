@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数学函数 - 度数为单位的角度 DEGREES </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数学函数 </h1>
+
+
+<h2> 度数为单位的角度 DEGREES  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => SELECT DEGREES(3.14159265), DEGREES(3.14159265/2)
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+1                        2
+------------------------ ------------------------
+  +1.79999999794320E+002   +8.99999998971600E+001
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT DEGREES(3.14159265), DEGREES(PI()/2)
+2> go
+
+---------------------------------------- ------------------------
+                  179.999999794320020000                       90
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+DEGREES(X) 
+返回参数 X, 该参数由弧度被转化为度。 
+mysql> SELECT DEGREES(PI());
+        -> 180
+mysql> SELECT DEGREES(PI() / 2);
+        -> 90
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+Test=# SELECT DEGREES(PI());
+ degrees
+---------
+     180
+(1 行记录)
+
+
+Test=# SELECT DEGREES(PI() / 2);
+ degrees
+---------
+      90
+(1 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,688 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数学函数 - 数字格式化显示  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数学函数 </h1>
+
+
+<h2>  数字格式化显示 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+使用 TO_CHAR 函数
+格式化字符中 9和0都表示数字。
+前导的0表示强制显示，也就是没有数字，也显示0
+前导的9，在没有数字的时候，显示为空格。
+
+
+G表示千分位分隔符号，D表示小数点。
+
+SQL> SELECT TO_CHAR(12345.6, '999G999D99') FROM DUAL;
+
+TO_CHAR(123
+-----------
+  12,345.60
+
+SQL> SELECT TO_CHAR(12345.6, '000G000D00') FROM DUAL;
+
+TO_CHAR(123
+-----------
+ 012,345.60
+
+
+S 为正数 设置一个 +号，负数设置一个 –号
+SQL> SELECT TO_CHAR(12345.6,  'S999G999D99') FROM DUAL;
+
+TO_CHAR(123
+-----------
+ +12,345.60
+
+SQL> SELECT TO_CHAR(-12345.6, 'S999G999D99') FROM DUAL;
+
+TO_CHAR(-12
+-----------
+ -12,345.60
+
+
+PR负数将以  &lt; &gt;   的方式显示
+SQL> SELECT TO_CHAR(12345.6,  '999G999D99PR') FROM DUAL;
+
+TO_CHAR(1234
+------------
+  12,345.60
+
+SQL> SELECT TO_CHAR(-12345.6, '999G999D99PR') FROM DUAL;
+
+TO_CHAR(-123
+------------
+ <12,345.60>
+
+
+EEEE 表示科学计数
+SQL> SELECT TO_CHAR(1234567890, '9.99EEEE') FROM DUAL;
+
+TO_CHAR(12
+----------
+  1.23E+09
+
+
+RM 表示罗马数字
+SQL> SELECT TO_CHAR(12, 'RM') FROM DUAL;
+
+TO_CHAR(12,'RM'
+---------------
+            XII
+
+
+
+TO_CHAR 的第三个参数， 可以用来重定义  逗号 与 小数点
+
+SQL> SELECT
+  2    TO_CHAR(1234567.89, '9G999G999D00') AS "默认格式",
+  3    TO_CHAR(1234567.89, '9G999G999D00',
+  4     'NLS_NUMERIC_CHARACTERS = '',.'' ')  AS "自定义格式"
+  5  FROM DUAL;
+
+默认格式                   自定义格式
+-------------------------- --------------------------
+ 1,234,567.89               1.234.567,89
+
+
+
+<hr/>
+
+关于小数的显示问题。
+
+CREATE TABLE test_tochar(
+  id INT,
+  val decimal(10,4)
+);
+
+INSERT INTO test_tochar VALUES(1,   0.0001);
+INSERT INTO test_tochar VALUES(2,   0.0012);
+INSERT INTO test_tochar VALUES(3,   0.0123);
+INSERT INTO test_tochar VALUES(4,   0.1234);
+INSERT INTO test_tochar VALUES(5,   1.2345);
+INSERT INTO test_tochar VALUES(6,   12.3456);
+INSERT INTO test_tochar VALUES(7,   123.4567);
+INSERT INTO test_tochar VALUES(8,   1234.5678);
+INSERT INTO test_tochar VALUES(9,   12345.6789);
+
+
+默认的显示方式。
+
+SQL> COLUMN "Result" FORMAT A15
+SQL> SELECT id, TO_CHAR(val) Result FROM test_tochar;
+
+        ID RESULT
+---------- ---------------
+         1 .0001
+         2 .0012
+         3 .0123
+         4 .1234
+         5 1.2345
+         6 12.3456
+         7 123.4567
+         8 1234.5678
+         9 12345.6789
+
+已选择9行。
+
+注意到， 小于 1 的数据， 被 to_char 成   .0001 了。 而不是  0.0001
+
+
+修改 TO_CHAR 的格式化参数：
+SQL> SELECT id, TO_CHAR(val, '999,990.999') Result FROM test_tochar;
+
+        ID RESULT
+---------- ---------------
+         1        0.000
+         2        0.001
+         3        0.012
+         4        0.123
+         5        1.235
+         6       12.346
+         7      123.457
+         8    1,234.568
+         9   12,345.679
+
+已选择9行。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+对于 SQL Server，要将数字格式化为特定的格式。
+使用 Convert 函数。
+
+仅仅对于 float 或 real 数据类型，
+以及 money 或 smallmoney数据类型 才有相应的 格式可以设置。
+其他数据类型的，可能就没有可选的格式了。
+
+
+对于 float 或 real 数据类型
+<table>
+  <tr>
+    <td>值</td>	<td>输出</td>
+  </tr>
+  <tr>
+    <td>0（默认值）</td>	<td>最多包含 6 位。根据需要使用科学记数法。</td>
+  </tr>
+  <tr>
+   <td>1</td>	<td>始终为 8 位值。始终使用科学记数法。</td>
+  </tr>
+  <tr>
+   <td>2</td>	<td>始终为 16 位值。始终使用科学记数法。</td>
+  </tr>
+</table>
+
+
+对于 money 或 smallmoney数据类型。
+
+<table>
+  <tr>
+    <td>值</td>	<td>输出</td>
+  </tr>
+  <tr>
+    <td>0（默认值）</td>	<td>小数点左侧每三位数字之间不以逗号分隔，小数点右侧取两位数，例如 4235.98。</td>
+  </tr>
+  <tr>
+    <td>1</td>	<td>小数点左侧每三位数字之间以逗号分隔，小数点右侧取两位数，例如 3,510.92。</td>
+  </tr>
+  <tr>
+    <td>2</td>	<td>小数点左侧每三位数字之间不以逗号分隔，小数点右侧取四位数，例如 4235.9819。</td>
+  </tr>
+</table>
+
+
+DECLARE @myVal AS Money;
+SET @myVal = 123456789.12345;
+SELECT
+  Convert(VARCHAR, @myVal, 1);
+
+------------------------------
+123,456,789.12
+(1 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+FORMAT(X,D)
+将number X设置为格式 '#,###,###.##', 以四舍五入的方式保留到小数点后D位, 而返回结果为一个字符串。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+使用 TO_CHAR 函数
+格式化字符中 9和0都表示数字。
+前导的0表示强制显示，也就是没有数字，也显示0
+前导的9，在没有数字的时候，显示为空格
+
+
+
+用于数值格式化的模板模式
+
+<table>
+<tr>
+  <td>模式</td><td>描述</td>
+</tr>
+<tr>
+  <td>9</td><td>带有指定数值位数的值</td>
+</tr>
+<tr>
+  <td>0</td><td>带前导零的值</td>
+</tr>
+<tr>
+  <td>. (句点)</td><td>小数点</td>
+</tr>
+<tr>
+  <td>, (逗号)</td><td>分组（千）分隔符</td>
+</tr>
+<tr>
+  <td>PR</td><td>尖括号内负值</td>
+</tr>
+<tr>
+  <td>S</td><td>带符号的数值（使用区域设置）</td>
+</tr>
+<tr>
+  <td>L</td><td>货币符号（使用区域设置）</td>
+</tr>
+<tr>
+  <td>D</td><td>小数点（使用区域设置）</td>
+</tr>
+<tr>
+  <td>G</td><td>分组分隔符（使用区域设置）</td>
+</tr>
+<tr>
+  <td>MI</td><td>在指明的位置的负号（如果数字 < 0）</td>
+</tr>
+<tr>
+  <td>PL</td><td>在指明的位置的正号（如果数字 > 0）</td>
+</tr>
+<tr>
+  <td>SG</td><td>在指明的位置的正/负号</td>
+</tr>
+<tr>
+  <td>RN</td><td>罗马数字（输入在 1 和 3999 之间）</td>
+</tr>
+<tr>
+  <td>TH 或 th</td><td>序数后缀</td>
+</tr>
+<tr>
+  <td>V</td><td>移动指定位（小数）</td>
+</tr>
+<tr>
+  <td>EEEE</td><td>科学记数。（现在还未实现）</td>
+</tr>
+</table>
+
+
+
+to_char 例子
+<TABLE BORDER="1" CLASS="CALSTABLE">
+<THEAD>
+<TR>
+  <TH ALIGN="LEFT" VALIGN="TOP">表达式</TH>
+  <TH ALIGN="LEFT" VALIGN="TOP">结果</TH>
+</TR>
+</THEAD>
+
+<TBODY>
+  <TR >
+    <TD ALIGN="LEFT" VALIGN="TOP"><TT CLASS="LITERAL">to_char(-0.1, '99.99')</TT></TD>
+	<TD ALIGN="LEFT" VALIGN="TOP" ><TT CLASS="LITERAL">'&nbsp;&nbsp;-.10'</TT></TD>
+  </TR>
+  <TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(-0.1, 'FM9.99')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'-.1'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(0.1, '0.9')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'&nbsp;0.1'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(12, '9990999.9')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'&nbsp;&nbsp;&nbsp;&nbsp;0012.0'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(12, 'FM9990999.9')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'0012.'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(485, '999')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'&nbsp;485'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(-485, '999')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'-485'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(485,'9&nbsp;9&nbsp;9')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'&nbsp;4&nbsp;8&nbsp;5'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(1485, '9,999')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'&nbsp;1,485'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(1485, '9G999')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'&nbsp;1&nbsp;485'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(148.5, '999.999')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'&nbsp;148.500'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(148.5, 'FM999.999')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'148.5'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(148.5, 'FM999.990')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'148.500'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(148.5, '999D999')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'&nbsp;148,500'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(3148.5, '9G999D999')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'&nbsp;3&nbsp;148,500'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(-485, '999S')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'485-'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(-485, '999MI')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'485-'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(485, '999MI')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'485&nbsp;'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(485, 'FM999MI')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'485'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(485, 'PL999')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'+485'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(485, 'SG999')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'+485'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(-485, 'SG999')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'-485'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(-485, '9SG99')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'4-85'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(-485, '999PR')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'&lt;485&gt;'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(485, 'L999')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'DM&nbsp;485</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(485, 'RN')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CDLXXXV'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(485, 'FMRN')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'CDLXXXV'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(5.2, 'FMRN')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'V'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(482, '999th')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'&nbsp;482nd'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(485, '"Good&nbsp;number:"999')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'Good&nbsp;number:&nbsp;485'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(485.8, '"Pre:"999"&nbsp;Post:"&nbsp;.999')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'Pre:&nbsp;485&nbsp;Post:&nbsp;.800'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(12, '99V999')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'&nbsp;12000'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(12.4, '99V999')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'&nbsp;12400'</TT
+></TD
+></TR
+><TR ><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>to_char(12.45, '99V9')</TT
+></TD
+><TD ALIGN="LEFT" VALIGN="TOP" ><TT
+CLASS="LITERAL"
+>'&nbsp;125'</TT
+></TD></TR>
+</TBODY>
+</TABLE>
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

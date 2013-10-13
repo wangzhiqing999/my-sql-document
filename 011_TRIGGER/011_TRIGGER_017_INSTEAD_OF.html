@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 触发器 - INSTEAD OF 触发器 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 触发器 </h1>
+
+
+<h2> INSTEAD OF 触发器  </h2>
+
+
+参阅 可更新视图的章节
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+对于一个表，有多个触发器，其中有一个是 INSTEAD OF 的情况下。
+其他的触发器将失去作用。
+例如：
+
+CREATE TRIGGER InsertTest
+  ON test_sub
+  FOR INSERT
+AS
+BEGIN
+  PRINT('INSERT test_sub!');
+END;
+Go
+
+CREATE TRIGGER InsertTest2
+  ON test_sub
+  INSTEAD OF INSERT
+AS
+BEGIN
+  PRINT('INSERT test_sub! (INSTEAD OF ) ');
+END;
+Go
+
+执行
+INSERT INTO test_sub VALUES( 3,1,'100');
+
+
+将只会看到
+
+INSERT test_sub! (INSTEAD OF ) 
+
+(1 行受影响)
+
+且数据库中没有数据被插入。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

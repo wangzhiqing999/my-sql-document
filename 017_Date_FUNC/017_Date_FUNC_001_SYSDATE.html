@@ -1,0 +1,368 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 日期函数 - 取得数据库系统时间 SYSDATE / GETDATE() </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 日期函数 </h1>
+
+
+<h2>  取得数据库系统时间 SYSDATE / GETDATE() </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> ALTER session SET nls_date_format='yyyy-mm-dd hh24:mi:ss';
+
+Session altered.
+
+SQL>
+SQL> SELECT sysdate FROM DUAL;
+
+SYSDATE
+-------------------
+2010-08-31 18:33:59
+
+
+
+SQL> ALTER SESSION SET TIME_ZONE = '-5:0';
+会话已更改。
+
+SQL> ALTER SESSION SET NLS_DATE_FORMAT = 'YYYY-MM-DD HH24:MI:SS';
+会话已更改。
+
+SQL> SELECT 
+  2    SESSIONTIMEZONE,
+  3    CURRENT_DATE,
+  4    SYSDATE
+  5  FROM
+  6    DUAL;
+
+SESSIONTIMEZONE
+----------------------------------------
+CURRENT_DATE        SYSDATE
+------------------- -------------------
+-05:00
+2011-06-14 07:26:39 2011-06-14 20:26:38
+
+
+SQL> SELECT 
+  2    SESSIONTIMEZONE, 
+  3    CURRENT_TIMESTAMP 
+  4  FROM 
+  5    DUAL;
+
+SESSIONTIMEZONE
+----------------------------------------
+CURRENT_TIMESTAMP
+----------------------------------------
+-05:00
+14-6月 -11 07.28.34.296000 上午 -05:00
+
+
+SQL> SELECT CURRENT_TIMESTAMP, LOCALTIMESTAMP FROM DUAL;
+
+CURRENT_TIMESTAMP
+---------------------------------------------------------
+LOCALTIMESTAMP
+---------------------------------------------------------
+14-6月 -11 09.09.32.609000 下午 +08:00
+14-6月 -11 09.09.32.609000 下午
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => SELECT
+db2 (cont.) =>   CURRENT_DATE,
+db2 (cont.) =>   CURRENT_TIME,
+db2 (cont.) =>   CURRENT_TIMESTAMP
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+1          2        3
+---------- -------- --------------------------
+2011-10-06 19:08:17 2011-10-06-19.08.17.703000
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT getdate()
+2> go
+
+-----------------------
+2010-08-31 18:34:40.077
+
+(1 行受影响)
+
+
+1> SELECT GETDATE(), GETUTCDATE()
+2> GO
+
+----------------------- -----------------------
+2011-05-06 23:46:06.373 2011-05-06 15:46:06.373
+
+(1 行受影响)
+GETUTCDATE()
+返回表示当前 UTC 时间（通用协调时间或格林尼治标准时间）的 datetime 值。
+当前的 UTC 时间得自当前的本地时间和运行 Microsoft SQL Server 实例的计算机操作系统中的时区设置。 
+
+
+SQL Server 2008 新增
+1> select SYSDATETIME()
+2> go
+--------------------------------------
+           2011-05-23 13:07:38.1493060
+(1 行受影响)
+
+1> select SYSDATETIMEOFFSET ( )
+2> go
+---------------------------------------------
+           2011-05-23 13:08:26.0230442 +08:00
+(1 行受影响)
+
+1> select SYSUTCDATETIME ( )
+2> go
+--------------------------------------
+           2011-05-23 05:08:37.8177189
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+当前日期
+mysql> SELECT CURRENT_DATE();
++----------------+
+| CURRENT_DATE() |
++----------------+
+| 2010-10-22     |
++----------------+
+1 row in set (0.00 sec)
+
+当前时间
+mysql> select CURRENT_TIME ();
++-----------------+
+| CURRENT_TIME () |
++-----------------+
+| 20:16:32        |
++-----------------+
+1 row in set (0.00 sec)
+
+当前时间戳
+mysql> SELECT CURRENT_TIMESTAMP();
++---------------------+
+| CURRENT_TIMESTAMP() |
++---------------------+
+| 2010-10-22 20:17:07 |
++---------------------+
+1 row in set (0.00 sec)
+
+当前时间
+mysql> SELECT NOW();
++---------------------+
+| NOW()               |
++---------------------+
+| 2010-10-22 20:33:23 |
++---------------------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+sqlite> select date('now'), time('now'), datetime('now'), julianday('now');
+date('now')|time('now')|datetime('now')|julianday('now')
+2012-12-19|04:34:32|2012-12-19 04:34:32|2456280.69065191
+
+默认的 now ， 计算的是 0 时区的日期时间。
+如果需要计算 本地的日期时间， 加 'localtime'
+
+select 
+	date('now', 'localtime'	) Today, 
+	time('now', 'localtime')  Now, 
+	datetime('now', 'localtime') NowDt, 
+	julianday('now', 'localtime') dayCount;
+
+Today|Now|NowDt|dayCount
+2012-12-19|13:49:58|2012-12-19 13:49:58|2456281.07637532
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+-- 返回数据类型为 date
+Test=# SELECT current_date AS "今天的日期";
+ 今天的日期
+------------
+ 2013-04-09
+(1 行记录)
+
+
+
+-- 返回数据类型为 time with time zone
+Test=# SELECT current_time AS "现在的时间";
+   现在的时间
+-----------------
+ 11:24:32.115+08
+(1 行记录)
+
+
+
+-- 返回数据类型为 time
+Test=# SELECT localtime AS "现在的时间";
+  现在的时间
+--------------
+ 11:24:32.145
+(1 行记录)
+
+
+
+-- 返回数据类型为 timestamp
+Test=# SELECT localtimestamp AS "日期和时间";
+       日期和时间
+-------------------------
+ 2013-04-09 11:24:32.175
+(1 行记录)
+
+
+
+-- 返回数据类型为 timestamp with time zone
+Test=# SELECT current_timestamp AS "日期和时间";
+         日期和时间
+----------------------------
+ 2013-04-09 11:24:32.205+08
+(1 行记录)
+
+
+
+-- 返回数据类型为 timestamp with time zone
+Test=# SELECT now() AS "日期和时间";
+         日期和时间
+----------------------------
+ 2013-04-09 11:24:32.235+08
+(1 行记录)
+
+
+-- 返回数据类型为 text.
+Test=# SELECT timeofday() AS "日期和时间";
+             日期和时间
+-------------------------------------
+ Tue Apr 09 11:24:32.886000 2013 HKT
+(1 行记录)
+
+
+
+<hr>
+部分带有精度参数的情况：
+该精度导致结果的秒数域园整为指定小数位。如果没有精度参数， 将给予所能得到的全部精度。
+
+
+Test=# SELECT CURRENT_TIME, CURRENT_TIME(2), CURRENT_TIME(1);
+     timetz      |     timetz     |    timetz
+-----------------+----------------+---------------
+ 11:46:28.147+08 | 11:46:28.15+08 | 11:46:28.1+08
+(1 行记录)
+
+
+Test=# SELECT CURRENT_TIMESTAMP, CURRENT_TIMESTAMP(2), CURRENT_TIMESTAMP(1);
+            now             |        timestamptz        |       timestamptz
+----------------------------+---------------------------+--------------------------
+ 2013-04-09 11:46:28.177+08 | 2013-04-09 11:46:28.18+08 | 2013-04-09 11:46:28.2+08
+(1 行记录)
+
+
+Test=# SELECT LOCALTIME, LOCALTIME(2), LOCALTIME(1);
+     time     |    time     |    time
+--------------+-------------+------------
+ 11:46:28.207 | 11:46:28.21 | 11:46:28.2
+(1 行记录)
+
+
+Test=# SELECT LOCALTIMESTAMP, LOCALTIMESTAMP(2), LOCALTIMESTAMP(1);
+        timestamp        |       timestamp        |       timestamp
+-------------------------+------------------------+-----------------------
+ 2013-04-09 11:46:29.239 | 2013-04-09 11:46:29.24 | 2013-04-09 11:46:29.2
+(1 行记录)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 触发器 - DDL触发器 服务器级别-登录时使用 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 触发器 </h1>
+
+
+<h2> DDL触发器 服务器级别-登录时使用  </h2>
+
+
+注意：写Login的触发器时，需要非常的谨慎。
+一旦写得不好，所有用户都无法 Login，数据库就只有重新安装了……
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+-- 用于记录 用户 Login / Logou 的日志的表：
+
+-- 注意：此表创建在 test 用户下面
+CREATE TABLE log_audit (
+  login_date DATE, 
+  logoff_date DATE,
+  username VARCHAR2(20),
+  user_ip varchar2(20)
+); 
+
+-- 创建登录审计触发器：
+-- 注意：登录触发，必须是 AFTER LOGON
+CREATE OR REPLACE TRIGGER logon_audit AFTER LOGON ON DATABASE 
+BEGIN 
+ -- 将登录信息，插入到 test用户下的log_audit表里面
+ INSERT INTO test.log_audit(login_date,username,user_ip) 
+ VALUES(sysdate,user,ora_client_ip_address); 
+END; 
+/
+ 
+-- 创建退出审计触发器：
+-- 注意：退出触发，必须是BEFORE LOGOFF
+CREATE OR REPLACE TRIGGER logoff_audit BEFORE LOGOFF ON DATABASE 
+BEGIN 
+ -- 将登出信息，插入到 test用户下的log_audit表里面
+ INSERT INTO test.log_audit(logoff_date,username,user_ip) 
+ VALUES(sysdate,user,ora_client_ip_address); 
+END; 
+/
+
+测试的结果：
+连接到: 
+Oracle Database 10g Enterprise Edition Release 10.2.0.1.0 - Production
+With the Partitioning, OLAP and Data Mining options
+
+SQL> select * from log_audit;
+
+LOGIN_DATE     LOGOFF_DATE    USERNAME             USER_IP
+-------------- -------------- -------------------- --------------------
+ERROR_CODE
+---------------
+15-5月 -11                    SYSMAN
+
+
+               15-5月 -11     SYSMAN
+
+
+15-5月 -11                    TEST                 192.168.1.100
+
+
+
+DROP TRIGGER logon_audit;
+
+DROP TRIGGER logoff_audit;
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+USE test;
+GO
+
+-- 用于记录 用户 Login / Logou 的日志的表：
+-- 注：此表创建在 test 数据库下
+CREATE TABLE log_audit (
+  login_date DATETIME, 
+  logoff_date DATETIME,
+  username VARCHAR(20),
+  host_name VARCHAR(20)
+); 
+GO
+
+USE master;
+GO
+
+CREATE TRIGGER connection_login_trigger
+ON ALL SERVER
+FOR LOGON
+AS
+BEGIN
+-- 将登录信息，插入到 test用户下的log_audit表里面
+  INSERT INTO test.dbo.log_audit(
+    login_date, username, host_name
+  ) values (
+    GETDATE(), ORIGINAL_LOGIN(), HOST_NAME()
+  );
+END;
+GO
+
+注：SQL Server 好像没有 登出的触发器。
+
+
+测试的结果：
+E:\>sqlcmd -S "localhost\SQLEXPRESS"
+1> use test
+2> go
+已将数据库上下文更改为 'test'。
+1> select * from log_audit
+2> go
+login_date              logoff_date             username             host_name
+
+----------------------- ----------------------- -------------------- -----------
+---------
+2011-05-15 14:53:37.483                    NULL HOME-BED592453C\wzq  HOME-BED592
+453C
+
+(1 行受影响)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

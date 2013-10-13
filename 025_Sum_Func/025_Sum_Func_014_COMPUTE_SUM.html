@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 聚集函数 - COMPUTE SUM  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 聚集函数 </h1>
+
+
+<h2>  COMPUTE SUM  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT
+2>   CONVERT(varchar(10), sale_date, 112),
+3>   sale_item,
+4>   sale_money
+5> FROM
+6>   sale_report
+7> WHERE
+8>   sale_date BETWEEN '2009-01-01' AND '2009-01-03'
+9> COMPUTE SUM(sale_money)
+10> GO
+           sale_item sale_money
+---------- --------- ------------
+20090101   A              2009.00
+20090101   B                 1.00
+20090101   C                 1.00
+20090102   A              2009.00
+20090102   B                 1.00
+20090102   C                 2.00
+20090103   A              2009.00
+20090103   B                 1.00
+20090103   C                 3.00
+                     sum
+                     ========================================
+                                                      6036.00
+
+1>
+2> SELECT
+3>   CONVERT(varchar(10), sale_date, 112),
+4>   sale_item,
+5>   sale_money
+6> FROM
+7>   sale_report
+8> WHERE
+9>   sale_date BETWEEN '2009-01-01' AND '2009-01-03'
+10> ORDER BY
+11>   CONVERT(varchar(10), sale_date, 112)
+12> COMPUTE SUM(sale_money) by CONVERT(varchar(10), sale_date, 112)
+13> GO
+           sale_item sale_money
+---------- --------- ------------
+20090101   A              2009.00
+20090101   B                 1.00
+20090101   C                 1.00
+                     sum
+                     ----------------------------------------
+                                                      2011.00
+
+           sale_item sale_money
+---------- --------- ------------
+20090102   A              2009.00
+20090102   B                 1.00
+20090102   C                 2.00
+                     sum
+                     ----------------------------------------
+                                                      2012.00
+
+           sale_item sale_money
+---------- --------- ------------
+20090103   A              2009.00
+20090103   B                 1.00
+20090103   C                 3.00
+                     sum
+                     ----------------------------------------
+                                                      2013.00
+
+<hr/>
+
+http://msdn.microsoft.com/zh-cn/library/ms144262
+
+SQL Server 2012 中废止的数据库引擎功能
+COMPUTE / COMPUTE BY 
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

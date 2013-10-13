@@ -1,0 +1,964 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 运算符号-逻辑运算符 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 运算符号 </h1>
+
+
+<h2> 逻辑运算符 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+一组的
+ALL 如果一组的比较都为 TRUE，那么就为 TRUE。
+ANY 如果一组的比较中任何一个为 TRUE，那么就为 TRUE。
+SOME 如果在一组比较中，有些为 TRUE，那么就为 TRUE。
+
+两个的
+AND 如果两个布尔表达式都为 TRUE，那么就为 TRUE。
+OR 如果两个布尔表达式中的一个为 TRUE，那么就为 TRUE。
+
+NOT 对任何其他布尔运算符的值取反。
+
+BETWEEN 如果操作数在某个范围之内，那么就为 TRUE。
+LIKE 如果操作数与一种模式相匹配，那么就为 TRUE。
+
+EXISTS 如果子查询包含一些行，那么就为 TRUE。
+IN 如果操作数等于表达式列表中的一个，那么就为 TRUE。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+<h3> ALL/ANY/SOME </h3>
+
+公用测试表
+<pre><code>
+CREATE TABLE test_all_any_some1(
+  data_value INT
+);
+
+CREATE TABLE test_all_any_some2(
+  data_value INT
+);
+
+INSERT INTO test_all_any_some1
+  SELECT 1 UNION ALL
+  SELECT 2 UNION ALL
+  SELECT 3 UNION ALL
+  SELECT 4 UNION ALL
+  SELECT 5;
+
+INSERT INTO test_all_any_some2
+  SELECT 1 UNION ALL
+  SELECT 3 UNION ALL
+  SELECT 5 UNION ALL
+  SELECT 7;
+</code></pre>
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    *
+  3  FROM
+  4    test_all_any_some2
+  5  WHERE
+  6    data_value > 
+  7  <span class="KeyInfo">ALL</span> (SELECT data_value FROM test_all_any_some1);
+
+DATA_VALUE
+----------
+         7
+
+SQL> SELECT
+  2    *
+  3  FROM
+  4    test_all_any_some2
+  5  WHERE
+  6    data_value > 
+  7  <span class="KeyInfo">ANY</span> (SELECT data_value FROM test_all_any_some1);
+
+DATA_VALUE
+----------
+         7
+         5
+         3
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+-- 检索测试表2
+-- 要求数据，必须大于测试表1中的所有数据
+SELECT
+  *
+FROM
+  test_all_any_some2
+WHERE
+  data_value > 
+<span class="KeyInfo">ALL</span> (SELECT data_value FROM test_all_any_some1);
+data_value
+7
+(1 行受影响)
+
+
+
+注: 比较标量值和单列集中的值。SOME 和 ANY 是等效的。
+
+-- 检索测试表2
+-- 要求数据，只要大于测试表1中的任何一个数据就可以了.
+SELECT
+  *
+FROM
+  test_all_any_some2
+WHERE
+  data_value > 
+<span class="KeyInfo">ANY</span> (SELECT data_value FROM test_all_any_some1);
+data_value
+3
+5
+7
+(3 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+mysql> SELECT
+    ->   *
+    -> FROM
+    ->   test_all_any_some2
+    -> WHERE
+    ->   data_value >
+    -> <span class="KeyInfo">ALL</span> (SELECT data_value FROM test_all_any_some1);
++------------+
+| data_value |
++------------+
+|          7 |
++------------+
+1 row in set (0.00 sec)
+
+
+
+mysql> SELECT
+    ->   *
+    -> FROM
+    ->   test_all_any_some2
+    -> WHERE
+    ->   data_value >
+    -> <span class="KeyInfo">ANY</span> (SELECT data_value FROM test_all_any_some1);
++------------+
+| data_value |
++------------+
+|          3 |
+|          5 |
+|          7 |
++------------+
+3 rows in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+Test=# SELECT
+Test-#   *
+Test-# FROM
+Test-#   test_all_any_some2
+Test-# WHERE
+Test-#   data_value >
+Test-# ALL (SELECT data_value FROM test_all_any_some1);
+ data_value
+------------
+          7
+(1 行记录)
+
+
+Test=#
+Test=#
+Test=#
+Test=# SELECT
+Test-#   *
+Test-# FROM
+Test-#   test_all_any_some2
+Test-# WHERE
+Test-#   data_value >
+Test-# ANY (SELECT data_value FROM test_all_any_some1);
+ data_value
+------------
+          3
+          5
+          7
+(3 行记录)
+
+
+Test=#
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+
+
+
+<h3> EXISTS </h3>
+使用前面的 test_all_any_some1  test_all_any_some2 的测试表
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    *
+  3  FROM
+  4    test_all_any_some2 t2
+  5  WHERE
+  6    <span class="KeyInfo">NOT EXISTS</span>
+  7  ( SELECT 
+  8           1
+  9        FROM 
+ 10          test_all_any_some1 t1
+ 11        WHERE
+ 12          t1.data_value  &gt;=   t2..data_value
+ 13  );
+
+DATA_VALUE
+----------
+         7
+
+
+
+SQL> SELECT
+  2    *
+  3  FROM
+  4    test_all_any_some2 t2
+  5  WHERE
+  6    <span class="KeyInfo">EXISTS</span>
+  7  ( SELECT 
+  8           1
+  9        FROM 
+ 10          test_all_any_some1 t1
+ 11        WHERE
+ 12          t1.data_value  &lt;   t2.data_value
+ 13  );
+
+DATA_VALUE
+----------
+         7
+         5
+         3
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+语法
+EXISTS subquery
+
+参数
+subquery 
+受限制的 SELECT 语句。不允许使用 COMPUTE 子句和 INTO 关键字。
+
+结果类型
+Boolean 
+
+结果值
+如果子查询包含任何行，则返回 TRUE。
+
+
+-- 检索测试表2
+-- 要求数据，必须大于测试表1中的所有数据
+-- 也就是 不存在 有 测试表1中数据，大于测试表2的。
+SELECT
+  *
+FROM
+  test_all_any_some2 t2
+WHERE
+  <span class="KeyInfo">NOT EXISTS</span>
+( SELECT 
+         1
+      FROM 
+        test_all_any_some1 t1
+      WHERE
+        t1.data_value  &gt;=   t2..data_value
+);
+data_value
+7
+(1 行受影响)
+
+-- 检索测试表2
+-- 要求数据，只要大于测试表1中的任何一个数据就可以了.
+SELECT
+  *
+FROM
+  test_all_any_some2 t2
+WHERE
+  <span class="KeyInfo">EXISTS</span>
+( SELECT 
+         1
+      FROM 
+        test_all_any_some1 t1
+      WHERE
+        t1.data_value  &lt;   t2.data_value
+);
+data_value
+3
+5
+7
+(3 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT
+    ->   *
+    -> FROM
+    ->   test_all_any_some2 t2
+    -> WHERE
+    ->   <span class="KeyInfo">NOT EXISTS</span>
+    -> ( SELECT
+    ->          1
+    ->       FROM
+    ->         test_all_any_some1 t1
+    ->       WHERE
+    ->         t1.data_value  &gt;=   t2..data_value
+    -> );
++------------+
+| data_value |
++------------+
+|          7 |
++------------+
+1 row in set (0.00 sec)
+
+
+mysql> SELECT
+    ->   *
+    -> FROM
+    ->   test_all_any_some2 t2
+    -> WHERE
+    ->   <span class="KeyInfo">EXISTS</span>
+    -> ( SELECT
+    ->          1
+    ->       FROM
+    ->         test_all_any_some1 t1
+    ->       WHERE
+    ->         t1.data_value  &lt;   t2.data_value
+    -> );
++------------+
+| data_value |
++------------+
+|          3 |
+|          5 |
+|          7 |
++------------+
+3 rows in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+sqlite> SELECT
+   ...>   *
+   ...> FROM
+   ...>   test_all_any_some2 t2
+   ...> WHERE
+   ...>   <span class="KeyInfo">NOT EXISTS</span>
+   ...> ( SELECT
+   ...>          1
+   ...>       FROM
+   ...>         test_all_any_some1 t1
+   ...>       WHERE
+   ...>         t1.data_value  &gt;=   t2..data_value
+   ...> );
+data_value
+7
+
+
+
+sqlite> SELECT
+   ...>   *
+   ...> FROM
+   ...>   test_all_any_some2 t2
+   ...> WHERE
+   ...>   <span class="KeyInfo">EXISTS</span>
+   ...> ( SELECT
+   ...>          1
+   ...>       FROM
+   ...>         test_all_any_some1 t1
+   ...>       WHERE
+   ...>         t1.data_value  &lt;   t2.data_value
+   ...> );
+data_value
+3
+5
+7
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# SELECT
+Test-#   *
+Test-# FROM
+Test-#   test_all_any_some2 t2
+Test-# WHERE
+Test-#   NOT EXISTS
+Test-# ( SELECT
+Test(#          1
+Test(#       FROM
+Test(#         test_all_any_some1 t1
+Test(#       WHERE
+Test(#         t1.data_value  &gt;=   t2..data_value
+Test(# );
+ data_value
+------------
+          7
+(1 行记录)
+
+
+Test=#
+Test=#
+Test=#
+Test=# SELECT
+Test-#   *
+Test-# FROM
+Test-#   test_all_any_some2 t2
+Test-# WHERE
+Test-#   EXISTS
+Test-# ( SELECT
+Test(#          1
+Test(#       FROM
+Test(#         test_all_any_some1 t1
+Test(#       WHERE
+Test(#         t1.data_value  &lt;   t2.data_value
+Test(# );
+ data_value
+------------
+          3
+          5
+          7
+(3 行记录)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+
+
+<h3> IN </h3>
+
+<pre><code>
+语法
+test_expression [ NOT ] IN 
+        ( subquery | expression [ ,…n ]
+        ) 
+参数
+test_expression 
+任何有效的表达式。
+
+Subquery 
+包含某列结果集的子查询。该列必须与 test_expression 具有相同的数据类型。
+
+Expression[ ,… n ] 
+一个表达式列表，用来测试是否匹配。所有的表达式必须与 test_expression 具有相同的类型。
+
+</code></pre>
+
+
+
+
+<h3> LIKE </h3>
+
+公用测试表
+<pre><code>
+CREATE TABLE test_like (
+  like_value  VARCHAR(20)
+);
+
+INSERT INTO test_like
+  SELECT '1234567890' UNION ALL
+  SELECT '12345' UNION ALL
+  SELECT 'abca' UNION ALL
+  SELECT 'adcb' UNION ALL
+  SELECT 'abcc' UNION ALL
+  SELECT 'abcd' UNION ALL
+  SELECT 'abcde' UNION ALL
+  SELECT 'xyz 10% OFF' UNION ALL
+  SELECT 'xyz 20% OFF' UNION ALL
+  SELECT 'xyz_123_abc';
+
+</code></pre>
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+参照 SQL Server
+
+_ 表示仅仅匹配1个字符  支持
+% 表示仅仅匹配0个或多个字符  支持
+使用 ESCAPE 定义转义符  支持
+
+使用模式匹配 不支持
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+<span class="BasicInfo"> _ 表示仅仅匹配1个字符 </span>
+SELECT
+  *
+FROM
+  test_like
+WHERE
+  like_value LIKE '1234_';
+like_value
+12345
+(1 行受影响)
+
+
+<span class="BasicInfo">% 表示仅仅匹配0个或多个字符 </span>
+SELECT
+  *
+FROM
+  test_like
+WHERE
+  like_value LIKE '12345%';
+like_value
+1234567890
+12345
+(2 行受影响)
+
+
+<span class="BasicInfo">使用模式匹配 </span>
+SELECT
+  *
+FROM
+  test_like
+WHERE
+  like_value LIKE 'abc[ad]';
+like_value
+abca
+abcd
+(2 行受影响)
+
+SELECT
+  *
+FROM
+  test_like
+WHERE
+  like_value LIKE ‘[1a]%[5e]’;
+like_value
+12345
+abcde
+(2 行受影响)
+
+
+<span class="BasicInfo">使用 ESCAPE 定义转义符 </span>
+SELECT
+  *
+FROM
+  test_like
+WHERE
+  like_value LIKE '%!%%' ESCAPE '!';
+like_value
+xyz 10% OFF
+xyz 20% OFF
+(2 行受影响)
+
+
+SELECT
+  *
+FROM
+  test_like
+WHERE
+  like_value LIKE '%!_%'  ESCAPE '!';
+like_value
+xyz_123_abc
+
+(1 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+参照 SQL Server
+
+_ 表示仅仅匹配1个字符  支持
+% 表示仅仅匹配0个或多个字符  支持
+使用 ESCAPE 定义转义符  支持
+
+使用模式匹配 不支持
+mysql> SELECT
+    ->   *
+    -> FROM
+    ->   test_like
+    -> WHERE
+    ->   like_value LIKE 'abc[ad]';
+Empty set (0.00 sec)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+参照 SQL Server
+
+_ 表示仅仅匹配1个字符  支持
+% 表示仅仅匹配0个或多个字符  支持
+使用 ESCAPE 定义转义符  支持
+
+使用模式匹配 不支持
+
+
+SELECT
+  *
+FROM
+  test_like
+WHERE
+  like ('%!_%', like_value , '!');
+
+SQLite 中  
+like (X, Y)  函数， 等价于 Y LIKE X
+like (X, Y, Z)  函数， 等价于 Y LIKE X  ESCAPE Z
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+参照 SQL Server
+
+_ 表示仅仅匹配1个字符  支持
+% 表示仅仅匹配0个或多个字符  支持
+使用 ESCAPE 定义转义符  支持
+
+使用模式匹配 不支持
+
+
+关键字 ILIKE 可以用于替换 LIKE， 令该匹配就当前的区域设置是大小写无关的。 
+这个特性不是 SQL 标准，是 PostgreSQL 扩展。
+
+Test=# SELECT * FROM test_like WHERE like_value LIKE 'Xyz%';
+ like_value
+------------
+(0 行记录)
+
+
+Test=# SELECT * FROM test_like WHERE like_value ILIKE 'Xyz%';
+ like_value
+-------------
+ xyz 10% OFF
+ xyz 20% OFF
+ xyz_123_abc
+(3 行记录)
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+
+</body>
+
+
+</html>

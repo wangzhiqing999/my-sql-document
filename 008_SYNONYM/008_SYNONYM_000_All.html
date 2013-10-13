@@ -1,0 +1,275 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 同义词 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 同义词 </h1>
+
+
+<h2>   </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+注意：
+Oracle 的同义词，分 Pbulic 与 Private 的。
+
+语法：
+CREATE [PUBLIC] SYNONYM synonym_name FOR [schema.] object[@db_link];
+
+不写PUBLIC表明为Private。
+PUBLIC 意味着全部用户都有效
+不写PUBLIC 意味着仅仅对当前用户有效
+
+
+
+SQL> conn test_user
+Enter password:
+Connected.
+
+SQL> select COUNT(1) from sale_report;
+select COUNT(1) from sale_report
+                     *
+ERROR at line 1:
+ORA-00942: table or view does not exist
+
+SQL> select COUNT(1) from HR.sale_report;
+
+  COUNT(1)
+----------
+      1097
+
+SQL> CREATE SYNONYM sale_report
+  2  FOR HR.sale_report;
+
+Synonym created.
+
+SQL> select COUNT(1) from sale_report;
+
+  COUNT(1)
+----------
+      1097
+
+SQL> CREATE PUBLIC SYNONYM union_tab_1
+  2  FOR HR.union_tab_1;
+
+Synonym created.
+
+SQL> SELECT COUNT(1) FROM union_tab_1;
+
+  COUNT(1)
+----------
+         3
+
+SQL> conn / as SYSDBA
+Connected.
+SQL> select COUNT(1) from sale_report;
+select COUNT(1) from sale_report
+                     *
+ERROR at line 1:
+ORA-00942: table or view does not exist
+
+
+SQL> SELECT COUNT(1) FROM union_tab_1;
+
+  COUNT(1)
+----------
+         3
+
+<hr/>
+
+注:  同义词不能与当前表名冲突.
+例如: 我本地已经有一个 表名,叫  test_main
+然后我想创建一个 同义词， 也叫 test_main， 是不行的。
+
+SQL> select * from test_main;
+select * from test_main
+              *
+ERROR 位于第 1 行:
+ORA-00942: 表或视图不存在
+
+
+SQL> CREATE TABLE test_main (
+  2    id      INT   NOT NULL,
+  3    value   VARCHAR(10),
+  4    PRIMARY KEY(id)  
+  5  );
+
+表已创建。
+
+SQL> CREATE SYNONYM test_main
+  2    FOR TEST.test_main;
+CREATE SYNONYM test_main
+               *
+ERROR 位于第 1 行:
+ORA-00955: 名称已由现有对象使用
+
+
+
+<hr/>
+
+同样，如果我已经有一个同义词了。
+那么我想创建一个同名字的表， 也是不允许的。
+
+SQL> CREATE SYNONYM test_sub
+  2    FOR TEST.test_sub;
+
+同义词已创建。
+
+
+SQL> CREATE TABLE test_sub (
+  2    id      INT  NOT NULL,
+  3    main_id INT ,
+  4    value   VARCHAR(10),
+  5    PRIMARY KEY(id)  
+  6  );
+CREATE TABLE test_sub (
+             *
+ERROR 位于第 1 行:
+ORA-00955: 名称已由现有对象使用
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => connect to test;
+
+   数据库连接信息
+
+ 数据库服务器         = DB2/NT 9.7.1
+ SQL 授权标识         = WZQ
+ 本地数据库别名       = TEST
+
+db2 => SELECT 1 as result FROM SYSIBM.SYSDUMMY1;
+
+RESULT
+-----------
+          1
+
+  1 条记录已选择。
+
+
+db2 => CREATE ALIAS DUAL FOR SYSIBM.SYSDUMMY1;
+DB20000I  SQL 命令成功完成。
+
+db2 => SELECT 1 as result FROM dual;
+
+RESULT
+-----------
+          1
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1>
+2> USE [Test2]
+3> GO
+已将数据库上下文更改为 'Test2'。
+
+1> SELECT * FROM v_sale_report_sum;
+2> go
+消息 208，级别 16，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+对象名 'v_sale_report_sum' 无效。
+
+1> SELECT * FROM Test.dbo.v_sale_report_sum;
+2> go
+sale_item sale_money
+--------- ----------------------------------------
+A                                        733285.00
+C                                          5738.00
+B                                          2382.00
+
+(3 行受影响)
+
+1> CREATE SYNONYM v_sale_report_sum
+2> FOR Test.dbo.v_sale_report_sum;
+3> go
+
+1> SELECT * FROM v_sale_report_sum;
+2> go
+sale_item sale_money
+--------- ----------------------------------------
+A                                        733285.00
+C                                          5738.00
+B                                          2382.00
+
+(3 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

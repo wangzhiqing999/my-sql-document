@@ -1,0 +1,258 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 序列号 - 获取序列号数据 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 序列号 </h1>
+
+
+<h2> 获取序列号数据  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+SQL> CREATE SEQUENCE test_sequence2
+  2    increment by 1    -- 每次递增1
+  3    start with 1       -- 从1开始
+  4    nomaxvalue      -- 没有最大值
+  5    minvalue 1       -- 最小值=1
+  6    NOCYCLE;
+
+序列已创建。
+
+
+SQL> -- 下一个序列号
+SQL> SELECT test_sequence2.nextval  FROM dual;
+
+   NEXTVAL
+----------
+         1
+
+SQL> 
+SQL> -- 当前序列号
+SQL> SELECT test_sequence2.CURRVAL  FROM dual;
+
+   CURRVAL
+----------
+         1
+
+SQL> -- 下一个序列号
+SQL> SELECT test_sequence2.nextval  FROM dual;
+
+   NEXTVAL
+----------
+         2
+
+SQL> 
+SQL> -- 当前序列号
+SQL> SELECT test_sequence2.CURRVAL  FROM dual;
+
+   CURRVAL
+----------
+         2
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+-- 创建一个序列号.
+CREATE SEQUENCE seq_test22
+AS BIGINT
+START WITH 1
+INCREMENT BY 1;
+
+
+
+-- 下一个序列号.
+SELECT
+	NEXT VALUE FOR seq_test2
+FROM 
+	SYSIBM.SYSDUMMY1;
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+1> CREATE SEQUENCE  seq_test2
+2> AS INT
+3> START WITH 1
+4> INCREMENT BY 1;
+5> go
+
+
+
+SELECT NEXT VALUE FOR seq_test2 AS [下一个序列号];
+
+
+SELECT 
+  current_value as [当前序列号] 
+FROM 
+  sys.sequences 
+WHERE  
+  name = 'seq_test2';
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# CREATE SEQUENCE test_sequence2
+Test-#   increment by 1    -- 每次递增1
+Test-#   start with 1       -- 从1开始
+Test-#   NO MAXVALUE       -- 没有最大值
+Test-#   minvalue 1       -- 最小值=1
+Test-#   NO CYCLE;      -- 不循环
+CREATE SEQUENCE
+Test=#
+
+-- 下一个序列号
+Test=# SELECT nextval ('test_sequence2');
+ nextval
+---------
+       1
+(1 行记录)
+
+-- 下一个序列号
+Test=# SELECT nextval ('test_sequence2');
+ nextval
+---------
+       2
+(1 行记录)
+
+
+-- 当前序列号
+Test=# SELECT CURRVAL ('test_sequence2');
+ currval
+---------
+       2
+(1 行记录)
+
+
+
+
+
+可用的序列函数有∶
+
+nextval
+递增序列对象到它的下一个数值并且返回该值。这个动作是自动完成的： 
+即使多个会话并发运行 nextval，每个进程也会安全地收到一个唯一的序列值。
+
+
+currval
+在当前会话中返回最近一次 nextval 抓到的该序列的数值。 
+（如果在本会话中从未在该序列上调用过 nextval， 那么会报告一个错误。）请注意因为此函数返回一个会话范围的数值， 它也能给出一个可预计的结果，可以判断其它会话是否执行过 nextval。
+
+
+lastval
+返回当前会话里最近一次 nextval 返回的数值。 
+这个函数等效于 currval，只是它不用序列名位参数， 它抓取当前会话里面最近一次 nextval 使用的序列。 
+如果当前会话还没有调用过 nextval，那么调用 lastval 是会报错的。
+
+
+setval
+重置序列对象的计数器数值。
+双参数的形式设置序列的 last_value 字段为声明数值并且将其 is_called 字段设置为 true，
+表示下一次 nextval 将在返回数值之前递增该序列。
+
+在三参数形式里，is_called 可以设置为 true 或 false。
+如果你把它设置为 false，那么下一次 nextval 将返回这里声明的数值，
+而从随后的 nextval 才开始递增该序列。 
+
+比如
+SELECT setval('foo', 42);	   下次nextval将返回 43
+SELECT setval('foo', 42, true);     和上面一样
+SELECT setval('foo', 42, false);    下次nextval将返回 42
+setval 返回的结果就是它的第二个参数的数值。
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

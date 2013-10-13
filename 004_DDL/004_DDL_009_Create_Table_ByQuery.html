@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - 通过查询创建表 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 通过查询创建表 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    *
+  3  FROM
+  4    test_main;
+
+        ID VALUE
+---------- ----------
+         1 ONE
+         2 TWO
+
+SQL> CREATE TABLE test_t AS SELECT * FROM test_main;
+
+表已创建。
+
+SQL> select * FROM test_t;
+
+        ID VALUE
+---------- ----------
+         1 ONE
+         2 TWO
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+需要使用2条 SQL 语句实现。
+第一条创建表结构，第二条插入数据。
+
+建表的语句，有两种，一种是 AS 一种是 LIKE
+db2 => CREATE TABLE test_t AS (SELECT * FROM test_main) definition only;
+DB20000I  SQL 命令成功完成。
+
+db2 => CREATE TABLE test_t2 LIKE test_main;
+DB20000I  SQL 命令成功完成。
+
+
+db2 => insert into test_t select * from test_main;
+DB20000I  SQL 命令成功完成。
+db2 => insert into test_t2 select * from test_main;
+DB20000I  SQL 命令成功完成。
+
+db2 => select * FROM test_t;
+
+ID          VALUE
+----------- ----------
+          1 ONE
+          2 TWO
+
+  2 条记录已选择。
+
+db2 => select * FROM test_t2;
+
+ID          VALUE
+----------- ----------
+          1 ONE
+          2 TWO
+
+  2 条记录已选择。
+
+  
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT * FROM test_main
+2> go
+id          value
+----------- ----------
+          2 TWO
+          5 ONE
+
+(2 行受影响)
+1> SELECT * INTO test_t FROM test_main
+2> go
+
+(2 行受影响)
+1> SELECT * FROM test_t
+2> go
+id          value
+----------- ----------
+          2 TWO
+          5 ONE
+
+(2 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT * FROM test_main;
++----+-------+
+| id | value |
++----+-------+
+|  1 | ONE   |
+|  2 | TWO   |
+|  3 | THREE |
++----+-------+
+3 rows in set (0.01 sec)
+
+mysql> CREATE TABLE test_t AS SELECT * FROM test_main;
+Query OK, 3 rows affected (0.09 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM test_t;
++----+-------+
+| id | value |
++----+-------+
+|  1 | ONE   |
+|  2 | TWO   |
+|  3 | THREE |
++----+-------+
+3 rows in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+采用下面这种方式：
+
+CREATE TABLE test_t AS SELECT * FROM test_main;
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# CREATE TABLE test_t AS (SELECT * FROM test_main) ;
+SELECT 2
+Test=# select * from test_t;
+ id | value
+----+-------
+  1 | ONE
+  2 | TWO
+(2 行记录)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

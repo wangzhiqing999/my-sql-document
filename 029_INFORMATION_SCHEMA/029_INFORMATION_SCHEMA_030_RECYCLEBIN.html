@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典表 - 回收站 RECYCLEBIN </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典表 </h1>
+
+
+<h2> 回收站 RECYCLEBIN  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+回收站默认是开启的.不过我们可以通过参数recyclebin来关闭和开启.
+如果只是针对每个session可以通过alter session set recyclebin=off; 和 alter session set recyclebin=on;来关闭和开启
+如果是针对所有session可以通过修改系统参数recyclebin来实现,不过这里要注意10g和11g有点不一样,它们的参数类型不同
+
+10g可以用:alter system set recyclebin=off; 和alter system set recyclebin=on;来关闭和开启
+11g可以用:alter system set recyclebin=off deferred; 和alter system set recyclebin=on deferred;来关闭和开启
+
+
+SELECT
+  t.object_name,
+  t.type ,
+  t.original_name
+FROM
+  user_recyclebin t;
+
+
+<hr/>
+
+Oracle 10 以上版本， 存在有 “回收站” 这种概念。
+也就是 如果删除了 表等对象， 并不会立即物理删除， 而是暂存到 回收站当中去。
+
+SQL> create table a ( id int);
+
+表已创建。
+
+SQL> drop table a;
+
+表已丢弃。
+
+
+
+SQL> SELECT
+  2    t.object_name,
+  3    t.type ,
+  4    t.original_name
+  5  FROM
+  6    user_recyclebin t;
+
+OBJECT_NAME
+------------------------------------------------------------
+TYPE
+--------------------------------------------------
+ORIGINAL_NAME
+----------------------------------------------------------------
+BIN$d6SS3qteRImsI+01BEHN7Q==$0
+TABLE
+A
+
+
+<hr/>
+
+如果需要清理回收站中的某一个表， 使用  PURGE table 表名;
+
+如果需要清理整个回收站， 使用  PURGE recyclebin;  来清理回收站.
+
+SQL> PURGE recyclebin;
+
+回收站已清空。
+
+SQL> SELECT
+  2    t.object_name,
+  3    t.type ,
+  4    t.original_name
+  5  FROM
+  6    user_recyclebin t;
+
+未选定行
+
+
+<hr/>
+如果要还原回收站内容，使用 flashback table  表名  to before drop;
+
+CREATE TABLE test100 ( id int);
+INSERT INTO test100 VALUES (100);
+COMMIT;
+DROP TABLE test100;
+flashback table test100 to before drop;
+
+
+SQL> flashback table test100 to before drop;
+闪回完成。
+SQL> select * from test100;
+        ID
+----------
+       100
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

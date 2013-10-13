@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - 修改表 - 变更表名 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 修改表 - 变更表名 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> ALTER TABLE test_tab
+  2    RENAME TO test_tab2;
+
+Table altered.
+
+
+<hr/>
+注：
+Oracle 10 中， 可以简单的使用  RENAME old_name  TO new_name; 语句来处理！
+
+SQL> CREATE TABLE test_tab (
+  2    id   INT,
+  3    name VARCHAR(10),
+  4    age  INT,
+  5    val  VARCHAR(10)
+  6  );
+
+表已创建。
+
+SQL> 
+SQL> 
+SQL> RENAME test_tab  TO test_tab2; 
+
+表已重命名。
+
+
+根据文档显示，可以使用 RENAME ， 对 表、视图、序列号、私有同义词 进行更名的处理。
+Use the RENAME statement to rename a table, view, sequence, or private synonym.
+
+注意事项：
+The object must be in your own schema.
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => RENAME TABLE  test_tab TO test_tab2;
+DB20000I  SQL 命令成功完成。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> EXEC sp_rename  N'test_tab',  N'test_tab2';
+2> go
+注意: 更改对象名的任一部分都可能会破坏脚本和存储过程。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> ALTER TABLE test_tab
+    ->   RENAME TO test_tab2;
+    -> //
+Query OK, 0 rows affected (0.03 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+sqlite> ALTER TABLE test_tab
+   ...>         RENAME TO test_tab2;
+sqlite>
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# ALTER TABLE test_tab
+Test-#   RENAME TO test_tab2;
+ALTER TABLE
+Test=#
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

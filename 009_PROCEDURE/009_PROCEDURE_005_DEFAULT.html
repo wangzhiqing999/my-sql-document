@@ -1,0 +1,228 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 存储过程 - 参数的默认值 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 存储过程 </h1>
+
+
+<h2> 参数的默认值  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> CREATE OR REPLACE PROCEDURE HelloWorld3 (
+  2    p_user_name  VARCHAR2,
+  3    p_val1  VARCHAR2 DEFAULT ' Good Moning,',
+  4    p_val2  VARCHAR2 DEFAULT ' Nice to Meet you'
+  5  ) AS
+  6  BEGIN
+  7     dbms_output.put_line('Hello ' || p_user_name || p_val1 ||  p_val2 || '!'
+);
+  8  END HelloWorld3;
+  9  /
+
+Procedure created.
+
+SQL> BEGIN
+  2    HelloWorld3('Edward');
+  3    HelloWorld3('Edward', ' Good Night,');
+  4    HelloWorld3('Edward', ' Good Night,', 'Bye');
+  5  END;
+  6  /
+Hello Edward Good Moning, Nice to Meet you!
+Hello Edward Good Night, Nice to Meet you!
+Hello Edward Good Night,Bye!
+
+PL/SQL procedure successfully completed.
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+好像是不支持
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> CREATE PROCEDURE HelloWorld3
+2>   @UserName VARCHAR(10),
+3>   @Val1  VARCHAR(20) = ' Good Moning,',
+4>   @Val2  VARCHAR(20) = ' Nice to Meet you'
+5> AS
+6> BEGIN
+7>   PRINT 'Hello ' + @UserName + @Val1 + @Val2 + '!';
+8> END;
+9> go
+1>
+2> DECLARE @RC int;
+3> BEGIN
+4>   EXECUTE @RC = HelloWorld3 'Edward';
+5>   PRINT @RC;
+6>   EXECUTE @RC = HelloWorld3 'Edward', ' Good Night,';
+7>   PRINT @RC;
+8>   EXECUTE @RC = HelloWorld3 'Edward', ' Good Night,', ' Bye';
+9>   PRINT @RC;
+10> END
+11> go
+Hello Edward Good Moning, Nice to Meet you!
+0
+Hello Edward Good Night, Nice to Meet you!
+0
+Hello Edward Good Night, Bye!
+0
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+PostgreSQL  不直接支持 参数的默认值。
+但是支持 重载。
+
+Test=# TRUNCATE TABLE test_helloworld;
+TRUNCATE TABLE
+
+
+
+Test=# CREATE OR REPLACE FUNCTION HelloWorld3(
+Test(#   p_user_name VARCHAR,
+Test(#   p_val1 VARCHAR,
+Test(#   p_val2 VARCHAR) RETURNS void AS
+Test-# $$
+Test$# BEGIN
+Test$#   INSERT INTO test_helloworld (data)
+Test$#     VALUES (p_user_name || p_val1 || p_val2);
+Test$# END;
+Test$# $$
+Test-# LANGUAGE plpgsql;
+CREATE FUNCTION
+Test=#
+
+
+Test=# CREATE OR REPLACE FUNCTION HelloWorld3(
+Test(#   p_user_name VARCHAR,
+Test(#   p_val1 VARCHAR) RETURNS void AS
+Test-# $$
+Test$# BEGIN
+Test$#   PERFORM HelloWorld3(p_user_name, p_val1, ' XYZ');
+Test$# END;
+Test$# $$
+Test-# LANGUAGE plpgsql;
+CREATE FUNCTION
+Test=#
+
+
+Test=# CREATE OR REPLACE FUNCTION HelloWorld3(
+Test(#   p_user_name VARCHAR) RETURNS void AS
+Test-# $$
+Test$# BEGIN
+Test$#   PERFORM HelloWorld3(p_user_name, ' OPQ ');
+Test$# END;
+Test$# $$
+Test-# LANGUAGE plpgsql;
+CREATE FUNCTION
+Test=#
+
+
+
+Test=# SELECT HelloWorld3('ABC');
+ helloworld3
+-------------
+
+(1 行记录)
+
+
+Test=# select * from test_helloworld;
+     data
+--------------
+ ABC OPQ  XYZ
+(1 行记录)
+
+
+Test=#
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

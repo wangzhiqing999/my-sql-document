@@ -1,0 +1,257 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 动态SQL - 直接执行的方式-单条结果的获取 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 动态SQL </h1>
+
+
+<h2> 直接执行的方式-单条结果的获取  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+使用 EXECUTE IMMEDIATE 无法 将 检索的数据，存储到本地变量中
+
+SQL> DECLARE
+  2    v_Sql VARCHAR(200);
+  3    v_val INT;
+  4  BEGIN
+  5    v_Sql := 'SELECT val  INTO v_val  FROM test_dysql WHERE id = 1';
+  6    dbms_output.put_line(v_Sql);
+  7    EXECUTE IMMEDIATE ( v_Sql );
+  8  END;
+  9  /
+SELECT val INTO v_val FROM test_dysql WHERE id = 1
+DECLARE
+*
+ERROR at line 1:
+ORA-00905: missing keyword
+ORA-06512: at line 7
+
+
+
+
+
+
+
+需要把 INTO 放到  EXECUTE IMMEDIATE  语句的后面，从而获取单条执行结果
+
+
+
+SQL> set serveroutput on;
+SQL> DECLARE
+  2    v_Sql VARCHAR(200);
+  3    v_val INT;
+  4  BEGIN
+  5    v_Sql := 'SELECT val FROM test_dysql WHERE id = 1';
+  6    dbms_output.put_line(v_Sql);
+  7    
+  8    EXECUTE IMMEDIATE ( v_Sql )   INTO v_val ;
+  9    dbms_output.put_line(v_val);
+ 10  END;
+ 11  /
+SELECT val FROM test_dysql WHERE id = 1
+10
+
+PL/SQL 过程已成功完成。
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+
+
+使用 EXECUTE 无法 将 检索的数据，存储到本地变量中
+
+
+1> BEGIN
+2>   DECLARE @Sql VARCHAR(200);
+3>   DECLARE @val  INT;
+4>   SET @Sql = 'SELECT @val = val FROM test_dysql WHERE id=1';
+5>   PRINT @Sql;
+6>   EXECUTE ( @Sql );
+7> END
+8> go
+SELECT @val = val FROM test_dysql WHERE id=1
+消息 137，级别 15，状态 1，服务器 GMJ-PC\SQLEXPRESS，第 1 行
+必须声明标量变量 "@val"。
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+CREATE OR REPLACE FUNCTION TestExecGetResult(
+  pTableName VARCHAR,
+  pValueName VARCHAR,
+  pID INT
+) 
+RETURNS varchar AS
+$$
+DECLARE
+  v_sql VARCHAR(200);
+  v_val VARCHAR(50);
+BEGIN
+  v_sql := 'SELECT ' ||  pValueName || ' FROM ' || pTableName || ' WHERE id = ' || pID;
+  EXECUTE v_sql into v_val;
+  RETURN v_val;
+END;
+$$
+LANGUAGE plpgsql;
+
+
+
+Test=# Select TestExecGetResult('test_dysql', 'name',  1);
+ testexecgetresult
+-------------------
+ A
+(1 行记录)
+
+
+Test=# Select TestExecGetResult('test_main',  'value', 1);
+ testexecgetresult
+-------------------
+ One-5
+(1 行记录)
+
+
+
+
+
+
+-- 使用 PostgreSQL 9.2  语法的例子， EXECUTE 把参数变量放在 USING 后.
+
+CREATE OR REPLACE FUNCTION TestExecGetResult(
+  pTableName VARCHAR,
+  pValueName VARCHAR,
+  pID INT
+) 
+RETURNS varchar AS
+$$
+DECLARE
+  v_sql VARCHAR(200);
+  v_val VARCHAR(50);
+BEGIN
+  v_sql := 'SELECT ' ||  pValueName || ' FROM ' || pTableName || ' WHERE id = $1';
+  EXECUTE v_sql 
+    into v_val
+      USING pID;
+  RETURN v_val;
+END;
+$$
+LANGUAGE plpgsql;
+
+
+Test=# Select TestExecGetResult('test_dysql', 'name',  2);
+ testexecgetresult
+-------------------
+ B
+(1 行记录)
+
+
+Test=#
+Test=# Select TestExecGetResult('test_main',  'value', 2);
+ testexecgetresult
+-------------------
+ Two-5
+(1 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

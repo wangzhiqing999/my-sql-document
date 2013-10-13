@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库会话的基本参数设置 SET - 分布式事务 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库会话的基本参数设置 SET </h1>
+
+
+<h2> 分布式事务  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SET REMOTE_PROC_TRANSACTIONS { ON | OFF } 
+
+参数
+ON | OFF 
+设置为 ON 时，从本地事务执行远程存储过程时将启动 Transact-SQL 分布式事务。设置为 OFF 时，从本地事务调用远程存储过程将不启动 Transact-SQL 分布式事务。
+
+备注
+当 REMOTE_PROC_TRANSACTIONS 设置为 ON 时，调用远程存储过程将启动分布式事务，并用 MS DTC 登记该事务。调用远程存储过程的 SQL Server 实例是事务创建者，负责控制事务的完成。当为连接发出后续 COMMIT TRANSACTION 或 ROLLBACK TRANSACTION 语句时，主控实例请求 MS DTC 在所涉及的计算机间管理分布式事务的完成。
+
+在启动 Transact-SQL 分布式事务后，可以对已定义为远程服务器的其他 SQL Server 实例调用远程存储过程。远程服务器全部登记在 Transact-SQL 分布式事务中，而 MS DTC 确保在每台远程服务器上完成该事务。
+REMOTE_PROC_TRANSACTIONS 是可用于覆盖实例级 sp_configure remote proc trans 选项的连接级设置。
+
+当 REMOTE_PROC_TRANSACTIONS 为 OFF 时，远程存储过程调用不能成为本地事务的一部分。远程存储过程所做的修改将在存储过程完成时提交或回滚。由调用远程存储过程的连接发出的后续 COMMIT TRANSACTION 或 ROLLBACK TRANSACTION 语句对该过程所做的处理无效。 
+
+REMOTE_PROC_TRANSACTIONS 选项是一个兼容性选项，只影响对使用 sp_addserver 定义为远程服务器的 SQL Server 实例所进行的远程存储过程调用。该选项不适用于在使用 sp_addlinkedserver 定义为链接服务器的实例上执行存储过程的分布式查询。有关详细信息，请参阅分布式查询体系结构。
+SET REMOTE_PROC_TRANSACTIONS 的设置是在执行或运行时设置，而不是在分析时设置。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

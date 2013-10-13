@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数学函数 - 反正弦 ASIN </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数学函数 </h1>
+
+
+<h2> 反正弦 ASIN  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT ASIN(1), ASIN(0.5) FROM DUAL;
+
+   ASIN(1)  ASIN(0.5)
+---------- ----------
+1.57079633 .523598776
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => SELECT ASIN(1), ASIN(0.5) FROM SYSIBM.SYSDUMMY1;
+
+1                        2
+------------------------ ------------------------
+  +1.57079632679490E+000   +5.23598775598299E-001
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT ASIN(1), ASIN(0.5)
+2> go
+
+------------------------ ------------------------
+      1.5707963267948966      0.52359877559829893
+
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT ASIN(1) A, ASIN(0.5) B;
++-----------------+-------------------+
+| A               | B                 |
++-----------------+-------------------+
+| 1.5707963267949 | 0.523598775598299 |
++-----------------+-------------------+
+1 row in set (0.03 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+Test=# SELECT ASIN(1) A, ASIN(0.5) B;
+        a        |         b
+-----------------+-------------------
+ 1.5707963267949 | 0.523598775598299
+(1 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

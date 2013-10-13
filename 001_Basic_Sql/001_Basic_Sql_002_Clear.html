@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 基本SQL命令-清除输入缓冲 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 基本SQL命令 </h1>
+
+
+<h2> 清除输入缓冲 </h2>
+
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+
+
+SQLPlus中
+输入错误，通过多次回车清理
+
+<pre><code>
+
+SQL> SELECT *
+  2  FROM
+  3  input_err
+  4
+SQL>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+
+SqlCmd中
+输入错误，通过 :reset 清理
+
+
+<pre><code>
+
+1> SELECT *
+2> FROM
+3> input error
+4>
+5> :reset
+1>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+
+输入 \c 清除
+
+<pre><code>
+
+mysql> SELECT
+    -> FROM
+    -> \c
+mysql>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+Ctrl + C 清除输入
+
+> db.my_test_user.insert(
+...   { name: "Edward",
+...     age: 35,
+... tel:123456789
+... )
+... ;
+... ^C
+
+> db.my_test_user.insert(
+...   { name: "Edward",
+...     age: 35,
+... tel:123456789
+...   }
+... )
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+</table>
+
+
+
+
+
+
+</body>
+
+
+</html>

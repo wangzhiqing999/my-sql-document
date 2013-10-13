@@ -1,0 +1,196 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 日期函数 - 日期/时间的格式化[字符串转换为日期] </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 日期函数 </h1>
+
+
+<h2> 日期/时间的格式化[字符串转换为日期]  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    TO_DATE('2010.10.01', 'YYYY.MM.DD')
+  3  FROM
+  4    dual;
+
+TO_DATE('2
+----------
+2010.10.01
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => SELECT
+db2 (cont.) =>   TO_DATE('2011.10.01', 'YYYY.MM.DD')
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+1
+--------------------------
+2011-10-01-00.00.00.000000
+
+  1 条记录已选择。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT
+2>   CONVERT(DATETIME, '2012-01-02 09:06:18', 120)
+3> go
+
+-----------------------
+2012-01-02 09:06:18.000
+
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT
+    ->   STR_TO_DATE('2010~10~22 20.55.09',
+    ->               '%Y~%m~%d %k.%i.%s' ) A;
++---------------------+
+| A                   |
++---------------------+
+| 2010-10-22 20:55:09 |
++---------------------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+使用函数进行处理，格式固定
+
+Function  Equivalent strftime()  
+date(...)   strftime('%Y-%m-%d', ...)  
+time(...)   strftime('%H:%M:%S', ...)  
+datetime(...)   strftime('%Y-%m-%d %H:%M:%S', ...)  
+julianday(...)   strftime('%J', ...)  
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+根据返回值的需要， 使用  to_date 或者  to_timestamp 函数。
+
+
+Test=# SELECT TO_DATE('2010.10.01', 'YYYY.MM.DD');
+  to_date
+------------
+ 2010-10-01
+(1 行记录)
+
+
+
+Test=# SELECT to_timestamp('2010.10.01 21:30:50', 'YYYY.MM.DD HH24:MI:SS');
+      to_timestamp
+------------------------
+ 2010-10-01 21:30:50+08
+(1 行记录)
+
+
+
+
+
+<hr/>
+注：
+to_timestamp 函数也能接受一个 double precision 参数， 把它从 Unix 纪元转换成 timestamp with time zone。 
+（Integer Unix 纪元隐含地转换成了 double precision。）
+
+Test=# select to_timestamp(200120400);
+      to_timestamp
+------------------------
+ 1976-05-05 14:00:00+09
+(1 行记录)
+
+
+逆运算为：（那个 -9*60*60 的原因是因为上面的查询，结果为 +09时区的 ）
+Test=# select  EXTRACT(EPOCH from TIMESTAMP '1976-05-05 14:00:00') -9*60*60;
+ ?column?
+-----------
+ 200120400
+(1 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,670 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 事务处理 - 多用户间锁的处理 - 简单锁定 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 事务处理 </h1>
+
+
+<h2> 多用户间锁的处理 - 简单锁定  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+会话1：
+SQL> select * from test_main;
+        ID VALUE
+---------- --------------------
+         5 FIVE
+         2 TWO
+         3 THREE
+         1 ONE
+
+SQL> UPDATE test_main SET value = 'Five-5' WHERE id = 5;
+1 row updated.
+
+会话2：
+SQL> select * from test_main;
+        ID VALUE
+---------- --------------------
+         5 FIVE
+         2 TWO
+         3 THREE
+         1 ONE
+
+SQL> UPDATE test_main SET value ='THREE-3' WHERE id = 3;
+1 row updated.
+
+会话1：
+SQL> select * from test_main;
+        ID VALUE
+---------- --------------------
+         5 Five-5
+         2 TWO
+         3 THREE
+         1 ONE
+
+SQL> UPDATE test_main SET value ='THREE-5' WHERE id = 3;
+由于 id=3 的行，已经被会话2修改，并锁定，因此会话1当前进入等待状态。
+
+会话2：
+SQL> commit;
+Commit complete.
+
+会话1：
+1 row updated.
+
+SQL> select * from test_main;
+        ID VALUE
+---------- --------------------
+         5 Five-5
+         2 TWO
+         3 THREE-5
+         1 ONE
+
+会话2：
+SQL> select * from test_main;
+        ID VALUE
+---------- --------------------
+         5 FIVE
+         2 TWO
+         3 THREE-3
+         1 ONE
+
+会话1：
+SQL> commit;
+Commit complete.
+
+会话2：
+SQL> select * from test_main;
+        ID VALUE
+---------- --------------------
+         5 Five-5
+         2 TWO
+         3 THREE-5
+         1 ONE
+
+请注意：这里 会话2所作的修改丢失了。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+
+会话1：
+db2 => select * from test_main@
+
+ID          VALUE
+----------- ----------
+          1 ONE
+          2 TWO
+          5 FIVE
+          3 THREE
+
+  4 条记录已选择。
+
+
+db2 => UPDATE test_main SET value = 'Five-5' WHERE id = 5@
+DB20000I  SQL 命令成功完成。
+
+
+
+
+会话2：
+db2 => select * from test_main@
+
+ID          VALUE
+----------- ----------
+          1 ONE
+          2 TWO
+          5 FIVE
+          3 THREE
+
+  4 条记录已选择。
+
+
+db2 => UPDATE test_main SET value ='THREE-3' WHERE id = 3@
+DB20000I  SQL 命令成功完成。
+
+
+
+会话1：
+db2 => select * from test_main@
+
+ID          VALUE
+----------- ----------
+          1 ONE
+          2 TWO
+          5 Five-5
+          3 THREE
+
+  4 条记录已选择。
+
+db2 => UPDATE test_main SET value ='THREE-5' WHERE id = 3@
+由于 id=3 的行，已经被会话2修改，并锁定，因此会话1当前进入等待状态。
+
+
+
+会话2：
+db2 => commit@
+DB20000I  SQL 命令成功完成。
+
+
+会话1：
+DB20000I  SQL 命令成功完成。
+db2 => select * from test_main@
+
+ID          VALUE
+----------- ----------
+          1 ONE
+          2 TWO
+          5 Five-5
+          3 THREE-5
+
+  4 条记录已选择。
+
+
+
+会话2：
+
+db2 => select * from test_main@
+
+ID          VALUE
+----------- ----------
+          1 ONE
+          2 TWO
+          5 FIVE
+          3 THREE-3
+
+  4 条记录已选择。
+
+
+会话1：
+
+db2 => commit@
+DB20000I  SQL 命令成功完成。
+
+
+会话2：
+
+db2 => select * from test_main@
+
+ID          VALUE
+----------- ----------
+          1 ONE
+          2 TWO
+          5 Five-5
+          3 THREE-5
+
+  4 条记录已选择。
+
+
+请注意：这里 会话2所作的修改丢失了。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+会话1：
+1> select * from test_main
+2> go
+id          value
+----------- ----------
+          1 ONE
+          2 TWO
+          3 THREE
+          4 FOUR
+(4 行受影响)
+
+1> BEGIN TRANSACTION
+2> go
+1> UPDATE test_main SET value = 'FOUR-4' WHERE id = 4
+2> go
+(1 行受影响)
+
+会话2：
+1> select * from test_main WHERE id = 1
+2> go
+id          value
+----------- ----------
+          1 ONE
+(1 行受影响)
+
+1> select * from test_main WHERE id = 4
+2> go
+会话1的操作，锁定了id=4的记录，导致会话2在这里卡住了
+[也就是 会话2无法读取 会话1修改前未提交的数据。]
+
+会话1：
+1> rollback
+2> go
+
+会话2：
+id          value
+----------- ----------
+          4 FOUR
+(1 行受影响)
+
+
+会话1：
+1> BEGIN TRANSACTION
+2> go
+1> UPDATE test_main SET value = 'FOUR-4' WHERE id = 4
+2> go
+(1 行受影响)
+
+会话2：
+1> BEGIN TRANSACTION
+2> go
+1> select * from test_main WHERE id = 4;
+2> go
+在会话2也开启事务处理的情况下
+会话1的操作，锁定了id=4的记录，导致会话2在这里卡住了
+[也就是 会话2无法读取 会话1修改前未提交的数据。]
+
+会话1：
+1> rollback
+2> go
+
+会话2：
+id          value
+----------- ----------
+          4 FOUR
+(1 行受影响)
+
+会话1：
+1> BEGIN TRANSACTION
+2> go
+1> UPDATE test_main SET value = 'FOUR-4' WHERE id = 4
+2> go
+(1 行受影响)
+
+会话2：
+1> UPDATE test_main SET value = 'FOUR-2' WHERE id = 4;
+2> go
+会话1的操作，锁定了id=4的记录，导致会话2在这里卡住了
+
+会话1：
+1> commit;
+2> go
+
+会话2：
+1>
+由于会话1提交了事务处理，释放了id=4记录的锁定，会话2于是锁定了这条记录。
+
+会话1：
+1> select * from test_main WHERE id = 4;
+2> go
+现在会话1被卡住了，原因在于会话2锁定了该行记录。
+
+会话2：
+1> commit;
+2> go
+
+会话1：
+id          value
+----------- ----------
+          4 FOUR-2
+(1 行受影响)
+
+请注意：这里 会话1所作的修改丢失了。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+会话1：
+mysql> select * from test_main;
++----+-------+
+| id | value |
++----+-------+
+|  1 | ONE   |
+|  2 | TWO   |
+|  3 | THREE |
+|  4 | Four  |
++----+-------+
+4 rows in set (0.00 sec)
+
+mysql> START TRANSACTION;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> UPDATE test_main SET value = 'FOUR-4' WHERE id = 4;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+会话2：
+mysql> select * from test_main;
++----+-------+
+| id | value |
++----+-------+
+|  1 | ONE   |
+|  2 | TWO   |
+|  3 | THREE |
+|  4 | Four  |
++----+-------+
+4 rows in set (0.00 sec)
+
+mysql> START TRANSACTION;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> UPDATE test_main SET value ='THREE-3' WHERE id = 3;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+
+会话1：
+mysql> select * from test_main;
++----+--------+
+| id | value  |
++----+--------+
+|  1 | ONE    |
+|  2 | TWO    |
+|  3 | THREE  |
+|  4 | FOUR-4 |
++----+--------+
+4 rows in set (0.00 sec)
+
+mysql> UPDATE test_main SET value ='THREE-5' WHERE id = 3;
+由于 id=3 的行，已经被会话2修改，并锁定，因此会话1当前进入等待状态。
+
+一定时间后超时错误发生
+mysql> UPDATE test_main SET value ='THREE-5' WHERE id = 3;
+ERROR 1205 (HY000): Lock wait timeout exceeded; try restarting transaction
+
+
+
+
+注： 超时的时间设定参数是 innodb_lock_wait_timeout  ， 默认值是 50
+mysql> show variables like '%wait_timeout%'
+    -> ;
++--------------------------+----------+
+| Variable_name            | Value    |
++--------------------------+----------+
+| innodb_lock_wait_timeout | 50       |
+| lock_wait_timeout        | 31536000 |
+| wait_timeout             | 28800    |
++--------------------------+----------+
+3 rows in set (0.00 sec)
+
+
+mysql> SELECT NOW();
++---------------------+
+| NOW()               |
++---------------------+
+| 2013-01-27 11:52:08 |
++---------------------+
+1 row in set (0.00 sec)
+
+mysql> UPDATE test_main SET value ='THREE-5' WHERE id = 3;
+ERROR 1205 (HY000): Lock wait timeout exceeded; try restarting transaction
+
+mysql> SELECT NOW();
++---------------------+
+| NOW()               |
++---------------------+
+| 2013-01-27 11:52:59 |
++---------------------+
+1 row in set (0.00 sec)
+
+
+
+
+通过 show engine innodb status ;  可以查询到当前有哪些事务， 各自都锁定了哪些数据。
+
+
+
+------------
+TRANSACTIONS
+------------
+Trx id counter B03
+Purge done for trx's n:o < 91A undo n:o < 0
+History list length 16
+LIST OF TRANSACTIONS FOR EACH SESSION:
+---TRANSACTION B02, ACTIVE 2520 sec
+1 lock struct(s), heap size 320, 0 row lock(s)
+MySQL thread id 2, OS thread handle 0xc8, query id 22 localhost 127.0.0.1 root
+show engine innodb status
+---TRANSACTION B01, ACTIVE 2523 sec
+2 lock struct(s), heap size 320, 1 row lock(s), undo log entries 1
+MySQL thread id 1, OS thread handle 0xe4, query id 18 localhost 127.0.0.1 root
+
+
+
+
+通过   show full processlist;  可以查询当前会话的情况
+
+mysql>  show full processlist;
++----+------+----------------+------+---------+------+-------+------------------
+-----+
+| Id | User | Host           | db   | Command | Time | State | Info
+     |
++----+------+----------------+------+---------+------+-------+------------------
+-----+
+|  1 | root | localhost:1037 | test | Sleep   |  655 |       | NULL
+     |
+|  2 | root | localhost:1038 | test | Query   |    0 | NULL  | show full process
+list |
++----+------+----------------+------+---------+------+-------+------------------
+-----+
+2 rows in set (0.00 sec)
+
+
+
+会话2：
+mysql> commit;
+Query OK, 0 rows affected (0.05 sec)
+
+
+会话1：
+mysql> commit;
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> select * from test_main;
++----+---------+
+| id | value   |
++----+---------+
+|  1 | ONE     |
+|  2 | TWO     |
+|  3 | THREE-3 |
+|  4 | FOUR-4  |
++----+---------+
+4 rows in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+会话1：
+Test=# BEGIN;
+BEGIN
+Test=# select * from test_main;
+ id |  value
+----+----------
+  1 | ONE1
+  2 | TWO1
+  4 | FOUR1
+ 11 | ONEONE
+ 12 | ONETWO
+ 13 | ONETHREE
+(6 行记录)
+
+
+Test=# UPDATE test_main SET value = 'FOUR - 4' WHERE id = 4;
+UPDATE 1
+Test=#
+
+
+会话2：
+Test=# BEGIN;
+BEGIN
+Test=#  select * from test_main;
+ id |  value
+----+----------
+  1 | ONE1
+  2 | TWO1
+  4 | FOUR1
+ 11 | ONEONE
+ 12 | ONETWO
+ 13 | ONETHREE
+(6 行记录)
+
+
+Test=# UPDATE test_main SET value = 'TWO - 2' WHERE id = 2;
+UPDATE 1
+
+
+
+会话1：
+
+Test=# select * from test_main;
+ id |  value
+----+----------
+  1 | ONE1
+  2 | TWO1
+ 11 | ONEONE
+ 12 | ONETWO
+ 13 | ONETHREE
+  4 | FOUR - 4
+(6 行记录)
+
+Test=# UPDATE test_main SET value = 'TWO - TWO' WHERE id = 2;
+由于 id=2 的行，已经被会话2修改，并锁定，因此会话1当前进入等待状态。
+
+
+会话2：
+Test=# commit;
+COMMIT
+
+
+会话1：
+UPDATE 1
+
+Test=# select * from test_main;
+ id |   value
+----+-----------
+  1 | ONE1
+ 11 | ONEONE
+ 12 | ONETWO
+ 13 | ONETHREE
+  4 | FOUR - 4
+  2 | TWO - TWO
+(6 行记录)
+
+
+会话2：
+Test=# select * from test_main;
+ id |  value
+----+----------
+  1 | ONE1
+  4 | FOUR1
+ 11 | ONEONE
+ 12 | ONETWO
+ 13 | ONETHREE
+  2 | TWO - 2
+(6 行记录)
+
+
+会话1：
+Test=# commit;
+COMMIT
+
+
+会话2：
+Test=# select * from test_main;
+ id |   value
+----+-----------
+  1 | ONE1
+ 11 | ONEONE
+ 12 | ONETWO
+ 13 | ONETHREE
+  4 | FOUR - 4
+  2 | TWO - TWO
+(6 行记录)
+
+
+请注意：这里 会话2所作的修改丢失了。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

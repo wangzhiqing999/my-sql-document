@@ -1,0 +1,111 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库会话的基本参数设置 SET  - 查询计划的设置 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库会话的基本参数设置 SET </h1>
+
+
+<h2>  查询计划的设置 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SET FORCEPLAN { ON | OFF }
+备注
+SET FORCEPLAN 从本质上覆盖了查询优化器处理 Transact-SQL SELECT 语句所使用的逻辑。
+SELECT 语句返回的数据同样与该设置无关。唯一的差别是 SQL Server 为满足查询对表进行处理的方式。
+在查询中也可以使用查询优化器提示影响 SQL Server 处理 SELECT 语句的方式。
+SET FORCEPLAN 在执行或运行时应用，而不是在分析时应用。
+
+
+当 FORCEPLAN 设置为 ON 时，Microsoft SQL Server 查询优化器处理联接的顺序与表在查询的 FROM 子句中出现的顺序相同。
+
+此外，在将 FORCEPLAN 设置为 ON 的情况下，
+如果不需要其他类型的联接来构造查询计划，或者使用联接提示或查询提示请求了其他联接类型，则会强制使用嵌套循环联接。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

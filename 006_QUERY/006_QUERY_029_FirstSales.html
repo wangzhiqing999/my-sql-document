@@ -1,0 +1,287 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 首次非零数据 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> 首次非零数据 </h2>
+
+
+<pre><code>
+
+CREATE TABLE test_Sales_data_2(
+	client_code   varchar(10),
+	sales_date    date,
+	sales_money   int
+);
+
+
+INSERT INTO test_Sales_data_2 VALUES('张三', TO_DATE('2013-01-01', 'YYYY-MM-DD'), 0);
+INSERT INTO test_Sales_data_2 VALUES('张三', TO_DATE('2013-01-01', 'YYYY-MM-DD'), 1100);
+INSERT INTO test_Sales_data_2 VALUES('张三', TO_DATE('2013-02-01', 'YYYY-MM-DD'), 0);
+INSERT INTO test_Sales_data_2 VALUES('张三', TO_DATE('2013-02-01', 'YYYY-MM-DD'), 1200);
+INSERT INTO test_Sales_data_2 VALUES('张三', TO_DATE('2013-03-01', 'YYYY-MM-DD'), 0);
+INSERT INTO test_Sales_data_2 VALUES('张三', TO_DATE('2013-03-01', 'YYYY-MM-DD'), 1300);
+INSERT INTO test_Sales_data_2 VALUES('张三', TO_DATE('2013-04-01', 'YYYY-MM-DD'), 1400);
+INSERT INTO test_Sales_data_2 VALUES('张三', TO_DATE('2013-05-01', 'YYYY-MM-DD'), 1500);
+
+
+INSERT INTO test_Sales_data_2 VALUES('李四', TO_DATE('2013-01-01', 'YYYY-MM-DD'), 0);
+INSERT INTO test_Sales_data_2 VALUES('李四', TO_DATE('2013-02-01', 'YYYY-MM-DD'), 0);
+INSERT INTO test_Sales_data_2 VALUES('李四', TO_DATE('2013-02-01', 'YYYY-MM-DD'), 1300);
+INSERT INTO test_Sales_data_2 VALUES('李四', TO_DATE('2013-03-01', 'YYYY-MM-DD'), 0);
+INSERT INTO test_Sales_data_2 VALUES('李四', TO_DATE('2013-04-01', 'YYYY-MM-DD'), 1400);
+INSERT INTO test_Sales_data_2 VALUES('李四', TO_DATE('2013-05-01', 'YYYY-MM-DD'), 0);
+
+
+INSERT INTO test_Sales_data_2 VALUES('王五', TO_DATE('2013-01-01', 'YYYY-MM-DD'), 0);
+INSERT INTO test_Sales_data_2 VALUES('王五', TO_DATE('2013-02-01', 'YYYY-MM-DD'), 0);
+INSERT INTO test_Sales_data_2 VALUES('王五', TO_DATE('2013-03-01', 'YYYY-MM-DD'), 0);
+INSERT INTO test_Sales_data_2 VALUES('王五', TO_DATE('2013-04-01', 'YYYY-MM-DD'), 1400);
+INSERT INTO test_Sales_data_2 VALUES('王五', TO_DATE('2013-04-01', 'YYYY-MM-DD'), 0);
+INSERT INTO test_Sales_data_2 VALUES('王五', TO_DATE('2013-05-01', 'YYYY-MM-DD'), 0);
+
+
+
+INSERT INTO test_Sales_data_2 VALUES('赵六', TO_DATE('2013-01-01', 'YYYY-MM-DD'), 2000);
+INSERT INTO test_Sales_data_2 VALUES('赵六', TO_DATE('2013-01-01', 'YYYY-MM-DD'), -2000);
+INSERT INTO test_Sales_data_2 VALUES('赵六', TO_DATE('2013-02-01', 'YYYY-MM-DD'), 0);
+INSERT INTO test_Sales_data_2 VALUES('赵六', TO_DATE('2013-03-01', 'YYYY-MM-DD'), -1000);
+INSERT INTO test_Sales_data_2 VALUES('赵六', TO_DATE('2013-03-01', 'YYYY-MM-DD'), 1000);
+INSERT INTO test_Sales_data_2 VALUES('赵六', TO_DATE('2013-04-01', 'YYYY-MM-DD'), 1400);
+INSERT INTO test_Sales_data_2 VALUES('赵六', TO_DATE('2013-05-01', 'YYYY-MM-DD'), 0);
+
+
+
+
+
+需求：
+需要查询出， 每个 顾客 ， 第几次购买的结果列表。
+
+特殊的需求是： 如果首次购买金额为0， 那么忽略掉。 
+把购买金额大于0的第一次购买， 看作是 第一次购买。
+
+后续的购买金额为0的， 按照正常的方式来处理。
+
+也就是对于上面的测试数据来说。
+
+李四：
+2013-01-01  购买金额 0 元，    被忽略掉.
+2013-02-01  购买金额 1300 元， 认为是第一次购买.
+2013-03-01  购买金额 0 元，    认为是第二次购买.
+2013-04-01  购买金额 1400 元， 认为是第三次购买.
+2013-05-01  购买金额 0 元，    认为是第四次购买.
+
+
+赵六：
+2013-01-01  购买金额 2000 元，  退货金额 -2000， 合计为 0， 被忽略掉.
+2013-02-01  购买金额 0 元，     被忽略掉.
+2013-03-01  购买金额 1000 元，  退货金额 -1000， 合计为 0， 被忽略掉.
+2013-04-01  购买金额 1400 元，  认为是第一次购买.
+2013-05-01  购买金额 0 元，     认为是第二次购买.
+
+
+
+</code></pre>
+
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+
+-- 第一步查询.
+SELECT
+  T.CLIENT_CODE,
+  T.SALES_DATE,
+  SUM(T.SALES_MONEY)
+FROM
+  test_Sales_data_2 T
+WHERE
+  T.sales_date >= (SELECT MIN(MIN(sales_date))
+    FROM test_Sales_data_2 T0 
+    WHERE 
+	  T.client_code = T0.client_code
+	GROUP BY
+	  sales_date
+	HAVING
+	  SUM(T0.sales_money) > 0 )
+GROUP BY
+  T.CLIENT_CODE,
+  T.SALES_DATE
+ORDER BY
+  T.CLIENT_CODE,
+  T.SALES_DATE;
+
+
+CLIENT_CODE          SALES_DATE SUM(T.SALES_MONEY)
+-------------------- ---------- ------------------
+张三                 01-1月 -13               1100
+张三                 01-2月 -13               1200
+张三                 01-3月 -13               1300
+张三                 01-4月 -13               1400
+张三                 01-5月 -13               1500
+李四                 01-2月 -13               1300
+李四                 01-3月 -13                  0
+李四                 01-4月 -13               1400
+李四                 01-5月 -13                  0
+王五                 01-4月 -13               1400
+王五                 01-5月 -13                  0
+
+CLIENT_CODE          SALES_DATE SUM(T.SALES_MONEY)
+-------------------- ---------- ------------------
+赵六                 01-4月 -13               1400
+赵六                 01-5月 -13                  0
+
+
+
+
+
+SELECT
+  T.CLIENT_CODE,
+  ROW_NUMBER() OVER(PARTITION BY client_code  ORDER BY sales_date) AS "第几次购买",
+  T.SALES_DATE,
+  SUM(T.SALES_MONEY)
+FROM
+  test_Sales_data_2 T
+WHERE
+  T.sales_date >= (SELECT MIN(MIN(sales_date))
+    FROM test_Sales_data_2 T0 
+    WHERE 
+	  T.client_code = T0.client_code
+	GROUP BY
+	  sales_date
+	HAVING
+	  SUM(T0.sales_money) > 0 )
+GROUP BY
+  T.CLIENT_CODE,
+  T.SALES_DATE
+ORDER BY
+  T.CLIENT_CODE,
+  T.SALES_DATE;
+  
+  
+CLIENT_CODE          第几次购买 SALES_DATE SUM(T.SALES_MONEY)
+-------------------- ---------- ---------- ------------------
+张三                          1 01-1月 -13               1100
+张三                          2 01-2月 -13               1200
+张三                          3 01-3月 -13               1300
+张三                          4 01-4月 -13               1400
+张三                          5 01-5月 -13               1500
+李四                          1 01-2月 -13               1300
+李四                          2 01-3月 -13                  0
+李四                          3 01-4月 -13               1400
+李四                          4 01-5月 -13                  0
+王五                          1 01-4月 -13               1400
+王五                          2 01-5月 -13                  0
+
+CLIENT_CODE          第几次购买 SALES_DATE SUM(T.SALES_MONEY)
+-------------------- ---------- ---------- ------------------
+赵六                          1 01-4月 -13               1400
+赵六                          2 01-5月 -13                  0
+
+已选择13行。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

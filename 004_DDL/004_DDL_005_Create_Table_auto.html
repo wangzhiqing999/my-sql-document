@@ -1,0 +1,767 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - 自动递增列 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 自动递增列 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+
+<p>
+不直接支持 自动递增的列。 需要创建一个序列 SEQUENCE。
+</p>
+<p>
+又由于无法在列的默认值那里，设置默认值为序列。因此只能通过触发器来设置。
+</p>
+<p>
+设置好触发器以后，所有的插入语句，将忽略外部传入的 id 数据，只使用指定的序列号来产生。
+</p>
+<p>
+
+注：取得序列号当前值。是 CURRVAL 不是 CURRENTVAL
+</p>
+	
+<pre><code>
+
+
+SQL> CREATE SEQUENCE test_sequence2
+  2    increment by 1    -- 每次递增1
+  3    start with 1       -- 从1开始
+  4    nomaxvalue      -- 没有最大值
+  5    minvalue 1       -- 最小值=1
+  6    NOCYCLE;      -- 不循环
+
+Sequence created.
+
+SQL> CREATE TABLE test_create_tab2 (
+  2    id   INT DEFAULT test_sequence2.NEXTVAL,
+  3    val  VARCHAR(10),
+  4    PRIMARY KEY (id)
+  5  );
+  id   INT DEFAULT test_sequence2.NEXTVAL,
+                   *
+ERROR at line 2:
+ORA-00984: column not allowed here
+
+SQL> CREATE TABLE test_create_tab2 (
+  2    id   INT,
+  3    val  VARCHAR(10),
+  4    PRIMARY KEY (id)
+  5  );
+
+Table created.
+
+
+SQL> CREATE OR REPLACE TRIGGER BeforeTestCreate2Insert
+  2    BEFORE INSERT ON test_create_tab2
+  3  FOR EACH ROW
+  4  BEGIN
+  5    SELECT test_sequence2.nextval INTO :new.id  FROM dual;
+  6  END;
+  7  /
+
+Trigger created.
+
+SQL> INSERT INTO test_create_tab2(val) VALUES ('NO id');
+
+1 row created.
+
+SQL> INSERT INTO test_create_tab2(id, val) VALUES (1, 'id no use');
+
+1 row created.
+
+SQL> SELECT * FROM test_create_tab2;
+
+        ID VAL
+---------- --------------------
+         1 NO id
+         2 id no use
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+db2 => CREATE TABLE test_create_tab2 (
+db2 (cont.) =>   id INT NOT NULL PRIMARY KEY generated always as identity,
+db2 (cont.) =>   val  VARCHAR(10)
+db2 (cont.) => );
+DB20000I  SQL 命令成功完成。
+
+db2 => INSERT INTO test_create_tab2(val) VALUES ('NO id');
+DB20000I  SQL 命令成功完成。
+
+这里和 SQL Server 一样，大家都不能手动指定那个 自增id 的数值
+db2 =>  INSERT INTO test_create_tab2(id, val) VALUES (1, 'id no use');
+DB21034E  该命令被当作 SQL 语句来处理，因为它是无效的“命令行处理器”命令。在
+SQL 处理期间，它返回：
+SQL0798N  不能为定义为 GENERATED ALWAYS 的列 "ID" 指定值。  SQLSTATE=428C9
+
+这里和 SQL Server 不一样，SQL Server 会自动排除掉那个自动递增的列
+db2 =>  INSERT INTO test_create_tab2 VALUES ('Is Auto ?');
+DB21034E  该命令被当作 SQL 语句来处理，因为它是无效的“命令行处理器”命令。在
+SQL 处理期间，它返回：
+SQL0117N  赋值数目与指定的或隐含的列数或变量数不一样。  SQLSTATE=42802
+
+
+关于 初始数值的设定。
+db2 => drop TABLE test_create_tab2;
+DB20000I  SQL 命令成功完成。
+
+
+db2 => CREATE TABLE test_create_tab2 (
+db2 (cont.) =>   id INT NOT NULL PRIMARY KEY generated always as identity
+db2 (cont.) =>   (Start With 100
+db2 (cont.) =>    Increment by 1
+db2 (cont.) =>    minvalue 100
+db2 (cont.) =>    maxvalue 999999999
+db2 (cont.) =>    no cycle cache 5 no order),
+db2 (cont.) =>   val  VARCHAR(10)
+db2 (cont.) => );
+DB20000I  SQL 命令成功完成。
+
+
+db2 => select * from test_create_tab2;
+
+ID          VAL
+----------- ----------
+        100 NO id
+
+  1 条记录已选择。
+
+
+db2 => select  identity_val_local()  from SYSIBM.SYSDUMMY1;
+
+1
+---------------------------------
+                             100.
+
+  1 条记录已选择。
+
+
+
+
+也可以采用 SEQUENCE 的处理方式来处理
+
+-- 创建一个序列号.
+CREATE SEQUENCE seq_test22
+AS BIGINT
+START WITH 1
+INCREMENT BY 1;
+
+-- 创建表.
+CREATE TABLE test_create_tab22 (
+  id BIGINT NOT NULL PRIMARY KEY,
+  val  VARCHAR(10)
+);
+
+-- 插入数据.
+INSERT INTO test_create_tab22(
+	id, val
+) VALUES (
+	NEXTVAL FOR seq_test22,  'Test'
+);
+
+-- 查看最新创建的序列号
+SELECT PREVVAL FOR seq_test22 FROM test_create_tab22;
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+
+<p>
+SQL Server 通过 IDENTITY 来设置
+</p>
+<p>
+参数有2个，一个是“初始值” 一个是“增量”。
+</p>
+<p>
+默认情况下 INSERT 语句中，不能对 IDENTITY 的字段进行赋值。
+</p>
+<p>
+对于 IDENTITY 的列 SQL Server 在 INSERT 的时候，会自动忽略掉。
+</p>
+
+<p>
+当IDENTITY列中间的数据被删除，造成数据不连续的时候。
+可以通过 SET IDENTITY_INSERT 表名 ON/OFF 语句来 允许/禁止 对IDENTITY列进行显式的插入动作。
+</p>
+<p>
+
+IDENTITY只能在如下情况下建立: <br/>
+在创建表时创建新的IDENTITY列 <br/>
+在现有表中创建新的IDENTITY列 <br/>
+不能 把已经存在的列,修改为IDENTITY列
+
+</p>
+
+
+
+	
+<pre><code>
+
+
+1> CREATE TABLE test_create_tab2 (
+2>   id   INT  IDENTITY(1, 1)  PRIMARY KEY,
+3>   val  VARCHAR(10)
+4> );
+5> go
+
+1> INSERT INTO test_create_tab2(val) VALUES ('NO id');
+2> go
+
+(1 行受影响)
+1> INSERT INTO test_create_tab2(id, val) VALUES (6, 'id no use');
+2> go
+消息 544，级别 16，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+当 IDENTITY_INSERT 设置为 OFF 时，不能为表 'test_create_tab2' 中的标识列插入显式值。
+
+1> INSERT INTO test_create_tab2(val) VALUES ('A');
+2> INSERT INTO test_create_tab2(val) VALUES ('B');
+3> INSERT INTO test_create_tab2 VALUES ('C');
+4> INSERT INTO test_create_tab2 VALUES ('D');
+5> go
+
+
+1> SELECT * FROM test_create_tab2;
+2> go
+id          val
+----------- ----------
+          1 NO id
+          2 A
+          3 B
+          4 C
+          5 D
+
+(5 行受影响)
+
+-- 删除一个数据，造成数据不连续.
+1> DELETE FROM test_create_tab2 WHERE id = 3;
+2> go
+
+(1 行受影响)
+
+-- 允许将显式值插入表的标识列中
+1> SET IDENTITY_INSERT test_create_tab2 ON
+2> go
+1> INSERT INTO test_create_tab2(id, val) VALUES (3, 'id is use');
+2> go
+
+(1 行受影响)
+
+--不允许将显式值插入表的标识列中
+1>  SET IDENTITY_INSERT test_create_tab2 OFF
+2> go
+1> SELECT * FROM test_create_tab2;
+2> go
+id          val
+----------- ----------
+          1 NO id
+          2 A
+          3 id is use
+          4 C
+          5 D
+
+(5 行受影响)
+
+
+IDENTITY的重置
+方案一：通过truncate table 处理
+[此命令将删除表中所有的数据,使用前你需要确认你是否要做这个操作. 如果不希望修改表数据的,请采用方案二]
+1> truncate table  test_create_tab2;
+2> go
+1> INSERT INTO test_create_tab2(val) VALUES ('NO id');
+2> go
+(1行受影响)
+
+1> select * from test_create_tab2;
+2> go
+id          val
+----------- ----------
+          1 NO id
+(1行受影响)
+
+ 
+
+方案二：使用DBCC
+1> select * from test_create_tab2;
+2> go
+id          val
+----------- ----------
+          2 NO id
+(1行受影响)
+
+1> delete from test_create_tab2;
+2> go
+(1行受影响)
+ 
+
+查看当前ID。
+1> DBCC CHECKIDENT('test_create_tab2', NORESEED)
+2> go
+检查标识信息:当前标识值'2'，当前列值'2'。
+DBCC执行完毕。如果DBCC输出了错误信息，请与系统管理员联系。
+ 
+
+重置ID
+1> DBCC CHECKIDENT('test_create_tab2', RESEED, 100)
+2> go
+检查标识信息:当前标识值'2'，当前列值'100'。
+DBCC执行完毕。如果DBCC输出了错误信息，请与系统管理员联系。
+
+1> INSERT INTO test_create_tab2(val) VALUES ('NO id');
+2> go
+(1行受影响)
+
+1> select * from test_create_tab2;
+2> go
+id          val
+----------- ----------
+        101 NO id
+(1行受影响)
+
+
+
+查询指定表的 当前序号的数值，以及 增量、与种子数值的函数
+
+SELECT 
+  ident_current('test_create_tab2') as   序号当前数值,
+  ident_incr('test_create_tab2')  as    增量,
+  ident_seed('test_create_tab2')  as    种子数(起始数字)
+go
+
+
+<hr/>
+
+在 C# 中， 可以通过下面的方式， 一次执行2行 SQL 语句， 来完成插入并获取最新ID 的处理逻辑.
+
+
+        /// 需要执行的 SQL 语句
+        /// 需要注意的是
+        /// 这里实际上定义了2条语句
+        /// 一条是 INSERT
+        /// 一条是 SELECT SCOPE_IDENTITY()
+        private const String INSERT_SQL =
+@"INSERT INTO test_SCOPE_IDENTITY (val) 
+VALUES (@val) 
+SELECT SCOPE_IDENTITY()";
+
+<hr/>
+
+<h3> output 的使用 </h3>
+
+注：OUTPUT是 SQL SERVER 2005 的新特性.可以从数据修改语句中返回输出.可以看作是"返回结果的DML"
+
+
+如果遇到一次插入多行数据的情况.
+
+DECLARE @T TABLE(ID INT);
+INSERT INTO test_SCOPE_IDENTITY (val)  OUTPUT INSERTED.ID INTO @T
+SELECT '测试1' UNION ALL
+SELECT '测试2' UNION ALL
+SELECT '测试3';
+SELECT * FROM @T
+GO
+
+ID
+-----------
+          4
+          5
+          6
+
+(3 行受影响)
+
+
+1> select * from test_SCOPE_IDENTITY
+2> go
+id          val
+----------- ----------
+          1 测试
+          2 测试
+          3 测试
+          4 测试1
+          5 测试2
+          6 测试3
+
+(6 行受影响)
+
+
+
+
+1> INSERT INTO test_SCOPE_IDENTITY (val)  OUTPUT INSERTED.ID VALUES ('OUTPUT')
+2> go
+ID
+-----------
+          8
+
+(1 行受影响)
+
+
+
+<hr/>
+
+如果要产生  001 002  这样的 自增列， 可尝试使用 计算列的机制来处理.
+
+
+CREATE TABLE test_create_tab2x (
+  id    INT  IDENTITY(1, 1)  PRIMARY KEY,
+  code  AS   RIGHT(Cast((1000 + id) as varchar), 3),
+  val   VARCHAR(10)
+);    
+go  
+
+
+INSERT INTO test_create_tab2x(val) VALUES ('NO id');
+INSERT INTO test_create_tab2x(val) VALUES ('NO id2');
+go
+
+SELECT code, val FROM test_create_tab2x;
+go
+
+code   val
+------ ----------
+001    NO id
+002    NO id2
+
+(2 行受影响)
+
+</code></pre>
+
+  </td>
+</tr>
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<p>
+通过 AUTO_INCREMENT设置
+</p>
+
+<p>
+SQL INSERT语句的时候，要避免 指定那个自增的字段.否则会发生主键的冲突。
+</p>
+
+<p>
+通过 ALTER TABLE语句 可以修改 自增的数值， 但是只能增加，不能减少。
+</p>
+
+<p>
+TRUNCATE TABLE 语句，会将自增ID重置为零。
+</p>
+
+<pre><code>
+
+mysql> CREATE TABLE test_create_tab2 (
+    ->   id   INT  AUTO_INCREMENT,
+    ->   val  VARCHAR(10),
+    ->   PRIMARY KEY (id)
+    -> );
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> INSERT INTO test_create_tab2(val) VALUES ('NO id');
+Query OK, 1 row affected (0.03 sec)
+
+mysql> select last_insert_id() as id;
++----+
+| id |
++----+
+|  1 |
++----+
+1 row in set (0.00 sec)
+
+mysql> INSERT INTO test_create_tab2(val) VALUES ('NO id 2');
+Query OK, 1 row affected (0.03 sec)
+
+mysql> select last_insert_id() as id;
++----+
+| id |
++----+
+|  2 |
++----+
+1 row in set (0.00 sec)
+
+mysql> select * from test_create_tab2;
++----+---------+
+| id | val     |
++----+---------+
+|  1 | NO id   |
+|  2 | NO id 2 |
++----+---------+
+2 rows in set (0.00 sec)
+
+mysql> ALTER TABLE test_create_tab2 AUTO_INCREMENT = 100;
+Query OK, 2 rows affected (0.25 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> INSERT INTO test_create_tab2(val) VALUES ('NO id N');
+Query OK, 1 row affected (0.03 sec)
+
+mysql> select * from test_create_tab2;
++-----+---------+
+| id  | val     |
++-----+---------+
+|   1 | NO id   |
+|   2 | NO id 2 |
+| 100 | NO id N |
++-----+---------+
+3 rows in set (0.00 sec)
+
+
+mysql> ALTER TABLE test_create_tab2 AUTO_INCREMENT = 50;
+Query OK, 3 rows affected (0.19 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+mysql>
+mysql> INSERT INTO test_create_tab2(val) VALUES ('NO id N50');
+Query OK, 1 row affected (0.05 sec)
+
+mysql> select * from test_create_tab2;
++-----+-----------+
+| id  | val       |
++-----+-----------+
+|   1 | NO id     |
+|   2 | NO id 2   |
+| 100 | NO id N   |
+| 101 | NO id N50 |
++-----+-----------+
+4 rows in set (0.00 sec)
+
+
+mysql> truncate table test_create_tab2;
+Query OK, 0 rows affected (0.05 sec)
+
+mysql> INSERT INTO test_create_tab2(val) VALUES ('NO id');
+Query OK, 1 row affected (0.03 sec)
+
+mysql> select * from test_create_tab2;
++----+-------+
+| id | val   |
++----+-------+
+|  1 | NO id |
++----+-------+
+1 row in set (0.00 sec)
+
+
+<hr/>
+建表的时候， 通过 AUTO_INCREMENT=n  来设置 自增ID 的初始数值.
+
+CREATE TABLE test_create_tab2x (
+  id   INT  AUTO_INCREMENT,
+  val  VARCHAR(10),
+  PRIMARY KEY (id)
+) AUTO_INCREMENT = 10;
+
+INSERT INTO test_create_tab2x(val) VALUES ('NO id');
+
+
+mysql> select * from test_create_tab2x;
++----+-------+
+| id | val   |
++----+-------+
+| 10 | NO id |
++----+-------+
+1 row in set (0.00 sec)
+
+
+<hr/>
+注意：仅仅只定义 AUTO_INCREMENT 是无法处理的。
+
+mysql> CREATE TABLE tab (
+    ->   id  INT AUTO_INCREMENT,
+    ->   val VARCHAR(10)
+    -> );
+ERROR 1075 (42000): Incorrect table definition; there can be only one auto column and it must be defined as a key
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<p>
+简单 主键数据类型为 int 类型。
+</p>
+
+<p>
+插入的时候，不传入数据， 就是默认为自动递增处理。
+</p>
+
+<pre><code>
+
+
+
+sqlite> CREATE TABLE test_create_tab2 (
+   ...>   id   integer,
+   ...>   val  VARCHAR(10),
+   ...>   PRIMARY KEY (id)
+   ...> );
+sqlite>  INSERT INTO test_create_tab2(val) VALUES ('NO id');
+sqlite> select last_insert_rowid();
+last_insert_rowid()
+1
+sqlite> INSERT INTO test_create_tab2(val) VALUES ('NO id 2');
+sqlite> select last_insert_rowid();
+last_insert_rowid()
+2
+sqlite> select * from test_create_tab2;
+id|val
+1|NO id
+2|NO id 2
+
+
+sqlite> INSERT INTO test_create_tab2(id, val) VALUES (100, 'id is 100');
+sqlite> INSERT INTO test_create_tab2(val) VALUES ('NO id again');
+sqlite> select * from test_create_tab2;
+id|val
+1|NO id
+2|NO id 2
+100|id is 100
+101|NO id again
+
+
+注意：
+对于无主键的表
+SQLite  中还有一个 伪列 rowid, 可以作为自动递增的查询处理。
+
+sqlite> CREATE TABLE test_create_tab3 (
+   ...>   id   integer,
+   ...>   val  VARCHAR(10)
+   ...> );
+sqlite>
+sqlite> INSERT INTO test_create_tab3(id, val) VALUES (1, 'Test1');
+sqlite> INSERT INTO test_create_tab3(id, val) VALUES (2, 'Test2');
+sqlite> INSERT INTO test_create_tab3(id, val) VALUES (100, 'Test100');
+sqlite> INSERT INTO test_create_tab3(id, val) VALUES (101, 'Test101');
+sqlite> select rowid, id, val from test_create_tab3;
+rowid|id|val
+1|1|Test1
+2|2|Test2
+3|100|Test100
+4|101|Test101
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+使用 serial 来处理。
+
+CREATE TABLE test_create_tab2 (
+  id SERIAL, 
+  val VARCHAR(10) 
+);
+
+
+Test=# CREATE TABLE test_create_tab2 (
+Test(#   id SERIAL,
+Test(#   val VARCHAR(10)
+Test(# );
+注意:  CREATE TABLE 将为 serial 字段 "test_create_tab2.id" 创建隐含序列 "test_create_tab2_id_seq"
+CREATE TABLE
+
+
+Test=# \d test_create_tab2;
+                           资料表 "public.test_create_tab2"
+ 栏位 |         型别          |                         修饰词
+
+------+-----------------------+-------------------------------------------------
+-------
+ id   | integer               | 非空 缺省 nextval('test_create_tab2_id_seq'::regclass)
+ val  | character varying(10) |
+
+
+
+
+Test=# INSERT INTO test_create_tab2(val) VALUES ('NO id');
+INSERT 0 1
+Test=# INSERT INTO test_create_tab2(val) VALUES ('NO id 2');
+INSERT 0 1
+Test=# select * from test_create_tab2;
+ id |   val
+----+---------
+  1 | NO id
+  2 | NO id 2
+(2 行记录)
+
+
+Test=# select lastval();
+ lastval
+---------
+       2
+(1 行记录)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+
+
+
+
+</body>
+
+
+</html>

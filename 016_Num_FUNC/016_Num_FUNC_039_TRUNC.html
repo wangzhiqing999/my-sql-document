@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数学函数 - 截尾TRUNC / ROUND  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数学函数 </h1>
+
+
+<h2>  截尾TRUNC / ROUND  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT TRUNC(-123.456), TRUNC(-123.456,1), TRUNC(-123.456,-1) FROM dual;
+
+TRUNC(-123.456) TRUNC(-123.456,1) TRUNC(-123.456,-1)
+--------------- ----------------- ------------------
+           -123            -123.4               -120
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => SELECT TRUNC(-123.456), TRUNC(-123.456,1), TRUNC(-123.456,-1)
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+1        2        3
+-------- -------- --------
+-123.000 -123.400 -120.000
+
+  1 条记录已选择。
+
+
+db2 => SELECT TRUNCATE(-123.456), TRUNCATE(-123.456,1), TRUNCATE(-123.456,-1)
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+1        2        3
+-------- -------- --------
+-123.000 -123.400 -120.000
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+注：ROUND 第3个参数非0情况下，为截尾。
+
+
+1> SELECT ROUND(151.75, 1, 0), ROUND(151.75, -1, 1), ROUND(151.75, 1, 1);
+2> go
+
+------- ------- -------
+ 151.80  150.00  151.70
+
+(1 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+TRUNCATE(X,D) 
+返回被舍去至小数点后D位的数字X。
+若D 的值为 0, 则结果不带有小数点或不带有小数部分。
+可以将D设为负数,若要截去(归零) X小数点左起第D位开始后面所有低位的值.  
+
+mysql> SELECT TRUNCATE(1.223,1);
+        -> 1.2
+mysql> SELECT TRUNCATE(1.999,1);
+        -> 1.9
+mysql> SELECT TRUNCATE(1.999,0);
+        -> 1
+mysql> SELECT TRUNCATE(-1.999,1);
+        -> -1.9
+mysql> SELECT TRUNCATE(122,-2);
+       -> 100
+mysql> SELECT TRUNCATE(10.28*100,0);
+       -> 1028
+所有数字的舍入方向都接近于零。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+Test=# SELECT TRUNC(-123.456), TRUNC(-123.456,1), TRUNC(-123.456,-1);
+ trunc | trunc  | trunc
+-------+--------+-------
+  -123 | -123.4 |  -120
+(1 行记录)
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 窗口函数 - FIRST_VALUE and LAST_VALUE </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 窗口函数 </h1>
+
+
+<h2> FIRST_VALUE and LAST_VALUE  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING
+意味着 物理行从 当前行-1行开始，到当前行+1行结束。
+FIRST_VALUE 为窗口中的第一个数据.
+LAST_VALUE 为窗口中的最后一个数据.
+
+SELECT
+  student_name,
+  SUM(grade) AS AllGrade,
+  FIRST_VALUE(SUM(grade))
+    OVER(ORDER BY student_name
+      ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING) AS "第一个",
+  LAST_VALUE(SUM(grade))
+    OVER(ORDER BY student_name
+      ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING) AS "末一个"
+FROM
+  test_course
+GROUP BY
+  student_name;
+
+
+STUDENT_NA   ALLGRADE     第一个     末一个
+---------- ---------- ---------- ----------
+丙                145        145        125
+丁                125        145        120
+庚                120        125        100
+己                100        120        185
+甲                185        100        185
+奎                185        185        165
+壬                165        185        105
+戊                105        165        140
+辛                140        105        165
+乙                165        140        165
+
+已选择10行。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+SELECT
+  student_name,
+  SUM(grade) AS AllGrade,
+  FIRST_VALUE(SUM(grade))
+    OVER(ORDER BY student_name
+      ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING) AS "第一个",
+  LAST_VALUE(SUM(grade))
+    OVER(ORDER BY student_name
+      ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING) AS "末一个"
+FROM
+  test_course
+GROUP BY
+  student_name;
+
+
+ student_name | allgrade | 第一个 | 末一个
+--------------+----------+--------+--------
+ 丙           |      145 |    145 |    125
+ 丁           |      125 |    145 |    120
+ 庚           |      120 |    125 |    100
+ 己           |      100 |    120 |    185
+ 甲           |      185 |    100 |    185
+ 奎           |      185 |    185 |    165
+ 壬           |      165 |    185 |    105
+ 戊           |      105 |    165 |    140
+ 辛           |      140 |    105 |    165
+ 乙           |      165 |    140 |    165
+(10 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

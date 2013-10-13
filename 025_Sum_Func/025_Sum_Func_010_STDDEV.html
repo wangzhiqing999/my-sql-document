@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 聚集函数 - 标准偏差 STDDEV / STDEV </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 聚集函数 </h1>
+
+
+<h2>  标准偏差 STDDEV / STDEV </h2>
+
+
+标准偏差：统计学名词。一种量度数据分布的分散程度之标准，用以衡量数据值偏离算术平均值的程度。标准偏差越小，这些值偏离平均值就越少，反之亦然。
+
+标准偏差公式：S = Sqrt[(∑(xi-x拨)^2) /（N-1）]公式中∑代表总和，x拨代表x的均值，^2代表二次方，Sqrt代表平方根。
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    sale_item,
+  3    STDDEV(sale_money)
+  4  FROM
+  5    sale_report
+  6  GROUP BY
+  7    sale_item;
+
+SALE STDDEV(SALE_MONEY)
+---- ------------------
+A                     0
+B            3.45258413
+C            8.80832147
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT
+2>   sale_item,
+3>   STDEV(sale_money)
+4> FROM
+5>   sale_report
+6> GROUP BY
+7>   sale_item
+8> go
+sale_item
+--------- ------------------------
+A                                0
+C               8.8083214729855683
+B                3.452584133232603
+
+(3 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT
+    ->   sale_item,
+    ->   STDDEV_SAMP(sale_money)
+    -> FROM
+    ->   sale_report
+    -> GROUP BY
+    ->   sale_item
+    -> //
++-----------+-------------------------+
+| sale_item | STDDEV_SAMP(sale_money) |
++-----------+-------------------------+
+| A         |                0.000000 |
+| B         |                3.452584 |
+| C         |                8.808321 |
++-----------+-------------------------+
+3 rows in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+stddev(expression) 输入值的标准采样偏差（sample standard deviation）
+
+
+SELECT
+  sale_item,
+  stddev(sale_money)
+FROM
+  sale_report
+GROUP BY
+  sale_item;
+
+ sale_item |       stddev
+-----------+--------------------
+ C         | 8.8031052548850752
+ B         | 3.4498840422977069
+ A         | 1.1187225040499372
+(3 行记录)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

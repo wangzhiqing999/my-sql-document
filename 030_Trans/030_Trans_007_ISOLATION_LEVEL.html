@@ -1,0 +1,1125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 事务处理 - 数据库隔离级别 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 事务处理 </h1>
+
+
+<h2>  数据库隔离级别  </h2>
+
+
+
+<pre><code>
+
+
+
+
+数据库是要被广大客户所共享访问的，那么在数据库操作过程中很可能出现以下几种不确定情况。
+
+更新丢失（Lost update）
+　　两个事务都同时更新一行数据，但是第二个事务却中途失败退出，导致对数据的两个修改都失效了。这是因为系统没有执行任何的锁操作，因此并发事务并没有被隔离开来。
+
+脏读（Dirty Reads）
+　　一个事务开始读取了某行数据，但是另外一个事务已经更新了此数据但没有能够及时提交。这是相当危险的，因为很可能所有的操作都被回滚。
+
+不可重复读（Non-repeatable Reads）
+　　一个事务对同一行数据重复读取两次，但是却得到了不同的结果。它包括以下情况：
+　　（1） 事务T1读取某一数据后，事务T2对其做了修改，当事务T1再次读该数据时得到与前一次不同的值。
+　　（2） 幻读（Phantom Reads）：事务在操作过程中进行两次查询，
+			第二次查询的结果包含了第一次查询中未出现的数据或者缺少了第一次查询中出现的数据（这里并不要求两次查询的SQL语句相同）。
+			这是因为在两次查询过程中有另外一个事务插入数据造成的。
+
+
+
+
+为了避免上面出现的几种情况，在标准SQL规范中，定义了4个事务隔离级别，不同的隔离级别对事务的处理不同。
+　　● 未授权读取（读未提交）（Read Uncommitted）：
+		允许脏读取，但不允许更新丢失。
+		如果一个事务已经开始写数据，则另外一个数据则不允许同时进行写操作，
+		但允许其他事务读此行数据。该隔离级别可以通过“排他写锁”实现。
+
+　　● 授权读取（读提交）（Read Committed）：
+		允许不可重复读取，但不允许脏读取。
+		这可以通过“瞬间共享读锁”和“排他写锁”实现。
+		读取数据的事务允许其他事务继续访问该行数据，但是未提交的写事务将会禁止其他事务访问该行。
+
+　　● 可重复读取（Repeatable Read）：
+		禁止不可重复读取和脏读取，但是有时可能出现幻影数据。
+		这可以通过“共享读锁”和“排他写锁”实现。
+		读取数据的事务将会禁止写事务（但允许读事务），写事务则禁止任何其他事务。
+
+　　● 序列化（Serializable）：
+		提供严格的事务隔离。它要求事务序列化执行，事务只能一个接着一个地执行，但不能并发执行。
+		如果仅仅通过“行级锁”是无法实现事务序列化的，
+		必须通过其他机制保证新插入的数据不会被刚执行查询操作的事务访问到。
+
+
+隔离级别越高，越能保证数据的完整性和一致性，但是对并发性能的影响也越大。
+对于多数应用程序，可以优先考虑把数据库系统的隔离级别设为Read Committed，
+它能够避免脏读取，而且具有较好的并发性能。
+尽管它会导致不可重复读、虚读和第二类丢失更新这些并发问题，
+在可能出现这类问题的个别场合，可以由应用程序采用悲观锁或乐观锁来控制。
+
+
+
+设置隔离级别使用
+SET TRANSACTION ISOLATION LEVEL [READ UNCOMMITTED|READ COMMITTED|REPEATABLE READ|SERIALIZABLE]
+
+
+</code></pre>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+Oracle数据库支持READ COMMITTED 和 SERIALIZABLE这两种事务隔离级别。所以Oracle不支持脏读
+
+SQL标准所定义的默认事务隔离级别是SERIALIZABLE，但是Oracle 默认使用的是READ COMMITTED
+
+
+
+
+SQL> SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
+                                     *
+ERROR 位于第 1 行:
+ORA-02179: 有效选项: ISOLATION LEVEL { SERIALIZABLE | READ COMMITTED }
+
+
+
+
+Oracle  仅仅支持 SERIALIZABLE | READ COMMITTED
+默认情况下的 “READ COMMITTED”，  已经在  “多用户间锁的处理 - 简单锁定 ”  章节测试过， 这里仅仅测试 SERIALIZABLE.
+
+
+
+
+
+会话1：
+SQL> SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
+事务处理集。
+
+
+
+会话2：
+SQL> SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
+事务处理集。
+
+
+
+会话1：
+SQL> select * from test_main;
+
+        ID VALUE
+---------- --------------------
+         1 ONE
+         2 TWO
+         3 THREE
+         4 FOUR
+
+SQL> UPDATE test_main SET value = 'Four-4' WHERE id = 4;
+
+已更新 1 行。
+
+
+
+会话2：
+
+SQL> select * from test_main;
+
+        ID VALUE
+---------- --------------------
+         1 ONE
+         2 TWO
+         3 THREE
+         4 FOUR
+
+SQL> UPDATE test_main SET value ='THREE-3' WHERE id = 3;
+
+已更新 1 行。
+
+
+
+
+会话1：
+SQL> select * from test_main;
+
+        ID VALUE
+---------- --------------------
+         1 ONE
+         2 TWO
+         3 THREE
+         4 Four-4
+
+SQL> UPDATE test_main SET value ='THREE-5' WHERE id = 3;
+由于 id=3 的行，已经被会话2修改，并锁定，因此会话1当前进入等待状态。
+
+
+
+
+会话2：
+SQL> commit;
+
+提交完成。
+
+
+
+会话1：
+
+UPDATE test_main SET value ='THREE-5' WHERE id = 3
+       *
+ERROR 位于第 1 行:
+ORA-08177: 无法连续访问此事务处理
+
+
+<span class="KeyInfo">  SERIALIZABLE 模式下， 会话2修改了这行数据，  会话1不能修改此数据了。  </span>
+
+
+SQL> select * from test_main;
+
+        ID VALUE
+---------- --------------------
+         1 ONE
+         2 TWO
+         3 THREE
+         4 Four-4
+
+
+会话2：
+SQL> select * from test_main;
+
+        ID VALUE
+---------- --------------------
+         1 ONE
+         2 TWO
+         3 THREE-3
+         4 FOUR
+
+
+
+会话1：
+
+SQL> commit;
+
+提交完成。
+
+
+
+会话2：
+SQL> select * from test_main;
+
+        ID VALUE
+---------- --------------------
+         1 ONE
+         2 TWO
+         3 THREE-3
+         4 Four-4
+
+会话1：
+
+SQL> select * from test_main;
+
+        ID VALUE
+---------- --------------------
+         1 ONE
+         2 TWO
+         3 THREE-3
+         4 Four-4
+
+
+
+
+ <h4> 更新失败的例子  </h4>
+
+会话1：
+
+
+SQL> SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
+事务处理集。
+
+SQL> select * from test_main;
+
+        ID VALUE
+---------- --------------------
+         1 ONE
+         2 TWO
+         3 THREE-3
+         4 Four
+
+SQL> UPDATE test_main SET value = 'Four-4' WHERE id = 4;
+
+已更新 1 行。
+
+SQL> select * from test_main;
+
+        ID VALUE
+---------- --------------------
+         1 ONE
+         2 TWO
+         3 THREE-3
+         4 Four-4
+
+会话2：
+
+SQL> SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
+事务处理集。
+
+SQL> UPDATE test_main SET value = 'THREE' WHERE id = 3;
+
+已更新 1 行。
+
+SQL> select * from test_main;
+
+        ID VALUE
+---------- --------------------
+         1 ONE
+         2 TWO
+         3 THREE
+         4 Four
+
+SQL> commit;
+
+提交完成。
+
+SQL> select * from test_main;
+
+        ID VALUE
+---------- --------------------
+         1 ONE
+         2 TWO
+         3 THREE
+         4 Four
+
+会话1：
+
+SQL> select * from test_main;
+
+        ID VALUE
+---------- --------------------
+         1 ONE
+         2 TWO
+         3 THREE-3
+         4 Four-4
+
+
+<span class="KeyInfo">
+SERIALIZABLE 模式下， 会话2修改了这行数据，
+但是会话1认为数据都是本事务处理开始时的数据
+（相当于 认为数据库中， 就只有我一个人在处理数据，不存在我修改的同时，还有别人修改的情况）。
+</span>
+
+
+SQL> UPDATE test_main SET value ='THREE-3' WHERE id = 3;
+UPDATE test_main SET value ='THREE-3' WHERE id = 3
+*
+ERROR 位于第 1 行:
+ORA-08177: 无法连续访问此事务处理
+
+
+<span class="KeyInfo">
+SERIALIZABLE 模式下， 会话2修改了这行数据，
+会话1不能修改此数据了。
+因为不满足条件了。
+</span>
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+在DB2中，共有四种隔离级：
+1  读可靠性（RS-Read Stability）
+	如果使用这种隔离级，在一个事务中所有被读取过的行上都会被加上NS锁，直到该事务被提交或回滚，行上的锁才会被释放。
+	这样可以保证在一个事务中即使多次读取同一行，得到的值不会改变。
+	但是，如果使用这种隔离级，在一个事务中，如果使用同样的搜索标准重新打开已被处理过的游标，则结果集可能改变。
+	（可能会增加某些行，这些行被称为幻影行（Phantom））。这是因为RS隔离级不能阻止通过插入或更新操作在结果集中加入新行。
+
+
+2  重复读（RR-Repeat Read）
+	如果使用这种隔离级，在一个事务中所有被读取过的行上都会被加上S锁，知道该事务被提交或回滚，行上的锁才会被释放。
+	这样可以保证在一个事务中即使多次读取同一行，得到的值不会改变。
+	另外，在同一事务中如果以同样的搜索标准重新打开已被处理过的游标，得到的结果集不会改变。
+	重复读相对于读可靠性而言，加锁的范围更大。对于读可靠性，应用程序只对符合要求的所有行加锁，
+	而对于重复读，应用程序将对所有被扫描过的行都加锁。
+	例如，如果一个应用程序对一个表中的 10000行数据进行扫描，最终找到了100条符合搜索条件的结果行。
+	如果该应用程序使用的是读可靠性隔离级，应用程序将只对这符合条件的100行加锁；
+	如果该应用程序使用的是重复读隔离级，应用程序将对被扫描过的10000行都加锁。
+
+
+3  游标可靠性（CS-Cursor Stability）
+	如果使用这种隔离级，在一个事务中，结果集中只有正在被读取的那一行（游标指向的行）将被加上NS锁，其他未被处理的行上不被加锁。
+	这种隔离级只能保证正在被处理的行的值不会被其他并发的程序所改变。该隔离级是DB2缺省的隔离级。
+
+
+4  未提交读（UR-Uncommitted Read）
+	如果使用这种隔离级，对于只读操作，不加行锁。典型的只读操作包括：
+	SELECT语句的结果集只读（比如语句中包括ORDER BY子句）；
+	定义游标是指明起为FOR FETCH ONLY。
+	该隔离级可以改善应用程序的性能，同时可以最大程度的允许并发。
+	但是，应用程序的数据完整性将受到威胁。如果需要读取未提交的数据，该隔离级是唯一选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+ANSI 99定义了4种事务隔离级别，SQL Server 2005能够完全支持这些级别：
+
+· 未提交读 在读数据时不会检查或使用任何锁。因此，在这种隔离级别中可能读取到没有提交的数据。
+· 已提交读 只读取提交的数据并等待其他事务释放排他锁。读数据的共享锁在读操作完成后立即释放。已提交读是SQL Server的默认隔离级别。
+· 可重复读 像已提交读级别那样读数据，但会保持共享锁直到事务结束。
+· 可序列化 工作方式类似于可重复读。但它不仅会锁定受影响的数据，还会锁定这个范围。这就阻止了新数据插入查询所涉及的范围，这种情况可以导致幻像读。
+
+
+此外，SQL Server还有两种使用行版本控制来读取数据的事务级别(本章后文将详细检验这些隔离级别)。
+	行版本控制允许一个事务在数据排他锁定后读取数据的最后提交版本。由于不必等待到锁释放就可进行读操作，因此查询性能得以大大增强。
+	这两种隔离级别如下：
+
+· 已提交读快照
+	它是一种提交读级别的新实现。不像一般的提交读级别，
+	SQL Server会读取最后提交的版本并因此不必在进行读操作时等待直到锁被释放。这个级别可以替代提交读级别。
+· 快照
+	这种隔离使用行版本来提供事务级别的读取一致性。
+	这意味着在一个事务中，由于读一致性可以通过行版本控制实现，
+	因此同样的数据总是可以像在可序列化级别上一样被读取而不必为防止来自其他事务的更改而被锁定。
+
+
+
+在SQL Server 2005中，已提交读隔离级别是建立连接时的默认隔离级别。
+这个级别存在两种类型：已提交读和已提交读快照隔离级别。
+
+应用哪种类型由数据库选项定义。
+	已提交读级别，会在读数据之前等待，直到阻塞锁被释放。
+	已提交读快照级别，会在数据被其他事务阻塞时使用行版本控制来读数据最后一次提交的版本。
+
+
+
+默认情况下， 是使用 	已提交读级别，会在读数据之前等待，直到阻塞锁被释放。
+详细测试情况， 可参考  “多用户间锁的处理 - 简单锁定 ” 章节的 测试代码.
+
+
+
+
+激活已提交读快照级别
+
+1> USE master;
+2> go
+已将数据库上下文更改为 'master'。
+
+1>
+2> ALTER DATABASE Test
+3>   SET READ_COMMITTED_SNAPSHOT ON
+4> go
+
+<span class="KeyInfo">
+
+注意：设置 READ_COMMITTED_SNAPSHOT 选项时，数据库中仅允许存在执行 ALTER DATABASE 命令的连接。
+	在 ALTER DATABASE 完成之前，数据库中不允许有其他打开的连接。数据库不必处于单用户模式。
+
+</span>
+
+
+会话1：
+
+1> select * from test_main
+2> go
+id          value
+----------- ----------
+          1 ONE
+          2 TWO
+          3 THREE
+          4 FOUR
+
+(4 行受影响)
+
+
+
+1> BEGIN TRANSACTION
+2> go
+1> UPDATE test_main SET value = 'FOUR-4' WHERE id = 4
+2> go
+
+(1 行受影响)
+
+
+
+
+会话2：
+
+1> select * from test_main WHERE id = 1
+2> go
+id          value
+----------- ----------
+          1 ONE
+
+(1 行受影响)
+
+1> select * from test_main WHERE id = 4
+2> go
+id          value
+----------- ----------
+          4 FOUR
+
+(1 行受影响)
+
+
+<span class="KeyInfo">
+
+请注意： 通过
+
+ALTER DATABASE Test
+   SET READ_COMMITTED_SNAPSHOT ON
+
+以后， 会话1 修改数据， 未提交前
+
+会话2查询数据， 将不被锁定了， 而是像  Oracle 那样， 直接返回  未提交的数据.
+
+</span>
+
+
+
+会话1：
+
+1> ROLLBACK TRAN
+2> go
+
+
+USE master;
+GO
+
+-- 恢复初始配置.
+ALTER DATABASE Test
+  SET READ_COMMITTED_SNAPSHOT OFF
+GO
+
+
+
+
+
+
+
+<h4> 使用快照隔离级别 </h4>
+
+    快照隔离级别需要在数据库中一次性地激活。激活之后，每个连接可以在需要的时候使用它。
+
+
+USE master;
+GO
+
+ALTER DATABASE Test
+  SET  ALLOW_SNAPSHOT_ISOLATION ON;
+GO
+
+
+
+
+
+会话1：
+
+1> use test
+2> go
+已将数据库上下文更改为 'test'。
+1> SET TRANSACTION ISOLATION LEVEL SNAPSHOT
+2> GO
+1>
+2> BEGIN TRAN
+3> GO
+1>
+2> SELECT * FROM test_main
+3> GO
+id          value
+----------- ----------
+          1 ONE
+          2 TWO
+          3 THREE
+          4 FOUR
+
+(4 行受影响)
+
+
+
+
+会话2:
+
+E:\>sqlcmd -S "localhost\SQLEXPRESS"
+1> use test
+2> go
+已将数据库上下文更改为 'test'。
+1> UPDATE test_main SET value = 'THREE-3' WHERE id = 3;
+2> UPDATE test_main SET value = 'Four-4' WHERE id = 4;
+3> INSERT INTO test_main(id, value) VALUES (5, 'FIVE');
+4> go
+
+(1 行受影响)
+1>
+
+
+<span class="KeyInfo">
+  上面已经自动提交处理了.
+</span>
+
+
+
+
+
+会话1：
+
+1> SELECT * FROM test_main
+2> go
+id          value
+----------- ----------
+          1 ONE
+          2 TWO
+          3 THREE
+          4 FOUR
+
+(4 行受影响)
+
+<span class="KeyInfo">
+  由于快照隔离级别忽略了事务运行过程中数据的更改，因此结果与以前的相同。
+</span>
+
+
+会话1：
+
+1> commit
+2> go
+
+1> SELECT * FROM test_main
+2> go
+id          value
+----------- ----------
+          1 ONE
+          2 TWO
+          3 THREE-3
+          4 Four-4
+          5 FIVE
+
+(5 行受影响)
+
+<span class="KeyInfo">
+  事务处理结束了， 全部的最新的数据都检索出来。
+</span>
+
+
+
+
+USE master;
+GO
+
+-- 恢复默认值.
+ALTER DATABASE Test
+  SET  ALLOW_SNAPSHOT_ISOLATION OFF;
+GO
+
+
+
+
+SQL Server 当中
+SET TRANSACTION一共有以下几种级别：
+    SET TRANSACTION ISOLATION LEVEL
+{ READ UNCOMMITTED
+| READ COMMITTED
+| REPEATABLE READ
+| SNAPSHOT
+| SERIALIZABLE
+}
+[ ; ]
+
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+MySQL  默认使用的是 REPEATABLE-READ
+
+
+
+修改事务隔离级别的方法：
+
+1.全局修改，修改mysql.ini配置文件，在最后加上
+
+#可选参数有：READ-UNCOMMITTED, READ-COMMITTED, REPEATABLE-READ, SERIALIZABLE.
+[mysqld]
+transaction-isolation = REPEATABLE-READ
+
+
+
+2.对当前session修改，在登录mysql客户端后，执行命令
+
+mysql> SET  <span class="KeyInfo"> SESSION </span> TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select @@TX_ISOLATION;
++------------------+
+| @@TX_ISOLATION   |
++------------------+
+| READ-UNCOMMITTED |
++------------------+
+1 row in set (0.00 sec)
+
+
+
+
+
+<h3  class="KeyInfo"> READ UNCOMMITTED </h3>
+
+
+会话1：
+
+mysql> SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+Query OK, 0 rows affected (0.00 sec)
+
+会话2：
+
+mysql> SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+Query OK, 0 rows affected (0.00 sec)
+
+
+
+
+会话1：
+mysql> START TRANSACTION;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> UPDATE test_main SET value = 'FOUR-4' WHERE id = 4;
+Query OK, 1 row affected (0.03 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+
+会话2：
+
+mysql> select * from test_main;
++----+--------+
+| id | value  |
++----+--------+
+|  1 | ONE    |
+|  2 | TWO    |
+|  3 | THREE  |
+|  4 | FOUR-4 |
++----+--------+
+4 rows in set (0.01 sec)
+
+
+<span class="KeyInfo">
+READ UNCOMMITTED  模式下， 会话2  读取到了  会话1  修改 但是未提交的数据。
+</span>
+
+
+mysql> START TRANSACTION;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> UPDATE test_main SET value ='THREE-3' WHERE id = 3;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+
+
+会话1：
+
+mysql> select * from test_main;
++----+---------+
+| id | value   |
++----+---------+
+|  1 | ONE     |
+|  2 | TWO     |
+|  3 | THREE-3 |
+|  4 | FOUR-4  |
++----+---------+
+4 rows in set (0.00 sec)
+
+<span class="KeyInfo">
+READ UNCOMMITTED  模式下， 会话1  读取到了  会话2  修改 但是未提交的数据。
+</span>
+
+
+mysql> UPDATE test_main SET value ='THREE-5' WHERE id = 3;
+由于 id=3 的行，已经被会话2修改，并锁定，因此会话1当前进入等待状态。
+
+
+会话2：
+mysql> commit;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select * from test_main;
++----+---------+
+| id | value   |
++----+---------+
+|  1 | ONE     |
+|  2 | TWO     |
+|  3 | THREE-5 |
+|  4 | FOUR-4  |
++----+---------+
+4 rows in set (0.00 sec)
+
+
+
+会话1：
+Query OK, 1 row affected (10.86 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> rollback;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from test_main;
++----+---------+
+| id | value   |
++----+---------+
+|  1 | ONE     |
+|  2 | TWO     |
+|  3 | THREE-3 |
+|  4 | FOUR    |
++----+---------+
+4 rows in set (0.01 sec)
+
+
+
+会话2：
+mysql> select * from test_main;
++----+---------+
+| id | value   |
++----+---------+
+|  1 | ONE     |
+|  2 | TWO     |
+|  3 | THREE-3 |
+|  4 | FOUR    |
++----+---------+
+4 rows in set (0.00 sec)
+
+
+
+
+
+
+
+<h3  class="KeyInfo"> READ COMMITTED </h3>
+
+
+会话1：
+
+mysql> SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select @@TX_ISOLATION;
++----------------+
+| @@TX_ISOLATION |
++----------------+
+| READ-COMMITTED |
++----------------+
+1 row in set (0.00 sec)
+
+
+会话2：
+
+mysql> SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;
+Query OK, 0 rows affected (0.00 sec)
+
+
+会话1：
+
+
+mysql> START TRANSACTION;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from test_main;
++----+---------+
+| id | value   |
++----+---------+
+|  1 | ONE     |
+|  2 | TWO     |
+|  3 | THREE-3 |
+|  4 | FOUR    |
++----+---------+
+4 rows in set (0.00 sec)
+
+
+mysql> UPDATE test_main SET value = 'FOUR-4' WHERE id = 4;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+
+
+会话2：
+
+mysql> START TRANSACTION;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from test_main;
++----+---------+
+| id | value   |
++----+---------+
+|  1 | ONE     |
+|  2 | TWO     |
+|  3 | THREE-3 |
+|  4 | FOUR    |
++----+---------+
+4 rows in set (0.00 sec)
+
+mysql> UPDATE test_main SET value = 'THREE' WHERE id = 3;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> INSERT INTO test_main VALUES(5, 'FIVE');
+Query OK, 1 row affected (0.00 sec)
+
+
+
+会话1：
+
+mysql> select * from test_main;
++----+---------+
+| id | value   |
++----+---------+
+|  1 | ONE     |
+|  2 | TWO     |
+|  3 | THREE-3 |
+|  4 | FOUR-4  |
++----+---------+
+4 rows in set (0.00 sec)
+
+mysql> UPDATE test_main SET value ='THREE-5' WHERE id = 3;
+由于 id=3 的行，已经被会话2修改，并锁定，因此会话1当前进入等待状态。
+
+
+
+会话2：
+mysql> commit;
+Query OK, 0 rows affected (0.00 sec)
+
+
+会话1：
+Query OK, 1 row affected (3.09 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+
+mysql> select * from test_main;
++----+---------+
+| id | value   |
++----+---------+
+|  1 | ONE     |
+|  2 | TWO     |
+|  3 | THREE-5 |
+|  4 | FOUR-4  |
+|  5 | FIVE    |
++----+---------+
+5 rows in set (0.00 sec)
+
+mysql> rollback;
+Query OK, 0 rows affected (0.00 sec)
+
+<span class="KeyInfo">
+READ COMMITTED 允许幻想读、不可重复读，不允许脏读
+因此， 会话2 执行的 UPDATE 与 INSERT 并 Commit 的结果， 会话1都能看到.
+</span>
+
+
+
+
+
+
+<h3  class="KeyInfo"> REPEATABLE READ </h3>
+
+
+会话1：
+
+mysql> SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ ;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select @@TX_ISOLATION;
++-----------------+
+| @@TX_ISOLATION  |
++-----------------+
+| REPEATABLE-READ |
++-----------------+
+1 row in set (0.00 sec)
+
+
+会话2：
+
+mysql> SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ ;
+Query OK, 0 rows affected (0.00 sec)
+
+
+会话1：
+
+mysql> START TRANSACTION;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from test_main;
++----+-------+
+| id | value |
++----+-------+
+|  1 | ONE   |
+|  2 | TWO   |
+|  3 | THREE |
+|  4 | FOUR  |
+|  5 | FIVE  |
++----+-------+
+5 rows in set (0.00 sec)
+
+mysql> UPDATE test_main SET value = 'FOUR-4' WHERE id = 4;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+
+
+会话2：
+
+mysql> START TRANSACTION;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> UPDATE test_main SET value = 'THREE-3' WHERE id = 3;
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> INSERT INTO test_main VALUES(6, 'SIX');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> delete from test_main where id = 5;
+Query OK, 1 row affected (0.00 sec)
+
+
+会话1：
+mysql> select * from test_main;
++----+--------+
+| id | value  |
++----+--------+
+|  1 | ONE    |
+|  2 | TWO    |
+|  3 | THREE  |
+|  4 | FOUR-4 |
+|  5 | FIVE   |
++----+--------+
+5 rows in set (0.00 sec)
+
+
+会话2:
+mysql> commit;
+Query OK, 0 rows affected (0.00 sec)
+
+
+会话1：
+mysql> select * from test_main;
++----+--------+
+| id | value  |
++----+--------+
+|  1 | ONE    |
+|  2 | TWO    |
+|  3 | THREE  |
+|  4 | FOUR-4 |
+|  5 | FIVE   |
++----+--------+
+5 rows in set (0.00 sec)
+
+
+
+mysql> commit;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from test_main;
++----+---------+
+| id | value   |
++----+---------+
+|  1 | ONE     |
+|  2 | TWO     |
+|  3 | THREE-3 |
+|  4 | FOUR-4  |
+|  6 | SIX     |
++----+---------+
+5 rows in set (0.00 sec)
+
+
+<span class="KeyInfo">
+REPEATABLE READ 允许幻想读，不允许不可重复读和脏读
+</span>
+
+
+
+
+
+<h3  class="KeyInfo"> SERIALIZABLE </h3>
+
+略.
+可参考 Oracle 的相关处理.
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,422 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典表 - 依赖关系 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典表 </h1>
+
+
+<h2>  依赖关系 </h2>
+
+
+数据库中有 系统视图，会存储着 存储过程之间的依赖关系。
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+下面首先模拟一下 3个存储过程
+C_001 调用 B_001.
+B_001 调用 A_001.
+
+CREATE OR REPLACE PROCEDURE A_001 AS
+BEGIN
+  dbms_output.put_line('Hello World A');
+END A_001;
+/
+
+CREATE OR REPLACE PROCEDURE B_001 AS
+BEGIN
+  dbms_output.put_line('Hello World B');
+  A_001();
+END B_001;
+/
+
+CREATE OR REPLACE PROCEDURE C_001 AS
+BEGIN
+  dbms_output.put_line('Hello World A');
+  B_001();
+END C_001;
+/
+
+SELECT
+  NAME,
+  REFERENCED_NAME
+FROM
+  USER_DEPENDENCIES
+WHERE
+  TYPE = 'PROCEDURE'
+  AND REFERENCED_TYPE = 'PROCEDURE';
+
+NAME
+---------------
+REFERENCED_NAME
+---------------
+C_001
+B_001
+
+B_001
+A_001
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+<h3> 存储过程依赖存储过程  </h3>
+
+
+下面首先模拟一下 3个存储过程
+C_001 调用 B_001.
+B_001 调用 A_001.
+
+
+CREATE PROCEDURE A_001 AS
+BEGIN
+  PRINT 'Hello World A';
+END;
+go
+
+CREATE PROCEDURE B_001 AS
+BEGIN
+  PRINT 'Hello World B';
+  EXECUTE A_001;
+END;
+go
+
+CREATE PROCEDURE C_001 AS
+BEGIN
+  PRINT 'Hello World C';
+  EXECUTE B_001;
+END;
+go
+
+
+
+select
+  base.name AS [存储过程],
+  dep.name AS [依赖的存储过程]
+from
+  sysdepends
+    JOIN sys.procedures base
+      ON (sysdepends.id  =  base.object_id)
+    JOIN sys.procedures dep
+      ON (sysdepends.depid  =  dep.object_id);
+
+
+存储过程 依赖的存储过程
+B_001 A_001
+C_001 B_001
+
+
+
+写好了这个 SQL， 再去查询一下手册，看看 sysdepends 视图里面的其他字段的内容。
+结果发现：
+
+重要提示：
+将此 SQL Server 2000 系统表作为一个视图包含进来是为了保持向后兼容性。
+建议您改用当前的 SQL Server 系统视图。
+若要查找一个或多个等效系统视图，请参阅将 SQL Server 2000 系统表映射到 SQL Server 2005 系统视图。
+后续版本的 Microsoft SQL Server 将删除该功能。
+请避免在新的开发工作中使用该功能，并着手修改当前还在使用该功能的应用程序。
+
+
+再回来修改一下 SQL 语句。
+修改为：
+
+select
+  base.name  AS [存储过程],
+  depend.referenced_entity_name AS [依赖的存储过程]
+from
+  sys.sql_expression_dependencies depend
+    JOIN sys.procedures base
+      ON (depend.referencing_id =  base.object_id)
+where
+  depend.is_caller_dependent = 1;
+
+
+存储过程 依赖的存储过程
+B_001 A_001
+C_001 B_001
+
+
+
+
+<hr/>
+
+<h3> 存储过程依赖表  </h3>
+
+-- 存储过程 A_010 中， 使用了 A 这个表.
+CREATE PROCEDURE A_010 AS
+BEGIN
+  SELECT * FROM A;
+END;
+go
+
+
+-- 查询 存储过程 A_010， 使用了哪些表.
+select
+  DISTINCT
+  base.name AS [存储过程],
+  dep.name AS [依赖的表名称]
+from
+  sysdepends
+    JOIN sys.procedures base
+      ON (sysdepends.id  =  base.object_id)
+    JOIN sys.tables dep
+      ON (sysdepends.depid  =  dep.object_id)
+WHERE
+  base.name = 'A_010';
+
+
+存储过程	依赖的表名称
+A_010	A
+
+
+
+-- 查询 A 表， 被哪些存储过程引用.
+select
+  DISTINCT
+  base.name AS [存储过程],
+  dep.name AS [依赖的表名称]
+from
+  sysdepends
+    JOIN sys.procedures base
+      ON (sysdepends.id  =  base.object_id)
+    JOIN sys.tables dep
+      ON (sysdepends.depid  =  dep.object_id)
+WHERE
+  dep.name = 'A';
+
+存储过程	依赖的表名称
+A_010	A
+
+
+
+
+<hr/>
+
+<h3> 函数依赖函数  </h3>
+
+
+首先模拟一下 3个 函数
+FC_001 调用 FB_001.
+FB_001 调用 FA_001.
+
+
+
+CREATE FUNCTION FA_001()
+RETURNS INT AS
+BEGIN
+  RETURN 1;
+END;
+go
+
+
+CREATE FUNCTION FB_001()
+RETURNS INT AS
+BEGIN
+  DECLARE @result  INT;
+  SET @result = dbo.FA_001();
+  SET @result = @result + 1;
+  RETURN @result;
+END;
+go
+
+CREATE FUNCTION FC_001()
+RETURNS INT AS
+BEGIN
+  DECLARE @result  INT;
+  SET @result = dbo.FB_001();
+  SET @result = @result + 1;
+  RETURN @result;
+END;
+go
+
+
+1> SELECT dbo.FC_001()
+2> GO
+
+-----------
+          3
+
+(1 行受影响)
+
+
+
+select
+  base.name  AS [函数],
+  depend.referenced_entity_name AS [依赖的函数]
+from
+  sys.sql_expression_dependencies depend
+    JOIN dbo.sysobjects base
+      ON (depend.referencing_id =  base.id)
+	JOIN sys.sysobjects dep
+      ON (depend.referenced_id  =  dep.id)
+where
+  base.xtype IN ('IF', 'TF', 'FN') 
+  AND dep.xtype IN ('IF', 'TF', 'FN') 
+
+  
+  
+函数                                              依赖的函数
+------------------------------------------------ -------------------------------
+FB_001                                             FA_001
+FC_001                                             FB_001
+
+(2 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+下面首先模拟一下 3个存储过程
+C_001 调用 B_001.
+B_001 调用 A_001.
+
+
+
+CREATE OR REPLACE FUNCTION A_001() RETURNS void AS
+$$
+BEGIN
+  INSERT INTO log_table VALUES ('A_001'); 
+END;
+$$
+LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION B_001() RETURNS void AS
+$$
+BEGIN
+  PERFORM  A_001();
+  INSERT INTO log_table VALUES ('B_001'); 
+END;
+$$
+LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION C_001() RETURNS void AS
+$$
+BEGIN
+  PERFORM  B_001();
+  INSERT INTO log_table VALUES ('C_001'); 
+END;
+$$
+LANGUAGE plpgsql;
+
+
+Test=# select C_001();
+ c_001
+-------
+
+(1 行记录)
+
+
+Test=# select * from log_table;
+ log_text
+----------
+ A_001
+ B_001
+ C_001
+(3 行记录)
+
+
+
+
+-- 暂时没找到哪一个系统视图存储这些信息。
+pg_depend 好像仅仅是存储 表的.
+
+
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

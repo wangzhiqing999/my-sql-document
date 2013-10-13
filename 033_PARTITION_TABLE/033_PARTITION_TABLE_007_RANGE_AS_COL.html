@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 分区表 - RANGE分区- 计算列的分区  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 分区表 </h1>
+
+
+<h2> RANGE分区- 计算列的分区 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+-- 创建分区函数
+CREATE PARTITION FUNCTION sale_month_part_func(INT)
+AS RANGE RIGHT FOR VALUES(
+ 0,1,2,3,4,5,6,7,8,9,10,11
+);
+
+
+
+-- 创建分区架构（Schema）
+CREATE PARTITION SCHEME sale_month_part_sche
+AS PARTITION sale_month_part_func
+TO (
+  [PRIMARY], [PRIMARY], [PRIMARY],
+  [PRIMARY], [PRIMARY], [PRIMARY],
+  [PRIMARY], [PRIMARY], [PRIMARY],
+  [PRIMARY], [PRIMARY], [PRIMARY], [PRIMARY]
+);
+go
+
+-- 创建分区表.
+CREATE TABLE sale_data (
+  sale_date  DATETIME NOT NULL ,
+  sale_month AS  CAST(MONTH(sale_date) AS INT)  PERSISTED NOT NULL,
+  sale_item  VARCHAR(2) NOT NULL ,
+  sale_money DECIMAL(10,2) NOT NULL
+) ON sale_month_part_sche(sale_month);
+go
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

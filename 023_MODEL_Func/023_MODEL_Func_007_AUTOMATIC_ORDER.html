@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> MODEL查询函数 -  AUTOMATIC ORDER  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> MODEL查询函数 </h1>
+
+
+<h2>  AUTOMATIC ORDER </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+-- 初始情况下，正确的赋值顺序。
+SELECT x, s, s1, s2, s3 FROM DUAL
+MODEL 
+  DIMENSION BY (1 AS x)  -- 维度 1
+  MEASURES (1024 AS s, 0 AS s1, 0 AS s2, 0 AS s3) -- 初始值
+  RULES (
+    s1[1] = s[1] / 2,
+    s2[1] = s1[1] / 2,
+    s3[1] = s2[1] / 2
+  );
+
+         X          S         S1         S2         S3
+---------- ---------- ---------- ---------- ----------
+         1       1024        512        256        128
+
+-- 假如赋值顺序被打乱了。
+SELECT x, s, s1, s2, s3 FROM DUAL
+MODEL 
+  DIMENSION BY (1 AS x)  -- 维度 1
+  MEASURES (1024 AS s, 0 AS s1, 0 AS s2, 0 AS s3) -- 初始值
+  RULES (
+    s3[1] = s2[1] / 2,
+    s2[1] = s1[1] / 2,
+    s1[1] = s[1] / 2
+  );
+
+         X          S         S1         S2         S3
+---------- ---------- ---------- ---------- ----------
+         1       1024        512          0          0
+
+
+-- 自动调整赋值顺序.
+SELECT x, s, s1, s2, s3 FROM DUAL
+MODEL 
+  DIMENSION BY (1 AS x)  -- 维度 1
+  MEASURES (1024 AS s, 0 AS s1, 0 AS s2, 0 AS s3) -- 初始值
+  RULES AUTOMATIC ORDER
+  (
+    s3[1] = s2[1] / 2,
+    s2[1] = s1[1] / 2,
+    s1[1] = s[1] / 2
+  );
+
+         X          S         S1         S2         S3
+---------- ---------- ---------- ---------- ----------
+         1       1024        512        256        128
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

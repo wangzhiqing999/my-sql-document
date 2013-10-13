@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 临时表 - 总结 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 临时表 </h1>
+
+
+<h2> 总结  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+临时表在事前先创建好
+会话/存储过程中，只作INSERT/SELECT操作
+避免在存储过程中，创建临时表
+
+临时表数据，仅仅当前会话能够检索到，会话一的数据，在会话二那里，无法检索到，只能检索到表结构。
+
+Oracle 不会在会话结束后，删除临时表。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+与 Oracle 一样
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+临时表在会话中创建，会话结束的时候，数据库自动删除临时表
+
+对于 本地临时表 (#开头的) 其他会话无法访问数据与表结构
+对于 全局临时表 (##开头的) 其他会话可以访问数据与表结构
+
+SQL Server会在会话结束以后，自动删除临时表。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+临时表在会话中创建，会话结束的时候，数据库自动删除临时表
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+临时表在会话中创建，会话结束的时候，数据库自动删除临时表
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+与 Oracle 一样
+
+
+自己还额外多一个  ON COMMIT   DROP 的选择。
+
+具体语法为：
+
+[ ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP } ]
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 控制结构 - 循环控制Break 与 Continue  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 控制结构 </h1>
+
+
+<h2> 循环控制Break 与 Continue  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+注：Oracle不支持 Break与Continue.
+Break 使用 EXIT 替换;
+Continue使用GOTO替换.
+
+<pre><code>
+
+SQL> DECLARE
+  2    testvalue  INT;
+  3  BEGIN
+  4    testvalue := 0;
+  5    WHILE testvalue &lt; 5 LOOP
+  6      &lt;&lt;l_Begin_Loop&gt;&gt;
+  7      testvalue := testvalue + 1;
+  8      IF testvalue = 2 THEN
+  9        GOTO l_Begin_Loop;
+ 10      END IF;
+ 11      IF testvalue = 4 THEN
+ 12        EXIT;
+ 13      END IF;
+ 14      dbms_output.put_line( TO_CHAR(testvalue) );
+ 15    END LOOP;
+ 16  END;
+ 17  /
+1
+3
+PL/SQL procedure successfully completed.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+注：DB2不支持 Break与Continue.
+Break 使用 LEAVE替换;
+Continue使用ITERATE替换.
+
+<pre><code>
+
+db2 => TRUNCATE TABLE output_debug IMMEDIATE
+DB20000I  SQL 命令成功完成。
+db2 =>
+db2 => BEGIN \
+db2 (cont.) =>   DECLARE testvalue  INT;  \
+db2 (cont.) =>   SET testvalue = 0; \
+db2 (cont.) =>   MyLoop: LOOP  \
+db2 (cont.) =>     SET testvalue = testvalue + 1;  \
+db2 (cont.) =>     IF testvalue = 2 THEN \
+db2 (cont.) =>       ITERATE MyLoop; \
+db2 (cont.) =>     END IF; \
+db2 (cont.) =>     IF testvalue = 4 THEN  \
+db2 (cont.) =>       LEAVE MyLoop;  \
+db2 (cont.) =>     END IF;  \
+db2 (cont.) =>     INSERT INTO output_debug VALUES( TO_CHAR(testvalue) ); \
+db2 (cont.) =>   END LOOP;  \
+db2 (cont.) => END
+DB20000I  SQL 命令成功完成。
+
+db2 => select * from output_debug
+
+DATA
+---------------------------------
+1
+3
+
+  2 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> DECLARE
+2>   @testvalue AS INT;
+3> BEGIN
+4>   SET @testvalue = 0;
+5>   WHILE @testvalue &lt; 5
+6>   BEGIN
+7>     SET @testvalue = @testvalue + 1;
+8>     IF @testvalue = 2
+9>     BEGIN
+10>       CONTINUE;
+11>     END;
+12>     IF @testvalue = 4
+13>     BEGIN
+14>       BREAK;
+15>     END;
+16>     PRINT ( @testvalue );
+17>   END
+18> END;
+19> go
+1
+3
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+注：MySQL不支持 Break与Continue.
+Break 使用 LEAVE替换;
+Continue使用ITERATE替换.
+
+<pre><code>
+
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE TestIterateLeave()
+    -> BEGIN
+    ->   DECLARE v_index INT;
+    ->
+    ->   SET v_index = 0;
+    ->
+    ->   while_label: WHILE v_index &lt; 5 DO
+    ->     SET v_index = v_index + 1;
+    ->
+    ->     IF v_index = 2 THEN
+    ->       ITERATE while_label;
+    ->     END IF;
+    ->
+    ->     IF v_index = 4 THEN
+    ->       LEAVE while_label;
+    ->     END IF;
+    ->
+    ->     SELECT v_index;
+    ->   END WHILE;
+    ->
+    -> END//
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> call TestIterateLeave() //
++---------+
+| v_index |
++---------+
+|       1 |
++---------+
+1 row in set (0.00 sec)
+
++---------+
+| v_index |
++---------+
+|       3 |
++---------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+支持 Continue
+Break 使用 EXIT 替换
+
+
+Test=# TRUNCATE TABLE output_debug;
+TRUNCATE TABLE
+Test=#
+Test=# CREATE OR REPLACE FUNCTION TestExitContinue() RETURNS void AS
+Test-# $$
+Test$# DECLARE
+Test$#   testvalue  INT;
+Test$# BEGIN
+Test$#   testvalue := 0;
+Test$#   FOR testvalue IN 1..5 LOOP
+Test$#  IF testvalue = 2 THEN
+Test$#    CONTINUE;
+Test$#     END IF;
+Test$#     IF testvalue = 4 THEN
+Test$#    EXIT;
+Test$#     END IF;
+Test$#     INSERT INTO output_debug VALUES( testvalue );
+Test$#   END LOOP;
+Test$# END;
+Test$# $$
+Test-# LANGUAGE plpgsql;
+CREATE FUNCTION
+Test=# SELECT TestExitContinue();
+ testexitcontinue
+------------------
+
+(1 行记录)
+
+
+Test=#
+Test=#
+Test=# select * from output_debug;
+ data
+------
+ 1
+ 3
+(2 行记录)
+
+
+Test=#
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

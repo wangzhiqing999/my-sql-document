@@ -1,0 +1,226 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 异常处理 - 异常代码 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 异常处理 </h1>
+
+
+<h2> 异常代码  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> DECLARE
+  2    p_test_val  INT;
+  3  BEGIN
+  4    -- 导致一个 除零错误
+  5    p_test_val := 1024 / 0;
+  6    dbms_output.put_line(TO_CHAR(p_test_val));
+  7
+  8    EXCEPTION
+  9      WHEN OTHERS THEN
+ 10        dbms_output.put_line('Error Code = ' || TO_CHAR(SQLCODE) );
+ 11        dbms_output.put_line('Error Message = ' || SQLERRM );
+ 12  END;
+ 13  /
+Error Code = -1476
+Error Message = ORA-01476: divisor is equal to zero
+
+PL/SQL procedure successfully completed.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+DB2 中，如果需要使用 sqlcode ，那么必须先 DECLARE 以后，才能使用。
+
+
+TRUNCATE TABLE output_debug IMMEDIATE@
+
+BEGIN
+  -- 暂存变量.
+  DECLARE  p_test_val    INT;
+  -- DB2 中，如果需要使用 sqlcode ，那么必须先 DECLARE 以后，才能使用。
+  DECLARE sqlcode  INT;
+  -- 定义 异常处理.  
+  DECLARE exit handler FOR sqlexception
+  BEGIN
+    -- 异常处理
+    INSERT INTO output_debug VALUES('出错啦！' || TO_CHAR(sqlcode));
+  END; 
+  -- 导致一个 除零错误
+  SET p_test_val = 1024 / 0;
+END
+@
+
+db2 => select * from output_debug@
+
+DATA
+-----------------------------------
+出错啦！-801
+
+  1 条记录已选择。
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+错误级别从 0 到 25， 其中 19 到 25 是重大错误级别。
+注：小于 0 的级别被解释为 0，大于 25 的级别被解释为 25。
+
+19 到 25 级别的错误，只能由 sysadmin 角色的成员用 WITH LOG 选项指定。
+19 到 25 级别的错误，将记录到错误日志和应用程序日志。
+20 到 25 级别的错误，被认为是致命的；遇到致命的级别错误，客户端的连接将在收到消息后终止。
+
+
+
+1> DECLARE
+2>   @test_val  INT;
+3> BEGIN TRY
+4>   -- 导致一个 除零错误
+5>   SET @test_val = 1024 / 0;
+6>   PRINT(STR(@test_val));
+7> END TRY
+8> BEGIN CATCH
+9>   PRINT('错误代码 = ' + STR(ERROR_NUMBER()));
+10>   PRINT('错误严重级别 = ' + STR(ERROR_SEVERITY()));
+11>   PRINT('错误状态代码 = ' + STR(ERROR_STATE()));
+12>   PRINT('错误信息 = ' + ERROR_MESSAGE());
+13> END CATCH
+14> go
+错误代码 =       8134
+错误严重级别 =         16
+错误状态代码 =          1
+错误信息 = 遇到以零作除数错误。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+truncate table log_table;
+
+
+CREATE OR REPLACE FUNCTION TestException() RETURNS void AS
+$$
+DECLARE  
+  v_test_val    INT;
+BEGIN
+  -- 导致一个 除零错误.
+  v_test_val := 1024 / 0;
+  
+  EXCEPTION
+    WHEN division_by_zero THEN
+      -- 异常自己处理
+	  INSERT INTO log_table VALUES ('错误代码：' || SQLSTATE);
+      INSERT INTO log_table VALUES ('错误信息：' || SQLERRM);
+END;
+$$
+LANGUAGE plpgsql;
+
+
+
+Test=# select TestException();
+ testexception
+---------------
+
+(1 行记录)
+
+
+Test=# select * from log_table;
+     log_text
+------------------
+ 错误代码：22012
+ 错误信息：除以零
+(2 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,364 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - TOP-N  只取前面N条 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> TOP-N  只取前面N条 </h2>
+
+
+要求 查询 SALE_REPORT 表中，每日销售金额(SALE_MONEY)合计最大的10条数据，要求按从大到小，取前10条。（无视 SALE_ITEM 字段）
+
+对于没有前10条记录要求的SQL是一样的：
+
+<pre><code>
+
+SELECT
+  SALE_DATE,
+  SUM(SALE_MONEY) AS SUM_MONEY
+FROM
+  SALE_REPORT
+GROUP BY
+  SALE_DATE
+ORDER BY
+  SUM(SALE_MONEY) DESC;
+
+</code></pre>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SELECT
+  ROWNUM AS NO,
+  A.SALE_DATE,
+  A.SUM_MONEY
+FROM
+  (
+  SELECT
+    SALE_DATE,
+    SUM(SALE_MONEY) AS SUM_MONEY
+  FROM
+    SALE_REPORT
+  GROUP BY
+    SALE_DATE
+  ORDER BY
+    SUM(SALE_MONEY) DESC
+  ) A
+WHERE
+  ROWNUM &lt;= 10
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+SELECT
+  SALE_DATE,
+  SUM(SALE_MONEY) AS SUM_MONEY
+FROM
+  SALE_REPORT
+GROUP BY
+  SALE_DATE
+ORDER BY
+  SUM(SALE_MONEY) DESC
+fetch first 10 rows only;
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SELECT
+    TOP 10
+    ROW_NUMBER() OVER (ORDER BY SUM(SALE_MONEY) DESC) AS NO,
+    SALE_DATE,
+    SUM(SALE_MONEY) AS SUM_MONEY
+  FROM
+    SALE_REPORT
+  GROUP BY
+    SALE_DATE
+  ORDER BY
+    SUM(SALE_MONEY) DESC
+
+下面的语句，取前 10条记录数.
+
+DECLARE @n AS BIGINT
+SET @n = 10
+SELECT
+  TOP (@n)
+  ROW_NUMBER() OVER (ORDER BY SUM(SALE_MONEY) DESC) AS NO,
+  SALE_DATE,
+  SUM(SALE_MONEY) AS SUM_MONEY
+FROM
+  SALE_REPORT
+GROUP BY
+  SALE_DATE
+ORDER BY
+  SUM(SALE_MONEY) DESC
+
+
+下面的语句，取前 1.1% 的记录数.
+
+DECLARE @p AS FLOAT
+SET @p = 1.1
+SELECT
+  TOP (@p) PERCENT
+  ROW_NUMBER() OVER (ORDER BY SUM(SALE_MONEY) DESC) AS NO,
+  SALE_DATE,
+  SUM(SALE_MONEY) AS SUM_MONEY
+FROM
+  SALE_REPORT
+GROUP BY
+  SALE_DATE
+ORDER BY
+  SUM(SALE_MONEY) DESC
+
+
+TOP N  WITH TIES
+
+WITH TIES
+	指定从基本结果集中返回额外的行，
+	对于 ORDER BY 列中指定的排序方式参数，
+	这些额外的返回行的该参数值与 TOP n (PERCENT) 行中的最后一行的该参数值相同。
+	只能在 SELECT 语句中且只有在指定了 ORDER BY 子句之后，才能指定 TOP...WITH TIES。
+
+
+
+
+CREATE TABLE #test ( id INT )
+GO
+
+
+INSERT INTO #test
+SELECT 1 UNION ALL
+SELECT 1 UNION ALL
+SELECT 2 UNION ALL
+SELECT 2 UNION ALL
+SELECT 3 UNION ALL
+SELECT 4 UNION ALL
+SELECT 5 UNION ALL
+SELECT 6;
+GO
+
+
+SELECT TOP 3
+  *
+FROM
+  #test
+ORDER BY id;
+GO
+
+id
+-----------
+          1
+          1
+          2
+
+(3 rows affected)
+
+
+
+-- With ties 的例子：
+
+SELECT TOP 3 WITH TIES
+  *
+FROM
+  #test
+ORDER BY id;
+GO
+
+id
+-----------
+          1
+          1
+          2
+          2
+
+(4 rows affected)
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+
+
+注：
+LIMIT 接受一个或两个数字参数。
+参数必须是一个整数常量。
+如果给定两个参数，第一个参数指定第一个返回记录行的偏移量，
+第二个参数指定返回记录行的最大数目。
+初始记录行的偏移量是 0(而不是 1)
+
+<pre><code>
+
+SELECT
+  SALE_DATE,
+  SUM(SALE_MONEY) AS SUM_MONEY
+FROM
+  SALE_REPORT
+GROUP BY
+  SALE_DATE
+ORDER BY
+  SUM(SALE_MONEY) DESC
+LIMIT 0, 10
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+
+处理逻辑同 Mysql
+
+<pre><code>
+
+SELECT
+  SALE_DATE,
+  SUM(SALE_MONEY) AS SUM_MONEY
+FROM
+  SALE_REPORT
+GROUP BY
+  SALE_DATE
+ORDER BY
+  SUM(SALE_MONEY) DESC
+LIMIT 0, 3;
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+SELECT select_list
+    FROM table_expression
+    [ ORDER BY sort_expression1 [ASC | DESC] [, sort_expression2 [ASC | DESC] ...] ]
+    [ LIMIT { number | ALL } ] [ OFFSET number ]
+
+
+如果给出了一个限制计数，那么返回不超过那么多的行。
+（但可能更少些，因为查询本身可能生成的行数就比较少。）
+LIMIT ALL和省略 LIMIT子句一样。
+
+OFFSET说明在开始返回行之前忽略多少行。
+OFFSET 0和省略OFFSET子句是一样的。
+如果OFFSET和LIMIT都出现了，
+那么在计算LIMIT个行之前忽略OFFSET行。
+
+
+
+SELECT
+  SALE_DATE,
+  SUM(SALE_MONEY) AS SUM_MONEY
+FROM
+  SALE_REPORT
+GROUP BY
+  SALE_DATE
+ORDER BY
+  SUM(SALE_MONEY) DESC
+LIMIT 10  OFFSET 0;
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+
+
+/* 普通 Top 3 */
+> db.SALE_REPORT.find().limit(3)
+{ "_id" : ObjectId("52401bccc3093463b4f17ea7"), "SALE_DATE" : ISODate("2009-01-15T00:00:00Z"), "SALE_ITEM" : "A", "SALE_MONEY" : 1 }
+{ "_id" : ObjectId("52401bccc3093463b4f17ea8"), "SALE_DATE" : ISODate("2009-02-15T00:00:00Z"), "SALE_ITEM" : "A", "SALE_MONEY" : 2 }
+{ "_id" : ObjectId("52401bccc3093463b4f17ea9"), "SALE_DATE" : ISODate("2009-03-15T00:00:00Z"), "SALE_ITEM" : "A", "SALE_MONEY" : 3 }
+
+
+/* 按 SALE_MONEY 逆序  Top 3 */
+> db.SALE_REPORT.find().sort( {SALE_MONEY:-1}  ).limit(3)
+{ "_id" : ObjectId("52401bcec3093463b4f17eb2"), "SALE_DATE" : ISODate("2009-06-15T00:00:00Z"), "SALE_ITEM" : "B", "SALE_MONEY" : 16 }
+{ "_id" : ObjectId("52401bccc3093463b4f17eb1"), "SALE_DATE" : ISODate("2009-05-15T00:00:00Z"), "SALE_ITEM" : "B", "SALE_MONEY" : 15 }
+{ "_id" : ObjectId("52401bccc3093463b4f17eb0"), "SALE_DATE" : ISODate("2009-04-15T00:00:00Z"), "SALE_ITEM" : "B", "SALE_MONEY" : 14 }
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

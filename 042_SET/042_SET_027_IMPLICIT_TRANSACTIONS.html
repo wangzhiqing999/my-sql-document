@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库会话的基本参数设置 SET - 隐式事务模式 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库会话的基本参数设置 SET </h1>
+
+
+<h2> 隐式事务模式  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SET IMPLICIT_TRANSACTIONS { ON | OFF }
+
+备注
+如果设置为 ON，SET IMPLICIT_TRANSACTIONS 将连接设置为隐式事务模式。如果设置为 OFF，则使连接恢复为自动提交事务模式。
+
+如果连接处于隐式事务模式，并且当前不在事务中，则执行下列任一语句都可启动事务：
+ALTER TABLE
+FETCH
+REVOKE
+CREATE 
+GRANT
+SELECT
+DELETE
+INSERT
+TRUNCATE TABLE
+DROP
+OPEN
+UPDATE
+
+如果连接已经在打开的事务中，则上述语句不会启动新事务。
+对于因为此设置为 ON 而自动打开的事务，用户必须在该事务结束时将其显式提交或回滚。否则，当用户断开连接时，事务及其包含的所有数据更改将被回滚。事务提交后，执行上述任一语句即可启动一个新事务。
+隐式事务模式将始终生效，直到连接执行 SET IMPLICIT_TRANSACTIONS OFF 语句使连接恢复为自动提交模式。在自动提交模式下，所有单个语句在成功完成时将被提交。
+进行连接时，SQL Server 的 SQL Native Client OLE DB 访问接口和 SQL Native Client ODBC 驱动程序会自动将 IMPLICIT_TRANSACTIONS 设置为 OFF。对于与 SQLClient 托管提供程序的连接以及通过 HTTP 端点接收的 SOAP 请求，SET IMPLICIT_TRANSACTIONS 默认为 OFF。
+如果 SET ANSI_DEFAULTS 为 ON，则 SET IMPLICIT_TRANSACTIONS 也为 ON。
+SET IMPLICIT_TRANSACTIONS 的设置是在执行或运行时设置的，而不是在分析时设置的。
+
+E:\>sqlcmd -S "localhost\SQLEXPRESS"
+1> use test
+2> go
+已将数据库上下文更改为 'test'。
+1> SET IMPLICIT_TRANSACTIONS ON
+2> GO
+1> select * from test_main;
+2> GO
+id          value
+----------- ----------
+          1 ONE1
+          2 TWO1
+          3 Three1
+          4 FOUR1
+
+(4 行受影响)
+1> INSERT INTO test_main VALUES(5, 'T')
+2> go
+
+(1 行受影响)
+1> select @@TRANCOUNT
+2> go
+
+-----------
+          1
+
+(1 行受影响)
+1> exit
+
+这里未提交事务，直接退出。然后再次进入sqlcmd
+
+E:\>sqlcmd -S "localhost\SQLEXPRESS"
+1> use test
+2> go
+已将数据库上下文更改为 'test'。
+1> select * from test_main;
+2> go
+id          value
+----------- ----------
+          1 ONE1
+          2 TWO1
+          3 Three1
+          4 FOUR1
+
+(4 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

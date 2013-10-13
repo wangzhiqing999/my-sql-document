@@ -1,0 +1,455 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据类型-日期类型 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据类型 </h1>
+
+
+<h2> 日期类型 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+DATE
+包含 世纪、年、月、日、时、分、秒。
+占用7个字节，上面每个部分1个字节
+
+TIMESTAMP  日期时间 可以包含到小数秒
+TIMESTAMP WITH TIME ZONE 包含时区信息
+TIMESTAMP WITH LOCAL TIME ZONE包含时区信息，自动调整
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+DB2 提供了三种存储日期和时间的数据类型：
+
+DATE   占4个字节
+TIME   占4个字节
+TIMESTAMP 占12个字节
+
+注意！这些数据类型的值在数据库中存储为一种内部格式；
+但是应用程序可以将其作为字符串操纵。在检索这些数据类型之一时，它被表示为字符串。
+在更新这些数据类型时，将值包围在引号中。
+
+DB2 提供了操纵日期时间值的内置函数。
+例如，可以使用 DAYOFWEEK 或 DAYNAME 函数判断一个日期值是星期几。
+使用 DAYS 函数计算两个日期之间相差多少天。
+DB2 还提供了特殊寄存器以根据时间-日期时钟生成当前日期、时间或时间戳。
+例如，CURRENT DATE 返回一个表示系统上的当前日期的字符串。
+
+日期和时间值的格式取决于在创建数据库时指定的数据库国家编码。
+有几种可用的格式：ISO、USA、EUR 和 JIS。
+例如，如果数据库使用 USA 格式，那么日期值的格式是 mm/dd/yyyy。
+在创建应用程序时，可以使用 BIND 命令的 DATETIME 选项改变格式。
+
+TIMESTAMP 数据类型只有一种格式。字符串表示是 yyyy-mm-dd-hh.mm.ss.nnnnnn。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+SQL Server 2005 前 (含2005)
+包含两种数据类型：
+smalldatetime
+
+占用4字节，范围1900-1-1～2079-6-6 精度到“分”
+日期范围	1900-01-01 到 2079-06-06    1900 年 1 月 1 日到 2079 年 6 月 6 日
+时间范围	00:00:00 到 23:59:59
+			2007-05-09 23:59:59 将舍入为
+			2007-05-10 00:00:00
+元素范围	YYYY 是表示年份的四位数字，范围为 1900 到 2079。
+			MM 是表示指定年份中的月份的两位数字，范围为 01 到 12。
+			DD 是表示指定月份中的某一天的两位数字，范围为 01 到 31（最高值取决于相应月份）。
+			hh 是表示小时的两位数字，范围为 00 到 23。
+			mm 是表示分钟的两位数字，范围为 00 到 59。
+			ss 是表示秒钟的两位数字，范围为 00 到 59。
+			小于或等于 29.998 秒的值向下舍入为最接近的分钟数；大于或等于 29.999 秒的值向上舍入为最接近的分钟数。
+
+字符长度	最高 19 位
+存储大小	固定 4 个字节。
+精确度		一分钟
+默认值		1900-01-01 00:00:00
+
+
+datetime
+占用8字节，范围1753-1-1～9999-12-31 精度到 百分之三秒
+日期范围	1753 年 1 月 1 日到 9999 年 12 月 31 日
+时间范围	00:00:00 到 23:59:59.997
+时区偏移量范围	无
+各元素的范围	YYYY 是表示年份的四位数字，范围为 1753 到 9999。
+				MM 是表示指定年份中的月份的两位数字，范围为 01 到 12。
+				DD 是表示指定月份中的某一天的两位数字，范围为 01 到 31（最高值取决于相应月份）。
+				hh 是表示小时的两位数字，范围为 00 到 23。
+				mm 是表示分钟的两位数字，范围为 00 到 59。
+				ss 是表示秒钟的两位数字，范围为 00 到 59。
+				n* 为一个 0 到 3 位的数字，范围为 0 到 999，表示秒的小数部分。
+字符长度	最低 19 位到最高 23 位
+存储大小	8 字节
+精确度	舍入到 .000、.003 或 .007 秒三个增量。
+默认值	1900-01-01 00:00:00
+
+
+
+
+SQL Server 2008 新增
+
+time
+默认的字符串文字格式	hh:mm:ss[.nnnnnnn]
+范围	00:00:00.0000000 到 23:59:59.9999999
+各元素的范围	hh 是表示小时的两位数字，范围为 0 到 23。
+				Mm 是表示分钟的两位数字，范围为 0 到 59。
+				Ss 是表示秒的两位数字，范围为 0 到 59。
+				N* 是 0 到 7 位数字，范围为 0 到 9999999，它表示秒的小数部分。
+字符长度	最小 8 位 (hh:mm:ss)，最大 16 位 (hh:mm:ss.nnnnnnn)
+精度、小数位数
+（用户只能指定小数位数）	指定的小数位数	结果 (精度, 小数位数)	列长度（以字节为单位）	小数 秒 精度
+time	(16,7)	5	7
+time(0)	(8,0)	3	0-2
+time(1)	(10,1)	3	0-2
+time(2)	(11,2)	3	0-2
+time(3)	(12,3)	4	3-4
+time(4)	(13,4)	4	3-4
+time(5)	(14,5)	5	5-7
+time(6)	(15,6)	5	5-7
+time(7)	(16,7)	5	5-7
+
+存储大小	固定 5 个字节，是使用默认的 100ns 秒的小数部分精度时的默认存储大小。
+精确度	100 纳秒
+默认值	00:00:00
+
+
+date
+默认的字符串文字格式	YYYY-MM-DD
+范围	8	到 9999-12-31
+公元元年 1 月 1 日到公元 9999 年 12 月 31 日
+各元素的范围	YYYY 是表示年份的四位数字，范围为从 0001 到 9999。
+				MM 是表示指定年份中的月份的两位数字，范围为从 01 到 12。
+				DD 是表示指定月份中的某一天的两位数字，范围为从 01 到 31（最高值取决于具体月份）。
+字符长度	10 位
+精度、小数位数	10, 0
+存储大小	固定 3 个字节
+存储结构	1、3 字节整数存储日期。
+精确度	一天
+默认值	1900-01-01
+
+
+datetime2
+默认的字符串文字格式	YYYY-MM-DD hh:mm:ss[.fractional seconds]
+日期范围	9	到 9999-12-31
+公元元年 1 月 1 日到公元 9999 年 12 月 31 日
+时间范围	00:00:00 到 23:59:59.9999999
+各元素的范围	YYYY 是一个四位数，范围从 0001 到 9999，表示年份。
+				MM 是一个两位数，范围从 01 到 12，它表示指定年份中的月份。
+				DD 是一个两位数，范围为 01 到 31（具体取决于月份），它表示指定月份中的某一天。
+				Hh 是一个两位数，范围从 00 到 23，它表示小时。
+				Mm 是一个两位数，范围从 00 到 59，它表示分钟。
+				Ss 是一个两位数，范围从 00 到 59，它表示秒钟。
+				N* 代表 0 到 7 位数字，范围从 0 到 9999999，它表示秒小数部分。
+
+字符长度	最低 19 位 (YYYY-MM-DD hh:mm:ss )，最高 27 位 (YYYY-MM-DD hh:mm:ss.0000000)
+
+精度、小数位数	0 至 7 位，准确度为 100ns。默认精度为 7 位数。
+存储大小	精度小于 3 时为 6 个字节；精度为 3 和 4 时为 7 个字节。所有其他精度则需要 8 个字节。
+精确度	100 纳秒
+默认值	1900-01-01 00:00:00
+
+
+
+datetimeoffset
+默认字符串文字格式	YYYY-MM-DD hh:mm:ss[.nnnnnnn] [{+|-}hh:mm]
+日期范围	10	到 9999-12-31
+公元元年 1 月 1 日到公元 9999 年 12 月 31 日
+时间范围	00:00:00 到 23:59:59.9999999
+时区偏移量范围	-14:00 到 +14:00
+各元素的范围	YYYY 是表示年份的四位数字，范围为 0001 到 9999。
+				MM 是表示指定年份中的月份的两位数字，范围为 01 到 12。
+				DD 是表示指定月份中的某一天的两位数字，范围为 01 到 31（最高值取决于相应月份）。
+				Hh 是表示小时的两位数字，范围为 00 到 23。
+				Mm 是表示分钟的两位数字，范围为 00 到 59。
+				Ss 是表示秒钟的两位数字，范围为 00 到 59。
+				N* 是 0 到 7 位数字，范围为 0 到 9999999，它表示秒的小数部分。
+				Hh 是两位数，范围为 -14 到 +14。
+				Mm 是两位数，范围为 00 到 59。
+字符长度	最低 26 位 (YYYY-MM-DD hh:mm:ss {+|-}hh:mm) 到最高 34 位 (YYYY-MM-DD hh:mm:ss.nnnnnnn {+|-}hh:mm)
+精度、小数位数	指定的小数位数	结果 (精度, 小数位数)	列长度（以字节为单位）	秒的小数部分精度
+datetimeoffset	(34,7)	10	7
+datetimeoffset(0)	(26,0)	8	0-2
+datetimeoffset(1)	(28,1)	8	0-2
+datetimeoffset(2)	(29,2)	8	0-2
+datetimeoffset(3)	(30,3)	9	3-4
+datetimeoffset(4)	(31,4)	9	3-4
+datetimeoffset(5)	(32,5)	10	5-7
+datetimeoffset(6)	(33,6)	10	5-7
+datetimeoffset(7)	(34,7)	10	5-7
+
+存储大小	默认值为 10 个字节的固定大小，默认的秒的小数部分精度为 100ns。
+精确度	100 纳秒
+默认值	1900-01-01 00:00:00 00:00
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+DATE
+日期。支持的范围为’1000-01-01’到’9999-12-31’。
+MySQL以’YYYY-MM-DD’格式显示DATE值，但允许使用字符串或数字为DATE列分配值。
+
+
+
+DATETIME
+日期和时间的组合。
+支持的范围是’1000-01-01 00:00:00’到’9999-12-31 23:59:59’。
+MySQL以’YYYY-MM-DD HH:MM:SS’格式显示DATETIME值，但允许使用字符串或数字为DATETIME列分配值。
+
+
+
+TIMESTAMP[(M)]
+时间戳。范围是’1970-01-01 00:00:00’到2037年。
+TIMESTAMP列用于INSERT或UPDATE操作时记录日期和时间。
+如果你不分配一个值，表中的第一个TIMESTAMP列自动设置为最近操作的日期和时间。
+也可以通过分配一个NULL值，将TIMESTAMP列设置为当前的日期和时间。
+TIMESTAMP值返回后显示为’YYYY-MM-DD HH:MM:SS’格式的字符串，
+显示宽度固定为19个字符。如果想要获得数字值，应在TIMESTAMP 列添加+0。
+
+timestamp有两个属性，分别是CURRENT_TIMESTAMP 和ON UPDATE CURRENT_TIMESTAMP两种，使用情况分别如下：
+1. CURRENT_TIMESTAMP
+当要向数据库执行insert操作时，如果有个timestamp字段属性设为 CURRENT_TIMESTAMP，则无论这个字段有没有set值都插入当前系统时间
+2. ON UPDATE CURRENT_TIMESTAMP
+当执行update操作是，并且字段有ON UPDATE CURRENT_TIMESTAMP属性。则字段无论值有没有变化，它的值也会跟着更新为当前UPDATE操作时的时间。
+
+
+
+
+TIME
+时间。范围是’-838:59:59’到’838:59:59’。
+MySQL以’HH:MM:SS’格式显示TIME值，但允许使用字符串或数字为TIME列分配值。
+
+YEAR[(2|4)]
+两位或四位格式的年。默认是四位格式。
+在四位格式中，允许的值是1901到2155和0000。
+在两位格式中，允许的值是70到69，表示从1970年到2069年。
+MySQL以YYYY 格式显示YEAR值，但允许使用字符串或数字为YEAR列分配值。
+
+
+
+<hr/>
+
+
+
+MySQL 中， 如果数据库的表中， 数据类型为 TIMESTAMP 的。
+那么这个相当于一个 最后更新时间的 功能。
+
+例如：
+
+
+create table testB (
+  id   int PRIMARY KEY,
+  val  varchar(10),
+  dt TIMESTAMP
+);
+
+INSERT INTO testB(id, val) VALUES(1, 'A');
+INSERT INTO testB(id, val) VALUES(2, 'B');
+
+SELECT
+  *
+FROM
+  testB;
++----+------+---------------------+
+| id | val  | dt                  |
++----+------+---------------------+
+|  1 | A    | 2013-03-21 14:24:20 |
+|  2 | B    | 2013-03-21 14:24:21 |
++----+------+---------------------+
+2 rows in set (0.00 sec)
+
+
+UPDATE
+  testB
+SET
+  val = 'C'
+WHERE
+  id = 1;
+
++----+------+---------------------+
+| id | val  | dt                  |
++----+------+---------------------+
+|  1 | C    | 2013-03-21 14:28:02 |
+|  2 | B    | 2013-03-21 14:24:21 |
++----+------+---------------------+
+2 rows in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+日期/时间类型
+<table border="1">
+<tr>
+  <td>名字</td><td>存储空间	</td><td>描述</td><td>最低值</td><td>最高值</td><td>分辨率</td>
+</tr>
+<tr>
+  <td>timestamp [ (p) ] [without time zone]</td><td>8 字节</td><td>包括日期和时间</td><td>4713 BC</td><td>5874897 AD</td><td>1 毫秒 / 14 位</td>
+</tr>
+<tr>
+  <td>timestamp [ (p) ] with time zone</td><td>8 字节</td><td>日期和时间，带时区</td><td>4713 BC</td><td>5874897 AD</td><td>1 毫秒 / 14 位</td>
+</tr>
+<tr>
+  <td>interval [ (p) ] </td><td>12 字节</td><td>时间间隔</td><td>-178000000 年</td><td>178000000 年</td><td>1 毫秒 / 14 位</td>
+</tr>
+<tr>
+  <td>date</td><td>4 字节</td><td>只用于日期</td><td>4713 BC</td><td>32767 AD</td><td>1 天</td>
+</tr>
+<tr>
+  <td>time [ (p) ] [ without time zone ]</td><td>8 字节</td><td>只用于一日内时间</td><td>00:00:00</td><td>24:00:00</td><td>1 毫秒 / 14 位</td>
+</tr>
+<tr>
+  <td>time [ (p) ] with time zone</td><td>12 字节</td><td>只用于一日内时间，带时区</td><td>00:00:00+1359</td><td>24:00:00-1359	</td><td>1 毫秒 / 14 位</td>
+</tr>
+</table>
+
+
+
+
+特殊日期/时间输入
+所有这些值在 SQL 命令里当作普通常量对待时，都需要写在单引号里面。
+
+<table border="1">
+<tr>
+  <td>输入字串</td><td>有效类型</td><td>描述</td>
+</tr>
+<tr>
+  <td>epoch</td><td>date, timestamp</td><td>1970-01-01 00:00:00+00 (Unix 系统零时)</td>
+</tr>
+<tr>
+  <td>infinity</td><td>timestamp</td><td>比任何其它时间戳都晚</td>
+</tr>
+<tr>
+  <td>-infinity</td><td>timestamp</td><td>比任何其它时间戳都早</td>
+</tr>
+<tr>
+  <td>now</td><td>date, time, timestamp</td><td>当前事务时间</td>
+</tr>
+<tr>
+  <td>today</td><td>date, timestamp</td><td>今日午夜</td>
+</tr>
+<tr>
+  <td>tomorrow</td><td>date, timestamp</td><td>明日午夜</td>
+</tr>
+<tr>
+  <td>yesterday</td><td>date, timestamp</td><td>昨日午夜</td>
+</tr>
+<tr>
+  <td>allballs</td><td>time</td><td>00:00:00.00 UTC</td>
+</tr>
+</tr>
+</table>
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

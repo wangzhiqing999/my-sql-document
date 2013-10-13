@@ -1,0 +1,748 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 日期函数 - 日期/时间的格式化[日期转换为字符串] </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 日期函数 </h1>
+
+
+<h2>  日期/时间的格式化[日期转换为字符串] </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+语法：
+TO_CHAR({ datetime | interval } [, fmt [, 'nlsparam' ] ])
+
+
+
+SQL> SELECT
+  2    TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+  3  FROM
+  4    dual;
+
+TO_CHAR(SYSDATE,'YYYY-MM-DDHH24:MI:SS'
+--------------------------------------
+2010-09-27 20:10:33
+
+
+
+
+参数格式：
+
+AD , BC   用于显示公元前后
+
+AM  用于显示上午下午
+
+
+SELECT
+  TO_CHAR(SYSDATE, 'AD BC YYYY-MM-DD HH24:MI:SS AM')
+FROM
+  dual;
+
+TO_CHAR(SYSDATE,'ADBCYYYY-MM-DDHH24:MI:SSAM')
+----------------------------------------------
+公元 公元 2013-01-10 14:00:08 下午
+
+
+
+注： 当前数据库的 NLS_DATE_LANGUAGE 是  SIMPLIFIED CHINESE
+
+
+
+-- 按照美国方式，做数据转换.
+SELECT
+  TO_CHAR(SYSDATE, 'AD BC YYYY-MM-DD HH24:MI:SS AM', 'NLS_DATE_LANGUAGE=AMERICAN')
+FROM
+  dual;
+
+TO_CHAR(SYSDATE,'ADBCYYYY-MM-DDHH24:MI:SSAM','NLS_DATE_L
+--------------------------------------------------------
+AD AD 2013-03-14 11:57:06 AM
+
+
+
+-- 按照日语方式，做数据转换.
+SELECT
+  TO_CHAR(SYSDATE, 'AD BC YYYY-MM-DD HH24:MI:SS AM', 'NLS_DATE_LANGUAGE=JAPANESE')
+FROM
+  dual;
+
+TO_CHAR(SYSDATE,'ADBCYYYY-MM-DDHH24:MI:SSAM','NLS_DATE_LANGUAGE=JAPANESE')
+--------------------------------------------------------------------------------
+西暦 西暦 2013-03-14 11:57:06 午前
+
+
+
+-- 按照繁体中文方式，做数据转换. （请注意，因为繁体中文 2个单词， 所以需要额外加 '' ）
+SELECT
+  TO_CHAR(SYSDATE, 'AD BC YYYY-MM-DD HH24:MI:SS AM', 'NLS_DATE_LANGUAGE=''TRADITIONAL CHINESE''')
+FROM
+  dual;
+
+TO_CHAR(SYSDATE,'ADBCYYYY-MM-DDHH24:MI:SSAM','NLS_DATE_LANGUAGE=''TRADITIONALCHI
+--------------------------------------------------------------------------------
+西元 西元 2013-03-14 11:57:07 上午
+
+
+
+
+
+
+
+
+
+CC 为世纪
+D 为 周内的天数 (1-7)
+DAY 为星期的名称
+DD 为 月内天数 (1-31)
+DDD 为 年内天数 (1-366)
+
+
+
+SELECT
+  SYSDATE,
+  TO_CHAR(SYSDATE, 'DDD; DD;  D;  DAY')
+FROM
+  dual;
+
+SYSDATE    TO_CHAR(SYSDATE,'DDD;DD;D;DAY')
+---------- -------------------------------
+10-1月 -13 010; 10;  5;  星期四
+
+
+注： 当前数据库的 NLS_DATE_LANGUAGE 是  SIMPLIFIED CHINESE
+
+
+
+
+-- 按照美国方式，做数据转换.
+SELECT
+  TO_CHAR(SYSDATE, 'DDD; DD;  D;  DAY;  DY', 'NLS_DATE_LANGUAGE=AMERICAN')
+FROM
+  dual;
+
+TO_CHAR(SYSDATE,'DDD;DD;D;DAY;DY','NLS_DATE_LANGUAGE=AMERICAN')
+--------------------------------------------------------------------------------
+130; 10;  6;  FRIDAY   ;  FRI
+
+
+
+-- 按照日语方式，做数据转换.
+SELECT
+  TO_CHAR(SYSDATE, 'DDD; DD;  D;  DAY;  DY', 'NLS_DATE_LANGUAGE=JAPANESE')
+FROM
+  dual;
+
+TO_CHAR(SYSDATE,'DDD;DD;D;DAY;DY','NLS_DATE_LANGUAGE=JAPANESE')
+------------------------------------------------------------------
+130; 10;  6;  金曜日;  金
+
+
+
+-- 按照繁体中文方式，做数据转换. （请注意，因为繁体中文 2个单词， 所以需要额外加 '' ）
+SELECT
+  TO_CHAR(SYSDATE, 'DDD; DD;  D;  DAY;  DY', 'NLS_DATE_LANGUAGE=''TRADITIONAL CHINESE''')
+FROM
+  dual;
+
+TO_CHAR(SYSDATE,'DDD;DD;D;DAY;DY','NLS_DATE_LANGUAGE=''TRADITIONALCHINESE''')
+--------------------------------------------------------------------------------
+130; 10;  6;  星期五;  星期五
+
+
+
+
+
+
+
+DL = 长日期
+DS = 短日期
+
+SELECT
+  TO_CHAR(SYSDATE, 'DL'),
+  TO_CHAR(SYSDATE, 'DS')
+FROM
+  dual;
+
+TO_CHAR(SYSDATE,'DL')
+---------------------
+TO_CHAR(SYSDATE,'DS'
+--------------------
+2013年1月10日 星期四
+2013-01-10
+
+
+DY = 星期
+
+SELECT
+  TO_CHAR(SYSDATE, 'DY')
+FROM
+  dual;
+
+TO_CHAR(SYSDATE,'DY')
+-----------------------
+星期四
+
+
+
+
+HH = 小时 (1-12)
+HH12 = 小时 (1-12)
+HH24 = 小时 (0-23)
+
+
+J = Julian day; the number of days since January 1, 4712 BC. Number specified with J must be integers.
+
+
+MI =  分 (0-59)
+MM =  月 (1-12)
+
+MON = 月名称
+MONTH
+
+SELECT  
+  TO_CHAR(SYSDATE, 'MON') "MON",  TO_CHAR(SYSDATE, 'MONTH') AS "MONTH"
+FROM
+  dual;
+
+MON              MONTH
+---------------- ----------------
+5月              5月
+
+
+SELECT  
+  TO_CHAR(TO_DATE('2013-12-01', 'YYYY-MM-DD'), 'MON','NLS_DATE_LANGUAGE=AMERICAN') "MON",  
+  TO_CHAR(TO_DATE('2013-12-01', 'YYYY-MM-DD'), 'MONTH','NLS_DATE_LANGUAGE=AMERICAN') AS "MONTH"
+FROM
+  dual;
+
+MON    MONTH
+------ ------------------
+DEC    DECEMBER
+
+  
+SELECT  
+  TO_CHAR(TO_DATE('2013-12-01', 'YYYY-MM-DD'), 'MON','NLS_DATE_LANGUAGE=JAPANESE') "MON",  
+  TO_CHAR(TO_DATE('2013-12-01', 'YYYY-MM-DD'), 'MONTH','NLS_DATE_LANGUAGE=JAPANESE') AS "MONTH"
+FROM
+  dual;
+
+MON        MONTH
+---------- ----------
+12月       12月
+
+
+
+
+RM = 罗马数字的月 (I-XII; January = I)
+
+
+SS = 秒
+
+SSSSS = 从今天零点到现在， 经过了多少秒 (0-86399)
+
+SELECT  
+  TO_CHAR(SYSDATE, 'SSSSS')
+FROM
+  dual;
+
+TO_CHAR(SY
+----------
+51397
+
+
+
+TS = 短时间格式.
+
+SELECT  
+  TO_CHAR(SYSDATE, 'TS')
+FROM
+  dual;
+
+TO_CHAR(SYSDATE,'TS')
+------------------------------
+下午 2:17:57
+
+
+
+
+WW = 年当中的第几周 (1-53)
+W = 月当中的第几周 (1-5)
+
+SELECT  
+  TO_CHAR(SYSDATE + 100, 'WW'), TO_CHAR(SYSDATE + 100, 'W')
+FROM
+  dual;
+
+TO_C TO
+---- --
+16   3
+
+
+
+
+
+
+YEAR = 年 (英文)
+YYYY = 年
+
+SELECT  
+  TO_CHAR(SYSDATE, 'YEAR'), 
+  TO_CHAR(SYSDATE, 'SYEAR'),
+  TO_CHAR(SYSDATE, 'YYYY'), 
+  TO_CHAR(SYSDATE, 'SYYYY')
+FROM
+  dual;
+  
+TO_CHAR(SYSDATE,'YEAR')
+-------------------------
+TO_CHAR(SYSDATE,'SYEAR')
+-------------------------
+TO_CHAR( TO_CHAR(SY
+-------- ----------
+TWENTY THIRTEEN
+ TWENTY THIRTEEN
+2013      2013
+
+
+
+
+SELECT  
+  TO_CHAR(SYSDATE, 'Y') Y1, 
+  TO_CHAR(SYSDATE, 'YY') Y2,
+  TO_CHAR(SYSDATE, 'YYYY') Y3, 
+  TO_CHAR(SYSDATE, 'YYYY') Y4
+FROM
+  dual;
+
+Y1 Y2   Y3       Y4
+-- ---- -------- --------
+3  13   2013     2013
+
+
+
+当格式字符串当中， 存在 自定义的字符信息的时候， 需要使用双引号， 标记那些， 直接显示，不需要额外处理的字符
+例如：
+
+
+SQL> SELECT  
+  2    TO_CHAR(SYSDATE, 'YYYY"年第"WW"周"')  AS "处理前",
+  3    TO_CHAR(TRUNC(SYSDATE, 'D'), 'YYYY"年"MM"月"DD"日"') 
+  4      || '-' || TO_CHAR(TRUNC(SYSDATE, 'D') + 6, 'MM"月"DD"日"')   AS "处理后"
+  5  FROM dual;
+
+处理前
+------------------------------
+处理后
+--------------------------------------------------------
+2013年第11周
+2013年03月10日-03月16日
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+  
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+db2 => SELECT
+db2 (cont.) =>   TO_CHAR(CURRENT_TIMESTAMP, 'YYYY-MM-DD HH24:MI:SS')
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+1
+
+---------------------------------------------------------------------
+2011-10-06 20:30:00
+
+  1 条记录已选择。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT CONVERT(VARCHAR(30),GETDATE(),9)
+2> go
+
+------------------------------
+09 27 2010  8:11:45:687PM
+
+(1 行受影响)
+
+1> SELECT CONVERT(VARCHAR(30),GETDATE(), 102)
+2> go
+
+------------------------------
+2010.10.09
+
+SELECT 0   AS ID , Convert(VARCHAR(30), GETDATE(),  0  ) AS result UNION ALL
+SELECT 100 AS ID , Convert(VARCHAR(30), GETDATE(),  100) AS result UNION ALL
+SELECT 1   AS ID , Convert(VARCHAR(30), GETDATE(),  1  ) AS result UNION ALL
+SELECT 101 AS ID , Convert(VARCHAR(30), GETDATE(),  101) AS result UNION ALL
+SELECT 2   AS ID , Convert(VARCHAR(30), GETDATE(),  2  ) AS result UNION ALL
+SELECT 102 AS ID , Convert(VARCHAR(30), GETDATE(),  102) AS result UNION ALL
+SELECT 2   AS ID , Convert(VARCHAR(30), GETDATE(),  2  ) AS result UNION ALL
+SELECT 102 AS ID , Convert(VARCHAR(30), GETDATE(),  102) AS result UNION ALL
+SELECT 3   AS ID , Convert(VARCHAR(30), GETDATE(),  3  ) AS result UNION ALL
+SELECT 103 AS ID , Convert(VARCHAR(30), GETDATE(),  103) AS result UNION ALL
+SELECT 4   AS ID , Convert(VARCHAR(30), GETDATE(),  4  ) AS result UNION ALL
+SELECT 104 AS ID , Convert(VARCHAR(30), GETDATE(),  104) AS result UNION ALL
+SELECT 5   AS ID , Convert(VARCHAR(30), GETDATE(),  5  ) AS result UNION ALL
+SELECT 105 AS ID , Convert(VARCHAR(30), GETDATE(),  105) AS result UNION ALL
+SELECT 6   AS ID , Convert(VARCHAR(30), GETDATE(),  6  ) AS result UNION ALL
+SELECT 106 AS ID , Convert(VARCHAR(30), GETDATE(),  106) AS result UNION ALL
+SELECT 7   AS ID , Convert(VARCHAR(30), GETDATE(),  7  ) AS result UNION ALL
+SELECT 107 AS ID , Convert(VARCHAR(30), GETDATE(),  107) AS result UNION ALL
+SELECT 8   AS ID , Convert(VARCHAR(30), GETDATE(),  8  ) AS result UNION ALL
+SELECT 108 AS ID , Convert(VARCHAR(30), GETDATE(),  108) AS result UNION ALL
+SELECT 9   AS ID , Convert(VARCHAR(30), GETDATE(),  9  ) AS result UNION ALL
+SELECT 109 AS ID , Convert(VARCHAR(30), GETDATE(),  109) AS result UNION ALL
+SELECT 10  AS ID , Convert(VARCHAR(30), GETDATE(),  10 ) AS result UNION ALL
+SELECT 110 AS ID , Convert(VARCHAR(30), GETDATE(),  110) AS result UNION ALL
+SELECT 11  AS ID , Convert(VARCHAR(30), GETDATE(),  11 ) AS result UNION ALL
+SELECT 111 AS ID , Convert(VARCHAR(30), GETDATE(),  111) AS result UNION ALL
+SELECT 12  AS ID , Convert(VARCHAR(30), GETDATE(),  12 ) AS result UNION ALL
+SELECT 112 AS ID , Convert(VARCHAR(30), GETDATE(),  112) AS result UNION ALL
+SELECT 13  AS ID , Convert(VARCHAR(30), GETDATE(),  13 ) AS result UNION ALL
+SELECT 113 AS ID , Convert(VARCHAR(30), GETDATE(),  113) AS result UNION ALL
+SELECT 14  AS ID , Convert(VARCHAR(30), GETDATE(),  14 ) AS result UNION ALL
+SELECT 114 AS ID , Convert(VARCHAR(30), GETDATE(),  114) AS result UNION ALL
+SELECT 20  AS ID , Convert(VARCHAR(30), GETDATE(),  20 ) AS result UNION ALL
+SELECT 120 AS ID , Convert(VARCHAR(30), GETDATE(),  120) AS result UNION ALL
+SELECT 21  AS ID , Convert(VARCHAR(30), GETDATE(),  21 ) AS result UNION ALL
+SELECT 121 AS ID , Convert(VARCHAR(30), GETDATE(),  121) AS result
+
+ID          result
+----------- ------------------------------
+          0 03 19 2011  8:24PM
+        100 03 19 2011  8:24PM
+          1 03/19/11
+        101 03/19/2011
+          2 11.03.19
+        102 2011.03.19
+          2 11.03.19
+        102 2011.03.19
+          3 19/03/11
+        103 19/03/2011
+          4 19.03.11
+        104 19.03.2011
+          5 19-03-11
+        105 19-03-2011
+          6 19 03 11
+        106 19 03 2011
+          7 03 19, 11
+        107 03 19, 2011
+          8 20:24:27
+        108 20:24:27
+          9 03 19 2011  8:24:27:840PM
+        109 03 19 2011  8:24:27:840PM
+         10 03-19-11
+        110 03-19-2011
+         11 11/03/19
+        111 2011/03/19
+         12 110319
+        112 20110319
+         13 19 03 2011 20:24:27:840
+        113 19 03 2011 20:24:27:840
+         14 20:24:27:840
+        114 20:24:27:840
+         20 2011-03-19 20:24:27
+        120 2011-03-19 20:24:27
+         21 2011-03-19 20:24:27.840
+        121 2011-03-19 20:24:27.840
+
+(36 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT
+    ->   DATE_FORMAT(NOW(), '%Y~%m~%d %k.%i.%s' ) A;
++---------------------+
+| A                   |
++---------------------+
+| 2010~10~22 20.55.09 |
++---------------------+
+1 row in set (0.00 sec)
+
+%W 星期名字(Sunday……Saturday)
+%D 有英语前缀的月份的日期(1st, 2nd, 3rd, 等等。）
+%Y 年, 数字, 4 位
+%y 年, 数字, 2 位
+%a 缩写的星期名字(Sun……Sat)
+%d 月份中的天数, 数字(00……31)
+%e 月份中的天数, 数字(0……31)
+%m 月, 数字(01……12)
+%c 月, 数字(1……12)
+%b 缩写的月份名字(Jan……Dec)
+%j 一年中的天数(001……366)
+%H 小时(00……23)
+%k 小时(0……23)
+%h 小时(01……12)
+%I 小时(01……12)
+%l 小时(1……12)
+%i 分钟, 数字(00……59)
+%r 时间,12 小时(hh:mm:ss [AP]M)
+%T 时间,24 小时(hh:mm:ss)
+%S 秒(00……59)
+%s 秒(00……59)
+%p AM或PM
+%w 一个星期中的天数(0=Sunday ……6=Saturday ）
+%U 星期(0……52), 这里星期天是星期的第一天
+%u 星期(0……52), 这里星期一是星期的第一天
+%% 一个文字“%”。
+
+所有的其他字符不做解释被复制到结果中。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+使用  TO_CHAR  函数。
+
+
+Test=# SELECT  TO_CHAR(now(), 'YYYY-MM-DD HH24:MI:SS');
+       to_char
+---------------------
+ 2013-04-09 12:28:02
+(1 行记录)
+
+
+
+
+
+
+格式字符串列表如下：
+
+<table border="1">
+<tr>
+	<td>模式</td><td>描述</td>
+</tr>
+<tr>
+	<td>HH</td><td>一天的小时数 （01-12）</td>
+</tr>
+<tr>
+	<td>HH12</td><td>一天的小时数 （01-12）</td>
+</tr>
+<tr>
+	<td>HH24</td><td>一天的小时数 （00-23）</td>
+</tr>
+<tr>
+	<td>MI</td><td>分钟 （00-59）</td>
+</tr>
+<tr>
+	<td>SS</td><td>秒 （00-59）</td>
+</tr>
+<tr>
+	<td>MS</td><td>毫秒 (000-999)</td>
+</tr>
+<tr>
+	<td>US</td><td>微秒 (000000-999999)</td>
+</tr>
+<tr>
+	<td>SSSS</td><td>午夜后的秒 （0-86399）</td>
+</tr>
+<tr>
+	<td>AM 或 A.M. 或 PM 或 P.M.</td><td>正午标识（大写）</td>
+</tr>
+<tr>
+	<td>am 或 a.m. 或 pm 或 p.m.</td><td>正午标识（小写）</td>
+</tr>
+<tr>
+	<td>Y,YYY</td><td>带逗号的年（4 和更多位）</td>
+</tr>
+<tr>
+	<td>YYYY</td><td>年（4和更多位）</td>
+</tr>
+<tr>
+	<td>YYY</td><td>年的后三位</td>
+</tr>
+<tr>
+	<td>YY</td><td>年的后两位</td>
+</tr>
+<tr>
+	<td>Y</td><td>年的最后一位</td>
+</tr>
+<tr>
+	<td>IYYY</td><td>ISO 年（4位或更多位）</td>
+</tr>
+<tr>
+	<td>IYY</td><td>ISO 年的最后 3 位</td>
+</tr>
+<tr>
+	<td>IY</td><td>ISO 年的最后 2 位</td>
+</tr>
+<tr>
+	<td>I</td><td>ISO 年的最后一位</td>
+</tr>
+<tr>
+	<td>BC 或 B.C. 或 AD 或 A.D.</td><td>纪元标识（大写）</td>
+</tr>
+<tr>
+	<td>bc 或 b.c. 或 ad 或 a.d.</td><td>纪元标识（小写）</td>
+</tr>
+<tr>
+	<td>MONTH</td><td>全长大写月份名（空白填充为9字符）</td>
+</tr>
+<tr>
+	<td>Month</td><td>全长混合大小写月份名（空白填充为9字符）</td>
+</tr>
+<tr>
+	<td>month</td><td>全长小写月份名（空白填充为9字符）</td>
+</tr>
+<tr>
+	<td>MON</td><td>大写缩写月份名（3字符）</td>
+</tr>
+<tr>
+	<td>Mon</td><td>缩写混合大小写月份名（3字符）</td>
+</tr>
+<tr>
+	<td>mon</td><td>小写缩写月份名（3字符）</td>
+</tr>
+<tr>
+	<td>MM</td><td>月份号（01-12）</td>
+</tr>
+<tr>
+	<td>DAY</td><td>全长大写日期名（空白填充为9字符）</td>
+</tr>
+<tr>
+	<td>Day</td><td>全长混合大小写日期名（空白填充为9字符）</td>
+</tr>
+<tr>
+	<td>day</td><td>全长小写日期名（空白填充为9字符）</td>
+</tr>
+<tr>
+	<td>DY</td><td>缩写大写日期名（3字符）</td>
+</tr>
+<tr>
+	<td>Dy</td><td>缩写混合大小写日期名（3字符）</td>
+</tr>
+<tr>
+	<td>dy</td><td>缩写小写日期名（3字符）</td>
+</tr>
+<tr>
+	<td>DDD</td><td>一年里的日子（001-366）</td>
+</tr>
+<tr>
+	<td>DD</td><td>一个月里的日子（01-31）</td>
+</tr>
+<tr>
+	<td>D</td><td>一周里的日子（1-7；周日是1）</td>
+</tr>
+<tr>
+	<td>W</td><td>一个月里的周数（1-5）（第一周从该月第一天开始）</td>
+</tr>
+<tr>
+	<td>WW</td><td>一年里的周数（1-53）（第一周从该年的第一天开始）</td>
+</tr>
+<tr>
+	<td>IW</td><td>ISO 一年里的周数（第一个星期四在第一周里）</td>
+</tr>
+<tr>
+	<td>CC</td><td>世纪（2 位）</td>
+</tr>
+<tr>
+	<td>J</td><td>儒略日（自公元前4712年1月1日来的天数）</td>
+</tr>
+<tr>
+	<td>Q</td><td>季度</td>
+</tr>
+<tr>
+	<td>RM</td><td>罗马数字的月份（I-XII；I=JAN）（大写）</td>
+</tr>
+<tr>
+	<td>rm</td><td>罗马数字的月份（I-XII；I=JAN）（小写）</td>
+</tr>
+<tr>
+	<td>TZ</td><td>时区名 （大写）</td>
+</tr>
+<tr>
+	<td>tz</td><td>时区名 （小写）</td>
+</tr>
+</table>
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

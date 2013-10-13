@@ -1,0 +1,259 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 游标处理 - 支持来回滚动的游标 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 游标处理 </h1>
+
+
+<h2>  支持来回滚动的游标 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+	
+<p>
+如果 SCROLL 选项未在 SQL-92 样式的 DECLARE CURSOR 语句中指定，则 NEXT 是唯一受支持的 FETCH 选项。
+</p>
+<p>
+如果在 SQL-92 样式的 DECLARE CURSOR 语句中指定了 SCROLL 选项，则支持所有 FETCH 选项。
+</p>
+
+<pre><code>
+
+DECLARE
+  @id INT, @value VARCHAR(10);
+BEGIN
+  -- 定义游标.
+  DECLARE c_test_main CURSOR SCROLL FOR
+    SELECT id, value FROM test_main;
+
+  -- 打开游标.
+  OPEN c_test_main;
+
+  -- 填充数据.
+  FETCH FIRST FROM c_test_main INTO @id, @value;
+  PRINT '游标中的第一行:' + @value;
+
+  -- 填充数据.
+  FETCH LAST FROM c_test_main INTO @id, @value;
+  PRINT '游标中的最后一行:' + @value;
+
+  -- 填充数据.
+  FETCH ABSOLUTE 3 FROM c_test_main INTO @id, @value;
+  PRINT '游标中的第3行[绝对地址]:' + @value;
+
+  -- 填充数据.
+  FETCH RELATIVE 2 FROM c_test_main INTO @id, @value;
+  PRINT '游标中的第+2行[相对地址]:' + @value;
+
+  -- 填充数据.
+  FETCH PRIOR  FROM c_test_main INTO @id, @value;
+  PRINT '游标中的上一行:' + @value;
+
+  -- 填充数据.
+  FETCH NEXT FROM c_test_main INTO @id, @value;
+  PRINT '游标中的下一行:' + @value;
+
+  -- 关闭游标
+  CLOSE c_test_main;
+  -- 释放游标.
+  DEALLOCATE c_test_main;
+END;
+go
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+http://dev.mysql.com/doc/refman/5.7/en/cursors.html
+
+
+MySQL supports cursors inside stored programs. The syntax is as in embedded SQL. Cursors have these properties:
+Asensitive: The server may or may not make a copy of its result table
+Read only: Not updatable
+Nonscrollable: Can be traversed only in one direction and cannot skip rows
+
+
+MySQL 游标  
+只读，不可更新。
+单向滚动。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+-- 清空日志表.
+Test=# truncate table log_table;
+TRUNCATE TABLE
+
+
+-- 为达到测试效果， 多加几行测试数据.
+INSERT INTO test_main(id, value) VALUES (11, 'ONEONE');
+INSERT INTO test_main(id, value) VALUES (12, 'ONETWO');
+INSERT INTO test_main(id, value) VALUES (13, 'ONETHREE');
+
+Test=# SELECT id, value FROM test_main ORDER BY id;
+ id |  value
+----+----------
+  1 | ONE1
+  2 | TWO1
+  4 | FOUR1
+ 11 | ONEONE
+ 12 | ONETWO
+ 13 | ONETHREE
+(6 行记录)
+
+
+CREATE OR REPLACE FUNCTION TestCursorScroll() RETURNS void AS
+$$
+DECLARE
+  -- 定义游标.
+  c_test_main SCROLL CURSOR FOR
+    SELECT id, value FROM test_main ORDER BY id;
+
+  -- 定义存储数据的变量.
+  v_main_data  test_main%ROWTYPE;
+
+BEGIN
+  -- 打开游标.
+  OPEN c_test_main;
+
+  -- 填充数据.
+  FETCH FIRST FROM c_test_main INTO v_main_data;
+  INSERT INTO log_table VALUES ('游标第一行:' || v_main_data.value);
+  
+  -- 填充数据.
+  FETCH LAST FROM c_test_main INTO v_main_data;
+  INSERT INTO log_table VALUES ('游标最末行:' || v_main_data.value);
+  
+  -- 填充数据.
+  FETCH ABSOLUTE 3 FROM c_test_main INTO v_main_data;
+  INSERT INTO log_table VALUES ('游标绝对第3行:' || v_main_data.value);
+
+  -- 填充数据.
+  FETCH RELATIVE 2 FROM c_test_main INTO v_main_data;
+  INSERT INTO log_table VALUES ('游标相对第2行:' || v_main_data.value);
+  
+  -- 填充数据.
+  FETCH PRIOR  FROM c_test_main INTO v_main_data;
+  INSERT INTO log_table VALUES ('游标上一行:' || v_main_data.value);
+
+  -- 填充数据.
+  FETCH NEXT  FROM c_test_main INTO v_main_data;
+  INSERT INTO log_table VALUES ('游标下一行:' || v_main_data.value);  
+  
+  -- 关闭游标
+  CLOSE c_test_main;
+END;
+$$
+LANGUAGE plpgsql;
+
+
+Test=# select TestCursorScroll() ;
+ testcursorscroll
+------------------
+
+(1 行记录)
+
+
+Test=# select * from log_table;
+       log_text
+----------------------
+ 游标第一行:ONE1
+ 游标最末行:ONETHREE
+ 游标绝对第3行:FOUR1
+ 游标相对第2行:ONETWO
+ 游标上一行:ONEONE
+ 游标下一行:ONETWO
+(6 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

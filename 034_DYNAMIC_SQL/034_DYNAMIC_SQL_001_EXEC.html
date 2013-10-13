@@ -1,0 +1,262 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 动态SQL - 直接执行的方式-简单执行 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 动态SQL </h1>
+
+
+<h2>  直接执行的方式-简单执行 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> BEGIN
+  2    EXECUTE IMMEDIATE ( 'SELECT * FROM test_dysql WHERE id=1' );
+  3  END;
+  4  /
+
+PL/SQL procedure successfully completed.
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+CREATE OR REPLACE PROCEDURE  TestDy1
+LANGUAGE SQL
+BEGIN
+  declare sSql varchar(1000) ;
+  set sSql = 'INSERT INTO test_dysql(id, val) VALUES( 10, 10)';
+  prepare s1 from sSql;
+  execute s1;
+END@
+
+
+db2 => call TestDy1
+db2 (cont.) => @
+
+  返回状态 = 0
+db2 => select * from test_dysql@
+
+ID          NAME       VAL
+----------- ---------- -----------
+          1 A                   10
+          2 B                   20
+          3 C                   30
+          4 D                   40
+          5 E                   50
+         10 -                   10
+
+  6 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> BEGIN
+2>   EXECUTE ( 'SELECT * FROM test_dysql WHERE id=1' );
+3> END
+4> go
+id          name       val
+----------- ---------- -----------
+          1 A                   10
+
+(1 行受影响)
+
+
+
+<hr/>
+动态 SQL 创建表，插入数据的例子：
+
+BEGIN
+  DECLARE @sql varchar(200);
+  SET @sql = 'CREATE TABLE ##test(A int, B int, C int)';
+  EXECUTE  (@sql);
+  
+  SET @sql = 'INSERT INTO ##test VALUES(1,2,3)';
+  EXECUTE  (@sql);
+END
+GO
+
+1> select * from ##test
+2> go
+A           B           C
+----------- ----------- -----------
+          1           2           3
+
+(1 行受影响)
+
+
+<hr/>
+动态 SQL ， 查询数据的例子：
+
+-- 如果当前数据库中,已经存在有存储过程 tou_get, 那么先删除掉.
+IF EXISTS ( SELECT 1 FROM sys.procedures WHERE name = 'tou_get')  
+  DROP PROCEDURE tou_get
+GO
+
+-- 创建存储过程 tou_get
+CREATE PROCEDURE tou_get
+  @topnum int,
+  @tablename varchar(20)
+AS
+DECLARE
+  @sql  varchar(200);
+BEGIN
+  SET @sql = 'SELECT top ' + cast(@topnum as varchar) + ' * FROM ' + @tablename;
+  EXECUTE (@sql);
+END;
+GO
+
+EXECUTE tou_get 10, 'SALE_REPORT';
+GO
+
+
+sale_date               sale_item sale_money
+----------------------- --------- ------------
+2009-01-01 00:00:00.000 A              2009.00
+2009-01-01 00:00:00.000 B                 1.00
+2009-01-01 00:00:00.000 C                 1.00
+2009-01-02 00:00:00.000 A              2009.00
+2009-01-02 00:00:00.000 B                 1.00
+2009-01-02 00:00:00.000 C                 2.00
+2009-01-03 00:00:00.000 A              2009.00
+2009-01-03 00:00:00.000 B                 1.00
+2009-01-03 00:00:00.000 C                 3.00
+2009-01-04 00:00:00.000 A              2009.00
+
+(10 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+CREATE OR REPLACE FUNCTION TestExec() RETURNS void AS
+$$
+BEGIN
+  EXECUTE 'SELECT * FROM test_dysql WHERE id=1';
+END;
+$$
+LANGUAGE plpgsql;
+
+Test=# select TestExec();
+ testexec
+----------
+
+(1 行记录)
+
+
+
+CREATE OR REPLACE FUNCTION TestExec() RETURNS void AS
+$$
+BEGIN
+  EXECUTE 'UPDATE test_dysql SET val = val + 1 WHERE id = 1';
+END;
+$$
+LANGUAGE plpgsql;
+
+Test=# select TestExec();
+ testexec
+----------
+
+(1 行记录)
+
+
+Test=# select * from test_dysql;
+ id | name | val
+----+------+-----
+  2 | B    |  20
+  3 | C    |  30
+  4 | D    |  40
+  5 | E    |  50
+  1 | A    |  11
+(5 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

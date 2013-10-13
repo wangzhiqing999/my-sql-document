@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 安全函数 - ORIGINAL_LOGIN SYSTEM_USER </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 安全函数 </h1>
+
+
+<h2> 取得连接到 SQL Server 实例的登录名 ORIGINAL_LOGIN SYSTEM_USER  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+C:\>sqlcmd -S "localhost\SQLEXPRESS" -U 
+1> select ORIGINAL_LOGIN()
+2> go
+----------------------
+HOME-BED592453C\wzq
+
+1> SELECT SYSTEM_USER
+2> go
+------------------------
+HOME-BED592453C\wzq
+(1 行受影响)
+
+
+C:\>sqlcmd -S "localhost\SQLEXPRESS" -U Demo -P demo
+1> select ORIGINAL_LOGIN()
+2> go
+----------------------
+Demo
+
+1> SELECT SYSTEM_USER
+2> go
+---------------------
+Demo
+(1 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

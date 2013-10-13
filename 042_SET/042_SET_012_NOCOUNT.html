@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库会话的基本参数设置 SET  - NOCOUNT </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库会话的基本参数设置 SET </h1>
+
+
+<h2> NOCOUNT  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SET NOCOUNT { ON | OFF } 
+
+备注
+当 SET NOCOUNT 为 ON 时，不返回计数。当 SET NOCOUNT 为 OFF 时，返回计数。
+即使当 SET NOCOUNT 为 ON 时，也更新 @@ROWCOUNT 函数。
+当 SET NOCOUNT 为 ON 时，将不向客户端发送存储过程中每个语句的 DONE_IN_PROC 消息。
+如果存储过程中包含一些并不返回许多实际数据的语句，网络通信流量便会大量减少，
+因此，将 SET NOCOUNT 设置为 ON 可显著提高性能。
+SET NOCOUNT 指定的设置是在执行或运行时生效，而不是在分析时生效。
+
+默认情况
+1> SELECT 'Hello World'
+2> GO
+-----------
+Hello World
+(1 行受影响)
+
+
+1> SET NOCOUNT ON
+2> GO
+
+1> SELECT 'Hello World'
+2> GO
+-----------
+Hello World
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

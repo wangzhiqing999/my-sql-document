@@ -1,0 +1,464 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 多行转一行 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> 多行转一行  </h2>
+
+
+
+<pre><code>
+
+CREATE TABLE TestTitle (
+  name   VARCHAR(10),
+  title  VARCHAR(20)
+);
+
+
+INSERT INTO TestTitle VALUES ('张三', '程序员');
+INSERT INTO TestTitle VALUES ('张三', '系统管理员');
+INSERT INTO TestTitle VALUES ('张三', '网络管理员');
+
+INSERT INTO TestTitle VALUES ('李四', '项目经理');
+INSERT INTO TestTitle VALUES ('李四', '系统分析员');
+
+
+</code></pre>
+
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+
+使用  WMSYS.WM_CONCAT 处理
+
+<pre><code>
+
+SQL> SELECT
+  2    name,
+  3    WMSYS.WM_CONCAT(title) AS allTitle
+  4  FROM
+  5    TestTitle
+  6  GROUP BY
+  7    name;
+
+NAME
+ALLTITLE
+李四
+项目经理,系统分析员
+
+张三
+程序员,系统管理员,网络管理员
+
+
+
+<hr/>
+注：
+Oracle明确声明，WMSYS.WM_CONCAT 这个函数是个undocument 的 function,
+是Workspace Manager组件中的一个内部适用的函数，不建议客户使用，
+因为根据需要，oracle开发人员会内部更改这个函数，并且不会通知也没有义务通知客户。
+
+
+
+
+变通的办法， 自己写一个函数
+参考：
+http://www.oracle-base.com/articles/misc/string-aggregation-techniques.php
+
+
+
+CREATE OR REPLACE TYPE t_string_agg AS OBJECT
+(
+  g_string  VARCHAR2(32767),
+
+  STATIC FUNCTION ODCIAggregateInitialize(sctx  IN OUT  t_string_agg)
+    RETURN NUMBER,
+
+  MEMBER FUNCTION ODCIAggregateIterate(self   IN OUT  t_string_agg,
+                                       value  IN      VARCHAR2 )
+     RETURN NUMBER,
+
+  MEMBER FUNCTION ODCIAggregateTerminate(self         IN   t_string_agg,
+                                         returnValue  OUT  VARCHAR2,
+                                         flags        IN   NUMBER)
+    RETURN NUMBER,
+
+  MEMBER FUNCTION ODCIAggregateMerge(self  IN OUT  t_string_agg,
+                                     ctx2  IN      t_string_agg)
+    RETURN NUMBER
+);
+/
+SHOW ERRORS
+
+
+CREATE OR REPLACE TYPE BODY t_string_agg IS
+  STATIC FUNCTION ODCIAggregateInitialize(sctx  IN OUT  t_string_agg)
+    RETURN NUMBER IS
+  BEGIN
+    sctx := t_string_agg(NULL);
+    RETURN ODCIConst.Success;
+  END;
+
+  MEMBER FUNCTION ODCIAggregateIterate(self   IN OUT  t_string_agg,
+                                       value  IN      VARCHAR2 )
+    RETURN NUMBER IS
+  BEGIN
+    SELF.g_string := self.g_string || ',' || value;
+    RETURN ODCIConst.Success;
+  END;
+
+  MEMBER FUNCTION ODCIAggregateTerminate(self         IN   t_string_agg,
+                                         returnValue  OUT  VARCHAR2,
+                                         flags        IN   NUMBER)
+    RETURN NUMBER IS
+  BEGIN
+    returnValue := RTRIM(LTRIM(SELF.g_string, ','), ',');
+    RETURN ODCIConst.Success;
+  END;
+
+  MEMBER FUNCTION ODCIAggregateMerge(self  IN OUT  t_string_agg,
+                                     ctx2  IN      t_string_agg)
+    RETURN NUMBER IS
+  BEGIN
+    SELF.g_string := SELF.g_string || ',' || ctx2.g_string;
+    RETURN ODCIConst.Success;
+  END;
+END;
+/
+SHOW ERRORS
+
+
+CREATE OR REPLACE FUNCTION string_agg (p_input VARCHAR2)
+RETURN VARCHAR2
+PARALLEL_ENABLE AGGREGATE USING t_string_agg;
+/
+SHOW ERRORS
+
+
+
+
+COLUMN name FORMAT A10
+COLUMN allTitle FORMAT A60
+
+SELECT
+  name,
+  string_agg(title) AS allTitle
+FROM
+  TestTitle
+GROUP BY
+  name;
+
+
+NAME       ALLTITLE
+---------- ------------------------------------------------------------
+张三       程序员,系统管理员,网络管理员
+李四       项目经理,系统分析员
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+
+使用 CTE 处理
+
+<pre><code>
+
+
+WITH
+t1 (id, name, title) AS
+(
+  SELECT
+    ROW_NUMBER() OVER(PARTITION BY name ORDER BY title) AS ID,
+    name,
+    title
+  FROM
+    TestTitle
+),
+t2 (id, name, title) AS
+(
+  SELECT
+    t1.id,
+    t1.name,
+    CAST(t1.title AS varchar(100)) AS title
+  FROM
+    t1
+  WHERE
+    t1.id = 1
+  UNION ALL
+  SELECT
+    t1.id,
+    t2.name,
+    CAST( t1.title || ',' || t2.title AS varchar(100)) AS title
+  FROM
+    t1, t2
+  WHERE
+    t1.name = t2.name
+    AND t1.id = (t2.id + 1)
+)
+SELECT
+  name,
+  title
+FROM
+  t2
+WHERE
+  NOT EXISTS (
+    SELECT 1
+    FROM t2 t22
+    WHERE
+      t2.name = t22.name
+      AND t2.id &lt;  t22.id
+  );
+
+NAME       TITLE
+
+---------- ---------------------------------------------------------------------
+-------------------------------
+SQL0347W  递归公共表表达式 "WZQ.T2" 可能包含无限循环。  SQLSTATE=01605
+
+李四       项目经理,系统分析员
+
+张三       网络管理员,系统管理员,程序员
+
+
+  已选择 2 条记录，打印 1 条警告消息。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+
+可使用 FOR XML PATH 处理.
+也可使用 CTE 处理
+
+<pre><code>
+
+SELECT
+  name,
+  STUFF(
+    (
+    SELECT
+      ',' + title
+    FROM
+      TestTitle subTitle
+    WHERE
+      name = TestTitle.name
+    FOR XML PATH('')
+    ),
+    1, 1, '') AS allTitle
+FROM
+  TestTitle
+GROUP BY
+  name
+
+name       allTitle
+---------- --------------------------------
+李四         项目经理,系统分析员
+张三         程序员,系统管理员,网络管理员
+
+
+
+WITH
+t1  AS
+(
+  SELECT
+    ROW_NUMBER() OVER(PARTITION BY name ORDER BY title) AS ID,
+    name,
+    title
+  FROM
+    TestTitle
+),
+t2 AS
+(
+  SELECT
+    t1.id,
+    t1.name,
+    CAST(t1.title AS varchar(100)) AS title
+  FROM
+    t1
+  WHERE
+    t1.id = 1
+  UNION ALL
+  SELECT
+    t1.id,
+    t2.name,
+    CAST( t1.title + ',' + t2.title AS varchar(100)) AS title
+  FROM
+    t1, t2
+  WHERE
+    t1.name = t2.name
+    AND t1.id = (t2.id + 1)
+)
+SELECT
+  name,
+  title
+FROM
+  t2
+WHERE
+  NOT EXISTS (
+    SELECT 1
+    FROM t2 t22
+    WHERE
+      t2.name = t22.name
+      AND t2.id &lt; t22.id
+  );
+
+name       title
+
+---------- ----------------------------------------------------------
+-------------------------------
+张三         系统管理员,网络管理员,程序员
+
+李四         项目经理,系统分析员
+
+
+(2 行受影响)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+使用 GROUP_CONCAT 函数进行处理
+
+<pre><code>
+
+mysql> SELECT
+    ->   name,
+    ->   GROUP_CONCAT(title) AS allTitle
+    -> FROM
+    ->   TestTitle
+    -> GROUP BY
+    ->   name;
++------+------------------------------+
+| name | allTitle                     |
++------+------------------------------+
+| 李四 | 项目经理,系统分析员          |
+| 张三 | 程序员,系统管理员,网络管理员 |
++------+------------------------------+
+2 rows in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+函数与 MySQL 相同
+<pre><code>
+
+SELECT
+  name,
+  GROUP_CONCAT(title) AS allTitle
+FROM
+  TestTitle
+GROUP BY
+  name;
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+SELECT
+  name,
+  array_to_string(ARRAY(SELECT unnest(array_agg(title))),',') AS allTitle
+FROM
+  TestTitle
+GROUP BY
+  name;
+
+ name |           alltitle
+------+------------------------------
+ 李四 | 项目经理,系统分析员
+ 张三 | 程序员,系统管理员,网络管理员
+(2 行记录)
+
+
+
+或者
+
+SELECT
+  name,
+  string_agg(title,',') AS allTitle
+FROM
+  TestTitle
+GROUP BY
+  name;
+
+ name |           alltitle
+------+------------------------------
+ 李四 | 项目经理,系统分析员
+ 张三 | 程序员,系统管理员,网络管理员
+(2 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

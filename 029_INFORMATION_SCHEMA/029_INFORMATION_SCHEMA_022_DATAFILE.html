@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典表 - 数据文件 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典表 </h1>
+
+
+<h2> 数据文件  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SELECT
+  FILE# AS "文件唯一编号", 
+  TS#  AS  "所属表空间编号",
+  STATUS AS  "状态",
+  ENABLED,
+  NAME
+FROM
+  V$DATAFILE
+
+
+
+文件唯一编号	所属表空间编号	状态	ENABLED	NAME
+1	0	SYSTEM	READ WRITE	C:\ORACLEXE\ORADATA\XE\SYSTEM.DBF
+2	1	ONLINE	READ WRITE	C:\ORACLEXE\ORADATA\XE\UNDO.DBF
+3	2	ONLINE	READ WRITE	C:\ORACLEXE\ORADATA\XE\SYSAUX.DBF
+4	4	ONLINE	READ WRITE	C:\ORACLEXE\ORADATA\XE\USERS.DBF
+5	5	ONLINE	READ WRITE	C:\ORACLEXE\APP\ORACLE\PRODUCT\10.2.0\SERVER\DATABASE\RCAT_TS.DAT
+
+
+
+<hr/>
+
+
+
+SELECT
+  FILE_NAME,
+  FILE_ID,
+  TABLESPACE_NAME,
+  STATUS
+FROM
+  DBA_DATA_FILES;
+
+FILE_NAME	FILE_ID	TABLESPACE_NAME	STATUS
+C:\ORACLEXE\ORADATA\XE\USERS.DBF	4	USERS	AVAILABLE
+C:\ORACLEXE\ORADATA\XE\SYSAUX.DBF	3	SYSAUX	AVAILABLE
+C:\ORACLEXE\ORADATA\XE\UNDO.DBF	2	UNDO	AVAILABLE
+C:\ORACLEXE\ORADATA\XE\SYSTEM.DBF	1	SYSTEM	AVAILABLE
+C:\ORACLEXE\APP\ORACLE\PRODUCT\10.2.0\SERVER\DATABASE\RCAT_TS.DAT	5	RCAT_TS	AVAILABLE
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+select 
+  file_id,
+  file_guid,
+  type_desc,
+  name,
+  physical_name,
+  state_desc
+from
+  sys.database_files;
+
+
+file_id	file_guid	type_desc	name	physical_name	state_desc
+1	E49C57E2-420F-450C-B968-A379F1D850A5	ROWS	Test	C:\Program Files\Microsoft SQL Server\MSSQL10.SQLEXPRESS\MSSQL\DATA\Test.mdf	ONLINE
+2	77B2CF12-39EB-45B8-9CB3-956D4F84F2BC	LOG	Test_log	C:\Program Files\Microsoft SQL Server\MSSQL10.SQLEXPRESS\MSSQL\DATA\Test_log.ldf	ONLINE
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

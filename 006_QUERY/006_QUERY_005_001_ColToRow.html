@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 列转换为行 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> 列转换为行   </h2>
+
+
+
+<pre><code>
+
+create table student_1 (
+  id int,
+  name varchar(10),
+  yuwen int,
+  shuxue int,
+  yingyu int
+);
+
+insert into student_1 values(1,'张三',97,96,100);
+insert into student_1 values(2,'李四',98,86,90);
+
+
+
+</code></pre>
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+一般是使用多个 union all 进行处理。
+
+select id,
+       name,
+       '语文' as KECHENG,
+       yuwen as CHENGJI
+from student_1
+union all
+select id,
+       name,
+       '数学' as KECHENG,
+       shuxue as CHENGJI
+from student_1
+union all
+select id,
+       name,
+       '英语' as KECHENG,
+       yingyu as CHENGJI
+from student_1
+order by id;
+
+
+id          name       KECHENG CHENGJI
+----------- ---------- ------- -----------
+          1 张三         语文               97
+          1 张三         数学               96
+          1 张三         英语              100
+          2 李四         英语               90
+          2 李四         数学               86
+          2 李四         语文               98
+
+(6 行受影响)
+
+
+
+<hr/>
+
+如果允许多创建一张表
+那么可以不使用多个 union all
+
+
+CREATE TABLE all_course (
+  course_name  varchar(8)
+);
+
+INSERT INTO all_course VALUES('语文');
+INSERT INTO all_course VALUES('数学');
+INSERT INTO all_course VALUES('英语');
+
+
+select 
+  id,
+  name,
+  all_course.course_name as KECHENG,
+  CASE 
+    WHEN all_course.course_name = '语文' THEN yuwen 
+    WHEN all_course.course_name = '数学' THEN shuxue  
+    WHEN all_course.course_name = '英语' THEN yingyu  
+	else 0 end as CHENGJI
+from 
+  student_1  CROSS JOIN  all_course
+
+id          name       KECHENG  CHENGJI
+----------- ---------- -------- -----------
+          1 张三         语文                97
+          1 张三         数学                96
+          1 张三         英语               100
+          2 李四         语文                98
+          2 李四         数学                86
+          2 李四         英语                90
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

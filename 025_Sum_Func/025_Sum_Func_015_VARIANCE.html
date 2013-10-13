@@ -1,0 +1,200 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 聚集函数 - 方差VARIANCE / VAR </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 聚集函数 </h1>
+
+
+<h2>  方差VARIANCE / VAR </h2>
+
+
+
+
+样本中各数据与样本平均数的差的平方和的平均数叫做样本方差；样本方差的算术平方根叫做样本标准差。
+
+<br/>
+
+样本方差和样本标准差都是衡量一个样本波动大小的量，样本方差或样本标准差越大，样本数据的波动就越大。
+
+<br/>
+
+
+方差和标准差。
+<br/>
+方差和标准差是测算离散趋势最重要、最常用的指标。
+<br/>
+方差是各变量值与其均值离差平方的平均数，它是测算数值型数据离散程度的最重要的方法。
+<br/>
+标准差为方差的平方根，用S表示。
+
+<br/>
+标准差与方差不同的是，标准差和变量的计算单位相同，比方差清楚，因此很多时候我们分析的时候更多的使用的是标准差。
+
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    sale_item,
+  3    VARIANCE(sale_money)
+  4  FROM
+  5    sale_report
+  6  GROUP BY
+  7    sale_item;
+
+SALE VARIANCE(SALE_MONEY)
+---- --------------------
+A                       0
+B              11.9203372
+C              77.5865272
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT
+2>   sale_item,
+3>   VAR(sale_money)
+4> FROM
+5>   sale_report
+6> GROUP BY
+7>   sale_item
+8> go
+sale_item
+--------- ------------------------
+A                                0
+C               77.586527171458656
+B               11.920337197049525
+
+(3 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT
+    ->   sale_item,
+    ->   VAR_SAMP(sale_money)
+    -> FROM
+    ->   sale_report
+    -> GROUP BY
+    ->   sale_item
+    -> //
++-----------+----------------------+
+| sale_item | VAR_SAMP(sale_money) |
++-----------+----------------------+
+| A         |             0.000000 |
+| B         |            11.920337 |
+| C         |            77.586527 |
++-----------+----------------------+
+3 rows in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+variance(expression) 输出值的采样方差（标准采样偏差的平方）。
+
+SELECT
+  sale_item,
+  variance(sale_money)
+FROM
+  sale_report
+GROUP BY
+  sale_item;
+
+  
+ sale_item |      variance
+-----------+---------------------
+ C         | 77.4946621285852250
+ B         | 11.9016999053003666
+ A         |  1.2515400410677618
+(3 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

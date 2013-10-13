@@ -1,0 +1,304 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 存储过程 - 存储过程返回结果集 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 存储过程 </h1>
+
+
+<h2> 存储过程返回结果集  </h2>
+
+
+SQL Server 的存储过程，可以在里面写一段 SQL 语句，然后其它的开发语言比如C#，可以在调用存储过程的后，获取到存储过程执行所返回的结果集。
+此方法在 SQL Server 中可用，在 Oracle 中不可用。
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> CREATE OR REPLACE PROCEDURE testProc
+  2  AS
+  3  BEGIN
+  4    SELECT 'Hello 1' AS A, 'World 1' AS B FROM DUAL UNION ALL
+  5    SELECT 'Hello 2' AS A, 'World 2' AS B FROM DUAL ;
+  6  END;
+  7  /
+
+警告: 创建的过程带有编译错误。
+
+SQL> show err;
+PROCEDURE TESTPROC 出现错误:
+
+LINE/COL ERROR
+-------- -----------------------------------------------------------------
+4/3      PLS-00428: 在此 SELECT 语句中缺少 INTO 子句
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+CREATE PROCEDURE testProc
+AS
+BEGIN
+  SELECT 'Hello 1' AS A, 'World 1' AS B UNION ALL
+  SELECT 'Hello 2' AS A, 'World 2' AS B;
+END
+
+
+BEGIN
+  DECLARE @RC int;
+  EXECUTE @RC = testProc;
+  PRINT @RC;
+END
+
+A       B
+------- -------
+Hello 1 World 1
+Hello 2 World 2
+
+(2 行受影响)
+
+0
+
+
+<hr/>
+
+如果需要把 返回结果集的存储过程的数据, 插入到其他表中.
+
+使用
+
+INSERT INTO 其他表 
+EXECUTE 返回结果集的存储过程;
+
+
+1> BEGIN
+2>   CREATE TABLE #temp(A varchar(10), B varchar(10));
+3>   INSERT INTO #temp
+4>   EXECUTE testProc;
+5> END
+6> go
+
+(2 行受影响)
+1> select * from #temp
+2> go
+A          B
+---------- ----------
+Hello 1    World 1
+Hello 2    World 2
+
+(2 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+DELIMITER //
+
+CREATE DEFINER=`root`@`%` PROCEDURE testProc()
+BEGIN
+  SELECT 'Hello 1' AS A, 'World 1' AS B UNION ALL
+  SELECT 'Hello 2' AS A, 'World 2' AS B;
+END //
+
+DELIMITER ;
+
+
+mysql> call  testProc();
++---------+---------+
+| A       | B       |
++---------+---------+
+| Hello 1 | World 1 |
+| Hello 2 | World 2 |
++---------+---------+
+2 rows in set (0.00 sec)
+
+Query OK, 0 rows affected (0.01 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+简单查询的函数
+
+请注意：
+这里最后写的是  LANGUAGE SQL;  不是  LANGUAGE plpgsql;
+因为函数里面， 没有任何逻辑， 只有一条 SQL 语句.
+
+
+CREATE OR REPLACE FUNCTION GetTestMain (int)  RETURNS test_main AS $$
+  SELECT * FROM test_main WHERE id = $1;
+$$ LANGUAGE SQL;
+
+
+Test=# SELECT * FROM GetTestMain(1) AS t;
+ id | value
+----+-------
+  1 | ONE
+(1 行记录)
+
+
+Test=# CREATE OR REPLACE FUNCTION GetTestMain (int)  RETURNS test_main AS $$
+Test$#   SELECT * FROM test_main WHERE id != $1;
+Test$# $$ LANGUAGE SQL;
+CREATE FUNCTION
+
+Test=# SELECT * FROM GetTestMain(0) AS t;
+ id | value
+----+-------
+  1 | ONE
+(1 行记录)
+
+
+Test=# SELECT * FROM GetTestMain(1) AS t;
+ id | value
+----+-------
+  2 | TWO
+(1 行记录)
+
+
+请注意： 上面这种写法， 如果查询返回多行数据的情况下，这个函数仅仅会返回第一行。
+
+<hr/>
+
+
+Test=# CREATE OR REPLACE FUNCTION GetTestMain2(int) RETURNS setof test_main AS $$
+Test$#   SELECT * FROM test_main WHERE id != $1;
+Test$# $$ LANGUAGE SQL;
+CREATE FUNCTION
+
+Test=#
+Test=# SELECT * FROM GetTestMain2(1) AS t;
+ id | value
+----+-------
+  2 | TWO
+  4 | FOUR
+(2 行记录)
+
+通过定义  <span class="BasicInfo"> RETURNS setof </span> ... 使得函数能过返回多行记录.
+
+
+
+
+<hr/>
+
+假如业务逻辑比较复杂，无法简单 SQL 处理的情况下
+
+需要使用 <span class="BasicInfo"> RETURN NEXT </span>  ... 来把当前行数据，加入结果集.
+使用 RETURN; 把整个结果集返回.
+
+Test=# CREATE OR REPLACE FUNCTION GetTestMain3(int)
+Test-# RETURNS SETOF test_main AS
+Test-# $$
+Test$# DECLARE
+Test$#   v_test_main_data test_main%ROWTYPE;
+Test$# BEGIN
+Test$#   FOR v_test_main_data IN SELECT * FROM test_main LOOP
+Test$#  IF v_test_main_data.id = $1 THEN
+Test$#    -- 模拟一点逻辑操作.
+Test$#    CONTINUE;
+Test$#  END IF;
+Test$#  -- 把当前行数据，加入结果集.
+Test$#     RETURN NEXT v_test_main_data;
+Test$#   END LOOP;
+Test$#   -- 把整个结果集返回.
+Test$#   RETURN;
+Test$# END;
+Test$# $$ LANGUAGE plpgsql;
+CREATE FUNCTION
+
+
+Test=# SELECT * FROM GetTestMain3(1) AS t;
+ id | value
+----+-------
+  2 | TWO
+  4 | FOUR
+(2 行记录)
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

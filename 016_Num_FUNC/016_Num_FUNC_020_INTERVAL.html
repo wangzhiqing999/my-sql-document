@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数学函数 - 快速查找 INTERVAL </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数学函数 </h1>
+
+
+<h2>  快速查找 INTERVAL </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+INTERVAL(N,N1,N2,N3,...) 
+假如N < N1，则返回值为0；
+假如N < N2 等等，则返回值为1；
+假如N 为NULL，则返回值为 -1 。
+
+所有的参数均按照整数处理。
+为了这个函数的正确运行，必须满足 N1 < N2 < N3 < ……< Nn 。其原因是使用了二分查找(极快速)。
+
+mysql> SELECT INTERVAL(23, 1, 15, 17, 30, 44, 200) A;
++---+
+| A |
++---+
+| 3 |
++---+
+1 row in set (0.00 sec)
+
+mysql> SELECT INTERVAL(10, 1, 10, 100, 1000) A;
++---+
+| A |
++---+
+| 2 |
++---+
+1 row in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

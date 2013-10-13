@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> XML - Exist 查询  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> XML </h1>
+
+
+<h2>  Exist 查询 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT
+2>   pk, xCol
+3> FROM
+4>   docs
+5> WHERE
+6>   xCol.exist ('/book[@genre = "security"]') = 1
+7> go
+pk          xCol
+
+
+----------- --------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+----------------------------
+          1 <book genre="security" publicationdate="2002" ISBN="0-7356-1588-2"><
+title>Writing Secure Code</title><author><first-name>Michael</first-name><last-n
+ame>Howard</last-name></author><author><first-name>David</first-name><last-name>
+LeBlanc</last-name></author>
+
+(1 行受影响)
+
+
+1> SELECT
+2>   xCol
+3> FROM
+4>   docs
+5> WHERE
+6>   xCol.exist ('//book[@ISBN = "1-8610-0157-6"]') = 1
+7> go
+xCol
+
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+----------------
+
+(0 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

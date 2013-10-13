@@ -1,0 +1,193 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 分区表 - RANGE分区-新增分区  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 分区表 </h1>
+
+
+<h2>  RANGE分区-新增分区 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> ALTER TABLE sale_data
+  2    ADD PARTITION p201010 VALUES LESS THAN (TO_DATE('20101101', 'YYYYMMDD'));
+
+表已更改。
+
+SQL> SELECT
+  2    partition_name
+  3  FROM
+  4    user_tab_partitions
+  5  WHERE
+  6    table_name = 'SALE_DATA';
+
+PARTITION_NAME
+------------------------------
+P201001
+P201002
+P201003
+P201004
+P201005
+P201006
+P201007
+P201008
+P201009
+P201010
+
+已选择10行。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+-- 为 分区架构 新增分区，指定存放位置。
+alter partition scheme sale_date_part_sche next used [primary]
+go
+
+-- 在 分区函数 新增一个分区（用来存放 2010年9月 数据）
+alter partition function sale_date_part_func()
+split range( CONVERT(DATETIME, '2010-10-01 00:00:00', 120) )
+go
+
+
+核对
+SELECT 
+  pf.[name],
+  pf.[function_id],
+  pf.[type],
+  pf.[type_desc],
+  pv.[value]
+FROM 
+  [sys].[partition_functions] pf 
+    JOIN [sys].[partition_range_values] pv
+      ON(pf.function_id = pv.function_id)
+WHERE
+  pf.[name] = 'sale_date_part_func'
+
+
+name	function_id	type	type_desc	value
+sale_date_part_func	65536	R 	RANGE	2010-01-01 00:00:00.000
+sale_date_part_func	65536	R 	RANGE	2010-02-01 00:00:00.000
+sale_date_part_func	65536	R 	RANGE	2010-03-01 00:00:00.000
+sale_date_part_func	65536	R 	RANGE	2010-04-01 00:00:00.000
+sale_date_part_func	65536	R 	RANGE	2010-05-01 00:00:00.000
+sale_date_part_func	65536	R 	RANGE	2010-06-01 00:00:00.000
+sale_date_part_func	65536	R 	RANGE	2010-07-01 00:00:00.000
+sale_date_part_func	65536	R 	RANGE	2010-08-01 00:00:00.000
+sale_date_part_func	65536	R 	RANGE	2010-09-01 00:00:00.000
+sale_date_part_func	65536	R 	RANGE	2010-10-01 00:00:00.000
+
+
+
+INSERT INTO sale_data
+  SELECT '2010-09-01 10:00:00', 'A', 700 UNION ALL
+  SELECT '2010-09-11 10:00:00', 'B', 800 UNION ALL
+  SELECT '2010-09-21 10:00:00', 'C', 900;
+go
+
+
+
+-- 查看分区表 sale_data 每个分区的数据分布情况
+select partition = $partition.sale_date_part_func(sale_date)
+      ,rows      = count(*)
+      ,minval    = min(sale_date)
+      ,maxval    = max(sale_date)
+  from dbo.sale_data
+ group by $partition.sale_date_part_func(sale_date)
+ order by partition
+go
+
+partition	rows	minval	maxval
+2	3	2010-01-01 10:00:00.000	2010-01-21 10:00:00.000
+3	3	2010-02-01 10:00:00.000	2010-02-21 10:00:00.000
+4	3	2010-03-01 10:00:00.000	2010-03-21 10:00:00.000
+10	3	2010-09-01 10:00:00.000	2010-09-21 10:00:00.000
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> ALTER TABLE sale_data
+    ->   ADD PARTITION (PARTITION p201010 VALUES LESS THAN (201011));
+Query OK, 0 rows affected (0.36 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库链接 - Access </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库链接 </h1>
+
+
+<h2> Access  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+直接访问
+SELECT *   
+FROM OpenDataSource( 
+  'Microsoft.Jet.OLEDB.4.0',  
+  'Data Source="R:\test.mdb";User ID=Admin;Password=;')...[a1]
+
+
+创建链接服务器
+/****** 对象:  LinkedServer [TEST_ACC]    脚本日期: 02/25/2011 22:09:53 ******/
+EXEC master.dbo.sp_addlinkedserver @server = N'TEST_ACC', @srvproduct=N'Access', @provider=N'Microsoft.Jet.OLEDB.4.0', @datasrc=N'R:\test.mdb'
+GO
+EXEC master.dbo.sp_serveroption @server=N'TEST_ACC', @optname=N'collation compatible', @optvalue=N'false'
+GO
+EXEC master.dbo.sp_serveroption @server=N'TEST_ACC', @optname=N'data access', @optvalue=N'true'
+GO
+EXEC master.dbo.sp_serveroption @server=N'TEST_ACC', @optname=N'dist', @optvalue=N'false'
+GO
+EXEC master.dbo.sp_serveroption @server=N'TEST_ACC', @optname=N'pub', @optvalue=N'false'
+GO
+EXEC master.dbo.sp_serveroption @server=N'TEST_ACC', @optname=N'rpc', @optvalue=N'false'
+GO
+EXEC master.dbo.sp_serveroption @server=N'TEST_ACC', @optname=N'rpc out', @optvalue=N'false'
+GO
+EXEC master.dbo.sp_serveroption @server=N'TEST_ACC', @optname=N'sub', @optvalue=N'false'
+GO
+EXEC master.dbo.sp_serveroption @server=N'TEST_ACC', @optname=N'connect timeout', @optvalue=N'0'
+GO
+EXEC master.dbo.sp_serveroption @server=N'TEST_ACC', @optname=N'collation name', @optvalue=null
+GO
+EXEC master.dbo.sp_serveroption @server=N'TEST_ACC', @optname=N'lazy schema validation', @optvalue=N'false'
+GO
+EXEC master.dbo.sp_serveroption @server=N'TEST_ACC', @optname=N'query timeout', @optvalue=N'0'
+GO
+EXEC master.dbo.sp_serveroption @server=N'TEST_ACC', @optname=N'use remote collation', @optvalue=N'true'
+
+创建完毕后
+select * from [TEST_ACC]...[a1]
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

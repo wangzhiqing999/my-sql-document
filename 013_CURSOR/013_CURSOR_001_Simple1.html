@@ -1,0 +1,427 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 游标处理 - 简单循环处理I </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 游标处理 </h1>
+
+
+<h2> 简单循环处理I  </h2>
+
+
+此写法是先取一条数据，然后判断循环条件
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> DECLARE
+  2    v_id    INT;
+  3    v_value VARCHAR(10);
+  4    -- 定义游标.
+  5    CURSOR c_test_main IS
+  6      SELECT id, value FROM test_main;
+  7  BEGIN
+  8    -- 打开游标.
+  9    OPEN c_test_main;
+ 10    -- 填充数据.
+ 11    FETCH c_test_main INTO v_id, v_value;
+ 12    -- 假如检索到了数据，才处理.
+ 13    WHILE c_test_main%FOUND LOOP
+ 14      dbms_output.put_line(v_value);
+ 15      -- 填充下一条数据.
+ 16      FETCH c_test_main INTO v_id, v_value;
+ 17    END LOOP;
+ 18    -- 关闭游标
+ 19    CLOSE c_test_main;
+ 20  END;
+ 21  /
+TWO
+THREE
+ONE
+
+PL/SQL procedure successfully completed.
+
+
+
+<hr/>
+
+如果 SQL 语句中， 列的数量很多， 那么定义很多的变量，对应没一列。
+开发、维护成本都会比较高。
+这种情况下， 可以采用  表名%rowtype  的方式， 只定义一个变量来进行处理.
+
+
+DECLARE
+  -- 定义存储游标结果的变量.
+  v_test_main    test_main%rowtype;
+  -- 定义游标.
+  CURSOR c_test_main IS
+      SELECT id, value FROM test_main;
+BEGIN
+  -- 打开游标.
+  OPEN c_test_main;
+  -- 填充数据.
+  FETCH c_test_main INTO v_test_main;
+  -- 假如检索到了数据，才处理.
+  WHILE c_test_main%FOUND LOOP
+    dbms_output.put_line(v_test_main.value);
+    -- 填充下一条数据.
+    FETCH c_test_main INTO v_test_main;
+  END LOOP;
+  -- 关闭游标
+  CLOSE c_test_main;
+END;
+/
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+E:\IBM\SQLLIB\BIN>db2 -td@
+
+db2 => TRUNCATE TABLE output_debug IMMEDIATE@
+DB20000I  SQL 命令成功完成。
+
+db2 => BEGIN
+db2 (cont.) =>   -- 暂存变量.
+db2 (cont.) =>   DECLARE  v_id    INT;
+db2 (cont.) =>   DECLARE  v_value VARCHAR(10);
+db2 (cont.) =>   DECLARE SQLCODE INT;
+db2 (cont.) =>   -- 定义游标.
+db2 (cont.) =>   DECLARE c_test_main CURSOR FOR
+db2 (cont.) =>       SELECT id, value FROM test_main;
+db2 (cont.) =>   -- 打开游标.
+db2 (cont.) =>   OPEN c_test_main;
+db2 (cont.) =>   -- 填充数据.
+db2 (cont.) =>   FETCH c_test_main INTO v_id, v_value;
+db2 (cont.) =>   -- 假如检索到了数据，才处理.
+db2 (cont.) =>   WHILE (SQLCODE = 0) DO
+db2 (cont.) =>     INSERT INTO output_debug VALUES(v_value);
+db2 (cont.) =>     -- 填充下一条数据.
+db2 (cont.) =>     FETCH c_test_main INTO v_id, v_value;
+db2 (cont.) =>   END WHILE;
+db2 (cont.) =>   -- 关闭游标
+db2 (cont.) =>   CLOSE c_test_main;
+db2 (cont.) => END
+db2 (cont.) => @
+DB20000I  SQL 命令成功完成。
+
+
+db2 => select * from output_debug@
+DATA
+-----
+ONE
+TWO
+  2 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> DECLARE
+2>   @id    INT,  @value VARCHAR(10);
+3> BEGIN
+4>   -- 定义游标.
+5>   DECLARE c_test_main CURSOR FAST_FORWARD FOR
+6>     SELECT id, value FROM test_main;
+7>   -- 打开游标.
+8>   OPEN c_test_main;
+9>   -- 填充数据.
+10>   FETCH NEXT FROM c_test_main INTO @id, @value;
+11>   -- 假如检索到了数据，才处理.
+12>   WHILE @@fetch_status = 0
+13>   BEGIN
+14>     PRINT @value;
+15>     -- 填充下一条数据.
+16>     FETCH NEXT FROM c_test_main INTO @id, @value;
+17>   END;
+18>   -- 关闭游标
+19>   CLOSE c_test_main;
+20>   -- 释放游标.
+21>   DEALLOCATE c_test_main;
+22> END;
+23> go
+ONE
+TWO
+THREE
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE TestCursor()
+    -> BEGIN
+    ->
+    ->   DECLARE v_id    INT;
+    ->   DECLARE v_value VARCHAR(10);
+    ->
+    ->   -- 游标控制的标志
+    ->   DECLARE no_more_departments INT;
+    ->
+    ->   -- 定义游标.
+    ->   DECLARE c_test_main CURSOR
+    ->   FOR
+    ->   SELECT id, value FROM test_main;
+    ->
+    ->   -- 当游标没有数据的时候
+    ->   -- 设置 no_more_departments = 1
+    ->   DECLARE CONTINUE HANDLER
+    ->   FOR
+    ->   NOT FOUND SET no_more_departments=1;
+    ->
+    ->   -- 设置初始标志位，认为游标是有数据的.
+    ->   SET no_more_departments=0;
+    ->
+    ->   -- 打开游标
+    ->   OPEN c_test_main;
+    ->
+    ->   -- 获取游标数据
+    ->   FETCH c_test_main INTO v_id, v_value;
+    ->
+    ->   -- 循环所有的行
+    ->   WHILE no_more_departments = 0 DO
+    ->     -- 输出调试信息
+    ->     SELECT v_id, v_value;
+    ->
+    ->     -- 获取游标数据
+    ->     FETCH c_test_main INTO v_id, v_value;
+    ->   END WHILE;
+    ->
+    ->   -- 关闭游标
+    ->   CLOSE c_test_main;
+    -> END//
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> Call TestCursor() //
++------+---------+
+| v_id | v_value |
++------+---------+
+|    1 | ONE     |
++------+---------+
+1 row in set (0.00 sec)
+
++------+---------+
+| v_id | v_value |
++------+---------+
+|    2 | TWO     |
++------+---------+
+1 row in set (0.00 sec)
+
++------+---------+
+| v_id | v_value |
++------+---------+
+|    3 | THREE   |
++------+---------+
+1 row in set (0.02 sec)
+
+Query OK, 0 rows affected (0.02 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+-- 清空日志表.
+Test=# truncate table log_table;
+TRUNCATE TABLE
+
+Test=# select * from test_main;
+ id | value
+----+-------
+  1 | ONE
+  2 | TWO
+  4 | FOUR
+(3 行记录)
+
+
+
+
+CREATE OR REPLACE FUNCTION TestCursor() RETURNS void AS
+$$
+DECLARE
+  -- 定义游标.
+  c_test_main CURSOR FOR
+    SELECT id, value FROM test_main;
+  -- 定义存储数据的变量.
+  v_id    INT;
+  v_value VARCHAR(10);
+BEGIN
+  -- 打开游标.
+  OPEN c_test_main;
+  -- 填充数据.
+  FETCH c_test_main INTO v_id, v_value;
+
+  -- 假如检索到了数据，才处理.
+  while found loop  
+    INSERT INTO log_table VALUES (v_value);
+	-- 填充下一条数据.
+    FETCH c_test_main INTO v_id, v_value;
+  end loop; 
+  
+  -- 关闭游标
+  CLOSE c_test_main;
+END;
+$$
+LANGUAGE plpgsql;
+
+
+
+
+Test=# select TestCursor();
+ testcursor
+------------
+
+(1 行记录)
+
+
+Test=# select * from log_table;
+ log_text
+----------
+ ONE
+ TWO
+ FOUR
+(3 行记录)
+
+
+
+
+
+<hr/>
+如果 SQL 语句中， 列的数量很多， 那么定义很多的变量，对应没一列。
+开发、维护成本都会比较高。
+这种情况下， 可以采用  表名%rowtype  的方式， 只定义一个变量来进行处理.
+
+-- 清空日志表.
+Test=# truncate table log_table;
+TRUNCATE TABLE
+
+
+CREATE OR REPLACE FUNCTION TestCursor() RETURNS void AS
+$$
+DECLARE
+  -- 定义游标.
+  c_test_main CURSOR FOR
+    SELECT id, value FROM test_main ORDER BY id DESC;
+  -- 定义存储数据的变量.
+  v_main_data  test_main%ROWTYPE;
+
+BEGIN
+  -- 打开游标.
+  OPEN c_test_main;
+  -- 填充数据.
+  FETCH c_test_main INTO v_main_data;
+
+  -- 假如检索到了数据，才处理.
+  while found loop  
+    INSERT INTO log_table VALUES (v_main_data.value);
+	-- 填充下一条数据.
+    FETCH c_test_main INTO v_main_data;
+  end loop; 
+  
+  -- 关闭游标
+  CLOSE c_test_main;
+END;
+$$
+LANGUAGE plpgsql;
+
+
+Test=# select TestCursor();
+ testcursor
+------------
+
+(1 行记录)
+
+
+Test=# select * from log_table;
+ log_text
+----------
+ FOUR
+ TWO
+ ONE
+(3 行记录)
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

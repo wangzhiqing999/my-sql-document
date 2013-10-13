@@ -1,0 +1,339 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 其他函数 - 返回最近语句更新行数 CHANGE </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 其他函数 </h1>
+
+
+<h2>  返回最近语句更新行数 CHANGE </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+通过  SQL%ROWCOUNT  来判断.
+
+
+SQL> set serverout on
+SQL> 
+SQL> begin
+  2   update test_main set value = 0;
+  3   dbms_output.put_line('Updated Rows : '||to_char(SQL%ROWCOUNT));
+  4   rollback;
+  5  end;
+  6  /
+Updated Rows : 27
+
+PL/SQL 过程已成功完成。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+
+通过  ROW_COUNT 来判断.
+
+
+
+
+TRUNCATE TABLE output_debug IMMEDIATE@
+
+BEGIN
+  DECLARE tempCount INT;
+  INSERT INTO test_main(id, value) VALUES (3, 'THREE');
+  GET DIAGNOSTICS tempCount = ROW_COUNT;  
+  INSERT INTO output_debug VALUES('插入行：' || TO_CHAR(tempCount)); 
+
+  INSERT INTO test_main(id, value)
+    SELECT 4, 'FOUR'  FROM SYSIBM.SYSDUMMY1  UNION ALL
+    SELECT 5, 'FIVE'  FROM SYSIBM.SYSDUMMY1 ;
+  GET DIAGNOSTICS tempCount = ROW_COUNT;
+  INSERT INTO output_debug VALUES('插入行：' || TO_CHAR(tempCount));
+  
+  update test_main set value = 'FIVE' WHERE id = 5;
+  GET DIAGNOSTICS tempCount = ROW_COUNT;
+  INSERT INTO output_debug VALUES('更新行：' || TO_CHAR(tempCount));
+END@
+
+
+
+
+db2 => select * from test_main@
+
+ID          VALUE
+----------- ----------
+          1 ONE
+          2 TWO
+          3 THREE
+          5 FIVE
+          4 FOUR
+
+  5 条记录已选择。
+
+db2 => select * from output_debug@
+
+DATA
+--------------------------------------------------
+插入行：1
+插入行：2
+更新行：1
+
+  3 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+通过  @@rowcount  来判断.
+
+
+1> create table #test( t varchar(10) )
+2> go
+1> insert into #test values( 'abc');
+2> go
+
+(1 行受影响)
+
+
+1> select @@rowcount
+2> go
+
+-----------
+          1
+
+(1 行受影响)
+
+
+
+
+1> insert into #test select  'abc'  union all select 'def'
+2> go
+
+(2 行受影响)
+1> select @@rowcount
+2> go
+
+-----------
+          2
+
+(1 行受影响)
+
+
+
+SQL Server 中, 同时可获取 "查询数据的行数"
+
+1> select * from #test
+2> go
+t
+----------
+abc
+abc
+def
+
+(3 行受影响)
+1> select @@rowcount
+2> go
+
+-----------
+          3
+
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+判断上一条 SQL 语句 查询到的行数， 用 found_rows()
+
+mysql> select * from test_main;
++----+-------+
+| id | value |
++----+-------+
+|  1 | ONE   |
+|  2 | TWO   |
++----+-------+
+2 rows in set (0.00 sec)
+
+mysql> select  found_rows();
++--------------+
+| found_rows() |
++--------------+
+|            2 |
++--------------+
+1 row in set (0.00 sec)
+
+mysql> select  found_rows();
++--------------+
+| found_rows() |
++--------------+
+|            0 |
++--------------+
+1 row in set (0.00 sec)
+
+mysql> select * from test_main where id = 1;
++----+-------+
+| id | value |
++----+-------+
+|  1 | ONE   |
++----+-------+
+1 row in set (0.00 sec)
+
+mysql> select  found_rows();
++--------------+
+| found_rows() |
++--------------+
+|            1 |
++--------------+
+1 row in set (0.00 sec)
+
+
+
+判断上一条 SQL 语句 更新的行数， 用 row_count()
+
+
+
+mysql> INSERT INTO test_main(id, value) VALUES (3, 'THREE');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select row_count();
++-------------+
+| row_count() |
++-------------+
+|           1 |
++-------------+
+1 row in set (0.00 sec)
+
+
+
+mysql> INSERT INTO test_main(id, value)
+    ->  SELECT 4, 'FOUR' UNION ALL
+    ->  SELECT 5, 'FIVE' ;
+Query OK, 2 rows affected (0.01 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> select row_count();
++-------------+
+| row_count() |
++-------------+
+|           2 |
++-------------+
+1 row in set (0.00 sec)
+
+
+注意：
+如果Update前后的值一样，row_count则为0，
+而不像SqlServer里的@@rowcount或Oracle里的rowcount，只要update到行，影响的行数就会大于0，而无论update前后字段的值是否发生了变化。  
+
+
+-- 这里 update 了， 但是 更新前后的数据是一样的， 都是  FIVE
+mysql> update test_main set value = 'FIVE' WHERE id = 5;
+Query OK, 0 rows affected (0.01 sec)
+Rows matched: 1  Changed: 0  Warnings: 0
+
+mysql> select row_count();
++-------------+
+| row_count() |
++-------------+
+|           0 |
++-------------+
+1 row in set (0.00 sec)
+
+
+-- 这里 update 了， 但是 更新前后的数据不一样的， 更新前  FIVE  更新前  FIVE5
+mysql> update test_main set value = 'FIVE5' WHERE id = 5;
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select row_count();
++-------------+
+| row_count() |
++-------------+
+|           1 |
++-------------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+sqlite> insert into test values( 'abc');
+Error: table test has 2 columns but 1 values were supplied
+sqlite> select changes();
+changes()
+0
+sqlite> insert into test values( 2, 'abc');
+sqlite> select changes();
+changes()
+1
+sqlite> insert into test select 3, 'A' union all select 4, 'B';
+sqlite> select changes();
+changes()
+2
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

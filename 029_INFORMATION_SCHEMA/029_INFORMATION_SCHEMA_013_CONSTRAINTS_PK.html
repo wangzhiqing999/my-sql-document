@@ -1,0 +1,225 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典表 - 约束-主键 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典表 </h1>
+
+
+<h2>  约束-主键 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SELECT
+  USER_CONS_COLUMNS.CONSTRAINT_NAME AS 约束名,
+  USER_CONS_COLUMNS.TABLE_NAME AS 表名,
+  USER_CONS_COLUMNS.COLUMN_NAME AS 列名,
+  USER_CONS_COLUMNS.POSITION AS 位置
+FROM
+  USER_CONSTRAINTS
+    JOIN USER_CONS_COLUMNS
+    ON (USER_CONSTRAINTS.CONSTRAINT_NAME
+        = USER_CONS_COLUMNS.CONSTRAINT_NAME)
+WHERE
+  CONSTRAINT_TYPE = 'P';
+
+CONSTRAINT_TYPE   VARCHAR2(1) 
+
+Type of constraint definition:
+C (check constraint on a table) 
+P (primary key) 
+U (unique key) 
+R (referential integrity) 
+V (with check option, on a view) 
+O (with read only, on a view)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+
+SELECT
+  CONSTNAME  AS  "约束名称",
+  TABNAME    AS  "表名",
+  COLNAME    AS  "列名",
+  COLSEQ     AS  "列顺序"
+FROM
+  SYSCAT.KEYCOLUSE
+WHERE
+  TABNAME = 'TEST_MAIN';
+
+
+查询结果：
+SQL130226182812740	TEST_MAIN	ID	1
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SELECT
+  tab.name AS [表名],
+  idx.name AS [主键名称],
+  col.name AS [主键列名]
+FROM
+  sys.indexes idx
+    JOIN sys.index_columns idxCol 
+      ON (idx.object_id = idxCol.object_id 
+          AND idx.index_id = idxCol.index_id 
+          AND idx.is_primary_key = 1)
+    JOIN sys.tables tab
+      ON (idx.object_id = tab.object_id)
+    JOIN sys.columns col
+      ON (idx.object_id = col.object_id
+          AND idxCol.column_id = col.column_id);
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT
+    ->   t.TABLE_NAME,
+    ->   t.CONSTRAINT_TYPE,
+    ->   c.COLUMN_NAME,
+    ->   c.ORDINAL_POSITION
+    -> FROM
+    ->   INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS t,
+    ->   INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS c
+    -> WHERE
+    ->   t.TABLE_NAME = c.TABLE_NAME
+    ->   AND t.TABLE_SCHEMA = 'test'
+    ->   AND t.CONSTRAINT_TYPE = 'PRIMARY KEY'
+    -> LIMIT 3;
++------------+-----------------+-------------+------------------+
+| TABLE_NAME | CONSTRAINT_TYPE | COLUMN_NAME | ORDINAL_POSITION |
++------------+-----------------+-------------+------------------+
+| mr_dept    | PRIMARY KEY     | dept_id     |                1 |
+| order      | PRIMARY KEY     | id          |                1 |
+| tab        | PRIMARY KEY     | id          |                1 |
++------------+-----------------+-------------+------------------+
+3 rows in set (0.06 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+SELECT
+  pg_constraint.conname AS "主键名",
+  tab.relname AS "表名称",
+  idx.indkey AS "主键列索引"
+FROM
+  pg_constraint
+    JOIN pg_class tab
+	  ON ( pg_constraint.conrelid = tab.oid )
+	JOIN pg_index idx
+	  ON ( pg_constraint.conindid = idx.indexrelid )
+WHERE
+  pg_constraint.contype = 'p'
+  AND pg_constraint.connamespace = (SELECT pg_namespace.oid FROM pg_namespace WHERE nspname = 'public');
+
+        主键名         |      表名称      | 索引名称
+-----------------------+------------------+----------
+ test_create_tab1_pkey | test_create_tab1 | 1
+ test_create_tab4_pkey | test_create_tab4 | 1
+ MR_DEPT_pkey          | MR_DEPT          | 1
+ test_main_pkey        | test_main        | 1
+ test_sub_pkey         | test_sub         | 1
+ test_sub2_pkey        | test_sub2        | 1
+ pk_test_tab           | test_tab2        | 1
+ testtopn_pkey         | testtopn         | 1
+ test_tree_pkey        | test_tree        | 1
+ mr_dept_pkey          | mr_dept          | 1
+(10 行记录)
+
+
+
+注：
+pg_constraint.contype
+  c = check constraint, 
+  f = foreign key constraint, 
+  p = primary key constraint, 
+  u = unique constraint, 
+  t = constraint trigger, 
+  x = exclusion constraint
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

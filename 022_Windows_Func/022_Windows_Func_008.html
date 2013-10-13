@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 窗口函数 - WITHIN GROUP </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 窗口函数 </h1>
+
+
+<h2>  WITHIN GROUP </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+[RANK | DENSE_RANK | PERCENT_RANK | CUME_DIST]( constant expression [, ...] )
+WITHIN GROUP ( ORDER BY order by expression [ASC|DESC] [NULLS FIRST|NULLS LAST][, ...] )
+
+WITHIN GROUP 就是根据数值，计算出所在的排名。
+
+
+SELECT
+  RANK() OVER( ORDER BY SUM(grade) DESC) AS NO,
+  student_name,
+  SUM(grade) AS AllGrade
+FROM
+  test_course
+GROUP BY
+  student_name
+ORDER BY
+  SUM(grade) DESC
+
+        NO STUDENT_NA   ALLGRADE
+---------- ---------- ----------
+         1 奎                185
+         1 甲                185
+         3 乙                165
+         3 壬                165
+         5 丙                145
+         6 辛                140
+         7 丁                125
+         8 庚                120
+         9 戊                105
+        10 己                100
+
+已选择10行。
+
+
+
+-- 查看 总分 140分的， 排名在什么位置上.
+SELECT
+  RANK(140) WITHIN GROUP( ORDER BY SUM(grade) DESC) AS NO
+FROM
+  test_course
+GROUP BY
+  student_name;
+
+        NO
+----------
+         6
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

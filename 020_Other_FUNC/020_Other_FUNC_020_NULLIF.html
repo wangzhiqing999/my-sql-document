@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 其他函数 - 如果两个指定的表达式相等，则返回空值 NULLIF </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 其他函数 </h1>
+
+
+<h2> 如果两个指定的表达式相等，则返回空值 NULLIF  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT 
+  2    NULLIF(1,2) A,
+  3    NULLIF(1,1) B
+  4  FROM
+  5    dual;
+
+         A          B
+---------- ----------
+         1
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => SELECT
+db2 (cont.) =>   NULLIF(1,2) A,
+db2 (cont.) =>   NULLIF(1,1) B
+db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
+
+A           B
+----------- -----------
+          1           -
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT NULLIF(1,2), NULLIF(1,1)
+2> go
+
+--- ---
+  1 NUL
+
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql>  SELECT NULLIF(1,2) A, NULLIF(1,1) B;
++------+------+
+| A    | B    |
++------+------+
+|    1 | NULL |
++------+------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+sqlite> SELECT
+   ...>   NULLIF(1,2) A,
+   ...>   NULLIF(1,1) B;
+A|B
+1|
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+Test=# SELECT
+Test-#   NULLIF(1,2) A,
+Test-#   NULLIF(1,1) B;
+ a | b
+---+---
+ 1 |
+(1 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

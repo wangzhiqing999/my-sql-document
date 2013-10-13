@@ -1,0 +1,247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 提示 Hint -  连接提示 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 提示 Hint </h1>
+
+
+<h2>  连接提示  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+4种方式，分别为
+use_hash 散列连接
+use_merge 排序合并 适合于生成大型结果集的查询
+use_nl嵌套循环连接
+star 星型查询，要求至少三张表，而且事实表中存在恰当的索引。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+<join_hint> ::= 
+     { LOOP | HASH | MERGE | REMOTE }
+
+对于 SQL Server ，联接提示可以在两个表之间强制执行联接策略。
+
+联接提示有 { LOOP | HASH | MERGE | REMOTE } 4 种可选择的选项
+
+LOOP
+  不能同时将 LOOP 与 RIGHT（或 FULL）指定为联接类型。
+  嵌套循环联接也称为“嵌套迭代”，它将一个联接输入用作外部输入表（显示为图形执行计划中的顶端输入），将另一个联接输入用作内部（底端）输入表。
+  外部循环逐行处理外部输入表。内部循环会针对每个外部行执行，在内部输入表中搜索匹配行。
+
+  最简单的情况是，搜索时扫描整个表或索引；这称为“单纯嵌套循环联接”。
+  如果搜索时使用索引，则称为“索引嵌套循环联接”。
+  如果将索引生成为查询计划的一部分（并在查询完成后立即将索引破坏），则称为“临时索引嵌套循环联接”。
+  查询优化器考虑了所有这些不同情况。
+
+  如果外部输入较小而内部输入较大且预先创建了索引，则嵌套循环联接尤其有效。
+  在许多小事务中（如那些只影响较小的一组行的事务），索引嵌套循环联接优于合并联接和哈希联接。
+  但在大型查询中，嵌套循环联接通常不是最佳选择。
+
+HASH
+  哈希联接有两种输入：生成输入和探测输入。
+  查询优化器指派这些角色，使两个输入中较小的那个作为生成输入。
+
+  哈希联接用于多种设置匹配操作：
+    内部联接；
+    左外部联接、右外部联接和完全外部联接；
+    左半联接和右半联接；
+    交集；
+    并集和差异。
+    此外，哈希联接的某种变形可以进行重复删除和分组，例如 SUM(salary) GROUP BY department。这些修改对生成和探测角色只使用一个输入。
+
+
+MERGE
+  合并联接要求两个输入都在合并列上排序，而合并列由联接谓词的等效 (ON) 子句定义。
+  通常，查询优化器扫描索引（如果在适当的一组列上存在索引），或在合并联接的下面放一个排序运算符。
+  在极少数情况下，虽然可能有多个等效子句，但只用其中一些可用的等效子句获得合并列。
+
+  由于每个输入都已排序，因此 Merge Join 运算符将从每个输入获取一行并将其进行比较。
+  例如，对于内联接操作，如果行相等则返回。如果行不相等，则废弃值较小的行并从该输入获得另一行。
+  这一过程将重复进行，直到处理完所有的行为止。
+
+  合并联接操作可以是常规操作，也可以是多对多操作。
+  多对多合并联接使用临时表存储行。
+  如果每个输入中有重复值，则在处理其中一个输入中的每个重复项时，另一个输入必须重绕到重复项的开始位置。
+
+  如果存在驻留谓词，则所有满足合并谓词的行都将对该驻留谓词取值，而只返回那些满足该驻留谓词的行。
+
+  合并联接本身的速度很快，但如果需要排序操作，选择合并联接就会非常费时。
+  然而，如果数据量很大且能够从现有 B 树索引中获得预排序的所需数据，则合并联接通常是最快的可用联接算法。
+
+
+REMOTE
+  指定联接操作在右表处执行。这在左表是本地表而右表是远程表的情况下很有用。只在左表的行数少于右表行数时才能使用 REMOTE。
+  如果右表为本地表，则联接在本地执行。如果两个表均为远程表但来自不同的数据源，则 REMOTE 将使联接在右表处执行。如果两个表均为远程表且来自相同数据源，则不需要使用 REMOTE。
+  如果使用 COLLATE 子句将联接谓词中比较的值中的一个值转换成了不同的排序规则，则不能使用 REMOTE。
+  REMOTE 只可用于 INNER JOIN 操作。
+
+测试表.
+CREATE TABLE [Work].[test_main](
+  [id] [int] PRIMARY KEY ,
+  [value] [varchar](64),
+);
+
+CREATE TABLE [Work].[test_sub](
+  [id] [int] IDENTITY(1,1)  PRIMARY KEY ,
+  [main_id] [int] NULL,
+  [value] [varchar](64)
+);
+
+ALTER TABLE [Work].[test_sub]
+  ADD CONSTRAINT main_id_cons
+    FOREIGN KEY([main_id])
+      REFERENCES [Work].[test_main] ([id]);
+
+造测试数据.
+
+INSERT INTO [Work].[test_main]
+  SELECT object_id, name FROM msdb.sys.tables;
+
+INSERT INTO [Work].[test_sub]
+  SELECT object_id, name FROM msdb.sys.columns
+    WHERE object_id IN (SELECT object_id FROM msdb.sys.objects);
+
+
+为了做测试，
+我这里打开了数据库的 统计信息的开关
+SET STATISTICS IO ON
+SET STATISTICS PROFILE ON
+SET STATISTICS TIME ON
+
+测试查询全部数据的情况
+
+首先测试一下 默认情况：
+SELECT
+  test_main.id AS main_id,
+  test_main.value AS main_value,
+  test_sub.id  AS  sub_id,
+  test_sub.value AS sub_value
+FROM
+  [Work].test_main
+    JOIN [Work].test_sub
+      ON test_main.id = test_sub.main_id;
+
+...数据略...
+(1402 行受影响)
+SQL Server 执行时间:
+   CPU 时间 = 0 毫秒，占用时间 = 53 毫秒。
+默认情况下，SQL Server 选择的是 Merge Join 方式来关联2张表。
+
+
+然后测试一下 LOOP
+SELECT
+  test_main.id AS main_id,
+  test_main.value AS main_value,
+  test_sub.id  AS  sub_id,
+  test_sub.value AS sub_value
+FROM
+  [Work].test_main
+    INNER LOOP JOIN [Work].test_sub
+      ON test_main.id = test_sub.main_id;
+
+...数据略...
+(1402 行受影响)
+SQL Server 执行时间:
+   CPU 时间 = 281 毫秒，占用时间 = 292 毫秒。
+由于访问的数据量偏大， LOOP 嵌套循环联接的效果并不好。
+
+然后测试一下 HASH
+SELECT
+  test_main.id AS main_id,
+  test_main.value AS main_value,
+  test_sub.id  AS  sub_id,
+  test_sub.value AS sub_value
+FROM
+  [Work].test_main
+    INNER HASH JOIN [Work].test_sub
+      ON test_main.id = test_sub.main_id;
+
+...数据略...
+(1402 行受影响)
+SQL Server 执行时间:
+   CPU 时间 = 15 毫秒，占用时间 = 53 毫秒。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

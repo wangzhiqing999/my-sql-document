@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> XML - 前提条件 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> XML </h1>
+
+
+<h2> 前提条件  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+如果查询 提示 QUOTED_IDENTIFIER 异常，那么执行下面的语句。
+
+1> SET QUOTED_IDENTIFIER ON
+2> go
+
+
+测试表/数据如下：
+
+1> CREATE TABLE docs (pk INT PRIMARY KEY, xCol XML not null)
+2> go
+1> INSERT INTO docs VALUES (1,
+2> '<book genre="security" publicationdate="2002" ISBN="0-7356-1588-2">
+3~    <title>Writing Secure Code</title>
+4~    <author>
+5~       <first-name>Michael</first-name>
+6~       <last-name>Howard</last-name>
+7~    </author>
+8~    <author>
+9~       <first-name>David</first-name>
+10~       <last-name>LeBlanc</last-name>
+11~    </author>
+12~    <price>39.99</price>
+13~ </book>')
+14> go
+
+(1 行受影响)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

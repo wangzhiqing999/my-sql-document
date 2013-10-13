@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 触发器 - DDL触发器 数据库级别 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 触发器 </h1>
+
+
+<h2> DDL触发器 数据库级别  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+create or replace trigger trigger_name
+before|after create|alter|drop|truncate
+on schema|database
+例：
+--禁止用CREATE、ALTER、DROP、TRUNCATE命令操作APPS用户的对象
+create or replace trigger apps_no_ddl
+before create or alter or drop or truncate
+on apps
+begin
+raise_application_error(-20001,'不允许用DDL操作APPS用户的对象');
+end;
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> CREATE TRIGGER CretaeTableTrigger
+2> ON DATABASE
+3> FOR CREATE_TABLE
+4> AS
+5> BEGIN
+6>   DECLARE @EventData  AS xml;
+7>
+8>   DECLARE @EventType     AS varchar(100);
+9>   DECLARE @PostTime      AS varchar(100);
+10>   DECLARE @ServerName    AS varchar(100);
+11>   DECLARE @LoginName     AS varchar(100);
+12>   DECLARE @DatabaseName  AS varchar(100);
+13>   DECLARE @CommandText   AS varchar(100);
+14>
+15>   SET @EventData = EVENTDATA();
+16>
+17>   SELECT
+18>     @EventType    = t.c.value('(EventType)[1]',      'varchar(100)' ),
+19>     @PostTime     = t.c.value('(PostTime)[1]',       'varchar(100)' ),
+20>     @ServerName   = t.c.value('(ServerName)[1]',     'varchar(100)' ),
+21>     @LoginName    = t.c.value('(LoginName)[1]',      'varchar(100)' ),
+22>     @DatabaseName = t.c.value('(DatabaseName)[1]',   'varchar(100)' ),
+23>     @CommandText  = t.c.value('(TSQLCommand/CommandText)[1]',   'varchar(100
+)' )
+24>   FROM
+25>     @EventData.nodes('/EVENT_INSTANCE') t(c);
+26>
+27>   PRINT( 'CREATE_TABLE'  );
+28>   PRINT( @EventType  );
+29>   PRINT( @PostTime  );
+30>   PRINT( @ServerName  );
+31>   PRINT( @LoginName  );
+32>   PRINT( @DatabaseName  );
+33>   PRINT( @CommandText  );
+34> END
+35> go
+
+1> create table yyy (a INT);
+2> go
+CREATE_TABLE
+CREATE_TABLE
+2010-10-01T21:32:24.843
+HOME-BED592453C\SQLEXPRESS
+HOME-BED592453C\wzq
+Stock
+create table yyy (a INT);
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

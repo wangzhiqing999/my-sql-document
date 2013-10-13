@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 控制结构 - FOR </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 控制结构 </h1>
+
+
+<h2> FOR  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> DECLARE
+  2    testvalue  INT;
+  3  BEGIN
+  4
+  5    FOR testvalue IN 1..5 LOOP
+  6      dbms_output.put_line( TO_CHAR(testvalue) );
+  7    END LOOP;
+  8
+  9  END;
+ 10  /
+1
+2
+3
+4
+5
+
+PL/SQL procedure successfully completed.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+语法 
+[ &lt;&lt;label&gt;&gt; ]
+FOR name IN [ REVERSE ] expression .. expression LOOP
+    statements
+END LOOP [ labal ];
+
+
+
+
+Test=# TRUNCATE TABLE output_debug;
+TRUNCATE TABLE
+Test=#
+Test=# CREATE OR REPLACE FUNCTION TestFor() RETURNS void AS
+Test-# $$
+Test$# DECLARE
+Test$#   testvalue  INT;
+Test$# BEGIN
+Test$#   FOR testvalue IN 1..5 LOOP
+Test$#     INSERT INTO output_debug VALUES( testvalue );
+Test$#   END LOOP;
+Test$# END;
+Test$# $$
+Test-# LANGUAGE plpgsql;
+CREATE FUNCTION
+Test=#
+Test=# SELECT TestFor();
+ testfor
+---------
+
+(1 行记录)
+
+
+Test=#
+Test=#
+Test=# select * from output_debug;
+ data
+------
+ 1
+ 2
+ 3
+ 4
+ 5
+(5 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

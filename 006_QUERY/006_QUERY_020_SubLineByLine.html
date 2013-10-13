@@ -1,0 +1,215 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 行行相减 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> 行行相减  </h2>
+
+
+
+<pre><code>
+
+
+也就是 某一列，  查询结果为：  当前行  减去   上一行。
+
+
+测试数据.
+
+CREATE TABLE temp (
+  year    INT,
+  salary  INT
+);
+
+INSERT INTO temp VALUES(2000, 1000);
+INSERT INTO temp VALUES(2001, 2000);
+INSERT INTO temp VALUES(2002, 3000);
+INSERT INTO temp VALUES(2003, 4000);
+
+
+预期要求结果：
+
+year	salary
+2000	1000
+2001	1000
+2002	1000
+2003	1000
+
+
+</code></pre>
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+SELECT
+  year,
+  salary - NVL( LAG(salary, 1) OVER(ORDER BY year), 0) AS salary
+FROM
+  temp;
+
+
+      YEAR     SALARY
+---------- ----------
+      2000       1000
+      2001       1000
+      2002       1000
+      2003       1000
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SELECT
+  year,
+  salary - ISNULL((SELECT TOP 1 salary FROM temp t2  WHERE t2.year &lt; temp.year ORDER BY year DESC), 0) AS salary
+FROM
+  temp;
+
+
+year        salary
+----------- -----------
+       2000        1000
+       2001        1000
+       2002        1000
+       2003        1000
+
+(4 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+SELECT
+  year,
+  salary - @SumSalary AS salary,
+  @SumSalary:= salary AS `此行可外部忽略掉`
+FROM
+  temp,
+  (SELECT @SumSalary:=0) s
+ORDER BY
+  year;
+
++------+--------+------------------+
+| year | salary | 此行可外部忽略掉 |
++------+--------+------------------+
+| 2000 |   1000 |             1000 |
+| 2001 |   1000 |             2000 |
+| 2002 |   1000 |             3000 |
+| 2003 |   1000 |             4000 |
++------+--------+------------------+
+4 rows in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+SELECT
+  year,
+  salary - coalesce((SELECT salary FROM temp t2  WHERE t2.year &lt; temp.year ORDER BY year DESC LIMIT 1), 0) AS salary
+FROM
+  temp;
+
+
+ year | salary
+------+--------
+ 2000 |   1000
+ 2001 |   1000
+ 2002 |   1000
+ 2003 |   1000
+(4 行记录)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

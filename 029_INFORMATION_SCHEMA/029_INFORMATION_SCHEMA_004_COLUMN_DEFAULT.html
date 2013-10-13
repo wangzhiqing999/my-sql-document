@@ -1,0 +1,208 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典表 - 列默认值 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典表 </h1>
+
+
+<h2>  列默认值  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+查询列的默认值.
+
+
+SQL> COLUMN "COLUMN_NAME" FORMAT A15
+SQL> COLUMN "DATA_DEFAULT" FORMAT A15
+SQL>
+SQL>
+SQL> SELECT
+  2    COLUMN_NAME,
+  3    DATA_DEFAULT
+  4  FROM
+  5    ALL_TAB_COLUMNS
+  6  WHERE
+  7    TABLE_NAME = 'TEST_TAB_DT';
+
+COLUMN_NAME     DATA_DEFAULT
+--------------- ---------------
+TEST_ID
+TEST_DATE       SYSDATE
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+select
+  col.name,
+  def.definition
+from
+  sys.columns  col
+    LEFT  JOIN  sys.default_constraints def
+      ON (col.default_object_id = def.object_id)
+WHERE
+  col.object_id = (SELECT object_id FROM sys.tables WHERE name = 'test_default')
+
+
+name                            definition
+------------------------------- --------------------------------
+id                              NULL
+Value1                          ('非空的列，自动设置数据')
+Value2                          ('允许为空的，不自动设置')
+Value3                          ('允许为空的，强制设置')
+
+(4 行受影响)
+
+
+
+
+-- 函数： 获取 指定表，指定列的默认值定义.
+CREATE FUNCTION GetDefaultValue( @tableName VARCHAR(32), @columnName VARCHAR(32) )
+RETURNS VARCHAR(100) AS
+BEGIN
+  DECLARE @result AS VARCHAR(100);
+  -- 查询默认值.
+  SELECT 
+    @result = def.definition
+  FROM
+    sys.columns  col
+      LEFT  JOIN  sys.default_constraints def
+        ON (col.default_object_id = def.object_id)
+  WHERE
+    col.object_id = OBJECT_ID(@tableName)
+    AND col.name = @columnName;
+  -- 如果数据存在. 去除两头的括号.
+  IF @result IS NOT NULL
+  BEGIN
+    SET @result = SUBSTRING( @result, 2, LEN(@result) - 2);
+  END;
+  -- 返回.
+  return @result;
+END;
+
+
+
+SELECT dbo.GetDefaultValue('test_default', 'Value1') AS def_Val;
+
+def_Val
+-------------------------------
+'非空的列，自动设置数据'
+
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+SELECT 
+  table_name,
+  column_name, 
+  column_default
+FROM
+  INFORMATION_SCHEMA.COLUMNS
+WHERE
+  table_name = 'test_tab2';
+
+
+ table_name | column_name |     column_default
+------------+-------------+-------------------------
+ test_tab2  | id          |
+ test_tab2  | name        |
+ test_tab2  | age         |
+ test_tab2  | val2        |
+ test_tab2  | sex         | '男'::character varying
+(5 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

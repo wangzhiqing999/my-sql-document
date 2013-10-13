@@ -1,0 +1,143 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数学函数 - 反正切 ATAN </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数学函数 </h1>
+
+
+<h2> 反正切 ATAN  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT ATAN(0), ATAN(0.5) FROM DUAL;
+
+   ATAN(0)  ATAN(0.5)
+---------- ----------
+         0 .463647609
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => SELECT ATAN(0), ATAN(0.5) FROM SYSIBM.SYSDUMMY1;
+
+1                        2
+------------------------ ------------------------
+  +0.00000000000000E+000   +4.63647609000806E-001
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT ATAN(0), ATAN(0.5)
+2> go
+
+------------------------ ------------------------
+                       0      0.46364760900080609
+
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+ATAN(X) 
+返回X 的反正切，即，正切为X 的值。 
+mysql> SELECT ATAN(2);
+        -> 1.1071487177941
+mysql> SELECT ATAN(-2);
+        -> -1.1071487177941
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+Test=# SELECT ATAN(0), ATAN(0.5);
+ atan |       atan
+------+-------------------
+    0 | 0.463647609000806
+(1 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 其他函数 - 类型转换 CAST  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 其他函数 </h1>
+
+
+<h2> 类型转换 CAST  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+数字转字符
+SQL> SELECT TO_CHAR(1, '000') AS test FROM dual;
+
+TEST
+--------
+ 001
+
+SQL> SELECT TO_CHAR(1234567, '999,999,999') AS test FROM dual;
+
+TEST
+------------------------
+   1,234,567
+
+字符转数字
+SQL> SELECT TO_NUMBER('1') + 1 AS test FROM dual;
+
+      TEST
+----------
+         2
+
+SQL> SELECT TO_NUMBER('1,234,567', '999,999,999') + 1 AS test FROM dual;
+
+      TEST
+----------
+   1234568
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+数字转字符
+
+SELECT TO_CHAR(1, '000') AS test
+FROM SYSIBM.SYSDUMMY1;
+
+TEST
+------
+001
+
+SELECT TO_CHAR(1234567, '999,999,999') AS test
+FROM SYSIBM.SYSDUMMY1;
+
+TEST
+--------------
+   1,234,567
+
+  1 条记录已选择。
+
+字符转数字
+
+SELECT TO_NUMBER('1') + 1 AS Test
+FROM SYSIBM.SYSDUMMY1; 
+
+TEST
+------------------------------------------
+                                         2
+
+  1 条记录已选择。
+
+
+SELECT TO_NUMBER('1,234,567', '999,999,999')  + 1 AS Test
+FROM SYSIBM.SYSDUMMY1;
+
+TEST
+------------------------------------------
+                                   1234568
+
+  1 条记录已选择。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+数字转换为varchar
+1> SELECT CAST(1 as varchar)
+2> go
+
+------------------------------
+1
+
+(1 行受影响)
+
+1> SELECT Convert(varchar(1), 1) + '1'
+2> go
+
+--
+11
+
+(1 行受影响)
+
+字符转换为int
+1> SELECT CAST('1' as int) + 1
+2> go
+
+-----------
+          2
+
+(1 行受影响)
+
+1> SELECT Convert(int, '1') + 1
+2> go
+
+-----------
+          2
+
+(1 行受影响)
+
+日期转字符 （建议使用 Convert 去转换）
+1> SELECT CAST(getdate() as varchar)
+2> go
+
+------------------------------
+01 29 2011  1:39PM
+
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+MySQL
+
+注：
+可用的类型
+二进制,同带binary前缀的效果 : BINARY
+字符型,可带参数 : CHAR()
+日期 : DATE
+时间: TIME
+日期时间型 : DATETIME
+浮点数 : DECIMAL
+整数 : SIGNED
+无符号整数 : UNSIGNED
+
+
+
+数字转字符
+mysql> SELECT CONCAT ( CAST(1 as char) , '2') AS test;
++------+
+| test |
++------+
+| 12   |
++------+
+1 row in set (0.00 sec)
+
+mysql> SELECT CONCAT ( Convert(1, char) , '2') AS test;
++------+
+| test |
++------+
+| 12   |
++------+
+1 row in set (0.00 sec)
+
+字符转数字
+mysql> SELECT CAST('1' as SIGNED) + 100 AS test;
++------+
+| test |
++------+
+|  101 |
++------+
+1 row in set (0.00 sec)
+
+mysql> SELECT Convert('1' , SIGNED) + 100 AS test;
++------+
+| test |
++------+
+|  101 |
++------+
+1 row in set (0.00 sec)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,404 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 备份与恢复 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 备份与恢复 </h1>
+
+
+<h2>   </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+以下操作，要求 Oracle 数据库处于 <span class="KeyInfo">BARCHIVELOG</span> 模式。
+
+
+
+
+备份
+C:\Users\Edward>rman target sys/oracle123@testdb
+
+恢复管理器: 版本9.2.0.1.0 - Production
+
+Copyright (c) 1995, 2002, Oracle Corporation.  All rights reserved.
+
+连接到目标数据库: TESTDB (DBID=2591214061)
+
+RMAN> <span class="KeyInfo">BACKUP DATABASE;</span>
+
+启动 backup 于 20-2月 -13
+正在使用目标数据库控制文件替代恢复目录
+分配的通道: ORA_DISK_1
+通道 ORA_DISK_1: sid=19 devtype=DISK
+通道 ORA_DISK_1: 正在启动 full 数据文件备份集
+通道 ORA_DISK_1: 正在指定备份集中的数据文件
+在备份集中包含当前的 SPFILE
+备份集中包括当前控制文件
+输入数据文件 fno=00001 name=F:\ORACLE\ORADATA\TESTDB\SYSTEM01.DBF
+输入数据文件 fno=00002 name=F:\ORACLE\ORADATA\TESTDB\UNDOTBS01.DBF
+输入数据文件 fno=00005 name=F:\ORACLE\ORADATA\TESTDB\EXAMPLE01.DBF
+输入数据文件 fno=00011 name=F:\ORACLE\ORA92\DATABASE\DATA01.DAT
+输入数据文件 fno=00010 name=F:\ORACLE\ORADATA\TESTDB\XDB01.DBF
+输入数据文件 fno=00006 name=F:\ORACLE\ORADATA\TESTDB\INDX01.DBF
+输入数据文件 fno=00009 name=F:\ORACLE\ORADATA\TESTDB\USERS01.DBF
+输入数据文件 fno=00003 name=F:\ORACLE\ORADATA\TESTDB\CWMLITE01.DBF
+输入数据文件 fno=00004 name=F:\ORACLE\ORADATA\TESTDB\DRSYS01.DBF
+输入数据文件 fno=00007 name=F:\ORACLE\ORADATA\TESTDB\ODM01.DBF
+输入数据文件 fno=00008 name=F:\ORACLE\ORADATA\TESTDB\TOOLS01.DBF
+通道 ORA_DISK_1: 正在启动段 1 于 20-2月 -13
+通道 ORA_DISK_1: 已完成段 1 于 20-2月 -13
+段 handle=F:\ORACLE\ORA92\DATABASE\02O2EVEI_1_1 comment=NONE
+通道 ORA_DISK_1: 备份集已完成, 经过时间:00:00:36
+完成 backup 于 20-2月 -13
+
+RMAN>
+
+
+
+以上操作执行完毕后， 数据库被备份到 F:\ORACLE\ORA92\DATABASE\02O2EVEI_1_1  文件中。
+
+
+
+
+模拟数据库损坏.
+SQL> shutdown
+数据库已经关闭。
+已经卸载数据库。
+ORACLE 例程已经关闭。
+
+
+修改某个数据库文件的文件名以后.
+
+SQL> startup
+ORACLE 例程已经启动。
+
+Total System Global Area  135338868 bytes
+Fixed Size                   453492 bytes
+Variable Size             109051904 bytes
+Database Buffers           25165824 bytes
+Redo Buffers                 667648 bytes
+数据库装载完毕。
+ORA-01157: 无法标识/锁定数据文件 11 - 请参阅 DBWR 跟踪文件
+ORA-01110: 数据文件 11: 'F:\ORACLE\ORA92\DATABASE\DATA01.DAT'
+
+
+
+然后关闭数据库
+
+
+
+
+
+
+
+恢复
+
+C:\Documents and Settings\Test>rman target /
+
+恢复管理器: 版本9.2.0.1.0 - Production
+
+Copyright (c) 1995, 2002, Oracle Corporation.  All rights reserved.
+
+已连接到目标数据库 (未启动)
+
+
+RMAN> <span class="KeyInfo">STARTUP FORCE NOMOUNT;</span>
+
+Oracle 例程已启动
+
+系统全局区域总计     135338868 字节
+
+Fixed Size                      453492 字节
+Variable Size                109051904 字节
+Database Buffers              25165824 字节
+Redo Buffers                    667648 字节
+
+
+RMAN> <span class="KeyInfo">ALTER DATABASE MOUNT;</span>
+
+数据库已加载
+
+RMAN>
+
+RMAN>  <span class="KeyInfo">RECOVER DATABASE;</span>
+
+启动 recover 于 20-2月 -13
+使用通道 ORA_DISK_1
+RMAN-00571: ===========================================================
+RMAN-00569: =============== ERROR MESSAGE STACK FOLLOWS ===============
+RMAN-00571: ===========================================================
+RMAN-03002: failure of recover command at 02/20/2013 15:40:15
+RMAN-06094: datafile 11 must be restored
+
+
+
+RMAN> <span class="KeyInfo">RESTORE DATAFILE 11;</span>
+
+启动 restore 于 20-2月 -13
+
+使用通道 ORA_DISK_1
+通道 ORA_DISK_1: 正在开始恢复数据文件备份集
+通道 ORA_DISK_1: 正在指定从备份集恢复的数据文件
+正将数据文件00011恢复到F:\ORACLE\ORA92\DATABASE\DATA01.DAT
+通道 ORA_DISK_1: 已恢复备份段 1
+段 handle=F:\ORACLE\ORA92\DATABASE\02O2EVEI_1_1 tag=TAG20130220T150802 params=NU
+LL
+通道 ORA_DISK_1: 恢复完成
+完成 restore 于 20-2月 -13
+
+RMAN>  <span class="KeyInfo">RECOVER DATABASE;</span>
+
+启动 recover 于 20-2月 -13
+使用通道 ORA_DISK_1
+
+正在开始介质的恢复
+完成介质的恢复
+
+完成 recover 于 20-2月 -13
+RMAN>
+
+
+
+测试打开数据库，观察数据库是否恢复正常！
+
+SQL> alter database open;
+
+数据库已更改。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+E:\>sqlcmd -S "localhost\SQLEXPRESS"
+1> use master
+2> go
+已将数据库上下文更改为 'master'。
+
+
+
+
+备份
+1> backup database test to disk='e:\test.dat'
+2> go
+
+
+
+恢复
+1> restore database test from disk='e:\test.dat'
+2> go
+已为数据库 'test'，文件 'Test' (位于文件 1 上)处理了 232 页。
+已为数据库 'test'，文件 'Test_log' (位于文件 1 上)处理了 2 页。
+RESTORE DATABASE 成功处理了 234 页，花费 0.184 秒(9.898 MB/秒)。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+参考 导入与导出的章节.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+<h4> 备份 </h4>
+
+
+./mongodump -h 主机名 -u 用户名 -p 密码 -d 数据库名 -c 表名 -o 输出的目录
+
+
+
+/* 备份一个表的例子  */
+[root@mongodb01 bin]# ./mongodump -d test -c SALE_REPORT -o /data
+connected to: 127.0.0.1
+Mon Sep 23 19:02:25.529 DATABASE: test   to     /data/test
+Mon Sep 23 19:02:25.531         test.SALE_REPORT to /data/test/SALE_REPORT.bson
+Mon Sep 23 19:02:25.532                  12 objects
+Mon Sep 23 19:02:25.532         Metadata for test.SALE_REPORT to /data/test/SALE_REPORT.metadata.json
+[root@mongodb01 bin]# ls /data
+db  test
+[root@mongodb01 bin]# ls /data/test
+SALE_REPORT.bson  SALE_REPORT.metadata.json
+
+
+
+/* 备份一个库的例子  */
+[root@mongodb01 bin]# mkdir /temp
+[root@mongodb01 bin]# ./mongodump -d test -o /temp
+connected to: 127.0.0.1
+Mon Sep 23 19:04:04.175 DATABASE: test   to     /temp/test
+Mon Sep 23 19:04:04.176         test.system.indexes to /temp/test/system.indexes.bson
+Mon Sep 23 19:04:04.177                  2 objects
+Mon Sep 23 19:04:04.177         test.users to /temp/test/users.bson
+Mon Sep 23 19:04:04.177                  2 objects
+Mon Sep 23 19:04:04.177         Metadata for test.users to /temp/test/users.metadata.json
+Mon Sep 23 19:04:04.177         test.SALE_REPORT to /temp/test/SALE_REPORT.bson
+Mon Sep 23 19:04:04.178                  12 objects
+Mon Sep 23 19:04:04.178         Metadata for test.SALE_REPORT to /temp/test/SALE_REPORT.metadata.json
+[root@mongodb01 bin]# ls /temp
+test
+[root@mongodb01 bin]# ls /temp/test/
+SALE_REPORT.bson           system.indexes.bson  users.metadata.json
+SALE_REPORT.metadata.json  users.bson
+
+
+
+<h4> 恢复 </h4>
+
+
+./mongorestore -h 主机名 -u 用户名 -p 密码 -d 数据库名 -c 表名  恢复的目录
+
+
+/* 恢复一个表的例子  */
+./mongorestore -d test -c SALE_REPORT --drop  /data/test/SALE_REPORT.bson
+
+
+[root@mongodb01 bin]# ./mongorestore -d test -c SALE_REPORT --drop  /data/test/SALE_REPORT.bson
+connected to: 127.0.0.1
+Mon Sep 23 19:32:19.444 /data/test/SALE_REPORT.bson
+Mon Sep 23 19:32:19.444         going into namespace [test.SALE_REPORT]
+Mon Sep 23 19:32:19.444          dropping
+12 objects found
+Mon Sep 23 19:32:19.447         Creating index: { key: { _id: 1 }, ns: "test.SALE_REPORT", name: "_id_" }
+
+
+[root@mongodb01 bin]# ./mongo
+MongoDB shell version: 2.4.6
+connecting to: test
+
+> db.SALE_REPORT.find().limit(3)
+{ "_id" : ObjectId("52401bccc3093463b4f17ea7"), "SALE_DATE" : ISODate("2009-01-15T00:00:00Z"), "SALE_ITEM" : "A", "SALE_MONEY" : 1 }
+{ "_id" : ObjectId("52401bccc3093463b4f17ea8"), "SALE_DATE" : ISODate("2009-02-15T00:00:00Z"), "SALE_ITEM" : "A", "SALE_MONEY" : 2 }
+{ "_id" : ObjectId("52401bccc3093463b4f17ea9"), "SALE_DATE" : ISODate("2009-03-15T00:00:00Z"), "SALE_ITEM" : "A", "SALE_MONEY" : 3 }
+
+
+
+
+/* 恢复一个库的例子  */
+./mongorestore -d test3  /temp/test
+
+
+
+[root@mongodb01 bin]# ./mongorestore -d test3  /temp/test
+connected to: 127.0.0.1
+Mon Sep 23 19:34:27.946 /temp/test/SALE_REPORT.bson
+Mon Sep 23 19:34:27.946         going into namespace [test3.SALE_REPORT]
+12 objects found
+Mon Sep 23 19:34:27.947         Creating index: { key: { _id: 1 }, ns: "test3.SALE_REPORT", name: "_id_" }
+Mon Sep 23 19:34:27.970 /temp/test/users.bson
+Mon Sep 23 19:34:27.970         going into namespace [test3.users]
+2 objects found
+Mon Sep 23 19:34:27.971         Creating index: { key: { _id: 1 }, ns: "test3.users", name: "_id_" }
+
+
+[root@mongodb01 bin]# ./mongo test3
+MongoDB shell version: 2.4.6
+connecting to: test3
+
+
+> db.SALE_REPORT.find().limit(3)
+{ "_id" : ObjectId("52401bccc3093463b4f17ea7"), "SALE_DATE" : ISODate("2009-01-15T00:00:00Z"), "SALE_ITEM" : "A", "SALE_MONEY" : 1 }
+{ "_id" : ObjectId("52401bccc3093463b4f17ea8"), "SALE_DATE" : ISODate("2009-02-15T00:00:00Z"), "SALE_ITEM" : "A", "SALE_MONEY" : 2 }
+{ "_id" : ObjectId("52401bccc3093463b4f17ea9"), "SALE_DATE" : ISODate("2009-03-15T00:00:00Z"), "SALE_ITEM" : "A", "SALE_MONEY" : 3 }
+>
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

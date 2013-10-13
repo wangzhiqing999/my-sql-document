@@ -1,0 +1,123 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 其他函数 - 字符串转换为行编号 CHARTOROWID </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 其他函数 </h1>
+
+
+<h2> 字符串转换为行编号 CHARTOROWID  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> select * from test_main;
+
+        ID VALUE
+---------- ----------
+         1 ONE1
+         2 TWO1
+         3 THREE1
+
+SQL> select 
+  2    ROWIDTOCHAR(rowid) 
+  3  from 
+  4    test_main;
+
+ROWIDTOCHAR(ROWID)
+------------------
+AAAM2bAAGAAAAAOAAA
+AAAM2bAAGAAAAAPAAA
+AAAM2bAAGAAAAAPAAB
+
+SQL> select * from test_main
+  2  where rowid = CHARTOROWID('AAAM2bAAGAAAAAOAAA');
+
+        ID VALUE
+---------- ----------
+         1 ONE1
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 字符函数 - 转换为 Unicode 编码字符 TO_NCHAR </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 字符函数 </h1>
+
+
+<h2>  转换为 Unicode 编码字符 TO_NCHAR  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+
+TO_NCHAR 用于将 varchar 之类的字符， 转换为 varchar 类型.
+
+<pre><code>
+
+
+SELECT 
+	TO_NCHAR('A') A , 
+	NULLIF(N'A', TO_NCHAR('A')) AA,
+	NULLIF('A', TO_NCHAR('A')) AAA	
+FROM dual;
+
+ NULLIF('A', TO_NCHAR('A')) AAA
+             *
+ERROR 位于第 4 行:
+ORA-12704: 字符集不匹配
+
+
+<hr/>
+
+SELECT 
+	TO_NCHAR('A') A , 
+	NULLIF(N'A', TO_NCHAR('A')) AA
+FROM dual;
+
+A  AA
+-- --
+A
+
+SQL> 
+
+
+<hr/>
+
+与 TO_CHAR 为逆操作.
+
+
+SELECT 
+	TO_CHAR(N'A') A , 
+	NULLIF('A', TO_CHAR(N'A')) AA,
+	NULLIF(N'A', TO_CHAR(N'A')) AAA	
+FROM dual;
+
+ NULLIF(N'A', TO_CHAR(N'A')) AAA
+              *
+ERROR 位于第 4 行:
+ORA-12704: 字符集不匹配
+
+
+
+SELECT 
+	TO_CHAR(N'A') A , 
+	NULLIF('A', TO_CHAR(N'A')) AA
+FROM dual;
+
+A  AA
+-- --
+A
+
+SQL> 
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

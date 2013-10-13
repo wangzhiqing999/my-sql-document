@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 外键约束 - 批量管理  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 外键约束 </h1>
+
+<h2> 批量管理  </h2>
+
+<pre><code>
+
+在正常运行的系统中。
+某些非常关键的核心表。
+会带有几十个外键关联的。
+
+例如一个商业系统的 “店铺表”
+所有的各种资产、人员、设备、交易数据 等，都与这个 店铺表建立外键关联了。
+
+
+一旦遇到 “店铺编码规则需要变更”
+手动去一个一个地禁用外键关联， 成本也太高了。
+
+这种情况下
+需要通过 执行一个 SQL 语句， 查询出 一组 sql 语句的结果。
+然后去执行这些 sql 语句即可。
+
+</code></pre>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+-- 下面的 SQL 语句
+-- 是把所有的 外键引用 主表 的外键，当前状态是可用的， 都 禁用掉。
+SELECT
+  'ALTER TABLE ' || USER_CONSTRAINTS.TABLE_NAME
+    || ' MODIFY CONSTRAINT ' ||  USER_CONSTRAINTS.CONSTRAINT_NAME ||  '  DISABLE; ' AS DisableSQL
+FROM
+  USER_CONSTRAINTS
+    JOIN USER_INDEXES
+    ON (USER_CONSTRAINTS.R_CONSTRAINT_NAME
+        = USER_INDEXES.INDEX_NAME)
+WHERE
+  USER_CONSTRAINTS.CONSTRAINT_TYPE = 'R'
+  AND USER_CONSTRAINTS.STATUS = 'ENABLED'
+  AND USER_INDEXES.TABLE_NAME = '主表';
+
+
+
+<hr/>
+-- 恢复的处理也基本一样。
+
+
+SELECT
+  'ALTER TABLE ' || USER_CONSTRAINTS.TABLE_NAME
+    || ' MODIFY CONSTRAINT ' ||  USER_CONSTRAINTS.CONSTRAINT_NAME ||  '  ENABLE; ' AS EnableSQL
+FROM
+  USER_CONSTRAINTS
+    JOIN USER_INDEXES
+    ON (USER_CONSTRAINTS.R_CONSTRAINT_NAME
+        = USER_INDEXES.INDEX_NAME)
+WHERE
+  USER_CONSTRAINTS.CONSTRAINT_TYPE = 'R'
+  AND USER_CONSTRAINTS.STATUS = 'DISABLE'
+  AND USER_INDEXES.TABLE_NAME = '主表';
+
+
+<hr/>
+-- 为了避免某些外键原来就禁用的， 一来一回处理以后， 变可用了。
+-- 可以先 产生一个 恢复用的 SQL.  全部禁用以后， 用下面这个语句恢复。
+
+
+SELECT
+  'ALTER TABLE  ' || USER_CONSTRAINTS.TABLE_NAME
+    || ' MODIFY CONSTRAINT  '
+	||  USER_CONSTRAINTS.CONSTRAINT_NAME
+	||  '  '
+	||  USER_CONSTRAINTS.STATUS || ' ; ' AS BackupSQL
+FROM
+  USER_CONSTRAINTS
+    JOIN USER_INDEXES
+    ON (USER_CONSTRAINTS.R_CONSTRAINT_NAME
+        = USER_INDEXES.INDEX_NAME)
+WHERE
+  USER_CONSTRAINTS.CONSTRAINT_TYPE = 'R'
+  AND USER_INDEXES.TABLE_NAME = '主表';
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

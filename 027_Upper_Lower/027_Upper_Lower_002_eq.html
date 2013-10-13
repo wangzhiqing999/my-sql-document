@@ -1,0 +1,419 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 大小写敏感问题 -  =操作的例子  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 大小写敏感问题 </h1>
+
+
+<h2> =操作的例子  </h2>
+
+
+
+<pre><code>
+
+CREATE TABLE tab (
+  id  INT,
+  val VARCHAR(10)
+);
+
+INSERT INTO tab VALUES(1, 'ABC123');
+INSERT INTO tab VALUES(2, 'abc234');
+INSERT INTO tab VALUES(3, 'Abc345');
+INSERT INTO tab VALUES(4, 'aBC456');
+INSERT INTO tab VALUES(5, 'aBc567');
+
+
+</code></pre>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+Oracle 默认，大小写敏感
+
+
+SQL> CREATE TABLE tab (
+  2    id  INT,
+  3    val VARCHAR2(10)
+  4  );
+
+表已创建。
+
+SQL> INSERT INTO tab
+  2    SELECT 1, 'ABC123' FROM DUAL UNION ALL
+  3    SELECT 2, 'abc234' FROM DUAL UNION ALL
+  4    SELECT 3, 'Abc345' FROM DUAL UNION ALL
+  5    SELECT 4, 'aBC456' FROM DUAL UNION ALL
+  6    SELECT 5, 'aBc567' FROM DUAL ;
+
+已创建5行。
+
+
+SQL> SELECT
+  2    *
+  3  FROM
+  4    tab
+  5  WHERE
+  6   val = 'abc123';
+
+未选定行
+
+SQL> SELECT
+  2    *
+  3  FROM
+  4    tab
+  5  WHERE
+  6   val = 'ABC123'; 
+
+        ID VAL
+---------- ----------
+         1 ABC123
+
+由上面的结果可以看出，默认情况下，Oracle 大小写敏感的。
+
+下面通过设置环境变量，让Oracle对大小写不敏感
+
+SQL> ALTER SESSION SET NLS_COMP=ANSI;
+
+会话已更改。
+
+SQL> ALTER SESSION SET NLS_SORT=binary_ci;
+
+会话已更改。
+
+SQL> SELECT
+  2    *
+  3  FROM
+  4    tab
+  5  WHERE
+  6   val = 'abc123';
+
+        ID VAL
+---------- ----------
+         1 ABC123
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => CREATE TABLE tab (
+db2 (cont.) =>   id  INT,
+db2 (cont.) =>   val VARCHAR(10)
+db2 (cont.) => );
+DB20000I  SQL 命令成功完成。
+db2 => INSERT INTO tab
+db2 (cont.) =>   SELECT 1, 'ABC123' FROM SYSIBM.SYSDUMMY1 UNION ALL
+db2 (cont.) =>   SELECT 2, 'abc234' FROM SYSIBM.SYSDUMMY1 UNION ALL
+db2 (cont.) =>   SELECT 3, 'Abc345' FROM SYSIBM.SYSDUMMY1 UNION ALL
+db2 (cont.) =>   SELECT 4, 'aBC456' FROM SYSIBM.SYSDUMMY1 UNION ALL
+db2 (cont.) =>   SELECT 5, 'aBc567' FROM SYSIBM.SYSDUMMY1 ;
+DB20000I  SQL 命令成功完成。
+
+
+db2 => SELECT
+db2 (cont.) =>   *
+db2 (cont.) => FROM
+db2 (cont.) =>   tab
+db2 (cont.) => WHERE
+db2 (cont.) =>  val = 'abc123';
+
+ID          VAL
+----------- ----------
+
+  0 条记录已选择。
+
+DB2 
+默认情况下，是区分大小写的。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+CREATE TABLE tab (
+  id  INT identity(1,1),
+  val VARCHAR(10),
+  PRIMARY KEY (id)
+);
+
+INSERT INTO tab (val)
+  SELECT 'ABC123' UNION ALL
+  SELECT 'abc234' UNION ALL
+  SELECT 'Abc345' UNION ALL
+  SELECT 'aBC456' UNION ALL
+  SELECT 'aBc567';
+
+1> SELECT  * FROM   tab  WHERE val = 'abc123';
+2> go
+id          val
+----------- ----------
+          1 ABC123
+
+(1 行受影响)
+
+SQL Server 大小写不敏感的。
+
+处理方式：
+
+
+1> SELECT  * FROM   tab  WHERE val = 'abc123'  COLLATE  Chinese_PRC_CS_AS;
+2> go
+id          val
+----------- ----------
+
+(0 行受影响)
+
+1> SELECT  * FROM   tab  WHERE val = 'ABC123'  COLLATE  Chinese_PRC_CS_AS;
+2> go
+id          val
+----------- ----------
+          1 ABC123
+
+(1 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+CREATE TABLE tab (
+  id  INT AUTO_INCREMENT,
+  val VARCHAR(10),
+  PRIMARY KEY (id)
+);
+
+INSERT INTO tab (val)
+  SELECT 'ABC123' UNION ALL
+  SELECT 'abc234' UNION ALL
+  SELECT 'Abc345' UNION ALL
+  SELECT 'aBC456' UNION ALL
+  SELECT 'aBc567';
+
+
+mysql> SELECT
+    ->   *
+    -> FROM
+    ->   tab
+    -> WHERE
+    ->  val = 'abc123';
++----+--------+
+| id | val    |
++----+--------+
+|  1 | ABC123 |
++----+--------+
+1 row in set (0.02 sec)
+
+由上面的结果可以看出，默认情况下，MySQL大小写不敏感的。
+
+
+可以通过增加 COLLATE latin1_general_cs 来使本条件 大小写敏感。
+
+mysql> SELECT
+    ->   *
+    -> FROM
+    ->   tab
+    -> WHERE
+    ->  val = 'abc123'
+    ->  COLLATE latin1_general_cs;
+Empty set (0.00 sec)
+
+mysql>
+mysql>
+mysql> SELECT
+    ->   *
+    -> FROM
+    ->   tab
+    -> WHERE
+    ->  val = 'ABC123'
+    ->  COLLATE latin1_general_cs;
++----+--------+
+| id | val    |
++----+--------+
+|  1 | ABC123 |
++----+--------+
+1 row in set (0.00 sec)
+
+
+也可以通过下面的语句，设置MySQL 区分大小写
+ALTER TABLE `tab` 
+  MODIFY COLUMN `val` VARCHAR(10) BINARY;  
+
+mysql> ALTER TABLE `tab`
+    ->   MODIFY COLUMN `val` VARCHAR(10) BINARY;
+Query OK, 5 rows affected (0.13 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> SELECT
+    ->   *
+    -> FROM
+    ->   tab
+    -> WHERE
+    ->  val = 'abc123';
+Empty set (0.00 sec)
+
+mysql> SELECT
+    ->   *
+    -> FROM
+    ->   tab
+    -> WHERE
+    ->  val = 'ABC123';
++----+--------+
+| id | val    |
++----+--------+
+|  1 | ABC123 |
++----+--------+
+1 row in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+CREATE TABLE tab (
+  id  INT,
+  val VARCHAR2(10)
+);
+
+INSERT INTO tab
+SELECT 1, 'ABC123' UNION ALL
+SELECT 2, 'abc234' UNION ALL
+SELECT 3, 'Abc345' UNION ALL
+SELECT 4, 'aBC456' UNION ALL
+SELECT 5, 'aBc567' ;
+
+
+sqlite> SELECT
+   ...>   *
+   ...> FROM
+   ...>   tab
+   ...> WHERE
+   ...>  val = 'abc123';
+sqlite> SELECT
+   ...>   *
+   ...> FROM
+   ...>   tab
+   ...> WHERE
+   ...>  val = 'ABC123';
+id|val
+1|ABC123
+
+SQLite 大小写查询敏感。
+
+通过 COLLATE NOCASE 关键字， 不区分大小写
+
+SELECT
+  *
+FROM
+  tab
+WHERE
+ val = 'abc123'  COLLATE NOCASE;
+
+id|val
+1|ABC123
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+PostgreSQL 默认，大小写敏感
+
+Test=# SELECT * FROM tab WHERE val = 'abc123';
+ id | val
+----+-----
+(0 行记录)
+
+
+Test=# SELECT * FROM tab WHERE val = 'ABC123';
+ id |  val
+----+--------
+  1 | ABC123
+(1 行记录)
+
+
+
+
+可以使用  ILIKE  来实现 大小写不敏感
+
+Test=# SELECT * FROM tab WHERE val ILIKE 'abc123';
+ id |  val
+----+--------
+  1 | ABC123
+(1 行记录)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - 修改表 - 新增 IN 方式的约束 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 修改表 - 新增 IN 方式的约束 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+CREATE TABLE test_tab_check (
+  id   INT,
+  name NVARCHAR2(10),
+  sex  NVARCHAR2(2),
+  age  INT,
+  val  VARCHAR2(10)
+);
+
+
+ALTER TABLE test_tab_check
+	ADD CONSTRAINT test_tab_check_sex
+		CHECK ( sex IN (N'男',  N'女') );
+
+
+SQL> insert into test_tab_check values(1, N'A', N'T', 10, 'A');
+insert into test_tab_check values(1, N'A', N'T', 10, 'A')
+*
+ERROR 位于第 1 行:
+ORA-02290: 违反检查约束条件 (TEST.TEST_TAB_CHECK_SEX)
+
+SQL> insert into test_tab_check values(1, N'A', N'男', 10, 'A');
+
+已创建 1 行。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+CREATE TABLE test_tab_check (
+  id   INT,
+  name VARCHAR(10),
+  sex  VARCHAR(3),
+  age  INT,
+  val  VARCHAR(10)
+);
+
+ALTER TABLE test_tab_check
+	ADD CONSTRAINT test_tab_check_sex
+		CHECK ( sex IN ('男',  '女') );
+
+
+db2 => insert into test_tab_check values(1, 'A', 'T', 10, 'A');
+DB21034E  该命令被当作 SQL 语句来处理，因为它是无效的“命令行处理器”命令。在SQL 处理期间，它返回：
+SQL0545N  因为行不满足检查约束
+"TEST.TEST_TAB_CHECK.TEST_TAB_CHECK_SEX"，所以不允许所请求的操作。
+SQLSTATE=23513
+db2 =>
+db2 => insert into test_tab_check values(1, 'A', '男', 10, 'A');
+DB20000I  SQL 命令成功完成。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+CREATE TABLE test_tab_check (
+  id   INT,
+  name NVARCHAR(10),
+  sex  NVARCHAR(2),
+  age  INT,
+  val  VARCHAR(10)
+);
+go
+
+
+ALTER TABLE test_tab_check
+	ADD CONSTRAINT test_tab_check_sex
+		CHECK ( sex IN (N'男',  N'女') );
+
+1> insert into test_tab_check values(1, N'A', N'T', 10, 'A');
+2> go
+消息 547，级别 16，状态 1，服务器 EDWARDPC\SQLEXPRESS，第 1 行
+INSERT 语句与 CHECK 约束"test_tab_check_sex"冲突。该冲突发生于数据库"test"，表"dbo.test_tab_check", column 'sex'。
+语句已终止。
+
+1> insert into test_tab_check values(1, N'A', N'男', 10, 'A');
+2> go
+
+(1 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+不支持  使用  enum
+
+
+
+mysql> CREATE TABLE test_create_tab5 (
+    ->   id   INT  PRIMARY KEY,
+    ->   val  VARCHAR(10) NOT NULL,
+    ->   val2 enum ('1', '2', '3', '4', '5')
+    -> );
+Query OK, 0 rows affected (0.08 sec)
+
+
+mysql> INSERT INTO test_create_tab5(id, val, val2)
+    -> VALUES(1, 'ERR', 1);
+Query OK, 1 row affected (0.03 sec)
+
+mysql>
+mysql> INSERT INTO test_create_tab5(id, val, val2)
+    -> VALUES(8, 'ERR', 8);
+ERROR 1265 (01000): Data truncated for column 'val2' at row 1
+
+
+
+mysql> CREATE TABLE `trainrunplan` (
+    -> `train_id` varchar(20) NOT NULL,
+    -> `trainState` enum('售票中', '运行中', '已完成') NOT NULL,
+    -> `runDate` varchar(40) NOT NULL,
+    -> PRIMARY KEY  (`train_id`, `runDate`)
+    -> );
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> INSERT INTO `trainrunplan`
+    -> VALUES ('1', '售票中', '2010-11-21');
+Query OK, 1 row affected (0.03 sec)
+
+mysql>
+mysql> INSERT INTO `trainrunplan`
+    -> VALUES ('2', '非法数据', '2010-11-21');
+ERROR 1265 (01000): Data truncated for column 'trainState' at row 1
+mysql>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+不支持
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# CREATE TABLE test_tab_check (
+Test(#   id   INT,
+Test(#   name VARCHAR(10),
+Test(#   sex  VARCHAR(3),
+Test(#   age  INT,
+Test(#   val  VARCHAR(10)
+Test(# );
+CREATE TABLE
+Test=#
+Test=# ALTER TABLE test_tab_check
+Test-#  ADD CONSTRAINT test_tab_check_sex
+Test-#          CHECK ( sex IN ('男',  '女') );
+ALTER TABLE
+Test=#
+Test=# insert into test_tab_check values(1, 'A', 'T', 10, 'A');
+错误:  关系 "test_tab_check" 的新列违反了检查约束 "test_tab_check_sex"
+描述:  失败, 行包含(1, A, T, 10, A).
+
+Test=# insert into test_tab_check values(1, 'A', '男', 10, 'A');
+INSERT 0 1
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

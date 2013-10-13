@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 运算符号-一元运算符 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 运算符号 </h1>
+
+
+<h2> 一元运算符 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> SELECT
+  2    + 32 AS  "正32",
+  3    - 32 AS  "负32",
+  4    <span class="KeyInfo">utl_raw.bit_complement</span>  ('10') AS  "位非32"
+  5  FROM
+  6    dual;
+
+      正32       负32
+---------- ----------
+位非32
+--------------------------------------------------
+        32        -32
+EF
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SELECT
+  + 32 AS  [正32],
+  - 32 AS  [负32],
+  ~ 32 AS  [位非32]
+
+正32         负32         位非32
+----------- ----------- -----------
+32          -32         -33
+(1 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT
+    ->   + 32 AS  "正32",
+    ->   - 32 AS  "负32",
+    ->   ~ 32 AS  "位非32";
++------+------+----------------------+
+| 正32 | 负32 | 位非32               |
++------+------+----------------------+
+|   32 |  -32 | 18446744073709551583 |
++------+------+----------------------+
+1 row in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+sqlite> SELECT
+   ...>   + 32 AS  "正32",
+   ...>   - 32 AS  "负32",
+   ...>   ~ 32 AS  "位非32";
+正32|负32|位非32
+32|-32|-33
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# SELECT
+Test-#   + 32 AS  "正32",
+Test-#   - 32 AS  "负32",
+Test-#   ~ 32 AS  "位非32";
+ 正32 | 负32 | 位非32
+------+------+--------
+   32 |  -32 |    -33
+(1 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

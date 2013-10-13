@@ -1,0 +1,262 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 视图 - 视图上的索引 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 视图 </h1>
+
+
+<h2>  视图上的索引  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+
+
+特定条件下的UNIQUE约束
+项目开发过程中，存在这样的情况：
+数据库里面的表，某一列的数据，是需要为 “唯一”的。
+但是这一列的数据，不是插入的时候，就决定的，开始是为 NULL 的，后期修改的时候，程序里面判断不能有重复。
+而且这个表里面，有一列，用于标志数据的有效性。如果数据为1，那么表示有效，数据为0表示 数据被“逻辑删除”。
+
+
+由于上面这种情况的限制，这个表，创建的时候，对那个列，就没有加任何的 约束了。
+数据有效性的检查，就完全依赖于应用程序(C#)的检查。
+
+当项目小，开发的人都清楚业务逻辑的情况下，是没有问题的。
+但是当项目大，遇到跨项目的 数据导入、导出的时候，问题就来了。
+因为 数据导入/导出的时候， 数据的来源，是从别的项目过来的。
+写 导入/导出 程序的人，很可能忘记执行那个 唯一性的数据检查的逻辑，只是简单的从 另一个系统读取数据，然后写入到这个系统中。
+这样 导入/导出 的处理过程，不会发生任何错误，而且很可能开始的时候，源数据也是没有重复的，因此测试期间，数据核对也不会有问题。
+但是很可能，正常使用了一段时间以后，源系统那里的，产生了重复的数据，导出到本系统，最后在其他方面，发生问题。
+
+
+假如数据库级别上面，有相应的 唯一性约束，这样，可以尽可能早的发现问题，避免 不正确数据 进入数据库。
+也就是本系统上面，有双重的检查逻辑。应用程序(C#)上面有其检查逻辑，数据库上面有相应的约束。
+
+ 
+
+-- 下面这个表, 要求 my_code 是唯一的。
+-- 这个唯一 是有特定的条件限制。
+--     首先，这一列是可以为 NULL 的，可以有多行为 NULL 的数据，但是非NULL的数据，不能有重复.
+--     其次，这个表里面，有一个 status 的字段，如果这个 status 为 0，那么认为是“逻辑删除”，逻辑删除的数据，可以有重复。
+CREATE TABLE Test_Unique (
+ id   int identity(1, 1) NOT NULL, -- 系统自增主键
+ my_code varchar(10),     -- 编号
+ my_name varchar(10),
+ status  bit        -- 状态 (1有效，0无效)
+ CONSTRAINT PK_Test_Unique PRIMARY KEY(id)
+);
+
+GO
+
+
+--  首先尝试简单的设置 UNIQUE 约束.
+ALTER TABLE Test_Unique
+  ADD CONSTRAINT uni_Test_Unique UNIQUE (my_code)
+GO
+
+-- 尝试插入 2行 my_code 为 NULL 的数据.
+INSERT INTO Test_Unique( my_name, status) VALUES ('张三', 1);
+GO
+INSERT INTO Test_Unique( my_name, status) VALUES ('李四', 1);
+GO
+
+
+插入第2条数据的时候，出错了，因为 对于 UNIQUE 约束. NULL 也算了一个
+
+消息 2627，级别 14，状态 1，服务器 ZQWANG\SQLEXPRESS，第 1 行
+违反了 UNIQUE KEY 约束 'uni_Test_Unique'。不能在对象 'dbo.Test_Unique' 中插入重复键。
+语句已终止。
+
+
+-- 首先删除掉前面创建的  UNIQUE 约束.
+ALTER TABLE Test_Unique
+  DROP CONSTRAINT uni_Test_Unique;
+GO
+
+-- 重新插入前面的插入出错的第二条数据
+INSERT INTO Test_Unique( my_name, status) VALUES ('李四', 1);
+GO
+
+ 
+
+-- 创建一个 视图，仅仅包含 my_code 不为空，且 status = 1 的情况.
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE VIEW v_Test_Unique_useable
+WITH SCHEMABINDING
+AS
+SELECT
+  id, my_code, my_name, status
+FROM
+  dbo.Test_Unique
+WHERE
+  my_code IS NOT NULL
+  AND status = 1;
+GO
+
+
+-- 为这个 有效数据的视图， 创建一个 唯一性索引.
+CREATE UNIQUE CLUSTERED INDEX idx_Test_Unique_id
+  ON v_Test_Unique_useable(my_code);
+GO
+
+
+-- 下面开始，尝试插入数据.
+INSERT INTO Test_Unique(my_name, status) VALUES ('王五', 1);
+GO
+INSERT INTO Test_Unique(my_name, status) VALUES ('赵六', 1);
+GO
+
+
+SELECT * FROM Test_Unique;
+GO
+
+id          my_code    my_name    status
+----------- ---------- ---------- ------
+          1 NULL       张三              1
+          3 NULL       李四              1
+          4 NULL       王五              1
+          5 NULL       赵六              1
+
+(4 行受影响)
+
+
+-- 下面开始，尝试更新数据.
+UPDATE Test_Unique SET my_code = 'A01' WHERE id = 1;
+GO
+
+UPDATE Test_Unique SET my_code = 'A01' WHERE id =3;
+GO
+
+第二条 更新语句 执行的过程 发生错误：
+
+消息 2601，级别 14，状态 1，服务器 ZQWANG\SQLEXPRESS，第 2 行
+不能在具有唯一索引 'idx_Test_Unique_id' 的对象 'dbo.v_Test_Unique_useable' 中插入重复键的行。
+语句已终止。
+
+
+-- 下面，模拟一个 “逻辑删除的操作”， 然后再次更新.
+UPDATE Test_Unique SET status = 0 WHERE id = 1;
+GO
+
+UPDATE Test_Unique SET my_code = 'A01' WHERE id =3;
+GO
+
+
+最后查看数据：
+
+1> SELECT * FROM Test_Unique;
+2> GO
+id          my_code    my_name    status
+----------- ---------- ---------- ------
+          1 A01        张三              0
+          3 A01        李四              1
+          4 NULL       王五              1
+          5 NULL       赵六              1
+
+(4 行受影响)
+
+ 
+
+小结：
+上面的处理机制，主要是通过创建一个 “有效数据” 的视图。
+这个视图，忽略掉 NULL 与 逻辑删除 的数据。
+然后对这个视图，创建一个 唯一性索引。
+从而实现 特定条件下的 UNIQUE 约束.
+
+ 
+
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

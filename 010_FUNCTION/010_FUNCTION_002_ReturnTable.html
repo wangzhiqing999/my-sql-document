@@ -1,0 +1,291 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 函数 - 创建返回结果集的函数 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 函数 </h1>
+
+
+<h2> 创建返回结果集的函数  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+Oracle 需要通过 返回一个游标来处理。
+<pre><code>
+
+-- 测试表数据。
+select * from test_main;
+
+        ID VALUE
+---------- --------------------
+         1 ONE
+         3 THREE
+         2 TWO
+
+
+
+-- 返回结果集的函数.
+CREATE OR REPLACE FUNCTION Get_Test_Main_All
+RETURN SYS_REFCURSOR
+IS
+  return_cursor SYS_REFCURSOR;
+BEGIN
+  OPEN return_cursor FOR 'SELECT * FROM test_main';
+  RETURN return_cursor;
+END;
+/
+
+
+
+-- 普通的查询，来查看结果.
+SELECT Get_Test_Main_All() FROM dual;
+
+GET_TEST_MAIN_ALL()
+--------------------
+CURSOR STATEMENT : 1
+
+CURSOR STATEMENT : 1
+
+        ID VALUE
+---------- --------------------
+         1 ONE
+         3 THREE
+         2 TWO
+
+
+-- 存储过程调用， 来获取结果.
+DECLARE 
+  -- 调用函数的返回值.
+  testCursor SYS_REFCURSOR;
+  -- 存储单行数据.
+  testRec  test_main%ROWTYPE;
+BEGIN
+  -- 调用返回结果集的函数.
+  testCursor := Get_Test_Main_All();
+  -- 循环，遍历结果.
+  LOOP
+    -- 游标向前.
+    FETCH testCursor INTO testRec;
+    -- 无数据的情况下，退出循环.
+	EXIT WHEN testCursor%NOTFOUND;
+    -- 输出调试信息.
+    dbms_output.put_line( TO_CHAR(testRec.id) || ' ' || testRec.value);
+  END LOOP;
+END;
+/
+
+1 ONE
+3 THREE
+2 TWO
+
+PL/SQL 过程已成功完成。
+
+
+<hr/>
+上面的是使用动态SQL处理的。
+下面是正常SQL处理的。
+
+
+CREATE OR REPLACE FUNCTION Get_Test_Main 
+RETURN SYS_REFCURSOR
+IS
+  return_cursor SYS_REFCURSOR;
+BEGIN
+  OPEN return_cursor FOR SELECT * FROM test_main;
+  RETURN return_cursor;
+END;
+/
+
+SQL> SELECT Get_Test_Main() FROM dual;
+
+GET_TEST_MAIN()
+--------------------
+CURSOR STATEMENT : 1
+
+CURSOR STATEMENT : 1
+
+        ID VALUE
+---------- --------------------
+         2 TWO
+
+
+
+<hr/>
+上面的是没有参数的
+下面是有参数的
+
+
+CREATE OR REPLACE FUNCTION Get_Test_Main (
+  p_id  INT
+)
+RETURN SYS_REFCURSOR
+IS
+  return_cursor SYS_REFCURSOR;
+BEGIN
+  OPEN return_cursor FOR SELECT * FROM test_main WHERE id = p_id;
+  RETURN return_cursor;
+END;
+/
+
+SQL> SELECT Get_Test_Main(2) FROM dual;
+
+GET_TEST_MAIN(2)
+--------------------
+CURSOR STATEMENT : 1
+
+CURSOR STATEMENT : 1
+
+        ID VALUE
+---------- --------------------
+         2 TWO
+
+
+
+返回游标的函数，不是 “表值函数”
+
+SQL> SELECT * FROM Get_Test_Main(2);
+SELECT * FROM Get_Test_Main(2)
+                           *
+ERROR 位于第 1 行:
+ORA-00933: SQL 命令未正确结束
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+	
+
+请注意创建好函数以后，select 的时候，要稍微做些处理。
+
+<pre><code>
+
+db2 => CREATE FUNCTION getHelloWorld()
+db2 (cont.) => RETURNS TABLE( A VARCHAR(10), B VARCHAR(10))
+db2 (cont.) => LANGUAGE SQL
+db2 (cont.) => RETURN
+db2 (cont.) =>   SELECT
+db2 (cont.) =>     'Hello' AS A, 'World' AS B
+db2 (cont.) =>   FROM SYSIBM.SYSDUMMY1;
+DB20000I  SQL 命令成功完成。
+
+db2 => SELECT
+db2 (cont.) =>   *
+db2 (cont.) => FROM
+db2 (cont.) =>   TABLE(getHelloWorld()) AS test;
+
+A          B
+---------- ----------
+Hello      World
+
+  1 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+SQL Server 通过 RETURN TABLE 来实现。
+
+<pre><code>
+
+1> CREATE FUNCTION getHelloWorld()
+2> RETURNS TABLE
+3> AS
+4> RETURN
+5>   SELECT 'Hello' AS A, 'World' AS B;
+6> GO
+1> SELECT * FROM getHelloWorld();
+2> go
+A     B
+----- -----
+Hello World
+
+(1 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+都写在 “存储过程返回结果集” 的章节了。
+这里不重复写了。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

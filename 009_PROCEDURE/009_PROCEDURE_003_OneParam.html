@@ -1,0 +1,327 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 存储过程 - 参数定义  单个参数 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 存储过程 </h1>
+
+
+<h2> 参数定义  单个参数 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+注：
+Oracle不允许对VARCHAR 与 NUMBER 的参数，限制长度。
+也就是如果参数那里写了 VARCHAR(10) 将编译错误 PLS-00103
+
+
+
+
+SQL> CREATE OR REPLACE PROCEDURE HelloWorld1 (
+  2    p_user_name  VARCHAR2
+  3  ) AS
+  4  BEGIN
+  5     dbms_output.put_line('Hello ' || p_user_name || '!');
+  6  END HelloWorld1;
+  7  /
+
+Procedure created.
+
+SQL>
+SQL>
+SQL> BEGIN
+  2    HelloWorld1('Edward');
+  3  END;
+  4  /
+Hello Edward!
+
+PL/SQL procedure successfully completed.
+
+
+
+<hr/>
+
+某些情况下， 希望定义参数的时候， 数据类型，与某个表中的某一列的数据类型一样。
+这样，将来万一业务变化， 表的数据类型变化了，不需要修改存储过程代码。
+定义的方式，是  <span class="BasicInfo">表名.列名%TYPE</span>
+
+CREATE TABLE test_type (
+  test_ID    INT,
+  test_name  nvarchar2(20)
+);
+
+
+CREATE OR REPLACE PROCEDURE HelloWorld1 (
+  p_user_name  <span class="BasicInfo">test_type.test_name%TYPE</span>
+) AS
+BEGIN
+   dbms_output.put_line('Hello ' || p_user_name || '!');
+END HelloWorld1;
+/
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => CREATE PROCEDURE HelloWorld1 \
+db2 (cont.) => (vUserName VARCHAR(10)) \
+db2 (cont.) => LANGUAGE SQL \
+db2 (cont.) => BEGIN \
+db2 (cont.) =>   INSERT INTO test_helloworld \
+db2 (cont.) =>     VALUES('Hello ' || vUserName); \
+db2 (cont.) => END
+DB20000I  SQL 命令成功完成。
+db2 => call HelloWorld1('Edward')
+
+  返回状态 = 0
+db2 => select * from test_helloworld
+
+DATA
+--------------------
+Hello World V2.0
+Hello Edward
+
+  2 条记录已选择。
+
+
+  
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+注：
+如果参数的VARCHAR不指定长度，那么 返回可能就是
+HelloE!
+
+
+1> CREATE PROCEDURE HelloWorld1
+2>   @UserName VARCHAR(10)
+3> AS
+4> BEGIN
+5>   PRINT 'Hello' + @UserName  + '!';
+6> END;
+7> go
+1> DECLARE @RC int;
+2> EXECUTE @RC = HelloWorld1 'Edward' ;
+3> PRINT @RC;
+4> go
+HelloEdward!
+0
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE HelloWorld1(vUserName VARCHAR(10))
+    -> BEGIN
+    ->   SELECT CONCAT('Hello ', vUserName);
+    -> END//
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> call HelloWorld1('Edward');
+    -> //
++-----------------------------+
+| CONCAT('Hello ', vUserName) |
++-----------------------------+
+| Hello Edward                |
++-----------------------------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.02 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# truncate table test_helloworld;
+TRUNCATE TABLE
+
+Test=# CREATE OR REPLACE FUNCTION HelloWorld1(vUserName VARCHAR) RETURNS void AS
+Test-# $$
+Test$# BEGIN
+Test$#   INSERT INTO test_helloworld
+Test$#     VALUES('Hello ' || vUserName);
+Test$# END;
+Test$# $$
+Test-# LANGUAGE plpgsql;
+CREATE FUNCTION
+Test=#
+Test=# SELECT HelloWorld1('ABC');
+ helloworld1
+-------------
+
+(1 行记录)
+
+
+Test=# select * from test_helloworld;
+   data
+-----------
+ Hello ABC
+(1 行记录)
+
+
+
+<hr/>
+函数参数的别名
+
+Test=# truncate table test_helloworld;
+TRUNCATE TABLE
+
+
+-- 请注意这里： 定义参数的时候， 没有定义参数名称， 仅仅定义了参数的数据类型
+-- 然后在 定义变量的位置， 通过  vUserName ALIAS FOR $1  来为 第一个参数， 指定一个变量名称， 叫做  vUserName
+Test=# CREATE OR REPLACE FUNCTION HelloWorld2 (varchar) RETURNS void AS
+Test-# $$
+Test$# DECLARE
+Test$#   vUserName ALIAS FOR $1;
+Test$# BEGIN
+Test$#   INSERT INTO test_helloworld
+Test$#     VALUES('Hello ' || vUserName);
+Test$# END;
+Test$# $$
+Test-# LANGUAGE plpgsql;
+CREATE FUNCTION
+Test=# SELECT HelloWorld2('XYZ');
+ helloworld2
+-------------
+
+(1 行记录)
+
+
+Test=# select * from test_helloworld;
+   data
+-----------
+ Hello XYZ
+(1 行记录)
+
+
+
+
+
+<hr/>
+
+某些情况下， 希望定义参数的时候， 数据类型，与某个表中的某一列的数据类型一样。
+这样，将来万一业务变化， 表的数据类型变化了，不需要修改存储过程代码。
+定义的方式，是  <span class="BasicInfo">表名.列名%TYPE</span>
+
+CREATE TABLE test_type (
+  test_ID    INT,
+  test_name  varchar(20)
+);
+
+
+Test=# CREATE OR REPLACE FUNCTION HelloWorld20 (
+Test(#   p_user_name  <span class="BasicInfo"> test_type.test_name%TYPE </span>
+Test(# ) RETURNS void AS
+Test-# $$
+Test$# BEGIN
+Test$#   INSERT INTO test_type VALUES(1, p_user_name);
+Test$# END;
+Test$# $$
+Test-# LANGUAGE plpgsql;
+注意:  类型关联 test_type.test_name%TYPE 转换为 character varying
+CREATE FUNCTION
+Test=#
+
+
+Test=# select HelloWorld20('Test');
+ helloworld20
+--------------
+
+(1 行记录)
+
+
+Test=# select * from test_type;
+ test_id | test_name
+---------+-----------
+       1 | Test
+(1 行记录)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库会话的基本参数设置 SET  - 溢出或被零除错误时的处理 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库会话的基本参数设置 SET </h1>
+
+
+<h2> 溢出或被零除错误时的处理  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SET ARITHABORT { ON | OFF }
+[ ; ]
+ 
+备注
+如果 SET ARITHABORT 为 ON，并且 SET ANSI WARNINGS 也为 ON，则这些错误情况将导致查询终止。
+如果 SET ARITHABORT 为 ON，但 SET ANSI WARNINGS 为 OFF，则这些错误情况将导致批处理终止。
+如果在事务内发生错误，则回滚事务。如果 SET ARITHABORT 为 OFF 并且发生了这些错误之一，则显示一条警告消息，并将 NULL 赋予算术运算的结果。
+
+注意： 
+如果 SET ARITHABORT 和 SET ARITHIGNORE 都没有设置，则 SQL Server 2005 将在执行查询后返回 NULL 和一条警告消息。
+
+在 SQL Server 2005 中，当数据库兼容性级别设置为 90 时，若将 ANSI_WARNINGS 设置为 ON，则会将 ARITHABORT 隐式设置为 ON。如果数据库兼容性级别设置为 80 或更早，则必须将 ARITHABORT 选项显式设置为 ON。
+如果 SET ARITHABORT 为 OFF，并且在对表达式求值的过程中 INSERT、DELETE 或 UPDATE 语句遇到算术错误（溢出、被零除或域错误），SQL Server 将插入或更新一个 NULL 值。如果目标列不可为空，则插入或更新操作将失败，用户将收到错误消息。
+如果 SET ARITHABORT 或 SET ARITHIGNORE 为 OFF，而 SET ANSI_WARNINGS 为 ON，则遇到被零除或溢出错误时，SQL Server 仍会返回错误消息。 
+如果 SET ARITHABORT 设置为 OFF，并且对 IF 语句的 Boolean 条件求值过程中发生中止错误，则将执行 FALSE 分支。
+
+在对计算列或索引视图创建或更改索引时，SET ARITHABORT 必须为 ON。如果 SET ARITHABORT 为 OFF，
+则对包含计算列或索引视图索引的表执行 CREATE、UPDATE、INSERT 和 DELETE 语句时将失败。有关计算列的索引视图和索引所必需的 SET 选项设置的详细信息，
+请参阅影响结果的 SET 选项。
+SET ARITHABORT 的设置是在执行或运行时设置的，而不是在分析时设置的。
+
+默认情况下：
+1> SELECT 1/0
+2> go
+消息 8134，级别 16，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，第 1 行
+遇到以零作除数错误。
+
+
+1> SET ARITHABORT OFF
+2> go
+1> SET ANSI_WARNINGS OFF
+2> GO
+1> SELECT 1/0
+2> go
+
+-----------
+       NULL
+发生以零作除数错误。
+
+
+
+SET ARITHIGNORE { ON | OFF }
+[ ; ]
+
+备注
+SET ARITHIGNORE 设置只控制是否返回错误消息。SQL Server 2005 在计算中出现溢出或被零除错误时将返回 NULL，不考虑此设置。
+可以使用 SET ARITHABORT 设置来确定是否终止查询。此设置不影响 INSERT、UPDATE 和 DELETE 语句执行过程中发生的错误。
+如果 SET ARITHABORT 或 SET ARITHIGNORE 为 OFF，而 SET ANSI_WARNINGS 为 ON，则遇到被零除或溢出错误时，SQL Server 仍会返回错误消息。
+SET ARITHIGNORE 的设置是在执行或运行时设置，而不是在分析时设置。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 异常处理 - 没有异常处理时 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 异常处理 </h1>
+
+
+<h2> 没有异常处理时  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> DECLARE
+  2    p_test_val  INT;
+  3  BEGIN
+  4    -- 导致一个 除零错误
+  5    p_test_val := 1024 / 0;
+  6    dbms_output.put_line(TO_CHAR(p_test_val));
+  7  END;
+  8  /
+DECLARE
+*
+ERROR at line 1:
+ORA-01476: divisor is equal to zero
+ORA-06512: at line 5
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+db2 => BEGIN
+db2 (cont.) =>   -- 暂存变量.
+db2 (cont.) =>   DECLARE  p_test_val    INT;
+db2 (cont.) =>   -- 导致一个 除零错误
+db2 (cont.) =>   SET p_test_val = 1024 / 0;
+db2 (cont.) => END
+db2 (cont.) => @
+DB21034E  该命令被当作 SQL 语句来处理，因为它是无效的“命令行处理器”命令。在
+SQL 处理期间，它返回：
+SQL0801N  试图用零作除数。  SQLSTATE=22012
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> DECLARE
+2>   @test_val  INT;
+3> BEGIN
+4>   -- 导致一个 除零错误
+5>   SET @test_val = 1024 / 0;
+6>   PRINT(STR(@test_val));
+7> END;
+8> go
+消息 8134，级别 16，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，第 5 行
+遇到以零作除数错误。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+Mysql 除零不报错，简单的把结果设置为 NULL
+因此这里以主键重复做为例子
+
+
+
+mysql> DELIMITER //
+mysql> CREATE PROCEDURE TestException()
+    -> BEGIN
+    ->   -- 主键重复
+    ->   INSERT INTO test_main VALUES(1, 'PK');
+    ->   SELECT 'FINISH';
+    -> END//
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> call TestException();
+    -> //
+ERROR 1062 (23000): Duplicate entry '1' for key 'PRIMARY'
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+CREATE OR REPLACE FUNCTION TestException() RETURNS void AS
+$$
+DECLARE  
+  v_test_val    INT;
+BEGIN
+  -- 导致一个 除零错误.
+  v_test_val := 1024 / 0;
+END;
+$$
+LANGUAGE plpgsql;
+
+
+Test=# select TestException();
+错误:  除以零
+背景:  SQL 语句 "SELECT 1024 / 0"
+PL/pgSQL function testexception() line 6 at 赋值
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

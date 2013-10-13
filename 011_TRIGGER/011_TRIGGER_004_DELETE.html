@@ -1,0 +1,295 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 触发器 - DELETE </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 触发器 </h1>
+
+
+<h2> DELETE  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SQL> CREATE OR REPLACE TRIGGER BeforeDeleteTest
+  2    BEFORE DELETE ON test_trigger_table
+  3  FOR EACH ROW
+  4  BEGIN
+  5    dbms_output.put_line('BEFORE DELETE');
+  6    dbms_output.put_line('Old Name = ' || :old.name);
+  7    dbms_output.put_line('New Name = ' || :new.name);
+  8  END;
+  9  /
+
+Trigger created.
+
+SQL>
+SQL> DELETE FROM test_trigger_table WHERE id = 1;
+BEFORE DELETE
+Old Name = XYZ
+New Name =
+
+1 row deleted.
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+db2 => CREATE TRIGGER AfterDeleteTest \
+db2 (cont.) => AFTER DELETE ON test_trigger_table \
+db2 (cont.) => REFERENCING OLD AS O \
+db2 (cont.) => FOR EACH ROW \
+db2 (cont.) => BEGIN \
+db2 (cont.) =>   INSERT INTO log_table VALUES ( 'Delete Name = ' || O.name ); \
+db2 (cont.) => END
+DB20000I  SQL 命令成功完成。
+db2 => DELETE FROM test_trigger_table WHERE id = 1
+DB20000I  SQL 命令成功完成。
+db2 => select * from log_table
+
+LOG_TEXT
+------------------------------
+Old Name = ABC
+New Name = XYZ
+Delete Name = XYZ
+
+  3 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> CREATE TRIGGER AfterDeleteTest
+2>   ON test_trigger_table
+3>   FOR DELETE
+4> AS
+5> DECLARE
+6>   @OldName VARCHAR(10);
+7> BEGIN
+8>   PRINT('AFTER DELETE');
+9>   SELECT @OldName = name FROM deleted;
+10>   PRINT('Old Name = ' + @OldName);
+11> END;
+12> go
+1> DELETE FROM test_trigger_table WHERE id = 1;
+2> go
+AFTER DELETE
+
+(1 行受影响)
+Old Name = XYZ
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> DELIMITER //
+
+mysql> CREATE TRIGGER BeforeDeleteTest
+    ->   BEFORE DELETE ON test_trigger_table
+    -> FOR EACH ROW
+    -> BEGIN
+    ->   INSERT INTO log_table VALUES ( CONCAT('Delete Name = ', old.name) );
+    -> END;
+    -> //
+Query OK, 0 rows affected (0.08 sec)
+
+mysql> DELETE FROM test_trigger_table WHERE id = 1;
+    -> //
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select * from log_table;
+    -> //
++-------------------+
+| log_text          |
++-------------------+
+| Old Name = ABC    |
+| New Name = XYZ    |
+| Delete Name = XYZ |
++-------------------+
+3 rows in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+Drop Trigger If Exists AfterUpdateTest ;
+
+CREATE TRIGGER AfterDeleteTest  
+  AFTER DELETE ON test_trigger_table
+FOR EACH ROW
+BEGIN
+  INSERT INTO log_table VALUES ( 'Delete Name = ' || old.name ); 
+END;
+
+sqlite> DELETE FROM test_trigger_table WHERE id = 1;
+sqlite> select * from test_trigger_table;
+sqlite> select * from log_table;
+Old Name = ABC
+New Name = XYZ
+Delete Name = XYZ
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# truncate table log_table;
+TRUNCATE TABLE
+
+
+-- 创建 触发器函数.
+CREATE OR REPLACE FUNCTION TrDeleteTest()  RETURNS trigger AS $tr_delete_test$
+BEGIN
+  INSERT INTO log_table VALUES ( 'Delete Name = ' || OLD.name ); 
+  -- 因为是 删除触发器， 不同于 INSERT / UPDATE.
+  -- 没有 NEW 可以返回， 简单返回 NULL 即可.
+  -- 注： 返回 NULL 的情况下， 需要 触发器定义为  AFTER 的， 否则数据将无法删除。
+  RETURN NULL;
+END;
+$tr_delete_test$ LANGUAGE plpgsql;
+
+
+-- 定义触发器.
+CREATE TRIGGER tr_delete_test 
+  BEFORE DELETE ON test_trigger_table
+  FOR EACH ROW EXECUTE 
+  PROCEDURE TrDeleteTest();
+
+
+-- 测试 DELETE
+Test=# DELETE FROM test_trigger_table WHERE id = 1;
+DELETE 0
+Test=#
+
+
+-- 核对结果.
+Test=# select * from test_trigger_table;
+ id | name | val
+----+------+-----
+  1 | XYZ  | 100
+(1 行记录)
+
+请注意：由于上面的触发器， 被定义为 BEFORE DELETE 
+而触发器函数又返回了 NULL， 因此 数据将不会发生变化。
+
+
+Test=#
+Test=# select * from log_table;
+     log_text
+-------------------
+ Delete Name = XYZ
+(1 行记录)
+
+上面显示， 触发器确实被执行了。
+
+
+
+Test=# truncate table log_table;
+TRUNCATE TABLE
+
+
+
+-- 删除旧的触发器.
+DROP TRIGGER tr_delete_test ON test_trigger_table ;
+
+
+-- 重建触发器. (由以前的 BEFORE DELETE  修改为  AFTER DELETE )
+CREATE TRIGGER tr_delete_test 
+  AFTER DELETE ON test_trigger_table
+  FOR EACH ROW EXECUTE 
+  PROCEDURE TrDeleteTest();
+
+
+-- 测试 DELETE
+Test=# DELETE FROM test_trigger_table WHERE id = 1;
+DELETE 1
+
+
+-- 核对结果.
+Test=# select * from test_trigger_table;
+ id | name | val
+----+------+-----
+(0 行记录)
+
+
+Test=# select * from log_table;
+     log_text
+-------------------
+ Delete Name = XYZ
+(1 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

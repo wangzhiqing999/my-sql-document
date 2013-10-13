@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 字符函数 - 返回由重复的空格组成的字符串 SPACE  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 字符函数 </h1>
+
+
+<h2>  返回由重复的空格组成的字符串 SPACE </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+没有这个函数
+但是可以通过 LPAD 或者 RPAD 来实现
+SQL> SELECT
+  2    LPAD(' ', 10) || 'A' AS A,
+  3    RPAD(' ', 10) || 'B' AS B
+  4  FROM 
+  5    dual;
+
+A           B
+----------- -----------
+          A           B
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+SELECT 'A' || SPACE(10) || 'A' 
+FROM SYSIBM.SYSDUMMY1;
+
+-------------
+A          A
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT SPACE(10) + 'A'
+2> go
+
+-----------
+          A
+
+(1 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT SPACE(10)  A //
++------------+
+| A          |
++------------+
+|            |
++------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT SPACE(40)  A //
++------------------------------------------+
+| A                                        |
++------------------------------------------+
+|                                          |
++------------------------------------------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+没有这个函数
+但是可以通过 LPAD 或者 RPAD 或者 repeat 来实现
+
+Test=# SELECT
+Test-#   LPAD(' ', 10) || 'A' AS A,
+Test-#   RPAD(' ', 10) || 'B' AS B,
+Test-#   repeat(' ', 10) || 'C' AS C;
+      a      |      b      |      c
+-------------+-------------+-------------
+           A |           B |           C
+(1 行记录)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

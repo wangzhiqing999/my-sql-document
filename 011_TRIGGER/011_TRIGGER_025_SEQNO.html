@@ -1,0 +1,458 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 触发器 - 使用触发器产生流水号 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 触发器 </h1>
+
+
+<h2> 使用触发器产生流水号  </h2>
+
+
+<pre><code>
+
+流水号格式要求：
+P + 年四位月两位_流水号三位
+
+例如：
+P20130203001
+
+P20130203999
+
+</code></pre>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+CREATE TABLE  TEST_SEQNO (
+  SEQNO VARCHAR(10)  PRIMARY KEY,
+  VAL	VARCHAR(20)
+);
+
+
+
+<h4> 方案一：使用 序列号 + 触发器 + 存储过程 + 数据库作业 </h4>
+
+-- 序列号
+CREATE SEQUENCE seq_testno
+  increment by 1    -- 每次递增1
+  start with 1       -- 从1开始
+  nomaxvalue      -- 没有最大值
+  minvalue 1       -- 最小值=1
+  NOCYCLE;
+
+
+-- 触发器.
+CREATE OR REPLACE TRIGGER tr_test_seqno
+  BEFORE INSERT ON TEST_SEQNO
+FOR EACH ROW
+BEGIN
+  SELECT 
+    'P' || TO_CHAR(sysdate, 'YYYYMM') || TRIM(TO_CHAR(seq_testno.nextval, '000')) INTO :new.SEQNO  
+  FROM 
+    dual;
+END;
+/
+
+
+-- 多终端测试
+
+-- 会话1
+INSERT INTO TEST_SEQNO(VAL) VALUES('T1.1');
+SELECT * FROM TEST_SEQNO;
+
+输出：
+SQL> INSERT INTO TEST_SEQNO(VAL) VALUES('T1.1');
+
+已创建 1 行。
+
+SQL> SELECT * FROM TEST_SEQNO;
+
+SEQNO                VAL
+-------------------- ----------------------------------------
+P201302001           T1.1
+
+
+-- 会话2
+INSERT INTO TEST_SEQNO(VAL) VALUES('T2.2');
+SELECT * FROM TEST_SEQNO;
+
+输出：
+SQL> INSERT INTO TEST_SEQNO(VAL) VALUES('T2.2');
+
+已创建 1 行。
+
+SQL> SELECT * FROM TEST_SEQNO;
+
+SEQNO                VAL
+-------------------- ----------------------------------------
+P201302002           T2.2
+
+
+-- 会话3
+INSERT INTO TEST_SEQNO(VAL) VALUES('T3.3');
+SELECT * FROM TEST_SEQNO;
+
+输出：
+SQL> INSERT INTO TEST_SEQNO(VAL) VALUES('T3.3');
+
+已创建 1 行。
+
+SQL> SELECT * FROM TEST_SEQNO;
+
+SEQNO                VAL
+-------------------- ----------------------------------------
+P201302003           T3.3
+
+
+-- 会话1
+SQL> commit;
+
+提交完成。
+
+
+-- 会话2
+SQL> commit;
+
+提交完成。
+
+SQL> SELECT * FROM TEST_SEQNO;
+
+SEQNO                VAL
+-------------------- ----------------------------------------
+P201302002           T2.2
+P201302001           T1.1
+
+
+-- 会话3
+SQL> commit;
+
+提交完成。
+
+SQL> SELECT * FROM TEST_SEQNO;
+
+SEQNO                VAL
+-------------------- ----------------------------------------
+P201302002           T2.2
+P201302003           T3.3
+P201302001           T1.1
+
+
+-- 用于 重置序列号的 存储过程.
+CREATE OR REPLACE PROCEDURE ResetSeqTestno 
+-- 注：由于动态SQL 里面，创建序列号， 
+-- 如果不加下面这行，执行将报错 “ORA-01031: 权限不足”
+AUTHID CURRENT_USER
+AS
+BEGIN
+  -- 由于每月1日早上 0点， 需要把序列号的当前数值， 重置为 1.
+  -- 但是由于不能通过 ALTER SEQUENCE 语句来修改序列号的当前值
+  -- 因此只能每月1日 删除-重建 序列号.
+  -- 首先是删除.
+  EXECUTE IMMEDIATE('DROP SEQUENCE seq_testno ');
+  -- 然后是重建.
+  EXECUTE IMMEDIATE('CREATE SEQUENCE seq_testno increment by 1 start with 1');
+END;
+/
+
+-- 将存储过程， 加入 Oracle 作业. 每月1日 00:00 执行.
+variable jobno number;
+begin
+dbms_job.submit(:jobno, 'ResetSeqTestno;', ADD_MONTHS(trunc(sysdate, 'MM'), 1), 'ADD_MONTHS(trunc(SYSDATE, ''MM''),1)');
+commit;
+end;
+/
+
+
+ALTER session SET nls_date_format='yyyy-mm-dd hh24:mi:ss';
+
+-- 查询作业.
+SELECT job, what, next_date, interval FROM user_jobs;
+
+
+       JOB
+----------
+WHAT
+--------------------------------------------------------------------------------
+NEXT_DATE
+-------------------
+INTERVAL
+--------------------------------------------------------------------------------
+        62
+ResetSeqTestno;
+2013-03-01 00:00:00
+ADD_MONTHS(trunc(SYSDATE, 'MM'),1)
+
+
+
+
+-- 模拟作业执行
+BEGIN
+  ResetSeqTestno;
+END;
+/
+
+-- 删除现有表的数据
+TRUNCATE TABLE TEST_SEQNO;
+
+-- 再次插入.
+INSERT INTO TEST_SEQNO(VAL) VALUES('T5.5');
+SELECT * FROM TEST_SEQNO;
+
+
+
+SQL> INSERT INTO TEST_SEQNO(VAL) VALUES('T5.5');
+
+已创建 1 行。
+
+SQL> SELECT * FROM TEST_SEQNO;
+
+SEQNO                VAL
+-------------------- ----------------------------------------
+P201302001           T5.5
+
+
+
+
+<h4> 方案二：使用 流水号表 + 存储过程 + Oracle 自治事务处理 + 触发器 </h4>
+
+-- 首先， 禁用掉 方案一的触发器：
+ALTER  TRIGGER tr_test_seqno  DISABLE;
+
+-- 删除现有表的数据
+TRUNCATE TABLE TEST_SEQNO;
+
+-- 创建流水号表
+CREATE TABLE test_month_seq (
+  year_month   char(6) PRIMARY KEY,
+  current_seq  int
+);
+
+-- 插入本月的初始流水数据.
+INSERT INTO test_month_seq VALUES ('201302', 1);
+
+
+-- 获取当前流水号的存储过程.
+CREATE OR REPLACE PROCEDURE GetNextSeqNo (
+  p_result IN OUT VARCHAR2
+) 
+AS
+-- 定义 “自治事务”
+PRAGMA AUTONOMOUS_TRANSACTION;
+-- 当前流水.
+v_seq INT;
+BEGIN
+  -- 查询.
+  SELECT 
+    current_seq INTO v_seq
+  FROM
+    test_month_seq
+  WHERE
+    year_month = TO_CHAR(sysdate, 'YYYYMM')
+  FOR UPDATE;
+  
+  -- 更新.
+  UPDATE 
+    test_month_seq
+  SET
+    current_seq = current_seq + 1
+  WHERE
+    year_month = TO_CHAR(sysdate, 'YYYYMM');
+  
+  -- 提交事务.
+  COMMIT;
+  
+  -- 设置返回参数.
+  p_result := 'P' || TO_CHAR(sysdate, 'YYYYMM') || TRIM(TO_CHAR(v_seq, '000'));
+END GetNextSeqNo;
+/
+
+
+
+-- 触发器.
+CREATE OR REPLACE TRIGGER tr_test_seqno_2
+  BEFORE INSERT ON TEST_SEQNO
+FOR EACH ROW
+BEGIN
+  GetNextSeqNo(:new.SEQNO);
+END;
+/
+
+
+
+
+
+-- 多终端测试
+
+-- 会话1
+INSERT INTO TEST_SEQNO(VAL) VALUES('T1.1');
+SELECT * FROM TEST_SEQNO;
+
+输出：
+SQL> INSERT INTO TEST_SEQNO(VAL) VALUES('T1.1');
+
+已创建 1 行。
+
+SQL> SELECT * FROM TEST_SEQNO;
+
+SEQNO                VAL
+-------------------- ----------------------------------------
+P201302001           T1.1
+
+
+
+-- 会话2
+INSERT INTO TEST_SEQNO(VAL) VALUES('T2.2');
+SELECT * FROM TEST_SEQNO;
+
+输出：
+SQL> INSERT INTO TEST_SEQNO(VAL) VALUES('T2.2');
+
+已创建 1 行。
+
+SQL> SELECT * FROM TEST_SEQNO;
+
+SEQNO                VAL
+-------------------- ----------------------------------------
+P201302002           T2.2
+
+
+-- 会话3
+INSERT INTO TEST_SEQNO(VAL) VALUES('T3.3');
+SELECT * FROM TEST_SEQNO;
+
+输出：
+SQL> INSERT INTO TEST_SEQNO(VAL) VALUES('T3.3');
+
+已创建 1 行。
+
+SQL> SELECT * FROM TEST_SEQNO;
+
+SEQNO                VAL
+-------------------- ----------------------------------------
+P201302003           T3.3
+
+
+
+
+-- 会话1
+SQL> commit;
+
+提交完成。
+
+
+-- 会话2
+SQL> commit;
+
+提交完成。
+
+SQL> SELECT * FROM TEST_SEQNO;
+
+SEQNO                VAL
+-------------------- ----------------------------------------
+P201302002           T2.2
+P201302001           T1.1
+
+
+-- 会话3
+SQL> commit;
+
+提交完成。
+
+SQL> SELECT * FROM TEST_SEQNO;
+
+SEQNO                VAL
+-------------------- ----------------------------------------
+P201302002           T2.2
+P201302003           T3.3
+P201302001           T1.1
+
+
+由于 序号存储在 流水号表中， 因此，只要预先，插入足够多的 年月的数据，就可以了。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

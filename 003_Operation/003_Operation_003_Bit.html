@@ -1,0 +1,176 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 运算符号-按位运算符 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 运算符号 </h1>
+
+
+<h2> 按位运算符  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SELECT
+  utl_raw.bit_and( '0F' , '8') AS "0x0f位与0x08",
+  utl_raw.bit_or('2' , '8') AS  "0x02位或0x08",
+  utl_raw.bit_xor('0F' , '3') AS "0x0f位异或0x03"
+FROM
+  dual;
+
+0x0f位与0x08
+----------------
+0x02位或0x08
+----------------
+0x0f位异或0x03
+----------------
+08
+0A
+0C
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SELECT
+  15 & 8 AS [0x0f位与0x08],
+  2 | 8 AS  [0x02位或0x08],
+  15 ^ 3 AS [0x0f位异或0x03]
+
+0x0f位与x08  0x02位或x08  0x0f位异或x03
+----------- ----------- -----------
+8           10          12
+
+(1 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+SELECT
+  15 & 8 AS "0x0f位与0x08",
+  2 | 8 AS  "0x02位或0x08",
+  15 ^ 3 AS "0x0f位异或0x03"
+FROM
+  dual;
+
++--------------+--------------+----------------+
+| 0x0f位与0x08 | 0x02位或0x08 | 0x0f位异或0x03 |
++--------------+--------------+----------------+
+|            8 |           10 |             12 |
++--------------+--------------+----------------+
+1 row in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+SELECT
+  15 & 8 AS "0x0f位与0x08",
+  2 | 8 AS  "0x02位或0x08";
+
+好像对 位异或 不支持 
+
+0x0f位与0x08|0x02位或0x08
+8|10
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+Test=# SELECT
+Test-#   B'10001' || B'011'   AS  "连接",
+Test-#   B'10001' & B'01101'  AS  "与操作",
+Test-#   B'10001' | B'01101'  AS  "或操作",
+Test-#   B'10001' # B'01101'  AS  "异或操作",
+Test-#   ~ B'10001'           AS  "非操作",
+Test-#   B'10001' &lt;&lt; 3        AS  "按位左移",
+Test-#   B'10001' &gt;&gt; 2        AS  "按位右移";
+   连接   | 与操作 | 或操作 | 异或操作 | 非操作 | 按位左移 | 按位右移
+----------+--------+--------+----------+--------+----------+----------
+ 10001011 | 00001  | 11101  | 11100    | 01110  | 01000    | 00100
+(1 行记录)
+  
+  
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

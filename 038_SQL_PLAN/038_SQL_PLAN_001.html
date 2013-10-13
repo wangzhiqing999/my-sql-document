@@ -1,0 +1,231 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询的优化 - 获取执行计划 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询的优化 </h1>
+
+
+<h2>  获取执行计划 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+第一次执行时，需要调用utlxplan.sql 创建 plan_table
+
+
+
+SQL> @E:\oraclexe\app\oracle\product\10.2.0\server\RDBMS\ADMIN\utlxplan.sql
+
+Table created.
+
+SQL> EXPLAIN PLAN
+  2    SET STATEMENT_ID = 'Query_1' FOR
+  3  SELECT
+  4    SALE_DATE,
+  5    SUM(SALE_MONEY) AS SUM_MONEY
+  6  FROM
+  7    SALE_REPORT
+  8  GROUP BY
+  9    SALE_DATE
+ 10  ORDER BY
+ 11    SUM(SALE_MONEY) DESC;
+
+Explained.
+
+SQL> SELECT
+  2    LPAD(' ', 2*(LEVEL-1)) || operation ||
+  3      ' ' || options || ' ' || object_name || ' ' ||
+  4      DECODE(id, 0, 'Cost = ' || position) AS "Execution Plan"
+  5  FROM
+  6    plan_table
+  7  START WITH id = 0
+  8    AND statement_id = 'Query_1'
+  9  CONNECT BY PRIOR id = parent_id
+ 10    AND statement_id = 'Query_1';
+
+Execution Plan
+-----------------------------------------------------------------
+
+SELECT STATEMENT   Cost = 5
+  SORT ORDER BY
+    HASH GROUP BY
+      TABLE ACCESS FULL SALE_REPORT
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+SET SHOWPLAN_TEXT ON
+
+这条命令被执行后,所有在当前这个查询分析器会话中执行的查询都不会运行,而是会显示一个基于文本的执行计划
+
+注意:执行某条用 到临时表的查询时，必须在执行查询先运行SET STATISTICS PROFILE ON语句
+
+
+需要关闭的时候，使用 
+SET SHOWPLAN_TEXT OFF
+
+
+如果需要更加详细的信息
+使用
+SET SHOWPLAN_ALL ON
+与
+SET SHOWPLAN_ALL OFF
+
+
+
+1> SET SHOWPLAN_TEXT ON
+2>
+3> go
+1> SELECT
+2>   SALE_DATE,
+3>   SUM(SALE_MONEY) AS SUM_MONEY
+4> FROM
+5>   SALE_REPORT
+6> GROUP BY
+7>   SALE_DATE
+8> ORDER BY
+9>   SUM(SALE_MONEY) DESC;
+10> go
+StmtText
+
+--------------------------------------------------------------------------------
+------------------------------------------------------
+SELECT
+  SALE_DATE,
+  SUM(SALE_MONEY) AS SUM_MONEY
+FROM
+  SALE_REPORT
+GROUP BY
+  SALE_DATE
+ORDER BY
+  SUM(SALE_MONEY) DESC;
+
+(1 行受影响)
+StmtText
+
+--------------------------------------------------------------------------------
+-----------------------------------------------------------------
+  |--Sort(ORDER BY:([Expr1004] DESC))
+
+       |--Stream Aggregate(GROUP BY:([Stock].[dbo].[SALE_REPORT].[SALE_DATE]) DE
+FINE:([Expr1004]=SUM([Stock].[dbo].[SALE_REPORT].[SALE_MONEY])))
+            |--Sort(ORDER BY:([Stock].[dbo].[SALE_REPORT].[SALE_DATE] ASC))
+
+                 |--Table Scan(OBJECT:([Stock].[dbo].[SALE_REPORT]))
+
+
+(4 行受影响)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+使用 EXPLAIN 后面跟SQL，就直接显示查询计划
+
+
+mysql> EXPLAIN
+    -> SELECT
+    ->   SALE_DATE,
+    ->   SUM(SALE_MONEY) AS SUM_MONEY
+    -> FROM
+    ->   SALE_REPORT
+    -> GROUP BY
+    ->   SALE_DATE
+    -> ORDER BY
+    ->   SUM(SALE_MONEY) DESC;
++----+-------------+-------------+------+---------------+------+---------+------
++------+---------------------------------+
+| id | select_type | table       | type | possible_keys | key  | key_len | ref
+| rows | Extra                           |
++----+-------------+-------------+------+---------------+------+---------+------
++------+---------------------------------+
+|  1 | SIMPLE      | SALE_REPORT | ALL  | NULL          | NULL | NULL    | NULL
+| 1155 | Using temporary; Using filesort |
++----+-------------+-------------+------+---------------+------+---------+------
++------+---------------------------------+
+1 row in set (0.00 sec)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

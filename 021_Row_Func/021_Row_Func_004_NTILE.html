@@ -1,0 +1,315 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 统计分析函数 - NTILE 分组  </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 统计分析函数 </h1>
+
+
+<h2>  NTILE 分组 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+按照分数 划分5个区间 从高到底
+SELECT
+  NTILE(5) OVER( ORDER BY SUM(grade) DESC) AS NO,
+  student_name,
+  SUM(grade) AS AllGrade
+FROM
+  test_course
+GROUP BY
+  student_name
+ORDER BY
+  SUM(grade) DESC
+
+        NO STUDENT_NA   ALLGRADE
+---------- ---------- ----------
+         1 奎                185
+         1 甲                185
+         2 乙                165
+         2 壬                165
+         3 丙                145
+         3 辛                140
+         4 丁                125
+         4 庚                120
+         5 戊                105
+         5 己                100
+
+已选择10行。
+
+按照分数 划分区间 从高到底（区分 课程）
+SELECT
+  NTILE(5) OVER(PARTITION BY course_name ORDER BY grade DESC) AS NO,
+  test_course.student_name,
+  test_course.course_name,
+  test_course.grade
+FROM
+  test_course
+ORDER BY
+  course_name,
+  grade DESC
+
+        NO STUDENT_NA COURSE_NAM      GRADE
+---------- ---------- ---------- ----------
+         1 奎         数学               95
+         1 甲         数学               90
+         2 壬         数学               85
+         2 乙         数学               80
+         3 辛         数学               70
+         3 丙         数学               70
+         4 庚         数学               60
+         4 丁         数学               60
+         5 己         数学               50
+         5 戊         数学               50
+         1 甲         语文               95
+
+        NO STUDENT_NA COURSE_NAM      GRADE
+---------- ---------- ---------- ----------
+         1 奎         语文               90
+         2 乙         语文               85
+         2 壬         语文               80
+         3 丙         语文               75
+         3 辛         语文               70
+         4 丁         语文               65
+         4 庚         语文               60
+         5 戊         语文               55
+         5 己         语文               50
+
+已选择20行。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+可能不支持。
+
+db2 => SELECT
+db2 (cont.) =>   NTILE(5) OVER( ORDER BY SUM(grade) DESC) AS NO,
+db2 (cont.) =>   student_name,
+db2 (cont.) =>   SUM(grade) AS AllGrade
+db2 (cont.) => FROM
+db2 (cont.) =>   test_course
+db2 (cont.) => GROUP BY
+db2 (cont.) =>   student_name
+db2 (cont.) => ORDER BY
+db2 (cont.) =>   SUM(grade) DESC
+db2 (cont.) => ;
+SQL0440N  找不到具有兼容自变量的类型为 "FUNCTION" 的名为 "NTILE"
+的已授权例程。  SQLSTATE=42884
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+按照分数 划分5个区间 从高到底
+SELECT
+  NTILE(5) OVER( ORDER BY SUM(grade) DESC) AS NO,
+  student_name,
+  SUM(grade) AS AllGrade
+FROM
+  test_course
+GROUP BY
+  student_name
+ORDER BY
+  SUM(grade) DESC
+
+1	甲	185
+1	奎	185
+2	壬	165
+2	乙	165
+3	丙	145
+3	辛	140
+4	丁	125
+4	庚	120
+5	戊	105
+5	己	100
+
+按照分数 划分区间 从高到底（区分 课程）
+SELECT
+  NTILE(5) OVER(PARTITION BY course_name ORDER BY grade DESC) AS NO,
+  *
+FROM
+  test_course
+ORDER BY
+  course_name,
+  grade DESC
+
+1	奎	数学	95
+1	甲	数学	90
+2	壬	数学	85
+2	乙	数学	80
+3	丙	数学	70
+3	辛	数学	70
+4	庚	数学	60
+4	丁	数学	60
+5	戊	数学	50
+5	己	数学	50
+1	甲	语文	95
+1	奎	语文	90
+2	乙	语文	85
+2	壬	语文	80
+3	丙	语文	75
+3	辛	语文	70
+4	丁	语文	65
+4	庚	语文	60
+5	戊	语文	55
+5	己	语文	50
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+按照分数 划分5个区间 从高到底
+SELECT
+  NTILE(5) OVER( ORDER BY SUM(grade) DESC) AS NO,
+  student_name,
+  SUM(grade) AS AllGrade
+FROM
+  test_course
+GROUP BY
+  student_name
+ORDER BY
+  SUM(grade) DESC;
+
+
+ no | student_name | allgrade
+----+--------------+----------
+  1 | 甲           |      185
+  1 | 奎           |      185
+  2 | 壬           |      165
+  2 | 乙           |      165
+  3 | 丙           |      145
+  3 | 辛           |      140
+  4 | 丁           |      125
+  4 | 庚           |      120
+  5 | 戊           |      105
+  5 | 己           |      100
+(10 行记录)
+
+
+
+按照分数 划分区间 从高到底（区分 课程）
+SELECT
+  NTILE(5) OVER(PARTITION BY course_name ORDER BY grade DESC) AS NO,
+  test_course.student_name,
+  test_course.course_name,
+  test_course.grade
+FROM
+  test_course
+ORDER BY
+  course_name,
+  grade DESC;
+
+
+ no | student_name | course_name | grade
+----+--------------+-------------+-------
+  1 | 奎           | 数学        |    95
+  1 | 甲           | 数学        |    90
+  2 | 壬           | 数学        |    85
+  2 | 乙           | 数学        |    80
+  3 | 丙           | 数学        |    70
+  3 | 辛           | 数学        |    70
+  4 | 丁           | 数学        |    60
+  4 | 庚           | 数学        |    60
+  5 | 己           | 数学        |    50
+  5 | 戊           | 数学        |    50
+  1 | 甲           | 语文        |    95
+  1 | 奎           | 语文        |    90
+  2 | 乙           | 语文        |    85
+  2 | 壬           | 语文        |    80
+  3 | 丙           | 语文        |    75
+  3 | 辛           | 语文        |    70
+  4 | 丁           | 语文        |    65
+  4 | 庚           | 语文        |    60
+  5 | 戊           | 语文        |    55
+  5 | 己           | 语文        |    50
+(20 行记录)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

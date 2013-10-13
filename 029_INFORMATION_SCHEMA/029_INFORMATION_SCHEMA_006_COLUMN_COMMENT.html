@@ -1,0 +1,317 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据字典表 - 字段备注说明信息 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据字典表 </h1>
+
+
+<h2> 字段备注说明信息  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+表和视图的列， 都是一样的语句：
+
+
+CREATE TABLE test_table (
+  id  INT,
+  val INT
+);
+
+COMMENT ON COLUMN test_table.ID IS '测试表编号';
+COMMENT ON COLUMN test_table.val IS '测试表数值';
+
+
+
+CREATE VIEW test_view
+AS 
+SELECT * FROM test_table;
+
+COMMENT ON COLUMN test_view.ID IS '测试视图编号';
+COMMENT ON COLUMN test_view.val IS '测试视图数值';
+
+
+
+
+COLUMN "TABLE_NAME" FORMAT A20
+COLUMN "COLUMN_NAME" FORMAT A20
+COLUMN "COMMENTS" FORMAT A30
+
+SELECT
+  TABLE_NAME,
+  COLUMN_NAME,
+  COMMENTS
+FROM
+  USER_COL_COMMENTS
+WHERE
+  TABLE_NAME = 'TEST_TABLE';
+
+TABLE_NAME           COLUMN_NAME          COMMENTS
+-------------------- -------------------- ------------------------------
+TEST_TABLE           ID                   测试表编号
+TEST_TABLE           VAL                  测试表数值
+
+
+
+SELECT
+  TABLE_NAME,
+  COLUMN_NAME,
+  COMMENTS
+FROM
+  USER_COL_COMMENTS
+WHERE
+  TABLE_NAME = 'TEST_VIEW';
+
+TABLE_NAME           COLUMN_NAME          COMMENTS
+-------------------- -------------------- ------------------------------
+TEST_VIEW            ID                   测试视图编号
+TEST_VIEW            VAL                  测试视图数值
+
+
+<hr/>
+
+简单的视图依赖表的关系：
+
+select 
+  name, REFERENCED_NAME
+FROM 
+  ALL_DEPENDENCIES  
+WHERE 
+  NAME = 'TEST_VIEW'  AND  TYPE='VIEW';
+
+
+NAME                     REFERENCED_NAME
+------------------       ------------------
+TEST_VIEW                TEST_TABLE
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+SELECT
+  name  	AS "列名",
+  remarks  	AS "备注信息"
+FROM 
+  SYSIBM.SYSCOLUMNS
+WHERE
+  tbname = 'MR_DEPT';
+
+或者
+
+SELECT
+  colname  	AS "列名",
+  remarks   AS "备注信息"
+FROM
+  SYSCAT.COLUMNS
+WHERE
+  tabname = 'MR_DEPT';
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+SELECT
+   col.name AS 列名,
+   typ.name as 数据类型,
+   col.max_length AS 占用字节数,
+   col.precision AS 数字长度,
+   col.scale AS 小数位数,
+   col.is_nullable  AS 是否允许非空,
+   col.is_identity  AS 是否自增,
+   case when exists 
+      ( SELECT 1 
+        FROM 
+          sys.indexes idx 
+            join sys.index_columns idxCol 
+            on (idx.object_id = idxCol.object_id)
+         WHERE
+            idx.object_id = col.object_id
+            AND idxCol.index_column_id = col.column_id
+            AND idx.is_primary_key = 1
+       ) THEN 1 ELSE 0 END  AS 是否是主键,
+  isnull(prop.[value],'-') AS 说明
+FROM
+  sys.columns col 
+    left join sys.types typ 
+      on (col.system_type_id = typ.system_type_id AND col.user_type_id = typ.user_type_id)
+    left join sys.extended_properties prop
+      on (col.object_id = prop.major_id AND prop.minor_id = col.column_id)
+WHERE
+  col.object_id =
+    (SELECT object_id FROM sys.tables WHERE name = 'test_table')
+ 
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+SELECT 
+  column_name AS `列名`, 
+  data_type   AS `数据类型`, 
+  character_maximum_length  AS `字符长度`,
+  numeric_precision AS `数字长度`,
+  numeric_scale AS `小数位数`,
+  is_nullable AS `是否允许非空`, 
+  CASE WHEN extra = 'auto_increment' 
+    THEN 1 ELSE 0 END AS `是否自增`,
+  column_default  AS  `默认值`, 
+  column_comment  AS  `备注`
+FROM
+  Information_schema.columns
+WHERE
+  table_Name='test_table';
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+CREATE TABLE MR_DEPT (
+ DEPT_ID INT NOT NULL ,
+ PARENT_ID INT,
+ DEPT_NAME CHAR(20) NOT NULL ,
+ STATUS INT DEFAULT 1 NOT NULL ,
+PRIMARY KEY (DEPT_ID)
+);
+
+
+COMMENT ON TABLE MR_DEPT IS '部门表';
+COMMENT ON COLUMN MR_DEPT.DEPT_ID IS '部门编号';
+COMMENT ON COLUMN MR_DEPT.PARENT_ID IS '上级部门编号';
+COMMENT ON COLUMN MR_DEPT.DEPT_NAME IS '部门名';
+COMMENT ON COLUMN MR_DEPT.STATUS IS '状态';
+
+
+
+
+
+SELECT
+  c.attname,
+  c.attnum,
+  d.description
+FROM
+  pg_attribute c
+    LEFT JOIN pg_description d
+	  ON (d.objoid  = c.attrelid  AND  d.objsubid = c.attnum) 
+WHERE
+  c.attrelid = 'mr_dept'::regclass
+  AND c.attnum &gt; 0;
+
+
+  attname  | attnum | description
+-----------+--------+--------------
+ dept_id   |      1 | 部门编号
+ parent_id |      2 | 上级部门编号
+ dept_name |      3 | 部门名
+ status    |      4 | 状态
+(4 行记录)
+
+
+
+或者使用 col_description 函数， 这样可以不关联 pg_description 表.
+
+SELECT
+  c.attname,
+  c.attnum,
+  col_description(c.attrelid, c.attnum) AS description
+FROM
+  pg_attribute c
+WHERE
+  c.attrelid = 'mr_dept'::regclass
+  AND c.attnum > 0;
+
+
+
+
+  attname  | attnum | description
+-----------+--------+--------------
+ dept_id   |      1 | 部门编号
+ parent_id |      2 | 上级部门编号
+ dept_name |      3 | 部门名
+ status    |      4 | 状态
+(4 行记录)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

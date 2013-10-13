@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 动态SQL - 执行存储过程的方式-简单执行 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 动态SQL </h1>
+
+
+<h2> 执行存储过程的方式-简单执行  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+注意， SQL Server 的SP_EXECUTESQL， 要求参数时 NVARCHAR 类型
+因此这里 SQL 语句的前面，加了 字母  N
+
+
+
+1> BEGIN
+2>   EXEC SP_EXECUTESQL  N'SELECT * FROM test_dysql WHERE id=1';
+3> END
+4> go
+id          name       val
+----------- ---------- -----------
+          1 A                   10
+
+(1 行受影响)
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> CREATE PROCEDURE dysql1()
+    -> LABEL_PROC:
+    -> BEGIN
+    ->   DECLARE v_sql varchar(200);
+    ->   SET v_sql = 'SELECT * FROM test_dysql WHERE id=1';
+    ->   SET @sql = v_sql;
+    ->   PREPARE sl FROM @sql;
+    ->   EXECUTE sl;
+    ->   DEALLOCATE PREPARE sl;
+    -> END LABEL_PROC //
+Query OK, 0 rows affected (0.00 sec)
+
+mysql>
+mysql> call dysql1()
+    -> //
++------+------+------+
+| id   | name | val  |
++------+------+------+
+|    1 | A    |   10 |
++------+------+------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.00 sec)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

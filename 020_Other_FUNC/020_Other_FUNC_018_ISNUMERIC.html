@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 其他函数 - 判断是否是数字ISNUMERIC </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 其他函数 </h1>
+
+
+<h2>  判断是否是数字ISNUMERIC  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+可以使用正则表达式的方式来判断。 
+REGEXP_LIKE( 字段 , '(^[+-]?\d{0,}\.?\d{0,}$)'
+来判断 是否是数字
+
+
+SQL> SELECT NULL
+  2  FROM dual
+  3  WHERE REGEXP_LIKE(NULL,'(^[+-]?\d{0,}\.?\d{0,}$)');
+
+未选定行
+
+SQL> 
+SQL> SELECT 'Abc' 
+  2  FROM dual
+  3  WHERE REGEXP_LIKE('Abc','(^[+-]?\d{0,}\.?\d{0,}$)');
+
+未选定行
+
+SQL> 
+SQL> SELECT '100' 
+  2  FROM dual
+  3  WHERE REGEXP_LIKE('100','(^[+-]?\d{0,}\.?\d{0,}$)');
+
+'10
+---
+100
+
+SQL> 
+SQL> SELECT '-100' 
+  2  FROM dual
+  3  WHERE REGEXP_LIKE('-100','(^[+-]?\d{0,}\.?\d{0,}$)');
+
+'-10
+----
+-100
+
+SQL> 
+SQL> SELECT '.01' 
+  2  FROM dual
+  3  WHERE REGEXP_LIKE('.01','(^[+-]?\d{0,}\.?\d{0,}$)');
+
+'.0
+---
+.01
+
+SQL> 
+SQL> SELECT '1995-10-1' 
+  2  FROM dual
+  3  WHERE REGEXP_LIKE('1995-10-1','(^[+-]?\d{0,}\.?\d{0,}$)');
+
+未选定行
+
+SQL> 
+SQL> SELECT '1/20/95' 
+  2  FROM dual
+  3  WHERE REGEXP_LIKE('1/20/95','(^[+-]?\d{0,}\.?\d{0,}$)');
+
+未选定行
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> SELECT 'NULL'   AS  [DATA],     ISNUMERIC(NULL)    AS  [ISNUMERIC]
+2> UNION ALL
+3> SELECT 'ABC'    AS  [DATA],     ISNUMERIC('Abc')   AS  [ISNUMERIC]
+4> UNION ALL
+5> SELECT '100'    AS  [DATA],     ISNUMERIC('100')   AS  [ISNUMERIC]
+6> UNION ALL
+7> SELECT '-100'   AS  [DATA],     ISNUMERIC('-100')  AS  [ISNUMERIC]
+8> UNION ALL
+9> SELECT '.01'    AS  [DATA],     ISNUMERIC('.01')   AS  [ISNUMERIC]
+10> UNION ALL
+11> SELECT '1995-10-1'    AS  [DATA],     ISNUMERIC('1995-10-1')   AS  [ISNUMERI
+C]
+12> UNION ALL
+13> SELECT '1/20/95'    AS  [DATA],     ISNUMERIC('1/20/95')   AS  [ISNUMERIC]
+14> UNION ALL
+15> SELECT '1995-10-1 13:00'    AS  [DATA],     ISNUMERIC('1995-10-1 13:00')   A
+S  [ISNUMERIC]
+16>
+17> go
+DATA            ISNUMERIC
+--------------- -----------
+NULL                      0
+ABC                       0
+100                       1
+-100                      1
+.01                       1
+1995-10-1                 0
+1/20/95                   0
+1995-10-1 13:00           0
+
+(8 行受影响)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

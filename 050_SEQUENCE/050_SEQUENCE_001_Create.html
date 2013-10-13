@@ -1,0 +1,304 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 序列号 - 创建序列号 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 序列号 </h1>
+
+
+<h2>  创建序列号  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+
+
+CREATE SEQUENCE test_sequence2
+  increment by 1    -- 每次递增1
+  start with 1       -- 从1开始
+  nomaxvalue      -- 没有最大值
+  minvalue 1       -- 最小值=1
+  NOCYCLE;      -- 不循环
+
+
+
+相关参数说明：
+
+INCREMENT BY
+  每次序列号递增的数值，可以为正数，也可以为负数，但是不能为0。
+  如果不填写，那么默认为 1.
+
+START WITH 
+  序列号的初始值。
+
+MAXVALUE  
+  最大值. (必须要大于等于 START WITH，  并且大于 MINVALUE)
+
+NOMAXVALUE 
+  没有最大值   （默认没有最大值）
+  递增的序列，等价于  10的27次方.
+  递减的序列，等价于  -1
+
+MINVALUE
+  最小值. （必须要小于等于 START WITH，  并且小于 MAXVALUE）
+
+NOMINVALUE 
+  没有最小值  （默认没有最小值）
+  递增的序列，等价于 1
+  递减的序列，等价于 - 10的26次方.
+
+CYCLE 
+  循环使用序列号
+  递增的序列，当到达最大值时， 自动调整到最小值。
+  递减的序列，当到达最小值时， 自动调整到最大值。
+
+NOCYCLE 
+  不循环使用序列号  （默认）
+
+CACHE
+  使用序列号缓冲.
+
+NOCACHE 
+  不使用序列号缓冲. 
+  If you omit both CACHE and NOCACHE, the database caches 20 sequence numbers by default.
+
+ORDER
+
+NOORDER 
+  （默认）
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+-- 创建一个序列号.
+CREATE SEQUENCE seq_test22
+AS BIGINT
+START WITH 1
+INCREMENT BY 1;
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+
+
+SQL Server 2012 开始， 支持序列号.
+
+
+语法：
+CREATE SEQUENCE [schema_name . ] sequence_name
+    [ AS [ built_in_integer_type | user-defined_integer_type ] ]
+    [ START WITH &lt;constant&gt; ]
+    [ INCREMENT BY &lt;constant&gt; ]
+    [ { MINVALUE [ &lt;constant&gt; ] } | { NO MINVALUE } ]
+    [ { MAXVALUE [ &lt;constant&gt; ] } | { NO MAXVALUE } ]
+    [ CYCLE | { NO CYCLE } ]
+    [ { CACHE [ &lt;constant&gt; ] } | { NO CACHE } ]
+    [ ; ]
+
+参数：
+
+
+sequence_name
+    指定数据库中标识序列的唯一名称。 类型为 sysname。
+
+[ built_in_integer_type | user-defined_integer_type
+    序列可定义为任何整数类型。 允许使用下面的类型。
+        tinyint - 范围从 0 到 255
+        smallint - 范围从 -32,768 到 32,767
+        int - 范围从 -2,147,483,648 到 2,147,483,647
+        bigint - 范围从 -9,223,372,036,854,775,808 到 9,223,372,036,854,775,807
+        decimal 和 numeric，小数位数为 0。
+        基于这些允许类型之一的任何用户定义数据类型（别名类型）。
+        如果未提供任何数据类型，则将 bigint 数据类型用作默认数据类型。
+
+START WITH &lt;常量&gt;
+	序列对象返回的第一个值。 START 值必须介于序列对象的最大值与最小值之间。 新序列对象的默认起始值是升序序列对象的最小值和降序序列对象的最大值。
+
+INCREMENT BY &lt;常量&gt;
+	在每次调用 NEXT VALUE FOR 函数时序列对象值递增（如果为负数，则为递减）的增量。 如果增量是负值，则序列对象为降序，否则为升序。 增量不能为 0。 新序列对象的默认增量为 1。
+
+[ MINVALUE &lt;常量&gt; | NO MINVALUE ]
+	指定序列对象的边界。 新序列对象的默认最小值是序列对象的数据类型的最小值。 对于 tinyint 数据类型，此值为零，对于所有其他数据类型则为负数。
+
+[ MAXVALUE &lt;常量&gt; | NO MAXVALUE
+	指定序列对象的边界。 新序列对象的默认最大值是序列对象的数据类型的最大值。
+
+[ CYCLE | NO CYCLE ]
+	此属性指定当超过序列对象的最小值或最大值时，序列对象是应从最小值（对于降序序列对象，则为最大值）重新开始，还是应引发异常。 新序列对象的默认循环选项是 NO CYCLE。
+	请注意，循环不从起始值重新开始，而是从最小值或最大值重新开始。
+
+
+[ CACHE [&lt;常量&gt; ] | NO CACHE ]
+	通过最大限度地减少生成序列编号所需的磁盘 IO 数，可以提高使用序列对象的应用程序的性能。
+	
+	例如，如果选择的缓存大小为 50，则 SQL Server 并不是将 50 个单个值保留在缓存中。 
+	它只是缓存当前值和缓存中保留的值数。 这意味着，存储缓存所需的内存量始终为序列对象的数据类型的两个实例。
+
+	注意
+	如果启用缓存选项而不指定缓存大小，数据库引擎将选择一个大小。 但是，所选的大小并不是一成不变。 Microsoft 可能会更改计算缓存大小的方法而不另行通知。
+	当使用 CACHE 选项创建时，意外关机（如电源故障）可能导致丢失缓存中保留的序列号。
+
+
+
+	
+	
+1> CREATE SEQUENCE  seq_test2
+2> AS INT
+3> START WITH 1
+4> INCREMENT BY 1;
+5> go
+1>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+与 Oracle 的区别在于  NO MAXVALUE  与   NO CYCLE 什么的， 要加一个空格.
+
+CREATE SEQUENCE test_sequence2
+  increment by 1    -- 每次递增1
+  start with 1       -- 从1开始
+  NO MAXVALUE       -- 没有最大值
+  minvalue 1       -- 最小值=1
+  NO CYCLE;      -- 不循环
+
+
+语法：
+CREATE [ TEMPORARY | TEMP ] SEQUENCE name [ INCREMENT [ BY ] increment ]
+    [ MINVALUE minvalue | NO MINVALUE ] [ MAXVALUE maxvalue | NO MAXVALUE ]
+    [ START [ WITH ] start ] [ CACHE cache ] [ [ NO ] CYCLE ]
+
+参数
+
+TEMPORARY 或 TEMP
+如果声明了这个修饰词，那么该序列对象只为这个会话创建， 并且在会话结束的时候自动删除。
+在临时序列存在的时候， 同名永久序列是不可见的（在同一会话里），除非它们是用模式修饰的名字引用的。
+
+name
+将要创建的序列号名（可以用模式修饰）。
+
+increment
+可选子句 INCREMENT BY increment 要创建一个新的值，应该向当前序列值上增加什么。
+一个正数将生成一个递增的序列， 一个负数将生成一个递减的序列。缺省值是一（1）。
+
+minvalue
+NO MINVALUE
+可选的子句 MINVALUE minvalue 决定一个序列可生成的最小值。 
+如果没有声明这个子句或者声明了 NO MINVALUE，那么就使用缺省。 
+缺省分别是递增序列为 1 递减为 -263-1。
+
+maxvalue
+NO MAXVALUE
+使用可选子句 MAXVALUE maxvalue 决定序列的最大值。 
+如果没有声明这个子句或者声明了 NO MAXVALUE，那么就使用缺省。 
+缺省的分别是递增为 -263-1，递减为 -1。
+
+start
+可选的 START WITH start 子句 使序列可以从任意位置开始。
+缺省初始值是递增序列为 minvalue 递减序列为 maxvalue.
+
+cache
+CACHE cache 选项使序列号预分配并且为快速访问存储在内存里面。 
+最小值（也是缺省值）是1（一次只能生成一个值, 也就是说没有缓存）这也是缺省。
+
+CYCLE
+NO CYCLE
+可选的CYCLE关键字可用于使序列到达 最大值（maxvalue） 或 最小值（minvalue） 时可复位并继续下去。
+如果达到极限，生成的下一个数据将分别是 最小值（minvalue） 或 最大值（maxvalue）。
+
+如果声明了可选的关键字 NO CYCLE， 那么在序列达到其最大值之后任何对 nextval 的调用都强返回一个错误。 
+如果既没有声明 CYCLE 也没有声明 NO CYCLE， 那么 NO CYCLE 是缺省。
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

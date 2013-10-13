@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库会话的基本参数设置 SET - 设置输入的年月日顺序 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库会话的基本参数设置 SET </h1>
+
+
+<h2> 设置输入的年月日顺序  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SET DATEFORMAT { format | @format_var } 
+参数
+format | @format_var
+日期部分的顺序。可以是 Unicode，或者是转换为 Unicode 的 DBCS。有效参数包括 mdy、dmy、ymd、ydm、myd 和 dym。美国英语默认值是 mdy。
+备注
+该设置仅用在将字符串转换为日期值时的解释中。它不影响日期值的显示。
+SET DATEFORMAT 的设置是在执行或运行时设置，而不是在分析时设置。
+SET DATEFORMAT 将覆盖 SET LANGUAGE 的隐式日期格式设置。
+
+1> DECLARE @datevar DATETIME;
+2>
+3> SET DATEFORMAT mdy;
+4> SET @datevar = '12/31/1998';
+5> PRINT @datevar
+6>
+7> SET DATEFORMAT ydm;
+8> SET @datevar = '1998/31/12';
+9> PRINT @datevar
+10>
+11> SET DATEFORMAT ymd;
+12> SET @datevar = '1998/12/31';
+13> PRINT @datevar
+14> GO
+12 31 1998 12:00AM
+12 31 1998 12:00AM
+12 31 1998 12:00AM
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 游标处理 - 游标的状态 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 游标处理 </h1>
+
+
+<h2>  游标的状态 </h2>
+
+
+当存储过程接收一个 游标 最为参数的时候，某些情况下，需要判断游标的状态，而作不同的处理。
+这里仅仅简单的输出游标的状态数值，不做判断的演示。
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+游标谓词是一些 SQL 关键字，可用于确定当前作用域内定义的游标的状态。它们提供了一种方法以轻松了解游标是否打开或是否存在与游标相关联的行。
+
+可在 SQL 和 SQL PL 语句中游标状态可用作谓词条件的任何位置引用游标谓词。可使用的游标谓词包括：
+
+
+IS OPEN
+  此谓词可用于确定游标是否处于打开状态。
+  游标解析为函数和过程的参数的情况下，
+  此谓词非常有用。尝试打开游标之前，可使用此谓词来确定游标是否已打开。
+
+
+IS NOT OPEN
+  此谓词可用于确定游标是否已关闭。
+  其值是 IS OPEN 的逻辑反义词。
+  在尝试实际关闭游标之前确定游标是否关闭时，此谓词会非常有用。
+
+
+IS FOUND
+  此谓词可用于确定执行 FETCH 语句后游标是否包含行。
+  如果最后一个 FETCH 语句成功执行，
+  那么 IS FOUND 谓词值为 true。如果最后一个 FETCH 语句执行后导致找不到行，那么结果为 false。
+  
+  在下列情况下，结果未知：
+      游标变量名称的值为空
+      游标变量名称的底层游标未打开
+      在执行第一个 FETCH 操作之前，针对底层游标对谓词进行了求值
+      最后一个 FETCH 操作返回了错误
+
+  IS FOUND 谓词在循环并在每次迭代时执行访存的 SQL PL 逻辑的一部分中会很有用。
+  该谓词可用于确定是否还有要访存的行。它可以有效替代条件处理程序的使用，
+  该条件处理程序用于检查没有其他要访存的行时发生的错误情况。
+  使用 IS FOUND 的替代方法是使用 IS NOT FOUND（这是 IS FOUND 的相反值）。
+
+
+
+
+TRUNCATE TABLE output_debug IMMEDIATE@
+
+BEGIN
+  -- 暂存变量.
+  DECLARE  v_id    INT;
+  DECLARE  v_value VARCHAR(10);
+  -- 定义游标.
+  DECLARE c_test_main cursor;
+  SET c_test_main = CURSOR FOR SELECT id, value FROM test_main;
+  
+  
+  IF (c_test_main IS NOT OPEN) THEN
+    INSERT INTO output_debug VALUES('Step1. IS NOT OPEN!');
+  ELSE 
+    INSERT INTO output_debug VALUES('Step1. IS OPEN!');
+  END IF;
+
+  -- 打开游标.
+  OPEN c_test_main;
+
+  IF (c_test_main IS NOT OPEN) THEN
+    INSERT INTO output_debug VALUES('Step2. IS NOT OPEN!');
+  ELSE 
+    INSERT INTO output_debug VALUES('Step2. IS OPEN!');
+  END IF;
+  
+  IF (c_test_main IS NOT FOUND) THEN
+    INSERT INTO output_debug VALUES('Step3. IS NOT FOUND!');
+  ELSE 
+    INSERT INTO output_debug VALUES('Step3. IS FOUND!');
+  END IF;
+  
+  
+  -- 填充数据.
+  FETCH c_test_main INTO v_id, v_value;
+
+  IF (c_test_main IS NOT FOUND) THEN
+    INSERT INTO output_debug VALUES('Step4. IS NOT FOUND!');
+  ELSE 
+    INSERT INTO output_debug VALUES('Step4. IS FOUND!');
+  END IF;
+  
+  
+  
+  -- 关闭游标
+  CLOSE c_test_main;
+  
+  IF (c_test_main IS NOT OPEN) THEN
+    INSERT INTO output_debug VALUES('Step5. IS NOT OPEN!');
+  ELSE 
+    INSERT INTO output_debug VALUES('Step5. IS OPEN!');
+  END IF;
+  
+END
+@
+
+
+
+db2 => select * from output_debug @
+
+DATA
+------------------------------------
+Step1. IS NOT OPEN!
+Step2. IS OPEN!
+Step3. IS FOUND!
+Step4. IS FOUND!
+Step5. IS NOT OPEN!
+
+  5 条记录已选择。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+DECLARE
+  @id    INT,  @value VARCHAR(10);
+BEGIN
+  -- 定义游标.
+  DECLARE @c_test_main CURSOR;
+  SET @c_test_main =  CURSOR FAST_FORWARD FOR
+    SELECT id, value FROM test_main;
+  
+-- 输出游标状态.
+  PRINT '定义完毕后：' + CAST( CURSOR_STATUS ('variable', '@c_test_main') as varchar);
+  
+  -- 打开游标.
+  OPEN @c_test_main;
+
+  -- 输出游标状态.
+  PRINT 'OPEN 打开游标后：' + CAST( CURSOR_STATUS ('variable', '@c_test_main') as varchar);
+
+  -- 填充数据.
+  FETCH NEXT FROM @c_test_main INTO @id, @value;
+  
+  -- 输出游标状态.
+  PRINT 'FETCH NEXT后：' + CAST( CURSOR_STATUS ('variable', '@c_test_main') as varchar);
+
+  -- 假如检索到了数据，才处理.
+  WHILE @@fetch_status = 0
+  BEGIN
+    PRINT @value;
+    -- 填充下一条数据.
+    FETCH NEXT FROM @c_test_main INTO @id, @value;    
+  END;
+
+  -- 输出游标状态.
+  PRINT '循环处理结束后：' + CAST( CURSOR_STATUS ('variable', '@c_test_main') as varchar);
+
+  -- 关闭游标
+  CLOSE @c_test_main;
+
+  -- 输出游标状态.
+  PRINT 'CLOSE关闭游标后：' + CAST( CURSOR_STATUS ('variable', '@c_test_main') as varchar);
+
+  -- 释放游标.
+  DEALLOCATE @c_test_main;
+
+  -- 输出游标状态.
+  PRINT 'DEALLOCATE释放游标后：' + CAST( CURSOR_STATUS ('variable', '@c_test_main') as varchar);
+END;
+go
+
+
+定义完毕后：-1
+OPEN 打开游标后：1
+FETCH NEXT后：1
+ONE1
+TWO1
+Three1
+FOUR1
+循环处理结束后：1
+CLOSE关闭游标后：-1
+DEALLOCATE释放游标后：-2
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 前面N条到N+M条（使用MINUS / EXCEPT方案） </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> 前面N条到N+M条（使用MINUS / EXCEPT方案）  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SELECT * FROM
+(
+SELECT
+  SALE_DATE,
+  SUM(SALE_MONEY) AS SUM_MONEY
+FROM
+  SALE_REPORT
+GROUP BY
+  SALE_DATE
+ORDER BY
+  SALE_DATE DESC
+) SubQuery1
+WHERE rownum &lt;=20
+MINUS 
+SELECT * FROM
+(
+SELECT
+  SALE_DATE,
+  SUM(SALE_MONEY) AS SUM_MONEY
+FROM
+  SALE_REPORT
+GROUP BY
+  SALE_DATE
+ORDER BY
+  SALE_DATE DESC
+) SubQuery2
+WHERE rownum &lt;=10;
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+SELECT 
+  * 
+FROM 
+  (
+  SELECT
+    SALE_DATE,
+    SUM(SALE_MONEY) AS SUM_MONEY
+  FROM
+    SALE_REPORT
+  GROUP BY
+    SALE_DATE
+  ORDER BY
+    SALE_DATE DESC
+  fetch first 20 rows only
+  )
+MINUS 
+SELECT 
+  * 
+FROM 
+  (
+  SELECT
+    SALE_DATE,
+    SUM(SALE_MONEY) AS SUM_MONEY
+  FROM
+    SALE_REPORT
+  GROUP BY
+    SALE_DATE
+  ORDER BY
+    SALE_DATE DESC
+  fetch first 10 rows only
+  );
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SELECT * FROM
+(
+SELECT
+  TOP 20
+  SALE_DATE,
+  SUM(SALE_MONEY) AS SUM_MONEY
+FROM
+  SALE_REPORT
+GROUP BY
+  SALE_DATE
+ORDER BY
+  SALE_DATE DESC
+) SubQuery1
+EXCEPT
+SELECT * FROM
+(
+SELECT
+  TOP 10
+  SALE_DATE,
+  SUM(SALE_MONEY) AS SUM_MONEY
+FROM
+  SALE_REPORT
+GROUP BY
+  SALE_DATE
+ORDER BY
+  SALE_DATE DESC
+) SubQuery2
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+不支持，且没必要
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+不支持，且没必要
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+没必要
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

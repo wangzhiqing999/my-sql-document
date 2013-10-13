@@ -1,0 +1,228 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 行转换为列 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> 行转换为列  </h2>
+
+
+要求 SALE_REPORT 表中，每天销售金额， 列数据为 日期、A、B、C 
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+	
+注：这里使用DECODE函数.
+用CASE WHEN 也可以。
+
+<pre><code>
+
+SELECT 
+  SALE_DATE,
+  SUM ( DECODE(SALE_ITEM, 'A', SALE_MONEY, 0) )  AS  A,
+  SUM ( DECODE(SALE_ITEM, 'B', SALE_MONEY, 0) )  AS  B,
+  SUM ( DECODE(SALE_ITEM, 'C', SALE_MONEY, 0) )  AS  C
+FROM
+  SALE_REPORT
+GROUP BY
+  SALE_DATE
+ORDER BY
+  SALE_DATE
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+语句与 Oracle 相同
+<pre><code>
+
+SELECT 
+  SALE_DATE,
+  SUM ( DECODE(SALE_ITEM, 'A', SALE_MONEY, 0) )  AS  A,
+  SUM ( DECODE(SALE_ITEM, 'B', SALE_MONEY, 0) )  AS  B,
+  SUM ( DECODE(SALE_ITEM, 'C', SALE_MONEY, 0) )  AS  C
+FROM
+  SALE_REPORT
+GROUP BY
+  SALE_DATE
+ORDER BY
+  SALE_DATE
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+注：这里使用SQL Server2005中的PIVOT.
+如果是SQL Server2000或以前的版本，参考Oracle的SQL，将DECODE替换为 CASE WHEN
+
+<pre><code>
+
+SELECT 
+  SALE_DATE,
+  tmp.[A]  A,
+  tmp.[B]  B,
+  tmp.[C]  C
+FROM
+  SALE_REPORT
+PIVOT( 
+  SUM(SALE_MONEY)
+  FOR SALE_ITEM IN ([A], [B], [C] )
+) tmp
+ORDER BY
+  SALE_DATE
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+mysql> SELECT
+    ->   SALE_DATE,
+    ->   SUM ( IF(SALE_ITEM = 'A', SALE_MONEY, 0) )  AS  A,
+    ->   SUM ( IF(SALE_ITEM = 'B', SALE_MONEY, 0) )  AS  B,
+    ->   SUM ( IF(SALE_ITEM = 'C', SALE_MONEY, 0) )  AS  C
+    -> FROM
+    ->   SALE_REPORT
+    -> GROUP BY
+    ->   SALE_DATE
+    -> //
+ERROR 1630 (42000): FUNCTION test.SUM does not exist. Check the 'Function Name P
+arsing and Resolution' section in the Reference Manual
+
+出错，原因暂不明确
+
+修改后
+SELECT
+  SALE_DATE,
+  SUM(CASE WHEN SALE_ITEM = 'A' THEN SALE_MONEY ELSE 0 END) AS  A,
+  SUM(CASE WHEN SALE_ITEM = 'B' THEN SALE_MONEY ELSE 0 END) AS  B,
+  SUM(CASE WHEN SALE_ITEM = 'C' THEN SALE_MONEY ELSE 0 END) AS  C
+FROM
+  SALE_REPORT
+GROUP BY
+  SALE_DATE
+
+与
+SELECT
+  SALE_DATE,
+  SUM(IF(SALE_ITEM = 'A', SALE_MONEY, 0)) AS  A,
+  SUM(IF(SALE_ITEM = 'B', SALE_MONEY, 0)) AS  B,
+  SUM(IF(SALE_ITEM = 'C', SALE_MONEY, 0)) AS  C
+FROM
+  SALE_REPORT
+GROUP BY
+  SALE_DATE
+
+都能运行正常。
+
+原因估计是 SUM 后面，不能有空格的缘故……
+mysql> select SUM ( sale_money ) FROM sale_report;
+ERROR 1630 (42000): FUNCTION test.SUM does not exist. Check the 'Function Name P
+arsing and Resolution' section in the Reference Manual
+
+去除空格以后：
+mysql> select SUM(sale_money) FROM sale_report;
++-----------------+
+| SUM(sale_money) |
++-----------------+
+|       741407.00 |
++-----------------+
+1 row in set (0.00 sec)
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+可正常使用 CASE WHEN 来处理 
+<pre><code>
+
+SELECT
+  SALE_DATE,
+  SUM(CASE WHEN SALE_ITEM = 'A' THEN SALE_MONEY ELSE 0 END) AS  A,
+  SUM(CASE WHEN SALE_ITEM = 'B' THEN SALE_MONEY ELSE 0 END) AS  B,
+  SUM(CASE WHEN SALE_ITEM = 'C' THEN SALE_MONEY ELSE 0 END) AS  C
+FROM
+  SALE_REPORT
+GROUP BY
+  SALE_DATE
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+SELECT
+  SALE_DATE,
+  SUM(CASE WHEN SALE_ITEM = 'A' THEN SALE_MONEY ELSE 0 END) AS  A,
+  SUM(CASE WHEN SALE_ITEM = 'B' THEN SALE_MONEY ELSE 0 END) AS  B,
+  SUM(CASE WHEN SALE_ITEM = 'C' THEN SALE_MONEY ELSE 0 END) AS  C
+FROM
+  SALE_REPORT
+GROUP BY
+  SALE_DATE;
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

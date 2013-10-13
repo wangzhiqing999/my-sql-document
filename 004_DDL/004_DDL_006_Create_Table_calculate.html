@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - 计算列 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 计算列 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+使用 视图 来解决此类问题。
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+使用 视图 来解决此类问题。
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> CREATE TABLE test_create_tab3 (
+2>   id   INT  PRIMARY KEY,
+3>   val  VARCHAR(10),
+4>   code AS val + '_' + LTRIM(STR(id))
+5> );
+6>
+7> INSERT INTO test_create_tab3(id, val) VALUES (100, 'A');
+8> INSERT INTO test_create_tab3(id, val) VALUES (110, 'B');
+9>
+10> go
+
+(1 行受影响)
+1> SELECT * FROM test_create_tab3
+2> go
+id          val        code
+----------- ---------- ---------------------
+        100 A          A_100
+        110 B          B_110
+
+(2 行受影响)
+
+注：加 PERSISTED 关键字， 使 计算列变为 “持久化计算列”
+对于 “持久化计算列”， 可以针对其创建索引。
+还可将“持久化计算列”作为分区表的关键字。
+
+
+例如：
+
+-- 创建分区函数
+CREATE PARTITION FUNCTION test_func(INT)
+AS RANGE RIGHT FOR VALUES(
+ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+);
+go
+
+-- 创建分区架构（Schema）
+CREATE PARTITION SCHEME test_sche
+AS PARTITION test_func
+TO (
+  [PRIMARY], [PRIMARY], [PRIMARY],
+  [PRIMARY], [PRIMARY], [PRIMARY],
+  [PRIMARY], [PRIMARY], [PRIMARY],
+  [PRIMARY], [PRIMARY]
+);
+go
+
+--创建分区表
+CREATE TABLE test (
+  id  INT identity NOT NULL ,
+  val VARCHAR(10),
+  divData AS (id % 10) PERSISTED NOT NULL
+) ON test_sche(divData);
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+
+
+</body>
+
+
+</html>

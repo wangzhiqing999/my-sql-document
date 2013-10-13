@@ -1,0 +1,240 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> DDL - 创建构架 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> DDL </h1>
+
+
+<h2> 创建构架 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+CONNECT TO TEST;
+CREATE SCHEMA TEST_SC AUTHORIZATION "EDWARD ";
+COMMENT ON Schema TEST_SC IS 'For Test';
+CONNECT RESET;
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+1> CREATE SCHEMA Work;
+2> GO
+1>
+2> CREATE SCHEMA Report;
+3> GO
+
+SQL Server 2005中的构架，与 Oracle 中的不同。
+Oracle 中，构架是与用户绑定的。
+很多构架的用户名，是锁定的，不可登陆的。
+
+SQL Server 2005 及以上的版本， 用户与构架是分离的。
+用户可以有一个默认的构架。
+
+1> -- 首先在 SQL Server 服务器级别，创建登陆帐户（create login）
+2> CREATE LOGIN Demo
+3>   WITH  PASSWORD='demo',
+4>         DEFAULT_DATABASE=[Test],
+5>         DEFAULT_LANGUAGE=[简体中文],
+6>         CHECK_EXPIRATION=OFF,
+7>         CHECK_POLICY=OFF
+8> GO
+1> -- 创建数据库用户（create user）
+2> CREATE USER Demo
+3>   FOR LOGIN Demo
+4>   <span class="BasicInfo">WITH DEFAULT_SCHEMA</span> = Work;
+5> go
+1> -- 修改用户
+2> ALTER USER Demo
+3>   <span class="BasicInfo">WITH DEFAULT_SCHEMA</span> = Report;
+4> go
+
+1> -- 通过将 Demo 加入数据库角色 db_owner
+2> exec sp_addrolemember 'db_owner', 'Demo'
+3> go
+
+如果不指定 <span class="BasicInfo">DEFAULT_SCHEMA</span>， SQL Server 使用默认的 dbo 构架。
+如果当前 <span class="BasicInfo">DEFAULT_SCHEMA</span> 找不到指定的目标，SQL Server最后将从dbo 构架尝试找找看。
+
+下面测试构架的可访问路径.
+
+1> -- 在[Report]构架下，创建测试表.
+2> CREATE TABLE [Report].[Report_A] (
+3>   id INT IDENTITY PRIMARY KEY,
+4>   Val INT
+5> );
+6> go
+1>
+2> -- 在[Work]构架下，创建测试表.
+3> CREATE TABLE [Work].[Work_A] (
+4>   id INT IDENTITY PRIMARY KEY,
+5>   Val INT
+6> );
+7> go
+1> -- 在 默认 dbo 构架下，创建测试表.
+2> CREATE TABLE [dbo_A] (
+3>   id INT IDENTITY PRIMARY KEY,
+4>   Val INT
+5> );
+6> go
+
+1> -- 将用户切换到 Demo 用户
+2> SETUSER 'Demo'
+3> go
+1>
+2> -- 这个时候的默认构架，应该是前面最后修改的 Report 构架。
+3> -- Report 构架中有 report_a 表
+4> SELECT * FROM report_a;
+5> go
+id          Val
+----------- -----------
+
+(0 行受影响)
+1>
+2> -- Report 构架中没有 dbo_a 表
+3> -- 将自动尝试到 dbo 构架中去查找 dbo_a表
+4> SELECT * FROM dbo_a;
+5> go
+id          Val
+----------- -----------
+
+(0 行受影响)
+1>
+2> -- Report 构架中没有 work_a 表
+3> -- dbo 构架中也没有 work_a 表
+4> SELECT * FROM work_a;
+5> go
+消息 208，级别 16，状态 1，服务器 HOME-BED592453C\SQLEXPRESS，第 4 行
+对象名 'work_a' 无效。
+
+
+-- 对于当前登陆的用户
+-- 通过 SCHEMA_NAME() 函数，查看自己的默认构架
+1> SELECT SCHEMA_NAME();
+2> go
+------------------------------
+Report
+(1 行受影响)
+
+
+1> -- 切换回到管理员用户
+2> SETUSER;
+3> GO
+1> SELECT SCHEMA_NAME();
+2> go
+---------------------------
+dbo
+(1 行受影响)
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+语法：
+CREATE SCHEMA schemaname [ AUTHORIZATION username ] [ schema_element [ ... ] ]
+CREATE SCHEMA AUTHORIZATION username [ schema_element [ ... ] ]
+
+
+例子：
+CREATE SCHEMA "TEST_SC"
+       AUTHORIZATION postgres;
+
+
+为用户 joe 创建模式 --- 模式也会叫 joe：
+CREATE SCHEMA AUTHORIZATION joe;
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

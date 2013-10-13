@@ -1,0 +1,272 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 查询 - 逐步累计百分比 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 查询 </h1>
+
+
+<h2> 逐步累计  </h2>
+
+
+
+<pre><code>
+
+测试数据.
+
+CREATE TABLE temp1 (
+  goods		varchar(10),  
+  sales  	INT
+);
+
+INSERT INTO temp1 VALUES('A', 1000);
+INSERT INTO temp1 VALUES('B', 2000);
+INSERT INTO temp1 VALUES('C', 3000);
+INSERT INTO temp1 VALUES('D', 4000);
+INSERT INTO temp1 VALUES('E', 1000);
+INSERT INTO temp1 VALUES('F', 2000);
+INSERT INTO temp1 VALUES('G', 3000);
+INSERT INTO temp1 VALUES('H', 4000);
+
+
+预期要求结果：
+
+想从这个报表中取出前n条 这n条的金额之和 是总金额的80%（&lt;=80%）
+
+
+</code></pre>
+
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+SELECT  
+  goods,
+  sales,
+  SUM(sales) OVER(ORDER BY sales DESC ROWS UNBOUNDED PRECEDING) AS "累计销售",
+  100 * SUM(sales) OVER(ORDER BY sales DESC ROWS UNBOUNDED PRECEDING) / sumT.sum_salary AS "累计销售百分比"
+FROM
+  temp1,
+  (SELECT SUM(sales) AS sum_salary FROM temp1) sumT
+ORDER BY
+  sales DESC;
+
+
+GOODS                     SALES   累计销售 累计销售百分比
+-------------------- ---------- ---------- --------------
+D                          4000       4000             20
+H                          4000       8000             40
+C                          3000      11000             55
+G                          3000      14000             70
+F                          2000      16000             80
+B                          2000      18000             90
+E                          1000      19000             95
+A                          1000      20000            100
+
+已选择8行。
+
+
+注： 由于无法直接在查询里面写 WHERE  SUM(sales) OVER( ...
+否则要抱：ORA-00934: 此处不允许使用分组函数
+
+
+因此最终需要外面再套一个 查询  SELECT * FROM  ( 上面的查询 )   WHERE  累计销售百分比 &lt;=80
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+with MyCTE AS (
+SELECT
+  goods,
+  sales,
+  ROW_NUMBER() OVER( ORDER BY  sales  DESC) AS NO
+FROM
+  temp1
+)
+SELECT
+  goods,
+  sales,
+  (SELECT SUM(sales) FROM MyCTE  t2  WHERE t2.NO &lt;= MyCTE.NO) AS [累计销售],
+  100 * (SELECT SUM(sales) FROM MyCTE  t2  WHERE t2.NO &lt;= MyCTE.NO) / sumT.sum_salary AS [累计销售百分比]
+FROM
+  MyCTE,
+  (SELECT SUM(sales) AS sum_salary FROM temp1) sumT
+WHERE
+  100 * (SELECT SUM(sales) FROM MyCTE  t2  WHERE t2.NO &lt;= MyCTE.NO) / sumT.sum_salary &lt;= 80
+ORDER BY
+  sales  DESC;
+
+
+goods      sales       累计销售        累计销售百分比
+---------- ----------- ----------- -----------
+D                 4000        4000          20
+H                 4000        8000          40
+G                 3000       11000          55
+C                 3000       14000          70
+F                 2000       16000          80
+
+(5 行受影响)
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+SELECT
+  goods,
+  sales,
+  @SumSales:=@SumSales + sales AS `累计销售`,
+  100 * @SumSales / sumT.sum_sales  AS `累计销售百分比`
+FROM
+  temp1,
+  (SELECT @SumSales:=0) s,
+  (SELECT SUM(sales) AS sum_sales FROM temp1) sumT
+ORDER BY
+  sales DESC;
+
+
++-------+-------+----------+----------------+
+| goods | sales | 累计销售 | 累计销售百分比 |
++-------+-------+----------+----------------+
+| D     |  4000 |     4000 |             20 |
+| H     |  4000 |     8000 |             40 |
+| C     |  3000 |    11000 |             55 |
+| G     |  3000 |    14000 |             70 |
+| B     |  2000 |    16000 |             80 |
+| F     |  2000 |    18000 |             90 |
+| A     |  1000 |    19000 |             95 |
+| E     |  1000 |    20000 |            100 |
++-------+-------+----------+----------------+
+8 rows in set (0.00 sec)
+
+注：由于 MySql 处理顺序是， 先 WHERE 后 SELECT
+因此， WHERE 100 * @SumSales / sumT.sum_sales &lt;= 80  将没有作用。 
+因为 @SumSales 一直在变化。而 WHERE 只判断 第一次 的处理。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+基本与 SQL Server 写法一致.
+
+
+with MyCTE AS (
+SELECT
+  goods,
+  sales,
+  ROW_NUMBER() OVER( ORDER BY  sales  DESC) AS NO
+FROM
+  temp1
+)
+SELECT
+  goods,
+  sales,
+  (SELECT SUM(sales) FROM MyCTE  t2  WHERE t2.NO &lt;= MyCTE.NO) AS "累计销售",
+  100 * (SELECT SUM(sales) FROM MyCTE  t2  WHERE t2.NO &lt;= MyCTE.NO) / sumT.sum_salary AS "累计销售百分比"
+FROM
+  MyCTE,
+  (SELECT SUM(sales) AS sum_salary FROM temp1) sumT
+WHERE
+  100 * (SELECT SUM(sales) FROM MyCTE  t2  WHERE t2.NO &lt;= MyCTE.NO) / sumT.sum_salary &lt;= 80
+ORDER BY
+  sales  DESC;
+
+
+ goods | sales | 累计销售 | 累计销售百分比
+-------+-------+----------+----------------
+ H     |  4000 |     4000 |             20
+ D     |  4000 |     8000 |             40
+ G     |  3000 |    11000 |             55
+ C     |  3000 |    14000 |             70
+ B     |  2000 |    16000 |             80
+(5 行记录)
+
+  
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>
