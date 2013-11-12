@@ -229,6 +229,188 @@ E:\>sqlcmd -S "localhost\SQLEXPRESS"
 已为数据库 'test'，文件 'Test_log' (位于文件 1 上)处理了 2 页。
 RESTORE DATABASE 成功处理了 234 页，花费 0.184 秒(9.898 MB/秒)。
 
+
+
+<hr/>
+上面的备份处理, 仅仅能把备份的文件, 备份到 数据库那台服务器的文件目录下.
+
+如果在局域网当中, 我想把 数据库服务器 DBServer。备份到一台 FileServer 上面。
+那么需要多执行2行代码
+
+
+
+-- 首先， 映射网络驱动器.
+-- 下面的例子， 是 以 192.168.0.37\administrator 用户登录到 \\192.168.0.37 上面， 密码为  password。  映射 那台机器E盘为网络驱动器 L:
+EXECUTE master..xp_cmdshell 'NET USE L: "\\192.168.0.37\E$" "password" "/USER:192.168.0.37\administrator"'
+GO
+
+-- 然后， 数据备份到网络驱动器上.
+backup database test to disk='L:\test.dat'
+GO
+
+-- 备份完毕后， 解除 网络驱动器映射.
+EXECUTE master..xp_cmdshell 'NET USE L: /DELETE'
+GO
+
+
+
+<hr/>
+上面的恢复处理， 是本机备份，本机恢复的例子。
+如果遇到 DBServer 备份以后，  需要恢复到 TestServer 的情况下。
+那么需要注意： 恢复以前， 不要事先创建同名的数据库。
+否则会报 数据库不同 的错误。
+
+1> restore database YaoqinSystem from disk='e:\Temp\YaoqinSystem.dat'
+2> go
+消息 3154，级别 16，状态 4，服务器 EDWARDPC\SQLEXPRESS，第 1 行
+备份集中的数据库备份与现有的 'YaoqinSystem' 数据库不同。
+消息 3013，级别 16，状态 1，服务器 EDWARDPC\SQLEXPRESS，第 1 行
+RESTORE DATABASE 正在异常终止。
+
+
+删除本机的测试数据库以后， 重新执行恢复的处理.
+1> drop database YaoqinSystem
+2> go
+
+1> restore database YaoqinSystem from disk='e:\Temp\YaoqinSystem.dat'
+2> go
+消息 5133，级别 16，状态 1，服务器 EDWARDPC\SQLEXPRESS，第 1 行
+对文件 "D:\HRdata\YaoqinSystem.mdf" 的目录查找失败，出现操作系统错误 2(系统找不
+到指定的文件。)。
+消息 3156，级别 16，状态 3，服务器 EDWARDPC\SQLEXPRESS，第 1 行
+文件 'pos_Data' 无法还原为 'D:\HRdata\YaoqinSystem.mdf'。请使用 WITH MOVE 选项来
+标识该文件的有效位置。
+消息 5133，级别 16，状态 1，服务器 EDWARDPC\SQLEXPRESS，第 1 行
+对文件 "D:\HRdata\YaoqinSystem.ldf" 的目录查找失败，出现操作系统错误 2(系统找不
+到指定的文件。)。
+消息 3156，级别 16，状态 3，服务器 EDWARDPC\SQLEXPRESS，第 1 行
+文件 'pos_Log' 无法还原为 'D:\HRdata\YaoqinSystem.ldf'。请使用 WITH MOVE 选项来
+标识该文件的有效位置。
+消息 3119，级别 16，状态 1，服务器 EDWARDPC\SQLEXPRESS，第 1 行
+在计划 RESTORE 语句时发现了问题。以前的消息提供了详细信息。
+消息 3013，级别 16，状态 1，服务器 EDWARDPC\SQLEXPRESS，第 1 行
+RESTORE DATABASE 正在异常终止。
+
+
+
+这个错误的原因， 是因为  备份的数据库， 数据文件是在  D:\HRdata 目录下的， 而本机没有这样的目录
+先创建好 D:\HRdata 目录以后， 再次恢复.
+
+
+1> restore database YaoqinSystem from disk='e:\Temp\YaoqinSystem.dat'
+2> go
+已为数据库 'YaoqinSystem'，文件 'pos_Data' (位于文件 1 上)处理了 1232 页。
+已为数据库 'YaoqinSystem'，文件 'pos_Log' (位于文件 1 上)处理了 1 页。
+正在将数据库 'YaoqinSystem' 从版本 539 转换为当前版本 661。
+数据库 'YaoqinSystem' 正在从版本 539 升级到版本 551。
+数据库 'YaoqinSystem' 正在从版本 551 升级到版本 552。
+数据库 'YaoqinSystem' 正在从版本 552 升级到版本 611。
+数据库 'YaoqinSystem' 正在从版本 611 升级到版本 621。
+数据库 'YaoqinSystem' 正在从版本 621 升级到版本 622。
+数据库 'YaoqinSystem' 正在从版本 622 升级到版本 625。
+数据库 'YaoqinSystem' 正在从版本 625 升级到版本 626。
+数据库 'YaoqinSystem' 正在从版本 626 升级到版本 627。
+数据库 'YaoqinSystem' 正在从版本 627 升级到版本 628。
+数据库 'YaoqinSystem' 正在从版本 628 升级到版本 629。
+数据库 'YaoqinSystem' 正在从版本 629 升级到版本 630。
+数据库 'YaoqinSystem' 正在从版本 630 升级到版本 631。
+数据库 'YaoqinSystem' 正在从版本 631 升级到版本 632。
+数据库 'YaoqinSystem' 正在从版本 632 升级到版本 633。
+数据库 'YaoqinSystem' 正在从版本 633 升级到版本 634。
+数据库 'YaoqinSystem' 正在从版本 634 升级到版本 635。
+数据库 'YaoqinSystem' 正在从版本 635 升级到版本 636。
+数据库 'YaoqinSystem' 正在从版本 636 升级到版本 637。
+数据库 'YaoqinSystem' 正在从版本 637 升级到版本 638。
+数据库 'YaoqinSystem' 正在从版本 638 升级到版本 639。
+数据库 'YaoqinSystem' 正在从版本 639 升级到版本 640。
+数据库 'YaoqinSystem' 正在从版本 640 升级到版本 641。
+数据库 'YaoqinSystem' 正在从版本 641 升级到版本 642。
+数据库 'YaoqinSystem' 正在从版本 642 升级到版本 643。
+数据库 'YaoqinSystem' 正在从版本 643 升级到版本 644。
+数据库 'YaoqinSystem' 正在从版本 644 升级到版本 645。
+数据库 'YaoqinSystem' 正在从版本 645 升级到版本 646。
+数据库 'YaoqinSystem' 正在从版本 646 升级到版本 647。
+数据库 'YaoqinSystem' 正在从版本 647 升级到版本 648。
+数据库 'YaoqinSystem' 正在从版本 648 升级到版本 649。
+数据库 'YaoqinSystem' 正在从版本 649 升级到版本 650。
+数据库 'YaoqinSystem' 正在从版本 650 升级到版本 651。
+数据库 'YaoqinSystem' 正在从版本 651 升级到版本 652。
+数据库 'YaoqinSystem' 正在从版本 652 升级到版本 653。
+数据库 'YaoqinSystem' 正在从版本 653 升级到版本 654。
+数据库 'YaoqinSystem' 正在从版本 654 升级到版本 655。
+数据库 'YaoqinSystem' 正在从版本 655 升级到版本 660。
+数据库 'YaoqinSystem' 正在从版本 660 升级到版本 661。
+RESTORE DATABASE 成功处理了 1233 页，花费 0.595 秒(16.178 MB/秒)。
+
+
+注： 源数据库为 SQL Server 2000，  目标数据库为 SQL Server 2008 R2 Express Edition
+
+
+
+<hr/>
+新问题： 
+假如服务器上面， 备份的时候， 数据文件是在 F:盘 或者 G: 盘之类的。
+而本机不存在这样的 驱动器。 重新分区什么的， 也不现实。
+这种情况下， 需要在恢复的时候， 指定一个   WITH MOVE 选项
+
+例如上面出错的 提示信息中， 有这样的信息：
+文件 'pos_Data' 无法还原为 'D:\HRdata\YaoqinSystem.mdf'。请使用 WITH MOVE 选项来标识该文件的有效位置。
+文件 'pos_Log' 无法还原为 'D:\HRdata\YaoqinSystem.ldf'。请使用 WITH MOVE 选项来标识该文件的有效位置。
+
+
+1> drop database YaoqinSystem
+2> go
+
+操作系统上， 删除 D:\HRdata 目录.
+
+1> RESTORE DATABASE YaoqinSystem FROM DISK='e:\Temp\YaoqinSystem.dat'
+2>   WITH MOVE 'pos_Data' TO 'e:\Temp\testdb.mdf',
+3>   MOVE 'pos_Log' TO 'e:\Temp\testdb.ldf';
+4> go
+已为数据库 'YaoqinSystem'，文件 'pos_Data' (位于文件 1 上)处理了 1232 页。
+已为数据库 'YaoqinSystem'，文件 'pos_Log' (位于文件 1 上)处理了 1 页。
+正在将数据库 'YaoqinSystem' 从版本 539 转换为当前版本 661。
+数据库 'YaoqinSystem' 正在从版本 539 升级到版本 551。
+数据库 'YaoqinSystem' 正在从版本 551 升级到版本 552。
+数据库 'YaoqinSystem' 正在从版本 552 升级到版本 611。
+数据库 'YaoqinSystem' 正在从版本 611 升级到版本 621。
+数据库 'YaoqinSystem' 正在从版本 621 升级到版本 622。
+数据库 'YaoqinSystem' 正在从版本 622 升级到版本 625。
+数据库 'YaoqinSystem' 正在从版本 625 升级到版本 626。
+数据库 'YaoqinSystem' 正在从版本 626 升级到版本 627。
+数据库 'YaoqinSystem' 正在从版本 627 升级到版本 628。
+数据库 'YaoqinSystem' 正在从版本 628 升级到版本 629。
+数据库 'YaoqinSystem' 正在从版本 629 升级到版本 630。
+数据库 'YaoqinSystem' 正在从版本 630 升级到版本 631。
+数据库 'YaoqinSystem' 正在从版本 631 升级到版本 632。
+数据库 'YaoqinSystem' 正在从版本 632 升级到版本 633。
+数据库 'YaoqinSystem' 正在从版本 633 升级到版本 634。
+数据库 'YaoqinSystem' 正在从版本 634 升级到版本 635。
+数据库 'YaoqinSystem' 正在从版本 635 升级到版本 636。
+数据库 'YaoqinSystem' 正在从版本 636 升级到版本 637。
+数据库 'YaoqinSystem' 正在从版本 637 升级到版本 638。
+数据库 'YaoqinSystem' 正在从版本 638 升级到版本 639。
+数据库 'YaoqinSystem' 正在从版本 639 升级到版本 640。
+数据库 'YaoqinSystem' 正在从版本 640 升级到版本 641。
+数据库 'YaoqinSystem' 正在从版本 641 升级到版本 642。
+数据库 'YaoqinSystem' 正在从版本 642 升级到版本 643。
+数据库 'YaoqinSystem' 正在从版本 643 升级到版本 644。
+数据库 'YaoqinSystem' 正在从版本 644 升级到版本 645。
+数据库 'YaoqinSystem' 正在从版本 645 升级到版本 646。
+数据库 'YaoqinSystem' 正在从版本 646 升级到版本 647。
+数据库 'YaoqinSystem' 正在从版本 647 升级到版本 648。
+数据库 'YaoqinSystem' 正在从版本 648 升级到版本 649。
+数据库 'YaoqinSystem' 正在从版本 649 升级到版本 650。
+数据库 'YaoqinSystem' 正在从版本 650 升级到版本 651。
+数据库 'YaoqinSystem' 正在从版本 651 升级到版本 652。
+数据库 'YaoqinSystem' 正在从版本 652 升级到版本 653。
+数据库 'YaoqinSystem' 正在从版本 653 升级到版本 654。
+数据库 'YaoqinSystem' 正在从版本 654 升级到版本 655。
+数据库 'YaoqinSystem' 正在从版本 655 升级到版本 660。
+数据库 'YaoqinSystem' 正在从版本 660 升级到版本 661。
+RESTORE DATABASE 成功处理了 1233 页，花费 0.491 秒(19.604 MB/秒)。
+
+
 </code></pre>
     </td>
   </tr>

@@ -235,6 +235,21 @@ SELECT '本周结束' AS  [截尾方式],  DATEADD(WEEK, DATEDIFF(WEEK, 0, GETDATE()) + 
 
 (11 行受影响)
 
+
+
+<hr/>
+如果仅仅是截尾到日期的情况下。
+SQL Server 2008 可以这么写：
+
+select cast(getdate() as date)
+
+----------
+2013-11-03
+
+(1 行受影响)
+
+
+
 </code></pre>
     </td>
   </tr>

@@ -248,6 +248,35 @@ SQL0347W  递归公共表表达式 "WZQ.T2" 可能包含无限循环。  SQLSTATE=01605
 
   已选择 2 条记录，打印 1 条警告消息。
 
+  
+  
+<hr/>
+
+DB2 9.7 文档中显示， 有一个 LISTAGG 函数可以完成这类的处理.
+http://pic.dhe.ibm.com/infocenter/db2luw/v9r7/topic/com.ibm.db2.luw.sql.ref.doc/doc/r0058709.html
+
+SELECT 
+	name , 
+	LISTAGG(title, ', ') WITHIN GROUP(ORDER BY title) AS AllTitle
+FROM 
+	TestTitle 
+GROUP BY 
+	name;
+
+
+测试机上的执行结果：
+
+db2 => SELECT
+db2 (cont.) =>  name ,
+db2 (cont.) =>  LISTAGG(title, ', ') AS AllTitle
+db2 (cont.) => FROM
+db2 (cont.) =>  TestTitle
+db2 (cont.) => GROUP BY
+db2 (cont.) =>  name;
+SQL0440N  找不到具有兼容自变量的类型为 "FUNCTION" 的名为 "LISTAGG"
+的已授权例程。  SQLSTATE=42884
+
+  
 </code></pre>
     </td>
   </tr>

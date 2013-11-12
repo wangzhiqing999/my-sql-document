@@ -65,42 +65,41 @@ end;
     <td>
 <pre><code>
 
-1> CREATE TRIGGER CretaeTableTrigger
-2> ON DATABASE
-3> FOR CREATE_TABLE
-4> AS
-5> BEGIN
-6>   DECLARE @EventData  AS xml;
-7>
-8>   DECLARE @EventType     AS varchar(100);
-9>   DECLARE @PostTime      AS varchar(100);
-10>   DECLARE @ServerName    AS varchar(100);
-11>   DECLARE @LoginName     AS varchar(100);
-12>   DECLARE @DatabaseName  AS varchar(100);
-13>   DECLARE @CommandText   AS varchar(100);
-14>
-15>   SET @EventData = EVENTDATA();
-16>
-17>   SELECT
-18>     @EventType    = t.c.value('(EventType)[1]',      'varchar(100)' ),
-19>     @PostTime     = t.c.value('(PostTime)[1]',       'varchar(100)' ),
-20>     @ServerName   = t.c.value('(ServerName)[1]',     'varchar(100)' ),
-21>     @LoginName    = t.c.value('(LoginName)[1]',      'varchar(100)' ),
-22>     @DatabaseName = t.c.value('(DatabaseName)[1]',   'varchar(100)' ),
-23>     @CommandText  = t.c.value('(TSQLCommand/CommandText)[1]',   'varchar(100
-)' )
-24>   FROM
-25>     @EventData.nodes('/EVENT_INSTANCE') t(c);
-26>
-27>   PRINT( 'CREATE_TABLE'  );
-28>   PRINT( @EventType  );
-29>   PRINT( @PostTime  );
-30>   PRINT( @ServerName  );
-31>   PRINT( @LoginName  );
-32>   PRINT( @DatabaseName  );
-33>   PRINT( @CommandText  );
-34> END
-35> go
+CREATE TRIGGER CretaeTableTrigger
+ON DATABASE
+FOR CREATE_TABLE
+AS
+BEGIN
+  DECLARE @EventData  AS xml;
+
+  DECLARE @EventType     AS varchar(100);
+  DECLARE @PostTime      AS varchar(100);
+  DECLARE @ServerName    AS varchar(100);
+  DECLARE @LoginName     AS varchar(100);
+  DECLARE @DatabaseName  AS varchar(100);
+  DECLARE @CommandText   AS varchar(100);
+
+  SET @EventData = EVENTDATA();
+
+  SELECT
+    @EventType    = t.c.value('(EventType)[1]',      'varchar(100)' ),
+    @PostTime     = t.c.value('(PostTime)[1]',       'varchar(100)' ),
+    @ServerName   = t.c.value('(ServerName)[1]',     'varchar(100)' ),
+    @LoginName    = t.c.value('(LoginName)[1]',      'varchar(100)' ),
+    @DatabaseName = t.c.value('(DatabaseName)[1]',   'varchar(100)' ),
+    @CommandText  = t.c.value('(TSQLCommand/CommandText)[1]',   'varchar(100)' )
+  FROM
+    @EventData.nodes('/EVENT_INSTANCE') t(c);
+
+  PRINT( 'CREATE_TABLE'  );
+  PRINT( @EventType  );
+  PRINT( @PostTime  );
+  PRINT( @ServerName  );
+  PRINT( @LoginName  );
+  PRINT( @DatabaseName  );
+  PRINT( @CommandText  );
+END
+go
 
 1> create table yyy (a INT);
 2> go
@@ -111,6 +110,84 @@ HOME-BED592453C\SQLEXPRESS
 HOME-BED592453C\wzq
 Stock
 create table yyy (a INT);
+
+
+
+
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE TRIGGER DropTableTrigger
+ON DATABASE
+FOR DROP_TABLE
+AS
+BEGIN
+  DECLARE @EventData  AS xml;
+
+  DECLARE @EventType     AS varchar(100);
+  DECLARE @PostTime      AS varchar(100);
+  DECLARE @ServerName    AS varchar(100);
+  DECLARE @LoginName     AS varchar(100);
+  DECLARE @DatabaseName  AS varchar(100);
+  DECLARE @CommandText   AS varchar(100);
+  SET @EventData = EVENTDATA();  
+  -- PRINT  Convert(varchar(2000), @EventData);  
+  SELECT
+    @EventType    = t.c.value('(EventType)[1]',      'varchar(100)' ),
+    @PostTime     = t.c.value('(PostTime)[1]',       'varchar(100)' ),
+    @ServerName   = t.c.value('(ServerName)[1]',     'varchar(100)' ),
+    @LoginName    = t.c.value('(LoginName)[1]',      'varchar(100)' ),
+    @DatabaseName = t.c.value('(DatabaseName)[1]',   'varchar(100)' ),
+    @CommandText  = t.c.value('(TSQLCommand/CommandText)[1]',   'varchar(100)' )
+  FROM
+    @EventData.nodes('/EVENT_INSTANCE') t(c);
+
+  PRINT( @EventType  );
+  PRINT( @CommandText  );
+  
+  IF (CHARINDEX(' Test12345',  @CommandText) > 0)
+  BEGIN
+	PRINT 'Test12345 表不能删除的哦 ^_^';
+	ROLLBACK;
+  END  
+END
+go
+
+
+
+CREATE TABLE Test12345(id int)
+GO
+
+1>
+2> DROP TABLE Test12345
+3> GO
+DROP_TABLE
+DROP TABLE Test12345
+
+Test12345 表不能删除的哦 ^_^
+消息 3609，级别 16，状态 2，服务器 EDWARDPC\SQLEXPRESS，第 2 行
+事务在触发器中结束。批处理已中止。
+
+
+
+
+IF  EXISTS (SELECT * FROM sys.triggers WHERE parent_class_desc = 'DATABASE' AND name = N'DropTableTrigger')
+DISABLE TRIGGER [DropTableTrigger] ON DATABASE
+GO
+
+IF  EXISTS (SELECT * FROM sys.triggers WHERE parent_class_desc = 'DATABASE' AND name = N'DropTableTrigger')
+DROP TRIGGER [DropTableTrigger] ON DATABASE
+GO
+
+
+
+<hr/>
+
+
+
+
 
 
 </code></pre>

@@ -206,6 +206,59 @@ go
 (9 行受影响)
 
 
+
+<hr/>
+写一个  SQL Server 版本的  NEXT_DAY
+
+CREATE FUNCTION NEXT_DAY(
+  @paramDate	DATE,
+  @weekIndex  INT
+)
+RETURNS DATE
+AS
+BEGIN
+  -- 定义结果.
+  DECLARE @resultDate DATE;
+  DECLARE @myIndex  INT;
+  -- 先加一天.
+  SET @resultDate = DATEADD(dd, 1, @paramDate);
+  
+  -- 防止外部传入离谱的参数.
+  SET @myIndex = ABS(@weekIndex % 7) + 1;
+  
+  WHILE DATEPART(dw, @resultDate) != @myIndex
+  BEGIN
+	-- 再加一天.
+  SET @resultDate = DATEADD(dd, 1, @resultDate);
+  END;
+
+  -- 返回.
+  RETURN @resultDate;
+END
+GO
+
+
+SELECT 
+	cast(GETDATE() as DATE) AS [今天],
+	dbo.NEXT_DAY( GETDATE(),  0)  AS [0],
+	dbo.NEXT_DAY( GETDATE(),  1)  AS [1],
+	dbo.NEXT_DAY( GETDATE(),  2)  AS [2],
+	dbo.NEXT_DAY( GETDATE(),  3)  AS [3],
+	dbo.NEXT_DAY( GETDATE(),  4)  AS [4],
+	dbo.NEXT_DAY( GETDATE(),  5)  AS [5],
+	dbo.NEXT_DAY( GETDATE(),  6)  AS [6],
+	dbo.NEXT_DAY( GETDATE(),  7)  AS [7],
+	dbo.NEXT_DAY( GETDATE(),  8)  AS [8]
+
+
+今天         0          1          2          3          4          5          6          7          8
+---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+2013-11-03 2013-11-10 2013-11-04 2013-11-05 2013-11-06 2013-11-07 2013-11-08 2013-11-09 2013-11-10 2013-11-04
+
+(1 行受影响)
+
+
+
 </code></pre>
     </td>
   </tr>
