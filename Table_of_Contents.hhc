@@ -333,6 +333,10 @@
 			<param name="Name" value="TOP-N 只更新前面N条">
 			<param name="Local" value="006_QUERY\006_QUERY_001_001_TOP_N_UPDATE.html">
 			</OBJECT>
+        <LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="TOP-N 只删除前面N条">
+			<param name="Local" value="006_QUERY\006_QUERY_001_001_TOP_N_DELETE.html">
+			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="TOP-N + UNION ALL 的处理">
 			<param name="Local" value="006_QUERY\006_QUERY_001_002_TOP_N_UNION.html">
@@ -1834,6 +1838,10 @@
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="用户">
 			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_002_USER.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="会话">
+			<param name="Local" value="029_INFORMATION_SCHEMA\029_INFORMATION_SCHEMA_080_Session.html">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="表">

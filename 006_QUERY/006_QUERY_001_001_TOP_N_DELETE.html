@@ -4,7 +4,7 @@
 
 <head>
   <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
-  <title> 查询 - TOP-N  只更新前面N条 </title>
+  <title> 查询 - TOP-N  只删除前面N条 </title>
   <link href="Common.css" rel="stylesheet" type="text/css" />
 </head>
 
@@ -14,7 +14,7 @@
 <h1> 查询 </h1>
 
 
-<h2> TOP-N  只更新前面N条 </h2>
+<h2> TOP-N  只删除前面N条 </h2>
 
 
 
@@ -40,8 +40,7 @@ INSERT INTO testTopN VALUES (10,  'TEST010' );
 
 
 
-要求， 把  TEST  替换为  TOP.
-但是仅仅替换 前 3行。
+要求， 仅仅删除 前 3行。
 
 
 </code></pre>
@@ -55,39 +54,32 @@ INSERT INTO testTopN VALUES (10,  'TEST010' );
     <td>
 <pre><code>
 
-update 
+delete
   testTopN
-set 
-  val = replace(val, 'TEST', 'TOP')
 WHERE
   rownum &lt;=3;
 
 
-SQL> update 
+SQL> delete
   2    testTopN
-  3  set 
-  4    val = replace(val, 'TEST', 'TOP')
-  5  WHERE
-  6    rownum &lt;=3;
+  3  WHERE
+  4    rownum &lt;=3;
 
-已更新3行。
+已删除3行。
 
 SQL> select * from testTopN;
 
         ID VAL
 ---------- --------------------
-         1 TOP001
-         2 TOP002
-         3 TOP003
-         4 TEST004
-         5 TEST005
-         6 TEST006
+         4 TOP004
+         5 TOP005
+         6 TOP006
          7 TEST007
          8 TEST008
          9 TEST009
         10 TEST010
 
-已选择10行。
+已选择7行。
 
 </code></pre>
     </td>
@@ -102,20 +94,13 @@ SQL> select * from testTopN;
     <td>
 <pre><code>
 
-
-update 
-  (select * from testTopN fetch first 3 rows only)
-set 
-  val = replace(val, 'TEST', 'TOP');
-
+db2 => delete from (select * from testTopN fetch first 3 rows only);
+DB20000I  SQL 命令成功完成。
 
 db2 => select * from testTopN;
 
 ID          VAL
 ----------- ----------
-          1 TOP001
-          2 TOP002
-          3 TOP003
           4 TEST004
           5 TEST005
           6 TEST006
@@ -124,9 +109,8 @@ ID          VAL
           9 TEST009
          10 TEST010
 
-  10 条记录已选择。
- 
- 
+  7 条记录已选择。
+
 </code></pre>
     </td>
   </tr>
@@ -140,19 +124,19 @@ ID          VAL
     <td>
 <pre><code>
 
-update 
-  top (3) testTopN
-set 
-  val = replace(val, 'TEST', 'TOP');
+
+
+DELETE
+  top (3) testTopN;
+go
 
 (3 行受影响)
+
 1> select * from testTopN
-2> go
+2>
+3> go
 id          val
 ----------- ----------
-          1 TOP001
-          2 TOP002
-          3 TOP003
           4 TEST004
           5 TEST005
           6 TEST006
@@ -161,11 +145,7 @@ id          val
           9 TEST009
          10 TEST010
 
-(10 行受影响)
-
-
-
-
+(7 行受影响)
 
 
 </code></pre>
@@ -179,73 +159,11 @@ id          val
   <tr>
     <td> MySQL</td>
     <td>
-	
+
 
 <pre><code>
 
 
-update 
-  testTopN
-set 
-  val = replace(val, 'TEST', 'TOP')
-LIMIT 3;
-
-
-Query OK, 3 rows affected (0.00 sec)
-Rows matched: 3  Changed: 3  Warnings: 0
-
-mysql> select * from testTopN;
-+----+---------+
-| id | val     |
-+----+---------+
-|  1 | TOP001  |
-|  2 | TOP002  |
-|  3 | TOP003  |
-|  4 | TEST004 |
-|  5 | TEST005 |
-|  6 | TEST006 |
-|  7 | TEST007 |
-|  8 | TEST008 |
-|  9 | TEST009 |
-| 10 | TEST010 |
-+----+---------+
-10 rows in set (0.00 sec)
-
-
-
-
-<hr/>
-
-按逆序更新 id 最大的3个.
-
-update 
-  testTopN
-set 
-  val = replace(val, 'TEST', 'MAX')
-ORDER BY
-  id DESC
-LIMIT 3;
-
-Query OK, 3 rows affected (0.00 sec)
-Rows matched: 3  Changed: 3  Warnings: 0
-
-mysql> select * from testTopN
-    -> ;
-+----+---------+
-| id | val     |
-+----+---------+
-|  1 | TOP001  |
-|  2 | TOP002  |
-|  3 | TOP003  |
-|  4 | TEST004 |
-|  5 | TEST005 |
-|  6 | TEST006 |
-|  7 | TEST007 |
-|  8 | MAX008  |
-|  9 | MAX009  |
-| 10 | MAX010  |
-+----+---------+
-10 rows in set (0.00 sec)
 
 
 </code></pre>
@@ -278,14 +196,7 @@ mysql> select * from testTopN
     <td>
 <pre><code>
 
-Test=# update
-Test-#   testTopN
-Test-# set
-Test-#   val = replace(val, 'TEST', 'TOP')
-Test-# LIMIT 3;
-错误:  语法错误 在 "LIMIT" 或附近的
-第5行LIMIT 3;
-     ^
+
 
 </code></pre>
     </td>

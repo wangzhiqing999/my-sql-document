@@ -185,6 +185,31 @@ Test-# SELECT * FROM union_tab_1;
 (1 行记录)
 
 
+
+<hr/>
+注：PostgreSQL 有一个 EXCEPT ALL 的选项。
+EXCEPT ALL 与 EXCEPT 的区别在于：
+except取差集后会删除重复项，而except all 不删除重复项。
+
+
+Test=# SELECT * FROM union_tab_2
+Test-# EXCEPT ALL
+Test-# SELECT * FROM union_tab_1;
+ id | val
+----+-----
+  4 | D
+  1 | A
+(2 行记录)
+
+
+观察上面的结果. 
+union_tab_1 里面有1行  1 | A
+union_tab_2 里面有2行  1 | A
+
+EXCEPT ALL 的结果， 包含一行  1 | A
+
+
+
 </code></pre>
     </td>
   </tr>

@@ -303,7 +303,7 @@ RETURN
     select  str,  pos+LEN(@p_split), CHARINDEX(@p_split, str, pos + LEN(@p_split))
     from n
     where CHARINDEX(@p_split, str, pos+LEN(@p_split))>0)
-   select SUBSTRING(str, ori, pos-ori) as result from n;
+   select SUBSTRING(str, ori, pos-ori) as result from n   WHERE   pos > 0;
 GO
 
 
@@ -317,6 +317,13 @@ bb
 cc
 
 (3 行受影响)
+
+
+select CAST(result as varchar(10)) as RESULT from f_split('cc',',');
+GO
+RESULT
+----------
+cc
 
 
 
@@ -356,6 +363,117 @@ name       Value
 <pre><code>
 
 
+DELIMITER //
+DROP FUNCTION GetTextCount //
+
+/**********
+-- 获取字符串中有几个部分.
+**********/
+CREATE FUNCTION GetTextCount(pSourceText  VARCHAR(255),  pDivChar  CHAR(1))
+RETURNS TINYINT
+BEGIN
+	-- 预期结果. 
+	DECLARE vResult TINYINT;
+	-- 当前逗号的位置.
+	DECLARE vIndex INT;
+	-- 前一个逗号的位置.
+	DECLARE vPrevIndex INT;
+
+	-- 结果的初始值.
+	SET vResult = 1;
+
+	-- 查询第一个 逗号的位置.
+	SET vIndex = INSTR(pSourceText, pDivChar);
+	IF vIndex = 0 THEN
+		-- 参数中没有逗号，直接返回.
+		RETURN vResult;
+	END IF;
+
+	-- 初始化情况，前一个逗号不存在.
+	SET vPrevIndex = 0;
+
+	-- 循环处理。
+	WHILE vIndex > 0 DO
+		-- 结果递增.
+		SET vResult = vResult + 1;		
+		-- 前一个逗号的位置 = 当前逗号的位置
+		SET vPrevIndex = vIndex;
+		-- 查询下一个逗号的位置.
+		SET vIndex = LOCATE(pDivChar,  pSourceText,  vPrevIndex + 1);
+	END WHILE;
+
+	-- 返回结果.
+	RETURN vResult;
+END;
+//
+
+
+
+DROP FUNCTION GetTextValue //
+
+/**********
+-- 获取字符串中具体某一个部分的数据.
+**********/
+CREATE FUNCTION GetTextValue(pSourceText  VARCHAR(255),  pDivChar  CHAR(1), pIndex  TINYINT)
+RETURNS VARCHAR(255) 
+BEGIN
+	-- 预期结果. 
+	DECLARE vResult VARCHAR(255);
+
+	IF pIndex = 1 THEN
+		SELECT SUBSTRING_INDEX(pSourceText,  pDivChar,  1)  INTO  vResult;
+	ELSE
+		SELECT 
+			REPLACE(
+				SUBSTRING_INDEX(pSourceText,  pDivChar,  pIndex),
+				CONCAT(SUBSTRING_INDEX(pSourceText,  pDivChar,  pIndex - 1) , pDivChar),
+				'') INTO  vResult;
+	END IF;
+	
+	-- 返回.
+	RETURN vResult;
+END;
+//
+
+
+DELIMITER ;
+
+
+/*
+SELECT GetTextCount('程序员,系统管理员,网络管理员', ',') AS Co;
+SELECT 
+	GetTextValue('程序员,系统管理员,网络管理员', ',', 1) AS A,
+	GetTextValue('程序员,系统管理员,网络管理员', ',', 2) AS B,
+	GetTextValue('程序员,系统管理员,网络管理员', ',', 3) AS C;
+*/
+
+SELECT
+	t.name,
+	GetTextValue(t.allTitles, ',', MaxNum.No) AS OneTitle
+FROM
+	TestMulToOne t,
+	(SELECT 1 No UNION ALL
+	 SELECT 2 No UNION ALL
+	 SELECT 3 No UNION ALL
+	 SELECT 4 No UNION ALL
+	 SELECT 5 No ) MaxNum
+WHERE
+	GetTextCount(t.allTitles, ',') >= MaxNum.No
+ORDER BY
+	t.name;
+
+	
++------+------------+
+| name | OneTitle   |
++------+------------+
+| 张三 | 系统管理员 |
+| 张三 | 网络管理员 |
+| 张三 | 程序员     |
+| 李四 | 系统分析员 |
+| 李四 | 项目经理   |
++------+------------+
+5 rows in set (0.00 sec)
+	
 </code></pre>
     </td>
   </tr>

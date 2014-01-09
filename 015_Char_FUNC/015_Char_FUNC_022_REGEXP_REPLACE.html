@@ -92,6 +92,73 @@ ABC123XYZ456
 <Name>Kimi</Name>
 
 
+
+
+<hr/>
+一个 REGEXP_SUBSTR 与 REGEXP_REPLACE 配合使用的例子.
+要求是把  逗号后的数字， 进行增加的处理.
+
+CREATE OR REPLACE FUNCTION Test_Add(
+	p_source	varchar,
+	p_step		INT
+)
+RETURN  VARCHAR
+IS
+	-- 逗号位置的索引.
+	v_index		INT;
+	-- 匹配到的字符.
+	v_tempStr	varchar(10);
+	-- 字符转换为数字.
+	v_tempVal	INT;
+	-- 结果.
+	v_result  	varchar(100);
+BEGIN
+	
+	-- 从第一个 逗号开始.
+	v_index := 1;
+	
+	-- 结果先出示等于 原始字符串.
+	v_result := p_source;
+	
+	-- 遍历 每一个 正则表达式的匹配.
+	v_tempStr := REGEXP_SUBSTR(p_source, ',[0-9]+', 1, v_index);
+	
+	WHILE v_tempStr IS NOT NULL LOOP
+		-- 取得逗号后面的数字.
+		v_tempVal := TO_NUMBER(SUBSTR(v_tempStr, 2));
+		-- 数字递增.
+		v_tempVal := v_tempVal + p_step;
+		-- 字符替换.
+		v_result :=  REGEXP_REPLACE( v_result, ',[0-9]+', ',' || TO_CHAR(v_tempVal), 1, v_index);
+		-- 索引递增.
+		v_index := v_index + 1;
+		-- 再次匹配下一个.
+		v_tempStr := REGEXP_SUBSTR(p_source, ',[0-9]+', 1, v_index);
+	END LOOP;
+
+	-- 返回.
+	RETURN v_result;
+END;
+/
+
+
+SELECT  
+	Test_Add('[数学,80]/[物理,70]/[化学,85]/[干扰数据,ABC]/[干扰数据2,ABC123]', 1)  AS  "测试结果1",
+	Test_Add('[300,1]/[600,2]/[900,3]/[1200,4]', 2)  AS  "测试结果2"
+FROM
+	dual;
+
+
+测试结果1
+--------------------------------------------------------------------------------
+测试结果2
+--------------------------------------------------------------------------------
+[数学,81]/[物理,71]/[化学,86]/[干扰数据,ABC]/[干扰数据2,ABC123]
+[300,3]/[600,4]/[900,5]/[1200,6]
+
+
+
+
 </code></pre>
     </td>
   </tr>

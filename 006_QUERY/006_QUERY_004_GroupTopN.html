@@ -142,26 +142,32 @@ C         2009-12-29        29.00
     <td>
 <pre><code>
 
-1> SELECT
-2>   sale_item,
-3>   sale_date,
-4>   sale_money
-5> FROM
-6>   sale_report main
-7> WHERE
-8>   (
-9>   SELECT
-10>     COUNT(1)
-11>   FROM
-12>     sale_report sub
-13>   WHERE
-14>     main.sale_item = sub.sale_item
-15>     AND main.sale_date &lt; sub.sale_date
-16>   ) &lt; 3
-17> ORDER BY
-18>   sale_item,
-19>   sale_date DESC
-20> go
+SET STATISTICS TIME  ON
+go
+
+SELECT
+  sale_item,
+  sale_date,
+  sale_money
+FROM
+  sale_report main
+WHERE
+  (
+  SELECT
+    COUNT(1)
+  FROM
+    sale_report sub
+  WHERE
+    main.sale_item = sub.sale_item
+    AND main.sale_date &lt; sub.sale_date
+  ) &lt; 3
+ORDER BY
+  sale_item,
+  sale_date DESC
+go
+
+SQL Server 分析和编译时间:
+   CPU 时间 = 0 毫秒，占用时间 = 3 毫秒。
 sale_item sale_date               sale_money
 --------- ----------------------- ------------
 A         2009-12-31 00:00:00.000      2009.00
@@ -173,6 +179,52 @@ B         2009-12-29 00:00:00.000        12.00
 C         2009-12-31 00:00:00.000        31.00
 C         2009-12-30 00:00:00.000        30.00
 C         2009-12-29 00:00:00.000        29.00
+T         2012-07-27 00:00:00.000       100.00
+
+(10 行受影响)
+
+ SQL Server 执行时间:
+   CPU 时间 = 78 毫秒，占用时间 = 79 毫秒。
+
+   
+
+SELECT
+  sale_item,
+  sale_date,
+  sale_money
+FROM
+(
+SELECT
+  ROW_NUMBER() OVER(PARTITION BY SALE_ITEM ORDER BY SALE_DATE DESC) AS NO,
+  SALE_REPORT.*
+FROM
+  SALE_REPORT
+) t
+WHERE
+  no &lt=3
+GO
+
+SQL Server 分析和编译时间:
+   CPU 时间 = 0 毫秒，占用时间 = 26 毫秒。
+sale_item sale_date               sale_money
+--------- ----------------------- ------------
+A         2009-12-31 00:00:00.000      2009.00
+A         2009-12-30 00:00:00.000      2009.00
+A         2009-12-29 00:00:00.000      2009.00
+B         2009-12-31 00:00:00.000        12.00
+B         2009-12-30 00:00:00.000        12.00
+B         2009-12-29 00:00:00.000        12.00
+C         2009-12-31 00:00:00.000        31.00
+C         2009-12-30 00:00:00.000        30.00
+C         2009-12-29 00:00:00.000        29.00
+T         2012-07-27 00:00:00.000       100.00
+
+(10 行受影响)
+
+ SQL Server 执行时间:
+   CPU 时间 = 0 毫秒，占用时间 = 11 毫秒。
+
+
 
 </code></pre>
     </td>
