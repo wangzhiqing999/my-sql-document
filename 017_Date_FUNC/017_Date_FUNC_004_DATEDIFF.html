@@ -151,30 +151,22 @@ db2 (cont.) => FROM SYSIBM.SYSDUMMY1;
     <td>
 <pre><code>
 
-1> SELECT '年'  AS  '日期部分',  DATEDIFF(yy, '2012-12-21',  GETDATE()) AS [数值
-]
-2> UNION ALL
-3> SELECT '季度'  AS  '日期部分',  DATEDIFF(qq, '2012-12-21', GETDATE()) AS [数
-值]
-4> UNION ALL
-5> SELECT '月'  AS  '日期部分',  DATEDIFF(mm, '2012-12-21', GETDATE()) AS [数值]
-
-6> UNION ALL
-7> SELECT '日'  AS  '日期部分',  DATEDIFF(dd, '2012-12-21', GETDATE()) AS [数值]
-
-8> UNION ALL
-9> SELECT '周'  AS  '日期部分',   DATEDIFF(ww, '2012-12-21', GETDATE()) AS [数值
-]
-10> UNION ALL
-11> SELECT '时'  AS  '日期部分',   DATEDIFF(hh, '2012-12-21', GETDATE()) AS [数
-值]
-12> UNION ALL
-13> SELECT '分'  AS  '日期部分',   DATEDIFF(mi, '2012-12-21', GETDATE()) AS [数
-值]
-14> UNION ALL
-15> SELECT '秒'  AS  '日期部分',   DATEDIFF(ss, '2012-12-21', GETDATE()) AS [数
-值]
-16> go
+SELECT '年'  AS  '日期部分',  DATEDIFF(yy, '2012-12-21',  GETDATE()) AS [数值]
+UNION ALL
+SELECT '季度'  AS  '日期部分',  DATEDIFF(qq, '2012-12-21', GETDATE()) AS [数值]
+UNION ALL
+SELECT '月'  AS  '日期部分',  DATEDIFF(mm, '2012-12-21', GETDATE()) AS [数值]
+UNION ALL
+SELECT '日'  AS  '日期部分',  DATEDIFF(dd, '2012-12-21', GETDATE()) AS [数值]
+UNION ALL
+SELECT '周'  AS  '日期部分',   DATEDIFF(ww, '2012-12-21', GETDATE()) AS [数值]
+UNION ALL
+SELECT '时'  AS  '日期部分',   DATEDIFF(hh, '2012-12-21', GETDATE()) AS [数值]
+UNION ALL
+SELECT '分'  AS  '日期部分',   DATEDIFF(mi, '2012-12-21', GETDATE()) AS [数值]
+UNION ALL
+SELECT '秒'  AS  '日期部分',   DATEDIFF(ss, '2012-12-21', GETDATE()) AS [数值]
+go
 日期部分 数值
 ---- -----------
 年             -2
@@ -228,6 +220,68 @@ mysql> SELECT
 | -29:06:07.000008 |
 +------------------+
 1 row in set (0.00 sec)
+
+
+<hr/>
+
+TIMESTAMPDIFF(interval,datetime_expr1,datetime_expr2)
+
+返回日期或日期时间表达式datetime_expr1 和datetime_expr2the 之间的整数差。
+其结果的单位由interval 参数给出。该参数必须是以下值的其中一个：
+
+FRAC_SECOND 表示间隔是毫秒
+SECOND  秒
+MINUTE  分钟
+HOUR  小时
+DAY  天
+WEEK  星期
+MONTH  月
+QUARTER  季度
+YEAR  年
+
+
+
+SELECT '年'  AS  `日期部分`,  TIMESTAMPDIFF(YEAR, '2012-12-21',  CURRENT_TIMESTAMP()) AS `数值`
+UNION ALL
+SELECT '季度'  AS  `日期部分`,  TIMESTAMPDIFF(QUARTER, '2012-12-21', CURRENT_TIMESTAMP()) AS `数值`
+UNION ALL
+SELECT '月'  AS  `日期部分`,  TIMESTAMPDIFF(MONTH, '2012-12-21', CURRENT_TIMESTAMP()) AS `数值`
+UNION ALL
+SELECT '日'  AS  `日期部分`,  TIMESTAMPDIFF(DAY, '2012-12-21', CURRENT_TIMESTAMP()) AS `数值`
+UNION ALL
+SELECT '周'  AS  `日期部分`,   TIMESTAMPDIFF(WEEK, '2012-12-21', CURRENT_TIMESTAMP()) AS `数值`
+UNION ALL
+SELECT '时'  AS  `日期部分`,   TIMESTAMPDIFF(HOUR, '2012-12-21', CURRENT_TIMESTAMP()) AS `数值`
+UNION ALL
+SELECT '分'  AS  `日期部分`,   TIMESTAMPDIFF(MINUTE, '2012-12-21', CURRENT_TIMESTAMP()) AS `数值`
+UNION ALL
+SELECT '秒'  AS  `日期部分`,   TIMESTAMPDIFF(SECOND, '2012-12-21', CURRENT_TIMESTAMP()) AS `数值`
+;
+
+
++----------+----------+
+| 日期部分 | 数值     |
++----------+----------+
+| 年       |        1 |
+| 季度     |        4 |
+| 月       |       12 |
+| 日       |      388 |
+| 周       |       55 |
+| 时       |     9328 |
+| 分       |   559737 |
+| 秒       | 33584279 |
++----------+----------+
+8 rows in set (0.00 sec)
+
+
+mysql> select CURRENT_TIMESTAMP();
++---------------------+
+| CURRENT_TIMESTAMP() |
++---------------------+
+| 2014-01-13 16:58:17 |
++---------------------+
+1 row in set (0.00 sec)
+
 
 </code></pre>
     </td>

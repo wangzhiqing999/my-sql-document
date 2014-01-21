@@ -112,6 +112,42 @@ Microsoft SQL Server 2008 R2 (RTM) - 10.50.1600.1 (X64)
 <pre><code>
 
 
+mysql> status;
+--------------
+mysql  Ver 14.14 Distrib 5.6.13, for Win64 (x86_64)
+
+Connection id:          3
+Current database:       information_schema
+Current user:           root@localhost
+SSL:                    Not in use
+Using delimiter:        ;
+Server version:         5.6.13 MySQL Community Server (GPL)
+Protocol version:       10
+Connection:             localhost via TCP/IP
+Server characterset:    latin1
+Db     characterset:    utf8
+Client characterset:    gbk
+Conn.  characterset:    gbk
+TCP port:               3306
+Uptime:                 7 hours 46 min 41 sec
+
+Threads: 2  Questions: 807  Slow queries: 0  Opens: 70  Flush tables: 1  Open ta
+bles: 61  Queries per second avg: 0.028
+--------------
+
+
+
+<hr/>
+
+mysql> select version();
++-----------+
+| version() |
++-----------+
+| 5.6.13    |
++-----------+
+1 row in set (0.00 sec)
+
+
 </code></pre>
     </td>
   </tr>

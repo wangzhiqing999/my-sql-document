@@ -345,6 +345,58 @@ mysql> SELECT DATE_ADD(
 
 
 
+<hr/>
+TIMESTAMPADD(interval,int_expr,datetime_expr)
+将整型表达式int_expr 添加到日期或日期时间表达式 datetime_expr中。
+
+其结果的单位由interval 参数给出。该参数必须是以下值的其中一个：
+
+FRAC_SECOND 表示间隔是毫秒
+SECOND  秒
+MINUTE  分钟
+HOUR  小时
+DAY  天
+WEEK  星期
+MONTH  月
+QUARTER  季度
+YEAR  年
+
+
+SELECT '现在' AS `日期`, NOW() AS `数据`
+UNION ALL
+SELECT '下一秒' AS `日期`, TIMESTAMPADD(SECOND, 1, NOW() ) AS `数据`
+UNION ALL
+SELECT '下一分' AS `日期`, TIMESTAMPADD(MINUTE, 1, NOW() ) AS `数据`
+UNION ALL
+SELECT '下一小时' AS `日期`, TIMESTAMPADD(HOUR, 1, NOW() ) AS `数据`
+UNION ALL
+SELECT '明天' AS `日期`, TIMESTAMPADD(DAY, 1, NOW() ) AS `数据`
+UNION ALL
+SELECT '下周' AS `日期`, TIMESTAMPADD(WEEK, 1, NOW() ) AS `数据`
+UNION ALL
+SELECT '下月' AS `日期`, TIMESTAMPADD(MONTH, 1, NOW() ) AS `数据`
+UNION ALL
+SELECT '下季度' AS `日期`, TIMESTAMPADD(QUARTER, 1, NOW() ) AS `数据`
+UNION ALL
+SELECT '明年' AS `日期`, TIMESTAMPADD(YEAR, 1, NOW() ) AS `数据`
+;
+
+
+
++----------+---------------------+
+| 日期     | 数据                |
++----------+---------------------+
+| 现在     | 2014-01-13 17:04:48 |
+| 下一秒   | 2014-01-13 17:04:49 |
+| 下一分   | 2014-01-13 17:05:48 |
+| 下一小时 | 2014-01-13 18:04:48 |
+| 明天     | 2014-01-14 17:04:48 |
+| 下周     | 2014-01-20 17:04:48 |
+| 下月     | 2014-02-13 17:04:48 |
+| 下季度   | 2014-04-13 17:04:48 |
+| 明年     | 2015-01-13 17:04:48 |
++----------+---------------------+
+9 rows in set (0.00 sec)
 
 </code></pre>
     </td>

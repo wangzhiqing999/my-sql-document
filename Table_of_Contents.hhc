@@ -370,6 +370,10 @@
 			<param name="Local" value="006_QUERY\006_QUERY_006_RowToCol2.html">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="动态行转换为列">
+			<param name="Local" value="006_QUERY\006_QUERY_005_002_RowToCol_Dy.html">
+			</OBJECT>            
+		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="列转换为行">
 			<param name="Local" value="006_QUERY\006_QUERY_005_001_ColToRow.html">
 			</OBJECT>
@@ -606,6 +610,10 @@
 			<param name="Name" value="创建返回结果集的函数(自定义)">
 			<param name="Local" value="010_FUNCTION\010_FUNCTION_003_ReturnMyTable.html">
 			</OBJECT>
+        <LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="创建自定义聚合函数">
+			<param name="Local" value="010_FUNCTION\010_FUNCTION_004_Aggregate.html">
+			</OBJECT>    
 	</UL>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="触发器">
