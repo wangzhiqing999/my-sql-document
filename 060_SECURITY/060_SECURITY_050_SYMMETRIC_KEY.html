@@ -1,0 +1,448 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 安全-对称密钥加密 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 安全 </h1>
+
+
+<h2> 对称密钥加密  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+<h3> 创建对称密钥 </h3>
+
+use Test
+GO
+
+-- 创建一个用于加密对称密钥的非对称密钥
+CREATE ASYMMETRIC KEY symDemoKey --名称
+WITH ALGORITHM = RSA_512 --加密算法
+ENCRYPTION BY PASSWORD ='TestSYM456!'--密码
+GO
+
+-- 创建一个对称密钥
+CREATE SYMMETRIC KEY sym_Demo
+WITH ALGORITHM = TRIPLE_DES
+ENCRYPTION BY ASYMMETRIC KEY symDemoKey
+GO
+
+
+<h3>  查看当前数据库中的对称密钥  </h3>
+
+SELECT 
+	name, algorithm_desc 
+FROM 
+	sys.symmetric_keys
+GO
+name            algorithm_desc
+--------------- ------------------
+sym_Demo        TRIPLE_DES
+
+(1 行受影响)
+
+
+
+
+<h3> 修改非对称密钥的加密方式 </h3>
+
+使用 ALTER SYMMETRIC KEY 命令修改对称密钥的加密方式。
+但执行前必须使用OPEN SYMMETRIC KEY 命令打开它。
+
+
+
+--先用私钥密码打开对称密钥
+OPEN SYMMETRIC KEY sym_Demo
+DECRYPTION BY ASYMMETRIC KEY symDemoKey
+WITH PASSWORD ='TestSYM456!'
+GO
+
+--打开之后，先增加密码加密，取代原密钥
+ALTER SYMMETRIC KEY sym_Demo
+ADD ENCRYPTION BY PASSWORD ='newnew!456'
+GO
+
+--再删除非对称密钥加密
+ALTER SYMMETRIC KEY sym_Demo
+DROP ENCRYPTION BY ASYMMETRIC KEY symDemoKey
+GO
+
+--完成操作后，关闭对称密钥
+CLOSE SYMMETRIC KEY sym_Demo
+GO
+
+
+
+
+<h3> 使用对称密钥对数据进行加密和解密 </h3>
+
+1、 为了使用对称密钥对数据进行加密，必须首先打开它，然后使用函数EncryptByKey 加密数据。
+
+2、 使用DecryptByKey来解密使用对称密钥加密的数据。
+    注意DecryptByKey不像甩EncryptByKey，无须使用对称密钥GUID。因此，为了解密，必须打开正确的对称密钥会话，否则会显示null。
+
+
+--创建测试数据表，用于对称加密
+CREATE TABLE dbo.PWDQuestion(
+	CustomerID int NOT NULL PRIMARY KEY,
+	PasswordHintQuestion nvarchar(300) NOT NULL,
+	PasswordHintAnswer varbinary(200) NOT NULL
+)
+GO
+
+
+--插入加密数据
+OPEN SYMMETRIC KEY sym_Demo DECRYPTION BY PASSWORD ='newnew!456';
+INSERT INTO  dbo.PWDQuestion(
+	CustomerID, PasswordHintQuestion, PasswordHintAnswer
+) VALUES (
+	12, 
+	'您出生的医院名称？',
+	EncryptByKey(Key_GUID('sym_Demo'), '杭州市一')
+);
+CLOSE SYMMETRIC KEY sym_Demo	
+GO
+
+-- 查看加密的数据.
+SELECT 
+  *
+FROM 
+  dbo.PWDQuestion
+WHERE 
+  CustomerID =12
+GO
+
+CustomerID  PasswordHintQuestion       PasswordHintAnswer
+----------- -------------------------- -------------------------------------------------------------------------------------------------------------
+12          您出生的医院名称？        0x001411FFDAFE744EB69B41FC5DB4979101000000BC4C4F670BDE36115E4CAEDE94F00E122BC2B5F42BFAC3ED92EC639705B330A2
+
+(1 行受影响)
+
+
+
+
+--解密数据
+OPEN SYMMETRIC KEY sym_Demo DECRYPTION BY PASSWORD ='newnew!456';
+SELECT 
+	CustomerID,PasswordHintQuestion,
+	CAST(DecryptByKey(PasswordHintAnswer) as varchar(200)) PasswordHintAnswer
+FROM dbo.PWDQuestion
+WHERE CustomerID =12;
+--打开后切记关闭！！！
+CLOSE SYMMETRIC KEY sym_Demo
+GO
+
+CustomerID  PasswordHintQuestion    PasswordHintAnswer
+----------- ----------------------- -----------------------
+12          您出生的医院名称？     杭州市一
+
+(1 行受影响)
+
+
+
+
+
+<h3> 使用对称密钥对数据进行加密和解密 （使用 验证列）  </h3>
+
+--添加两个未加密的行
+INSERT INTO dbo.PWDQuestion(
+	CustomerID, PasswordHintQuestion, PasswordHintAnswer
+)
+select 13, '您出生的医院名称？',cast('浙江妇保院' as varbinary)
+union all
+select 14, '您出生的医院名称？',cast('浙江妇保二院' as varbinary)
+GO
+
+
+
+--打开对称密钥,连CustomerID列一起加密
+OPEN SYMMETRIC KEY sym_Demo  DECRYPTION BY PASSWORD ='newnew!456';
+
+UPDATE 
+	dbo.PWDQuestion
+SET 
+	-- 后面的  1 表示使用验证器值， CAST(CustomerID as varbinary)  表示 验证器的数值.
+	PasswordHintAnswer =  EncryptByKey(Key_GUID('sym_Demo'),  PasswordHintAnswer, 1, CAST(CustomerID as varbinary))
+WHERE 
+	CustomerID in (13,14);
+	
+--打开后切记关闭
+CLOSE SYMMETRIC KEY sym_Demo
+GO
+
+
+-- 查看加密的数据.
+SELECT 
+  *
+FROM 
+  dbo.PWDQuestion
+WHERE 
+  CustomerID in (13, 14)
+GO
+
+CustomerID  PasswordHintQuestion     PasswordHintAnswer
+----------- ------------------------ ------------------------------------------------------------------------------------------------------------------------------------------------------------
+13          您出生的医院名称？      0x001411FFDAFE744EB69B41FC5DB49791010000005DF9B84981219549A4BB34A9C4F6FC2A6FFC063CA555FC779C4A1192A11C7FDF58346679ED6BBB8FA23276D00D8F620A
+14          您出生的医院名称？      0x001411FFDAFE744EB69B41FC5DB497910100000045FE2874DAA938CB0D34640889ACE2F2EA48CE6EE918C17880E5671936B7943FFDD192FD33FF0ADF556C4A8E3936776F575B5E123E4D0C8E
+
+(2 行受影响)
+
+
+
+
+--此时必须这样查看原数据
+OPEN SYMMETRIC KEY sym_Demo  DECRYPTION BY PASSWORD ='newnew!456';
+
+SELECT 
+	CustomerID,PasswordHintQuestion,
+	CAST(DecryptByKey(PasswordHintAnswer, 1, CAST(CustomerID as varbinary)) as varchar(200)) PasswordHintAnswer
+FROM 
+	dbo.PWDQuestion
+WHERE 
+	CustomerID in (13, 14);
+
+--打开后切记关闭！
+CLOSE SYMMETRIC KEY sym_Demo
+GO
+
+CustomerID  PasswordHintQuestion      PasswordHintAnswer
+----------- ------------------------- -------------------
+13          您出生的医院名称？       浙江妇保院
+14          您出生的医院名称？       浙江妇保二院
+
+(2 行受影响)
+
+
+
+这样可以避免 当知道 CustomerID = 14 的答案是 浙江妇保二院 以后。
+简单 
+UPDATE
+  dbo.PWDQuestion 
+SET 
+  PasswordHintAnswer = (SELECT PasswordHintAnswer FROM dbo.PWDQuestion WHERE CustomerID = 14)
+WHERE  
+  CustomerID = 13
+的方式， 来获取 CustomerID = 13 的数据验证的有效性.
+
+
+
+OPEN SYMMETRIC KEY sym_Demo DECRYPTION BY PASSWORD ='newnew!456';
+
+SELECT 
+	CustomerID,PasswordHintQuestion,
+	CAST(DecryptByKey(PasswordHintAnswer, 1,  CAST(CustomerID as varbinary)) as varchar(200)) PasswordHintAnswer,
+	PasswordHintAnswer as binaryValue
+FROM 
+	dbo.PWDQuestion
+WHERE CustomerID in(13,14);
+--打开后切记关闭！
+CLOSE SYMMETRIC KEY sym_Demo
+GO
+
+CustomerID  PasswordHintQuestion  PasswordHintAnswer          binaryValue
+----------- --------------------- --------------------------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+13          您出生的医院名称？             NULL              0x001411FFDAFE744EB69B41FC5DB497910100000045FE2874DAA938CB0D34640889ACE2F2EA48CE6EE918C17880E5671936B7943FFDD192FD33FF0ADF556C4A8E3936776F575B5E123E4D0C8E
+14          您出生的医院名称？             浙江妇保二院     0x001411FFDAFE744EB69B41FC5DB497910100000045FE2874DAA938CB0D34640889ACE2F2EA48CE6EE918C17880E5671936B7943FFDD192FD33FF0ADF556C4A8E3936776F575B5E123E4D0C8E
+
+(2 行受影响)
+
+
+
+
+注意：
+
+对称密钥的特性是：在数据库会话中使用它对数据进行加密和解密前必须首先打开。
+
+对称密钥可用于大数据的加密。
+
+
+
+<h3> 使用对称密钥对数据进行加密和解密 </h3>
+
+使用 DecryptByKeyAutoAsymKey 解密数据， 可以不需要做 打开/关闭 的处理。
+
+
+USE Test
+GO
+
+--本例使用数据库主密码加密，因而不需要密码。
+--创建数据库主密钥
+CREATE MASTER KEY ENCRYPTION BY PASSWORD ='password'
+go
+
+--创建非对称密钥
+CREATE ASYMMETRIC KEY asymDemo_V2 WITH ALGORITHM = RSA_512
+GO
+
+--创建对称密钥 3w@live.cn 
+CREATE SYMMETRIC KEY sym_Demo_V2
+WITH ALGORITHM = TRIPLE_DES
+ENCRYPTION BY ASYMMETRIC KEY asymDemo_V2
+GO
+
+--打开对称密钥，插入记录
+OPEN SYMMETRIC KEY sym_Demo_V2 DECRYPTION BY ASYMMETRIC KEY asymDemo_V2;
+INSERT dbo.PWDQuestion(
+	CustomerID, PasswordHintQuestion, PasswordHintAnswer
+) VALUES (
+	22, '您出生的医院名称?',
+	EncryptByKey(Key_GUID('sym_Demo_V2'), '邵逸夫医院')
+);
+CLOSE SYMMETRIC KEY sym_Demo_V2
+GO
+
+
+
+-- 查看加密的数据.
+SELECT 
+  *
+FROM 
+  dbo.PWDQuestion
+WHERE 
+  CustomerID = 22
+GO
+
+CustomerID  PasswordHintQuestion     PasswordHintAnswer
+----------- ------------------------ ------------------------------------------------------------------------------------------------------------
+22          您出生的医院名称?       0x00C33BAEEDA91443BA3866BA080BCDCE01000000D32A6F66794E58B1D4E270F8E8EB0F21D8A56679BA8A0CD68F896C42AE33C7F7
+
+(1 行受影响)
+
+
+
+-- 使用DecryptByKeyAutoAsymKey解密数据，只需要一个操作
+
+SELECT  CAST(DecryptByKeyAutoAsymKey(ASYMKEY_ID('asymDemo_V2'),NULL,PasswordHintAnswer) as varchar)
+FROM dbo.PWDQuestion
+WHERE CustomerID =22
+GO
+
+
+------------------------------
+邵逸夫医院
+
+(1 行受影响)
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

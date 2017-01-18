@@ -1,0 +1,241 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库审计 - 登录审计 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库审计 </h1>
+
+
+<h2> 登录审计  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+-- 查询审计是否开启.
+SQL> show parameter audit_trail
+
+NAME                                 TYPE
+------------------------------------ ----------------------
+VALUE
+------------------------------
+audit_trail                          string
+DB
+SQL>
+
+
+
+SQL> audit session whenever not successful;
+
+审计已成功。
+
+
+
+-- 另外一个 窗口， 尝试 失败登录一次， 成功登录一次。
+SQL> conn test/123456
+ERROR:
+ORA-01017: invalid username/password; logon denied
+
+
+SQL> conn test/test
+已连接。
+
+SQL> conn
+请输入用户名:
+ERROR:
+ORA-01017: 用户名/口令无效; 登录被拒绝
+
+
+警告: 您不再连接到 ORACLE。
+
+
+
+-- 查询审计信息.
+
+SELECT 
+	OS_Username, Username, Terminal,
+	DECODE(returncode,'0','OK', 
+		'1005', 'FailedNull',
+		'1017', 'Failed',
+		returncode)  AS  returncode,
+	TO_CHAR(Timestamp, 'YYYY-MM-DD HH24:MI:SS') AS LoginTime
+FROM
+	DBA_AUDIT_SESSION;
+
+	
+	
+
+SQL> SELECT
+  2     OS_Username, Username, Terminal,
+  3     DECODE(returncode,'0','OK',
+  4             '1005', 'FailedNull',
+  5             '1017', 'Failed',
+  6             returncode)  AS  returncode,
+  7     TO_CHAR(Timestamp, 'YYYY-MM-DD HH24:MI:SS') AS LoginTime
+  8  FROM
+  9     DBA_AUDIT_SESSION;
+
+OS_USERNAME
+--------------------------------------------------------------------------------
+
+USERNAME
+------------------------------------------------------------
+TERMINAL
+--------------------------------------------------------------------------------
+
+RETURNCODE
+--------------------------------------------------------------------------------
+
+LOGINTIME
+--------------------------------------
+TEST-817C6B3A61\Test
+TEST
+TEST-817C6B3A61
+
+OS_USERNAME
+--------------------------------------------------------------------------------
+
+USERNAME
+------------------------------------------------------------
+TERMINAL
+--------------------------------------------------------------------------------
+
+RETURNCODE
+--------------------------------------------------------------------------------
+
+LOGINTIME
+--------------------------------------
+Failed
+2015-01-17 16:02:07
+
+
+
+
+
+
+-- 关闭 登录审计
+SQL> noaudit session;
+
+审计未成功。
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

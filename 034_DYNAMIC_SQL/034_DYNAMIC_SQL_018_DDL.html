@@ -1,0 +1,218 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 动态SQL - DDL 语句 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 动态SQL </h1>
+
+
+<h2>  DDL 语句 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+
+-- 采用调用者权限，由于过程中使用动态SQL，所以可以避开编译时的检查，但在运行时DBA角色生效。
+-- 也就是这里的 <span class="KeyInfo">AUTHID CURRENT_USER</span> 关键字.
+
+-- 如果不写的话，程序运行过程中，将提示 ORA-01031: 权限不足 的错误.
+
+
+
+CREATE OR REPLACE PROCEDURE TestCreateUser (
+  p_user_name  VARCHAR2
+) AUTHID CURRENT_USER AS
+	vTableSpaceName  VARCHAR2(32);
+	vTempTableSpaceName  VARCHAR2(32);
+	vSQL  VARCHAR2(2000);
+BEGIN	
+   -- 表空间名.
+   vTableSpaceName :=  TRIM(p_user_name);
+   -- 临时表空间名.
+   vTempTableSpaceName :=  'Temp_' || vTableSpaceName;
+   
+   -- 创建表空间 
+   vSQL := 'CREATE BIGFILE TABLESPACE ' || vTableSpaceName ||  '  DATAFILE ''' || vTableSpaceName ||  '.dat'' SIZE 20M AUTOEXTEND ON';
+   EXECUTE IMMEDIATE ( vSQL );
+   
+   -- 创建临时表空间 
+   vSQL := 'CREATE TEMPORARY TABLESPACE ' || vTempTableSpaceName ||  '  TEMPFILE  ''' || vTempTableSpaceName ||  '.dbf'' SIZE 5M AUTOEXTEND ON';
+   EXECUTE IMMEDIATE ( vSQL );
+
+   -- 创建用户.
+   vSQL := 'create user ' || p_user_name || '  identified by "123456"  default tablespace ' ||  vTableSpaceName || '  temporary tablespace ' || vTempTableSpaceName || '  profile DEFAULT';
+   EXECUTE IMMEDIATE ( vSQL );
+   
+   -- 授权语句.
+   vSQL := 'GRANT CONNECT TO ' || p_user_name;
+   EXECUTE IMMEDIATE ( vSQL );   
+   
+   -- 其它授权语句...
+   
+END TestCreateUser;
+/
+
+BEGIN
+	TestCreateUser('U001');
+END;
+/
+
+
+
+
+
+CREATE OR REPLACE PROCEDURE TestRemoveUser (
+  p_user_name  VARCHAR2
+) AUTHID CURRENT_USER AS
+	vTableSpaceName  VARCHAR2(32);
+	vTempTableSpaceName  VARCHAR2(32);
+	vSQL  VARCHAR2(2000);
+BEGIN
+   -- 表空间名.
+   vTableSpaceName :=  TRIM(p_user_name);
+   -- 临时表空间名.
+   vTempTableSpaceName :=  'Temp_' || vTableSpaceName;
+   
+   -- 删除用户 (包含内容).
+   vSQL := 'DROP USER ' || p_user_name ||  '  CASCADE';
+   EXECUTE IMMEDIATE ( vSQL );
+   
+   
+   -- 删除表空间 (包含文件).
+   vSQL := 'DROP TABLESPACE ' || vTableSpaceName || '   INCLUDING CONTENTS  AND DATAFILES  CASCADE CONSTRAINTS';
+   EXECUTE IMMEDIATE ( vSQL );
+   
+   -- 删除临时表空间 (包含文件).
+   vSQL := 'DROP TABLESPACE ' || vTempTableSpaceName || '   INCLUDING CONTENTS  AND DATAFILES  CASCADE CONSTRAINTS';
+   EXECUTE IMMEDIATE ( vSQL );
+   
+END TestRemoveUser;
+/
+
+
+BEGIN
+	TestRemoveUser('U001');
+END;
+/
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

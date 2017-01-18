@@ -1,0 +1,569 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库审计 - 行为审计 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库审计 </h1>
+
+
+<h2> 行为审计  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+-- 查询审计是否开启.
+SQL> show parameter audit_trail
+
+NAME                                 TYPE
+------------------------------------ ----------------------
+VALUE
+------------------------------
+audit_trail                          string
+DB
+SQL>
+
+
+
+-- 可审计项目.
+SELECT
+	Action, Name
+FROM
+	AUDIT_ACTIONS;
+
+    ACTION NAME
+---------- --------------------------------------------------------
+         0 UNKNOWN
+         1 CREATE TABLE
+         2 INSERT
+         3 SELECT
+         4 CREATE CLUSTER
+         5 ALTER CLUSTER
+         6 UPDATE
+         7 DELETE
+         8 DROP CLUSTER
+         9 CREATE INDEX
+        10 DROP INDEX
+
+    ACTION NAME
+---------- --------------------------------------------------------
+        11 ALTER INDEX
+        12 DROP TABLE
+        13 CREATE SEQUENCE
+        14 ALTER SEQUENCE
+        15 ALTER TABLE
+        16 DROP SEQUENCE
+        17 GRANT OBJECT
+        18 REVOKE OBJECT
+        19 CREATE SYNONYM
+        20 DROP SYNONYM
+        21 CREATE VIEW
+
+    ACTION NAME
+---------- --------------------------------------------------------
+        22 DROP VIEW
+        23 VALIDATE INDEX
+        24 CREATE PROCEDURE
+        25 ALTER PROCEDURE
+        26 LOCK
+        27 NO-OP
+        28 RENAME
+        29 COMMENT
+        30 AUDIT OBJECT
+        31 NOAUDIT OBJECT
+        32 CREATE DATABASE LINK
+
+    ACTION NAME
+---------- --------------------------------------------------------
+        33 DROP DATABASE LINK
+        34 CREATE DATABASE
+        35 ALTER DATABASE
+        36 CREATE ROLLBACK SEG
+        37 ALTER ROLLBACK SEG
+        38 DROP ROLLBACK SEG
+        39 CREATE TABLESPACE
+        40 ALTER TABLESPACE
+        41 DROP TABLESPACE
+        42 ALTER SESSION
+        43 ALTER USER
+
+    ACTION NAME
+---------- --------------------------------------------------------
+        44 COMMIT
+        45 ROLLBACK
+        46 SAVEPOINT
+        47 PL/SQL EXECUTE
+        48 SET TRANSACTION
+        49 ALTER SYSTEM
+        50 EXPLAIN
+        51 CREATE USER
+        52 CREATE ROLE
+        53 DROP USER
+        54 DROP ROLE
+
+    ACTION NAME
+---------- --------------------------------------------------------
+        55 SET ROLE
+        56 CREATE SCHEMA
+        57 CREATE CONTROL FILE
+        59 CREATE TRIGGER
+        60 ALTER TRIGGER
+        61 DROP TRIGGER
+        62 ANALYZE TABLE
+        63 ANALYZE INDEX
+        64 ANALYZE CLUSTER
+        65 CREATE PROFILE
+        66 DROP PROFILE
+
+    ACTION NAME
+---------- --------------------------------------------------------
+        67 ALTER PROFILE
+        68 DROP PROCEDURE
+        70 ALTER RESOURCE COST
+        71 CREATE MATERIALIZED VIEW LOG
+        72 ALTER MATERIALIZED VIEW LOG
+        73 DROP MATERIALIZED VIEW LOG
+        74 CREATE MATERIALIZED VIEW
+        75 ALTER MATERIALIZED VIEW
+        76 DROP MATERIALIZED VIEW
+        77 CREATE TYPE
+        78 DROP TYPE
+
+    ACTION NAME
+---------- --------------------------------------------------------
+        79 ALTER ROLE
+        80 ALTER TYPE
+        81 CREATE TYPE BODY
+        82 ALTER TYPE BODY
+        83 DROP TYPE BODY
+        84 DROP LIBRARY
+        85 TRUNCATE TABLE
+        86 TRUNCATE CLUSTER
+        91 CREATE FUNCTION
+        92 ALTER FUNCTION
+        93 DROP FUNCTION
+
+    ACTION NAME
+---------- --------------------------------------------------------
+        94 CREATE PACKAGE
+        95 ALTER PACKAGE
+        96 DROP PACKAGE
+        97 CREATE PACKAGE BODY
+        98 ALTER PACKAGE BODY
+        99 DROP PACKAGE BODY
+       100 LOGON
+       101 LOGOFF
+       102 LOGOFF BY CLEANUP
+       103 SESSION REC
+       104 SYSTEM AUDIT
+
+    ACTION NAME
+---------- --------------------------------------------------------
+       105 SYSTEM NOAUDIT
+       106 AUDIT DEFAULT
+       107 NOAUDIT DEFAULT
+       108 SYSTEM GRANT
+       109 SYSTEM REVOKE
+       110 CREATE PUBLIC SYNONYM
+       111 DROP PUBLIC SYNONYM
+       112 CREATE PUBLIC DATABASE LINK
+       113 DROP PUBLIC DATABASE LINK
+       114 GRANT ROLE
+       115 REVOKE ROLE
+
+    ACTION NAME
+---------- --------------------------------------------------------
+       116 EXECUTE PROCEDURE
+       117 USER COMMENT
+       118 ENABLE TRIGGER
+       119 DISABLE TRIGGER
+       120 ENABLE ALL TRIGGERS
+       121 DISABLE ALL TRIGGERS
+       122 NETWORK ERROR
+       123 EXECUTE TYPE
+       128 FLASHBACK
+       129 CREATE SESSION
+       157 CREATE DIRECTORY
+
+    ACTION NAME
+---------- --------------------------------------------------------
+       158 DROP DIRECTORY
+       159 CREATE LIBRARY
+       160 CREATE JAVA
+       161 ALTER JAVA
+       162 DROP JAVA
+       163 CREATE OPERATOR
+       164 CREATE INDEXTYPE
+       165 DROP INDEXTYPE
+       167 DROP OPERATOR
+       168 ASSOCIATE STATISTICS
+       169 DISASSOCIATE STATISTICS
+
+    ACTION NAME
+---------- --------------------------------------------------------
+       170 CALL METHOD
+       171 CREATE SUMMARY
+       172 ALTER SUMMARY
+       173 DROP SUMMARY
+       174 CREATE DIMENSION
+       175 ALTER DIMENSION
+       176 DROP DIMENSION
+       177 CREATE CONTEXT
+       178 DROP CONTEXT
+       179 ALTER OUTLINE
+       180 CREATE OUTLINE
+
+    ACTION NAME
+---------- --------------------------------------------------------
+       181 DROP OUTLINE
+       182 UPDATE INDEXES
+       183 ALTER OPERATOR
+       197 PURGE USER_RECYCLEBIN
+       198 PURGE DBA_RECYCLEBIN
+       199 PURGE TABLESAPCE
+       200 PURGE TABLE
+       201 PURGE INDEX
+       202 UNDROP OBJECT
+       204 FLASHBACK DATABASE
+       205 FLASHBACK TABLE
+
+    ACTION NAME
+---------- --------------------------------------------------------
+       206 CREATE RESTORE POINT
+       207 DROP RESTORE POINT
+       208 PROXY AUTHENTICATION ONLY
+       209 DECLARE REWRITE EQUIVALENCE
+       210 ALTER REWRITE EQUIVALENCE
+       211 DROP REWRITE EQUIVALENCE
+
+已选择160行。
+
+
+
+
+-- 审计所有的 查询表的查询操作。
+-- 只针对 特定的 TEST_USER 用户做审计.
+-- (需要全部用户都审计的， 删除掉 by 用户名 )
+
+audit SELECT TABLE
+by TEST_USER;
+
+
+SQL> audit SELECT TABLE
+  2  by TEST_USER;
+
+审计已成功。
+
+
+
+
+-- 另外一个窗口，测试登录并查询.
+SQL> conn test_user/test
+已连接。
+SQL> select 1 from dual;
+
+         1
+----------
+         1
+
+SQL> select * from test.test_table_column;
+
+        ID          A          B          C
+---------- ---------- ---------- ----------
+         1          1          2          3
+         2          3          4          6
+         3          5          6          9
+         4          6          8         12
+         5         10         10         15
+
+SQL>
+
+
+
+
+
+-- 查询审计信息.
+SELECT
+	USERNAME,
+	OWNER,
+	OBJ_NAME,
+	ACTION_NAME,
+	RETURNCODE,
+	TO_CHAR(Timestamp, 'YYYY-MM-DD HH24:MI:SS') AS AuditTime
+FROM
+	DBA_AUDIT_OBJECT;
+
+
+
+
+
+
+SQL> SELECT
+  2     USERNAME,
+  3     OWNER,
+  4     OBJ_NAME,
+  5     ACTION_NAME,
+  6     RETURNCODE,
+  7     TO_CHAR(Timestamp, 'YYYY-MM-DD HH24:MI:SS') AS AuditTime
+  8  FROM
+  9     DBA_AUDIT_OBJECT;
+
+USERNAME
+------------------------------------------------------------
+OWNER
+------------------------------------------------------------
+OBJ_NAME
+--------------------------------------------------------------------------------
+
+ACTION_NAME                                              RETURNCODE
+-------------------------------------------------------- ----------
+AUDITTIME
+--------------------------------------
+TEST_USER
+SYS
+DUAL
+
+USERNAME
+------------------------------------------------------------
+OWNER
+------------------------------------------------------------
+OBJ_NAME
+--------------------------------------------------------------------------------
+
+ACTION_NAME                                              RETURNCODE
+-------------------------------------------------------- ----------
+AUDITTIME
+--------------------------------------
+SESSION REC                                                       0
+2015-01-17 16:24:32
+
+
+USERNAME
+------------------------------------------------------------
+OWNER
+------------------------------------------------------------
+OBJ_NAME
+--------------------------------------------------------------------------------
+
+ACTION_NAME                                              RETURNCODE
+-------------------------------------------------------- ----------
+AUDITTIME
+--------------------------------------
+TEST_USER
+SYSTEM
+SQLPLUS_PRODUCT_PROFILE
+
+USERNAME
+------------------------------------------------------------
+OWNER
+------------------------------------------------------------
+OBJ_NAME
+--------------------------------------------------------------------------------
+
+ACTION_NAME                                              RETURNCODE
+-------------------------------------------------------- ----------
+AUDITTIME
+--------------------------------------
+SESSION REC                                                       0
+2015-01-17 16:24:32
+
+
+USERNAME
+------------------------------------------------------------
+OWNER
+------------------------------------------------------------
+OBJ_NAME
+--------------------------------------------------------------------------------
+
+ACTION_NAME                                              RETURNCODE
+-------------------------------------------------------- ----------
+AUDITTIME
+--------------------------------------
+TEST_USER
+SYSTEM
+PRODUCT_PRIVS
+
+USERNAME
+------------------------------------------------------------
+OWNER
+------------------------------------------------------------
+OBJ_NAME
+--------------------------------------------------------------------------------
+
+ACTION_NAME                                              RETURNCODE
+-------------------------------------------------------- ----------
+AUDITTIME
+--------------------------------------
+SESSION REC                                                       0
+2015-01-17 16:24:32
+
+
+USERNAME
+------------------------------------------------------------
+OWNER
+------------------------------------------------------------
+OBJ_NAME
+--------------------------------------------------------------------------------
+
+ACTION_NAME                                              RETURNCODE
+-------------------------------------------------------- ----------
+AUDITTIME
+--------------------------------------
+TEST_USER
+TEST
+TEST_TABLE_COLUMN
+
+USERNAME
+------------------------------------------------------------
+OWNER
+------------------------------------------------------------
+OBJ_NAME
+--------------------------------------------------------------------------------
+
+ACTION_NAME                                              RETURNCODE
+-------------------------------------------------------- ----------
+AUDITTIME
+--------------------------------------
+SESSION REC                                                       0
+2015-01-17 16:25:00
+
+
+
+-- 查询的审计信息量很大，需要谨慎开启.
+
+
+
+
+-- 关闭 行为审计
+noaudit SELECT TABLE 
+by TEST_USER;
+
+
+
+
+SQL> noaudit SELECT TABLE
+  2  by TEST_USER;
+
+审计未成功。
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

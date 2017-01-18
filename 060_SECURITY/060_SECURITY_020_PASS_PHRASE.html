@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 安全-通过PassPhrase加密 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 安全 </h1>
+
+
+<h2> 通过PassPhrase加密  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+主要使用  EncryptByPassPhrase 函数与 DecryptByPassPhrase 函数来完成.
+
+
+
+SELECT EncryptByPassPhrase('我是用于加密数据的密码', '我是被加密的数据');
+--------------------------------------------------------------------------------------------------------------
+0x01000000B1371D501837B274D4E049B76974644A32391D40979934C58E082F54C7C355BDB90456863061C823
+
+(1 行受影响)
+
+
+
+
+SELECT CAST(DecryptByPassPhrase(
+	'我是用于加密数据的密码', 
+	0x01000000B1371D501837B274D4E049B76974644A32391D40979934C58E082F54C7C355BDB90456863061C823) as varchar(max))
+----------------------------------------------------------------------------------------------------------------
+我是被加密的数据        
+
+(1 行受影响)
+
+
+
+数据库中存储  被加密的数据时， 需要使用 varbinary 来存储加密后的数据， 不要使用  varchar  来存储。
+	
+
+	
+	
+注意：
+
+1、使用通行短语进行加密数据，不用担心sysadmin服务器角色成员读取数据（在后面文章会看到，服务器角色成员sysadmin拥有读取其他形式的加密数据的内在权限。)
+
+2、假定没有将密码存储在表中或在任何模块（存储过程、触发器等）中使用密码，加密的数据将防止从数据库备份被偷窃或在SQL Server实例中的数据库中渗透。如果通行短语没有正确共享，数据就可以被解密。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

@@ -463,6 +463,22 @@ code   val
 
 </code></pre>
 
+
+<hr/>
+
+注意：
+SELECT * INTO 日志表 SELECT FROM 源表 WHERE 条件;
+
+源表中有列是 identity 的情况下，  日志表中的相应列， 也会变成 identity
+这样导致创建以后， 
+后续如果有
+
+INSERT INTO 日志表 SELECT FROM 源表 WHERE 条件;
+
+这样的插入操作，会发生问题， 需要手动去 
+SET IDENTITY_INSERT 日志表 ON / OFF
+
+
   </td>
 </tr>
 

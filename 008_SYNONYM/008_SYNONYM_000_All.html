@@ -143,6 +143,34 @@ CREATE TABLE test_sub (
 ERROR 位于第 1 行:
 ORA-00955: 名称已由现有对象使用
 
+
+
+
+<hr/>
+
+同义词用于查询，没有问题。
+但是用于 alter table 语句的时候，会报错. 
+
+SQL> alter table sale_report add test INT;
+alter table sale_report add test INT
+*
+第 1 行出现错误:
+ORA-00942: 表或视图不存在
+
+
+
+SQL> alter table HR.sale_report add test INT;
+
+表已更改。
+
+
+
+
+在 Oracle? Database SQL Reference 文档的 CREATE SYNONYM 章节处有描述：
+You can refer to synonyms in the following DML statements: SELECT, INSERT, UPDATE, DELETE, FLASHBACK TABLE, EXPLAIN PLAN, and LOCK TABLE.
+You can refer to synonyms in the following DDL statements: AUDIT, NOAUDIT, GRANT, REVOKE, and COMMENT.
+
+
 </code></pre>
     </td>
   </tr>

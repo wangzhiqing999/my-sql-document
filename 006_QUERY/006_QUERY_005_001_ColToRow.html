@@ -146,6 +146,30 @@ id          name       KECHENG  CHENGJI
 
 
 
+		  
+
+		  
+<h3> 使用 UNPIVOT 处理 </h3>
+		  
+SELECT 
+	name,
+	KECHENG,
+	[成绩]
+FROM 
+	student_1 UNPIVOT( [成绩] FOR KECHENG IN ( yuwen, shuxue, yingyu  ))  p
+GO
+
+name       KECHENG      成绩
+---------- ------------ -----------
+张三         yuwen        97
+张三         shuxue       96
+张三         yingyu       100
+李四         yuwen        98
+李四         shuxue       86
+李四         yingyu       90
+
+(6 行受影响)
+
 
 </code></pre>
     </td>

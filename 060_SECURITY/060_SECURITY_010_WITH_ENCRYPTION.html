@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 安全-存储过程加密 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 安全 </h1>
+
+
+<h2> 存储过程加密  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+主要使用  with encryption 来完成.
+
+/***************创建未加密的存储过程*******************/
+Create Procedure test_Original
+AS
+PRINT 'Hello World!';
+go
+
+
+/***************创建加密的存储过程*******************/
+Create Procedure test_Encryption 
+with encryption
+AS
+PRINT 'Hello World 2!';
+go
+
+
+
+
+
+EXEC sp_helptext test_Original
+GO
+
+
+/***************创建未加密的存储过程*******************/
+Create Procedure test_Original
+AS
+PRINT 'Hello World!';
+
+
+
+
+EXEC sp_helptext test_Encryption
+GO
+对象 'test_Encryption' 的文本已加密。
+
+
+
+with encryption  功能，仅仅是不让别人简单看到你的存储过程源代码。
+但此时，存储过程仍然能被execute、alter和drop。
+
+
+
+注意：加密存储过程前应该备份原始存储过程，且加密应该在部署到生产环境前完成。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

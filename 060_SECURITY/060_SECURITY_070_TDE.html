@@ -1,0 +1,409 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 安全-透明加密(TDE) </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 安全 </h1>
+
+
+<h2> 透明加密(TDE)  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SQL Server 2008引入透明数据加密（Transparent Data Encryption），即TDE，它允许你完全无需修改应用程序代码而对整个数据库加密。
+当一个用户数据库可用且已启用TDE时，在写入到磁盘时在页级实现加密。在数据页读入内存时解密。
+如果数据库文件或数据库备份被盗，没有用来加密的原始证书将无法访问。
+这几乎是SQL Server2008安全选项中最激动人心的功能了，有了它，我们至少可以将一些初级的恶意窥视拒之见外。
+
+
+
+使用透明数据库加密的理由：
+  整个数据库都进行了加密
+  应用程序不受到加密和解密的影响
+　　–索引和数据类型不受到影响(除了FileStream)
+　　–不需要调用任何加密和解密函数
+  性能影响相当小性
+  没有密钥不能使用备份
+
+
+<h3> 启用透明加密(TDE) </h3>
+
+USE Master
+GO
+
+-- 删除旧主密钥
+-- Drop master Key 
+-- go
+
+-- 创建主密钥
+Create MASTER KEY ENCRYPTION
+BY PASSWORD ='B19ACE32-AB68-4589-81AE-010E9092FC6B'
+GO
+
+-- 创建证书,用于透明数据加密
+CREATE CERTIFICATE TDE_Server_Certificate
+WITH SUBJECT ='Server-level cert for TDE'
+GO
+
+
+
+USE BookStore
+GO
+
+--第一步：现在开始透明加密
+CREATE DATABASE ENCRYPTION KEY  --创建数据库加密密钥
+WITH ALGORITHM = TRIPLE_DES_3KEY  --加密方式
+ENCRYPTION BY SERVER CERTIFICATE TDE_Server_Certificate  --使用服务器级证书加密
+GO
+
+
+<hr/>
+SQL Server 2008 Express 下执行出错。
+
+消息 33117，级别 16，状态 1，第 1 行
+在此版本类别的 SQL Server 实例中，透明数据加密不可用。有关不同 SQL Server 版本类别中支持的功能的详细信息，请参阅联机丛书。
+
+
+<hr/>
+SQL Server 2008 Enterprise Edition 版本下执行返回:
+
+警告: 用于对数据库加密密钥进行加密的证书尚未备份。应当立即备份该证书以及与该证书关联的私钥。如果该证书不可用，或者您必须在另一台服务器上还原或附加数据库，则必须对该证书和私钥均进行备份，否则将无法打开该数据库。
+
+
+<hr/>
+
+
+
+
+
+
+
+
+
+
+--第二步：打开加密开关
+ALTER DATABASE BookStore
+SET ENCRYPTION ON
+GO
+
+命令已成功完成。
+
+
+
+
+--查看数据库是否加密
+SELECT is_encrypted
+FROM sys.databases
+WHERE name ='BookStore'
+
+
+is_encrypted
+------------
+1
+
+(1 行受影响)
+
+
+
+
+注意：一旦在数据库应用了加密，应该立刻备份服务器级证书！
+
+
+没有加密DEK的证书，该数据库将无法打开，附加到别的服务器也无法使用，数据库文件亦不会被Hack。
+如果一个DBA想要合法地将数据库从一个SQL Server实例移动到另一个SQL Server实例，那么她应该首先备份服务器级证书，然后在新的SQL Server实例中创建证书。
+此时可以合法地备份、还原数据库或附加数据及日志文件。
+
+
+
+<hr/>
+下面尝试在 Enterprise Edition 版本下 备份 BookStore 数据库.
+
+backup database BookStore to disk='e:\BookStore.dat'
+GO
+
+已为数据库 'BookStore'，文件 'BookStore' (位于文件 1 上)处理了 176 页。
+已为数据库 'BookStore'，文件 'BookStore_log' (位于文件 1 上)处理了 2 页。
+BACKUP DATABASE 成功处理了 178 页，花费 0.191 秒(7.244 MB/秒)。
+
+
+
+
+然后尝试恢复 BookStore 数据库到 SQL Express 版本上面去.
+
+RESTORE DATABASE YaoqinSystem FROM DISK='e:\BookStore.dat'
+   WITH MOVE 'BookStore' TO 'e:\Temp\testdb.mdf',
+   MOVE 'BookStore_log' TO 'e:\Temp\testdb.ldf';
+GO
+
+消息 33111，级别 16，状态 3，第 2 行
+找不到指纹为 '0xD001A13994C5FB2FEC96FB8994089AAA113841A9' 的服务器 证书。
+消息 3013，级别 16，状态 1，第 2 行
+RESTORE DATABASE 正在异常终止。
+
+
+   
+<hr/>
+下面尝试 备份 Enterprise Edition 版本下 的证书.
+
+--备份数据库主密钥
+USE Master
+GO
+
+BACKUP MASTER KEY
+TO FILE='E:\Master_Key.BAK'
+ENCRYPTION BY PASSWORD ='123456!!!'
+go
+命令已成功完成。
+
+
+--备份证书
+BACKUP CERTIFICATE TDE_Server_Certificate
+TO FILE='E:\TDE_Server_Certificate.BAK'--证书备份路径,用来加密
+WITH PRIVATE KEY (
+	FILE='E:\TDE_Server_CertificatePK.BAK',--证书私钥文件路径，用来解密
+	ENCRYPTION BY PASSWORD ='1234GH!!!'		--加密私钥密码
+)
+GO
+命令已成功完成。
+
+<li>
+
+注：这里想尝试把 主密钥 与 证书 恢复到 SQL Express 下面，然后再测试  RESTORE DATABASE  的。
+但是 恢复主密钥的命令发生了错误， 导致后续操作无法执行。
+
+--恢复数据库主密钥
+USE Master
+GO
+
+RESTORE MASTER KEY
+FROM FILE='E:\Master_Key.BAK'
+DECRYPTION BY PASSWORD ='123456!!!'
+ENCRYPTION BY PASSWORD ='B19ACE32-AB68-4589-81AE-010E9092FC6B'
+GO
+
+消息 15317，级别 16，状态 3，第 3 行
+主密钥文件不存在或格式无效。
+
+
+
+
+
+<h3> 管理和移除透明加密(TDE)  </h3>
+
+USE BookStore
+GO
+
+-- 查询加密算法.
+SELECT DB_NAME(database_id) databasenm,
+CASE encryption_state
+WHEN 0 THEN'No encryption'
+WHEN 1 THEN'Unencrypted'
+WHEN 2 THEN'Encryption in progress'
+WHEN 3 THEN'Encrypted'
+WHEN 4 THEN'Key change in progress'
+WHEN 5 THEN'Decryption in progress'
+END encryption_state,
+key_algorithm,
+key_length
+FROM sys.dm_database_encryption_keys
+GO
+
+databasenm     encryption_state       key_algorithm      key_length
+-------------- ---------------------- ------------------ -----------
+tempdb         Encrypted              AES                256
+BookStore      Encrypted              TRIPLE_DES_3KEY    192
+
+(2 行受影响)
+
+
+
+
+
+
+--修改加密算法
+ALTER DATABASE ENCRYPTION KEY
+REGENERATE WITH ALGORITHM = AES_128
+Go
+
+SELECT DB_NAME(database_id) databasenm,
+CASE encryption_state
+WHEN 0 THEN'No encryption'
+WHEN 1 THEN'Unencrypted'
+WHEN 2 THEN'Encryption in progress'
+WHEN 3 THEN'Encrypted'
+WHEN 4 THEN'Key change in progress'
+WHEN 5 THEN'Decryption in progress'
+END encryption_state,
+key_algorithm,
+key_length
+FROM sys.dm_database_encryption_keys
+GO
+
+databasenm        encryption_state       key_algorithm     key_length
+----------------- ---------------------- ----------------- -----------
+tempdb            Encrypted              AES               256
+BookStore         Encrypted              AES               128
+
+(2 行受影响)
+
+
+
+注意：对所有用户数据库的加密处理也包含对tempdb的处理
+
+
+
+
+除了更改DEK的算法，我们也可以更改用来加密DEK的服务器级证书（该证书应该定期更改）
+
+USE master
+GO
+
+CREATE CERTIFICATE TDE_Server_Certificate_V2
+WITH SUBJECT ='Server-level cert for TDE V2'
+GO
+
+USE BookStore
+GO
+
+ALTER DATABASE ENCRYPTION KEY
+ENCRYPTION BY SERVER CERTIFICATE TDE_Server_Certificate_V2--用新证书修改DEK
+
+
+
+--移除数据库透明加密
+ALTER DATABASE BookStore
+SET ENCRYPTION OFF
+GO
+命令已成功完成。
+
+
+
+--移除TDE后，可以删除DEK
+USE BookStore
+GO
+Drop DATABASE ENCRYPTION KEY
+Go
+命令已成功完成。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

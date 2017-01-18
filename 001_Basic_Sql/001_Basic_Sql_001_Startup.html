@@ -216,6 +216,24 @@ Microsoft SQL Server 2008 R2 (RTM) - 10.50.1600.1 (X64)
 (Build 7601: Service Pack 1)
 (1 行受影响)
 
+
+
+<hr/>
+
+如果使用的是 SQL Server 2012 以后的 LocalDB
+
+需要先执行一下 sqllocaldb.exe i 查看本机的数据库名.
+
+D:\>sqllocaldb.exe i
+MSSQLLocalDB
+v11.0
+
+然后通过指定 -S 的方式， 指定 LocalDB 数据库名.
+D:\>sqlcmd -E -S (localdb)\v11.0
+1> create database test
+2> go
+
+
 </code></pre>
     </td>
   </tr>

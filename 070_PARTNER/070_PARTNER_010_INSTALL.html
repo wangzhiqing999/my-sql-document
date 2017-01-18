@@ -1,0 +1,508 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 镜像 - 镜像环境搭建 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 镜像 </h1>
+
+
+<h2> 镜像环境搭建  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+SQL Server 2008 镜像 环境设置.
+
+
+初始环境:
+
+1.主机 Win7 + SQL Server 2008 R2   
+IP地址：192.168.56.1
+
+2.虚拟机 Win7 + SQL Server 2008 R2
+IP地址：192.168.56.101
+
+
+目标， 为主机的 TestSystem 数据库， 创建镜像
+
+-- TestSystem 数据库中，创建一个测试表：
+CREATE TABLE test_system_tab1 (
+  id   INT,
+  val  VARCHAR(10),
+  PRIMARY KEY (id)
+);
+GO
+
+-- 测试数据.
+INSERT INTO test_system_tab1 VALUES(1, 'test');
+GO
+
+
+
+
+
+----------------------------------------------------------------------
+
+1. 登陆帐户创建.
+
+
+1.1.主机数据库，用户名/密码.
+
+-- 创建登陆帐户（create login）
+CREATE LOGIN test_system_main
+	WITH  PASSWORD='test_system_main'
+GO
+
+
+1.2.虚拟机登录帐户.
+
+-- 创建登陆帐户（create login）
+CREATE LOGIN test_system_vm 
+   WITH PASSWORD = 'test_system_vm';
+GO
+
+
+
+
+----------------------------------------------------------------------
+
+2.主机数据库，配置出站连接
+
+2.1.在 master 数据库上，创建数据库主密钥 （如果不存在）。
+
+执行
+select * from sys.symmetric_keys 
+GO
+
+检索到结果：
+##MS_DatabaseMasterKey##	1	101	128	D3	TRIPLE_DES	2014-10-16 09:46:17.733	2014-10-16 09:46:17.733	1EE33A00-EEAF-430D-834B-F79D50FB65B4	NULL	NULL	NULL	NULL
+##MS_ServiceMasterKey##	1	102	128	D3	TRIPLE_DES	2014-10-16 09:44:39.470	2014-10-16 09:44:39.490	1928A32F-9785-4B40-B938-29D81FAB4180	NULL	NULL	NULL	NULL
+
+-- 也就是已经有主密钥了， 那么就不需要创建了.
+
+
+如果需要创建的话，那么执行下面的语句.
+
+CREATE MASTER KEY ENCRYPTION BY PASSWORD = '<Strong_Password_#2>';
+GO
+
+
+
+
+2.2.在 master 数据库中，对服务器实例创建一个用于其数据库镜像出站连接的加密证书。
+USE master;
+CREATE CERTIFICATE My_Test_cert 
+   WITH SUBJECT = 'My Test certificate for database mirroring';
+GO
+
+-- 查询是否成功.
+USE master;
+SELECT * FROM sys.certificates;
+GO
+
+
+
+2.3. 创建一个端点 , 该端点使用此证书进行出站连接，并使用此证书的凭据通过其他系统的验证。 这是一个服务器范围内的端点，供服务器实例参与的所有镜像会话使用。
+CREATE ENDPOINT Endpoint_Mirroring
+   STATE = STARTED
+   AS TCP (
+      LISTENER_PORT=7024
+      , LISTENER_IP = ALL
+   ) 
+   FOR DATABASE_MIRRORING ( 
+      AUTHENTICATION = CERTIFICATE My_Test_cert
+      , ENCRYPTION = REQUIRED ALGORITHM AES
+      , ROLE = ALL
+   );
+GO
+
+-- 查询是否成功.
+USE master;
+SELECT name, role_desc, state_desc, connection_auth_desc, encryption_algorithm_desc FROM sys.database_mirroring_endpoints;
+GO
+
+
+
+2.4. 备份证书到文件， 准备给其他镜像服务器使用.
+-- 备份证书到文件.
+BACKUP CERTIFICATE My_Test_cert TO FILE = 'C:\My_Test_cert.cer';
+GO
+
+
+
+
+
+----------------------------------------------------------------------
+
+3.虚拟机数据库，配置出站连接
+
+
+3.1.在 master 数据库上，创建数据库主密钥 （如果不存在）。
+
+执行
+USE master;
+select * from sys.symmetric_keys 
+GO
+
+name	principal_id	symmetric_key_id	key_length	key_algorithm	algorithm_desc	create_date	modify_date	key_guid	key_thumbprint	provider_type	cryptographic_provider_guid	cryptographic_provider_algid
+##MS_ServiceMasterKey##	1	102	128	D3	TRIPLE_DES	2015-01-12 11:49:17.803	2015-01-12 11:49:17.943	6133E2A2-3088-49BE-8E1C-048E35E1A251	NULL	NULL	NULL	NULL
+
+
+
+-- 没有 MS_DatabaseMasterKey  的数据，那么需要创建一个.
+
+USE master;
+--Create the database Master Key, if needed.
+CREATE MASTER KEY ENCRYPTION BY PASSWORD = '123ABC789xyz###';
+GO
+
+
+
+
+
+
+3.2.在 master 数据库中，对服务器实例创建一个用于其数据库镜像出站连接的加密证书。
+USE master;
+CREATE CERTIFICATE My_Test_PC_cert 
+   WITH SUBJECT = 'My Test PC certificate for database mirroring';
+GO
+
+-- 查询是否成功.
+USE master;
+SELECT * FROM sys.certificates;
+GO
+
+
+
+
+
+3.3. 创建一个端点 , 该端点使用此证书进行出站连接，并使用此证书的凭据通过其他系统的验证。 这是一个服务器范围内的端点，供服务器实例参与的所有镜像会话使用。
+CREATE ENDPOINT Endpoint_Mirroring
+   STATE = STARTED
+   AS TCP (
+      LISTENER_PORT=7024
+      , LISTENER_IP = ALL
+   ) 
+   FOR DATABASE_MIRRORING ( 
+      AUTHENTICATION = CERTIFICATE My_Test_PC_cert
+      , ENCRYPTION = REQUIRED ALGORITHM AES
+      , ROLE = ALL
+   );
+GO
+
+-- 查询是否成功.
+USE master;
+SELECT name, role_desc, state_desc, connection_auth_desc, encryption_algorithm_desc FROM sys.database_mirroring_endpoints;
+GO
+
+
+
+3.4. 备份证书到文件， 准备给其他镜像服务器使用.
+-- 备份证书到文件.
+BACKUP CERTIFICATE My_Test_PC_cert TO FILE = 'C:\My_Test_PC_cert.cer';
+GO
+
+
+
+----------------------------------------------------------------------
+
+4.主机数据库，配置入站连接
+
+
+4.1. 创建一个用户， 这个用户是 虚拟机上面的用户名， 用于访问 主机的.
+
+USE master;
+CREATE LOGIN test_system_vm 
+   WITH PASSWORD = 'test_system_vm';
+GO
+
+
+4.2  配置 登录用户 test_system_vm  可访问  master
+USE master;
+CREATE USER test_system_vm FOR LOGIN test_system_vm;
+GO
+
+
+4.3  将虚拟机上面的 证书， 与 主机上面的 test_system_vm 关联.
+(这里需要复制 虚拟机上面的证书文件， 到 主机上面 )
+
+USE master;
+CREATE CERTIFICATE test_pc_cert
+   AUTHORIZATION test_system_vm
+   FROM FILE = 'C:\My_Test_PC_cert.cer'
+GO
+ 
+
+4.4. 授予对远程镜像端点的登录名的 CONNECT 权限。
+USE master;
+GRANT CONNECT ON ENDPOINT::Endpoint_Mirroring TO [test_system_vm];
+GO
+ 
+
+
+----------------------------------------------------------------------
+
+5.虚拟机数据库，配置入站连接
+
+5.1. 创建一个用户， 这个用户是 虚拟机上面的用户名， 用于访问 主机的.
+CREATE LOGIN test_system_main
+	WITH  PASSWORD='test_system_main'
+GO
+
+5.2  配置 登录用户 test_system_main  可访问  master
+USE master;
+CREATE USER test_system_main FOR LOGIN test_system_main;
+GO
+ 
+ 
+ 
+5.3  将主机上面的 证书， 与 虚拟机上面的 test_pc_login 关联.
+(这里需要复制 主机上面的证书文件， 到 虚拟机上面 )
+
+USE master;
+CREATE CERTIFICATE test_cert
+   AUTHORIZATION test_system_main
+   FROM FILE = 'C:\Share\My_Test_cert.cer'
+GO
+ 
+
+5.4. 授予对远程镜像端点的登录名的 CONNECT 权限。
+USE master;
+GRANT CONNECT ON ENDPOINT::Endpoint_Mirroring TO [test_system_main];
+GO
+
+
+
+
+
+----------------------------------------------------------------------
+
+6. 创建 建镜像数据库
+
+6.1. 主机数据库备份.
+-- 对 TestSystem 数据库使用数据库镜像，设置完整恢复模式.
+USE master;
+GO
+ALTER DATABASE TestSystem 
+SET RECOVERY FULL;
+GO
+
+-- 主机上 创建主体数据库的完整备份
+BACKUP DATABASE TestSystem 
+    TO DISK = 'C:\TestSystem.bak' 
+    WITH FORMAT
+GO
+
+
+6.2. 虚拟机恢复.
+-- 文件复制到虚拟机上。
+-- 使用 WITH NORECOVERY 将完整备份还原到镜像服务器实例
+RESTORE DATABASE TestSystem 
+    FROM DISK = 'C:\Share\TestSystem.bak' 
+    WITH NORECOVERY
+GO
+
+
+
+6.3. 创建完整备份之后，必须在主体数据库中创建日志备份。
+BACKUP LOG TestSystem 
+    TO DISK = 'C:\TestSystem.bak' 
+GO
+
+
+
+6.4. 在开始镜像之前，必须应用必要的日志备份（以及所有后续日志备份）。
+RESTORE LOG TestSystem 
+    FROM DISK = 'C:\Share\TestSystem.bak' 
+    WITH FILE=1, NORECOVERY
+GO
+
+
+
+
+
+
+
+----------------------------------------------------------------------
+7. 配置镜像伙伴.
+
+7.1. 在 虚拟机 的镜像服务器实例上，将 主机 上的服务器实例设置为伙伴（使其成为初始主体服务器实例）。
+ALTER DATABASE TestSystem 
+    SET PARTNER = 'TCP://192.168.56.1:7024';
+GO
+
+
+7.2. 在 主机 的主体服务器实例上，将 虚拟机 上的服务器实例设置为伙伴（使其成为初始镜像服务器实例）。 
+ALTER DATABASE TestSystem 
+    SET PARTNER = 'TCP://192.168.56.101:7024';
+GO
+
+执行后报错.
+消息 1412，级别 16，状态 0，第 1 行
+数据库 "TestSystem" 的远程副本尚未前滚到包含在数据库日志的本地副本中的时间点。
+
+
+7.3.  虚拟机上面。 显示 备份文件中的文件信息.
+RESTORE FILELISTONLY  
+FROM DISK = 'C:\Share\TestSystem.bak' 
+
+显示结果：
+LogicalName	PhysicalName	Type	FileGroupName	Size	MaxSize	FileId	CreateLSN	DropLSN	UniqueId	ReadOnlyLSN	ReadWriteLSN	BackupSizeInBytes	SourceBlockSize	FileGroupId	LogGroupGUID	DifferentialBaseLSN	DifferentialBaseGUID	IsReadOnly	IsPresent	TDEThumbprint
+TestSystem	C:\Program Files\Microsoft SQL Server\MSSQL10_50.MSSQLSERVER\MSSQL\DATA\TestSystem.mdf	D	PRIMARY	3145728	35184372080640	1	0	0	3335821F-6FE6-404E-BDA2-DA2CCA9564BE	0	0	1507328	512	1	NULL	20000000030400037	43C92BE4-EC37-4DB7-9C8B-B4A23924BA88	0	1	NULL
+TestSystem_log	C:\Program Files\Microsoft SQL Server\MSSQL10_50.MSSQLSERVER\MSSQL\DATA\TestSystem_log.ldf	L	NULL	1048576	2199023255552	2	0	0	7F7BB577-7D21-492E-A286-4F20938C8859	0	0	0	512	0	NULL	0	00000000-0000-0000-0000-000000000000	0	1	NULL
+
+
+7.4. 虚拟机上面恢复.
+RESTORE LOG TestSystem 
+    FROM DISK = 'C:\Share\TestSystem.bak' 
+    WITH FILE=1, NORECOVERY
+GO
+
+RESTORE LOG TestSystem 
+    FROM DISK = 'C:\Share\TestSystem.bak' 
+    WITH FILE=2, NORECOVERY
+GO
+
+
+7.5. 虚拟机上面执行
+ALTER DATABASE TestSystem 
+    SET PARTNER = 'TCP://192.168.56.1:7024';
+GO
+
+
+7.6. 主机上面执行.
+ALTER DATABASE TestSystem 
+    SET PARTNER = 'TCP://192.168.56.101:7024';
+GO
+
+
+完成创建过程.
+
+
+在 SQL Server Management Studio 中观察。
+本机数据库 显示为：   TestSystem(主体，已同步)
+虚拟机数据库 显示为： TestSystem(镜像，已同步/正在还原...)
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

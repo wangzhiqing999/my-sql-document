@@ -1,0 +1,247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 安全-非对称密钥加密 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 安全 </h1>
+
+
+<h2> 非对称密钥加密  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+
+<h3> 创建非对称密钥 </h3>
+CREATE ASYMMETRIC KEY  创建非对称密钥。
+
+
+USE Test
+GO
+
+CREATE ASYMMETRIC KEY asymDemoKey --创建非对称密钥名称
+WITH ALGORITHM = RSA_512 --加密安全类型
+ENCRYPTION BY PASSWORD ='TestASYM123!'--密码
+GO
+
+
+
+<h3> 查看当前数据库中的非对称密钥 </h3>
+
+USE Test
+GO
+
+SELECT name, algorithm_desc, pvt_key_encryption_type_desc
+FROM sys.asymmetric_keys
+GO
+
+name                  algorithm_desc    pvt_key_encryption_type_desc
+--------------------- ----------------- ------------------------------
+asymDemoKey           RSA_512           ENCRYPTED_BY_PASSWORD
+
+(1 行受影响)
+
+
+
+<h3> 修改非对称密钥的私钥密码 </h3>
+
+USE Test
+GO
+
+--修改私钥密码
+ALTER ASYMMETRIC KEY asymDemoKey  --要修改的密钥名称
+WITH PRIVATE KEY  --私钥
+(ENCRYPTION BY PASSWORD ='newpasswordE4D352F280E0', --指定新密码
+DECRYPTION BY PASSWORD ='TestASYM123!') --旧密码是用来解密的  
+
+
+
+
+<h3> 使用非对称密钥对数据进行加密和解密 </h3>
+
+EncryptByAsymKey 加密数据。
+DecryptByAsymKey解密数据。
+
+
+
+--创建需要加密的数据
+Create Table BankUser(
+	PKID int primary key identity(10001,1),
+	UserNo varbinary(1000) null,
+	CurState smallint default(0) not null
+)
+go
+
+insert into BankUser(
+	UserNo, 
+	CurState
+) VALUES (
+	EncryptByAsymKey(AsymKey_ID('asymDemoKey'),	'137492837583249ABR'),
+	1
+)
+--插入一条记录，字段UserNo存储了加密的号码值
+go
+
+
+-- 尝试查询
+select 
+	*
+from BankUser
+go
+
+
+PKID        UserNo                                                                                                                                 CurState
+----------- -------------------------------------------------------------------------------------------------------------------------------------- --------
+10001       0xCFE89E291A30C4C1C237467BC9A7D67ABAA2FD655502FD325A6D06144A133467C01E8F87B8AF85D3542B74BFAA233D8C157372000F3A17917EA539A8D1E2F799     1
+
+(1 行受影响)
+
+
+
+
+-- 查看解密后的数据.
+SELECT 
+	PKID,Curstate,
+	cast
+	(DecryptByAsymKey(AsymKey_ID('asymDemoKey'),UserNo,N'newpasswordE4D352F280E0')	as varchar(1000)) as UserNo --需要原始私钥
+from 
+	BankUser 
+GO
+
+
+PKID        Curstate UserNo
+----------- -------- -------------------
+10001       1        137492837583249ABR
+
+(1 行受影响)
+
+
+
+注意：
+
+非对称密钥包含数据库级的内部公钥和私钥，它可以用来加密和解密SQL Server数据库中的数据。
+
+非对称密钥对于数据库加密属于高安全选项，因而需要更多的SQL Server资源，不推荐使用。
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

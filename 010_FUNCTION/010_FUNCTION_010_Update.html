@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 函数 - 发生数据更新的情况下 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 函数 </h1>
+
+
+<h2>  发生数据更新的情况下 </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+CREATE TABLE Test_Func_Tab (
+	id   	INT  IDENTITY(1, 1)  PRIMARY KEY,
+	value	DATE
+)
+go
+
+
+
+CREATE FUNCTION Test_update_func()
+RETURNS INT
+AS
+BEGIN
+	DECLARE @resultValue AS INT;
+	-- 插入数据.
+	INSERT INTO Test_Func_Tab VALUES (GETDATE());
+	
+	-- 查询.
+	SELECT 
+		@resultValue = COUNT(*) 
+	FROM
+		Test_Func_Tab;
+	
+	RETURN @resultValue;
+END
+go
+
+
+消息 443，级别 16，状态 15，过程 Test_update_func，第 7 行
+在函数内对带副作用的运算符 'INSERT' 的使用无效。
+
+
+<hr/>
+
+-- 这种情况下，上述处理逻辑， 需要修改为 存储过程来实现.
+
+CREATE PROCEDURE Test_update_proc
+	@resultValue INT OUTPUT
+AS
+BEGIN
+	-- 插入数据.
+	INSERT INTO Test_Func_Tab VALUES (GETDATE());
+	
+	-- 查询.
+	SELECT 
+		@resultValue = COUNT(*) 
+	FROM
+		Test_Func_Tab;
+END
+GO
+
+
+-- 测试运行.
+
+DECLARE @RC int, @resultValue INT;
+BEGIN
+	EXECUTE @RC = Test_update_proc  @resultValue OUTPUT;
+	PRINT @RC;
+	PRINT '@resultValue=' + Convert(VARCHAR, @resultValue);
+
+	EXECUTE @RC = Test_update_proc  @resultValue OUTPUT;
+	PRINT @RC;
+	PRINT '@resultValue=' + Convert(VARCHAR, @resultValue);	
+END
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

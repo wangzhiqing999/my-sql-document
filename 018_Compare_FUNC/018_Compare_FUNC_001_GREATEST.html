@@ -77,6 +77,22 @@ A
     <td>
 <pre><code>
 
+-- 比较难受的写法.
+SELECT
+	MAX(value)
+FROM
+	( 
+		SELECT 1  AS  value	UNION  ALL
+		SELECT 3  AS  value	UNION  ALL
+		SELECT 5  AS  value	UNION  ALL
+		SELECT 7  AS  value	UNION  ALL
+		SELECT 9  AS  value
+	) subQuery
+GO
+
+	
+
+
 
 </code></pre>
     </td>

@@ -65,6 +65,102 @@ alter system kill session '42,155' immediate
 <pre><code>
 
 
+
+SELECT 
+	spid  			AS  [会话ID],
+	dbid  			AS  [数据库ID],
+	blocked   		AS  [阻塞标志],
+	waittime  		AS  [等待时间],
+	cpu				AS  [CPU耗时],
+	physical_io		AS  [磁盘IO],
+	open_tran		AS  [进程的打开事务数],
+	status			AS  [进程状态],
+	hostname		AS  [客户端机器名],
+	program_name	AS  [客户端程序名],
+	cmd				AS  [客户端命令],
+	loginame		AS  [登录名]
+FROM
+	[Master].[dbo].[SYSPROCESSES]
+;
+
+
+
+
+
+-- 当发生服务器数据库连接数过多的情况下
+-- 查询 机器/账户 登录的分布情况
+-- 通过查询结果，观察 哪些 机器/账户 占用了大量的连接
+
+SELECT
+	hostname		AS  [客户端机器名],
+	program_name	AS  [客户端程序名],
+	loginame		AS  [登录名],
+	COUNT(1)		AS  [连接数]
+FROM
+	[Master].[dbo].[SYSPROCESSES]
+GROUP BY
+	hostname,
+	program_name,
+	loginame
+;
+
+
+客户端机器名                客户端程序名                                         登录名                    		  连接数
+---------------------------- --------------------------------------------------- ------------------------------------ -----------
+                                                                                 sa                                   29
+DESKTOP-1234567              Microsoft SQL Server Management Studio              DESKTOP-1234567\Administrator        1
+DESKTOP-1234567              Microsoft SQL Server Management Studio - 查询       DESKTOP-1234567\Administrator        1
+
+(3 行受影响)
+
+
+
+
+
+-- 发现某机器/程序连接数过多时
+-- 通过下面的语句，进一步判断，这些大量的连接，是执行 查询？ 还是空闲状态。
+SELECT
+	hostname		AS  [客户端机器名],
+	program_name	AS  [客户端程序名],
+	loginame		AS  [登录名],
+	status			AS  [连接状态],
+	cmd				AS  [执行的命令],
+	COUNT(1)		AS  [连接数]
+FROM
+	[Master].[dbo].[SYSPROCESSES]
+WHERE
+	loginame != 'sa'
+GROUP BY
+	hostname,
+	program_name,
+	status,
+	cmd,
+	loginame
+;
+
+
+
+-- 查询具体执行的 SQL 语句.
+SELECT     
+	[Spid] = session_Id, ecid, 
+	[Database] = DB_NAME(sp.dbid),
+	[User] = nt_username, 
+	[Status] = er.status, 
+	[Wait] = wait_type, 
+	[Individual Query] = SUBSTRING(qt.text, er.statement_start_offset / 2, (CASE WHEN er.statement_end_offset = - 1 THEN LEN(CONVERT(NVARCHAR(MAX), qt.text)) 
+                       * 2 ELSE er.statement_end_offset END - er.statement_start_offset) / 2),
+	[Parent Query] = qt.text, 
+	Program = program_name, 
+	Hostname, 
+	nt_domain, 
+	start_time
+ FROM    
+    sys.dm_exec_requests er INNER JOIN  sys.sysprocesses sp ON er.session_id = sp.spid 
+    CROSS APPLY sys.dm_exec_sql_text(er.sql_handle) AS qt
+WHERE     
+	session_Id > 50 /* Ignore system spids.*/ AND session_Id NOT IN (@@SPID)
+;
+
 </code></pre>
     </td>
   </tr>

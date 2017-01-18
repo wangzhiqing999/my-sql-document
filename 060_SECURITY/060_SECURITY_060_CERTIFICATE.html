@@ -1,0 +1,260 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 安全-证书加密 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 安全 </h1>
+
+
+<h2> 证书加密  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+<h3> 创建数据库证书 </h3>
+
+USE Test
+GO
+
+--创建证书
+CREATE CERTIFICATE cert_Demo --证书名称
+ENCRYPTION BY PASSWORD ='asdfG!!!'--加密证书的密码
+WITH SUBJECT ='DB_Encrypt_Demo Database Encryption Certificate',--证书主题
+START_DATE ='10/07/2014', EXPIRY_DATE ='12/31/2015'--起止日期
+GO
+
+
+
+
+<h3> 查看数据库中的证书 </h3>
+
+--查看证书
+SELECT name, pvt_key_encryption_type_desc, issuer_name
+FROM sys.certificates
+GO
+
+name           pvt_key_encryption_type_desc     issuer_name
+-------------- -------------------------------- -------------------------------------------------
+cert_Demo      ENCRYPTED_BY_PASSWORD            DB_Encrypt_Demo Database Encryption Certificate
+
+(1 行受影响)
+
+
+
+<h3> 备份和还原证书 </h3>
+
+--备份证书
+BACKUP CERTIFICATE cert_Demo
+TO FILE='E:\certDemo.BAK'--证书备份路径,用来加密
+WITH PRIVATE KEY (FILE='E:\certDemoPK.BAK',--证书私钥文件路径，用来解密
+ENCRYPTION BY PASSWORD ='1234GH!!!',--加密私钥密码
+DECRYPTION BY PASSWORD ='asdfG!!!' )--解密私钥密码
+GO
+
+--备份后，可以在其他数据库中使用这个证书，或使用DROP CERTIFICATE命令删除它。
+DROP CERTIFICATE cert_Demo
+GO
+
+--从备份文件中还原证书到数据库中
+CREATE CERTIFICATE cert_Demo
+FROM FILE='E:\certDemo.BAK'
+WITH PRIVATE KEY (FILE='E:\certDemoPK.BAK',
+DECRYPTION BY PASSWORD ='1234GH!!!' ,--解密私钥密码
+ENCRYPTION BY PASSWORD ='asdfG!!!')--加密私钥密码
+GO
+
+
+
+<h3> 管理证书的私钥 </h3>
+
+
+--从证书中删除私钥 
+ALTER CERTIFICATE cert_Demo REMOVE PRIVATE KEY 
+GO
+
+
+--从备份文件为既有证书重新增加私钥 
+ALTER CERTIFICATE cert_Demo WITH PRIVATE KEY 
+(FILE='E:\certDemoPK.BAK', 
+DECRYPTION BY PASSWORD ='1234GH!!!' ,--解密私钥密码 
+ENCRYPTION BY PASSWORD ='asdfG!!!')--加密私钥密码 
+GO
+
+--修改既有私钥的密码 
+ALTER CERTIFICATE cert_Demo 
+WITH PRIVATE KEY (DECRYPTION BY PASSWORD ='asdfG!!!', 
+ENCRYPTION BY PASSWORD ='mynewpassword!!!13E')
+
+
+
+<h3> 使用证书加密和解密 </h3>
+
+--插入测试数据
+INSERT dbo.PWDQuestion(
+	CustomerID, PasswordHintQuestion, PasswordHintAnswer
+) VALUES (
+	10, '您出生的医院名称?',
+	EncryptByCert(Cert_ID('cert_Demo'), '北京四合院家中')
+);
+GO
+
+--查看明文
+SELECT
+	*
+FROM 
+	dbo.PWDQuestion
+WHERE 
+	CustomerID =10
+GO
+
+CustomerID  PasswordHintQuestion   PasswordHintAnswer
+----------- ---------------------- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+10          您出生的医院名称?     0xBA2E4FD9B829119072DC1EDC2B8006C7B861D4088016638C79F00CE4858C2575F6167E2B2BBE221E266C4D555DBC751337C16FAAA954523BD33D6E26E5A8193E80B15C73539E6F4A7E3E69B8ABE7C1B771055DEE86DD06B798B5562C6474A00500F8256BBE0B0981633EBB9EE5AE172AFF8B23051FA25B3B0BE29C03F4215B2E
+
+(1 行受影响)
+
+
+
+--查看原文 
+SELECT 
+	PasswordHintQuestion,
+	CAST(DecryptByCert(Cert_ID('cert_Demo'), PasswordHintAnswer, N'mynewpassword!!!13E') as varchar(200)) PasswordHintAnswer
+FROM 
+	dbo.PWDQuestion 
+WHERE
+	CustomerID =10
+GO
+
+PasswordHintQuestion  PasswordHintAnswer
+--------------------- -------------------
+您出生的医院名称?    北京四合院家中
+
+(1 行受影响)
+
+
+
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

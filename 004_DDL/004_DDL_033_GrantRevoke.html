@@ -26,6 +26,92 @@
 <pre><code>
 
 
+
+
+
+
+<h2>针对一个表的 特定列的授权.</h2>
+
+
+-- 前置条件.
+
+create user TEST_USER
+  identified by "test"
+  profile DEFAULT;
+
+GRANT CONNECT TO TEST_USER;
+
+
+
+conn test/test
+
+
+-- 测试表.
+CREATE TABLE test_table_column (
+	id  INT  PRIMARY KEY,
+	a	INT,
+	b	INT,
+	c	INT
+);
+
+-- 测试数据.
+INSERT INTO	test_table_column 
+SELECT	1,	1,2,3		FROM dual	UNION  ALL
+SELECT	2,	3,4,6		FROM dual	UNION  ALL
+SELECT	3,	5,6,9		FROM dual	UNION  ALL
+SELECT	4,	6,8,12		FROM dual	UNION  ALL
+SELECT	5,	9,10,15		FROM dual;
+commit;
+
+
+
+SQL> GRANT SELECT (id, a)
+  2  ON test.test_table_column
+  3  TO test_user;
+GRANT SELECT (id, a)
+             *
+第 1 行出现错误:
+ORA-00969: 缺失 ON 关键字
+
+
+SQL>
+SQL>
+SQL> GRANT UPDATE (id, a)
+  2  ON test.test_table_column
+  3  TO test_user;
+
+授权成功。
+
+
+-- 好像查询不能选择列.
+-- 暂时设置 全表能查询
+
+SQL> GRANT SELECT
+  2  ON test.test_table_column
+  3  TO test_user;
+
+授权成功。
+
+
+
+
+
+
+SQL> conn test_user/test
+已连接。
+
+
+SQL> update test.test_table_column set a = a + 1 where id = 5;
+
+已更新 1 行。
+
+SQL> update test.test_table_column set b = b + 1 where id = 5;
+update test.test_table_column set b = b + 1 where id = 5
+            *
+第 1 行出现错误:
+ORA-01031: 权限不足
+
+
 </code></pre>
     </td>
   </tr>
@@ -63,6 +149,72 @@ REVOKE INSERT ON A FROM Demo
 GRANT INSERT ON A TO Demo With Grant Option
 -- 撤销 CASCADE
 REVOKE INSERT ON A FROM Demo CASCADE 
+
+
+
+
+<hr/>
+
+<h2>针对一个表的 特定列的授权.</h2>
+
+-- 测试表.
+CREATE TABLE test_table_column (
+	id  INT		IDENTITY(1, 1)  PRIMARY KEY,
+	a	INT,
+	b	INT,
+	c	INT
+);
+GO
+
+-- 测试数据.
+INSERT INTO	test_table_column 
+SELECT	1,2,3	UNION  ALL
+SELECT	3,4,6	UNION  ALL
+SELECT	5,6,9	UNION  ALL
+SELECT	6,8,12	UNION  ALL
+SELECT	9,10,15
+GO
+
+
+-- 授权.
+GRANT SELECT ON test_table_column(id, a) TO test_user
+GO
+
+
+
+
+
+E:\>sqlcmd -S "localhost\SQLEXPRESS" -U test_user -P test
+1> use Test
+2> go
+已将数据库上下文更改为 'Test'。
+
+
+1> select * from test_table_column
+2> go
+消息 230，级别 14，状态 1，服务器 EDWARD\SQLEXPRESS，第 1 行
+拒绝了对对象 'test_table_column' (数据库 'Test'，架构 'dbo')的列 'b' 的 SELECT
+权限。
+消息 230，级别 14，状态 1，服务器 EDWARD\SQLEXPRESS，第 1 行
+拒绝了对对象 'test_table_column' (数据库 'Test'，架构 'dbo')的列 'c' 的 SELECT
+权限。
+
+
+
+1> select id, a from test_table_column
+2> go
+id          a
+----------- -----------
+          1           1
+          2           3
+          3           5
+          4           6
+          5           9
+
+(5 行受影响)
+
+
+
 
 </code></pre>
     </td>

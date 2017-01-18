@@ -76,6 +76,38 @@ A
 
 
 
+
+
+
+多参数的情况下：
+
+BEGIN
+  DECLARE @Sql NVARCHAR(200);
+  DECLARE @name  VARCHAR(10);
+  DECLARE @id INT, @val  INT;
+  
+  
+  
+  SET @Sql = 'SELECT @name = name, @val = val FROM test_dysql WHERE id=@id';
+  PRINT @Sql;
+  
+  
+  SET  @id = 1;
+  EXEC SP_EXECUTESQL  @Sql, N'@name VARCHAR(10) OUTPUT,  @val  INT  OUTPUT,  @id  INT ', @name OUTPUT, @val OUTPUT, @id;
+  PRINT @name;
+  PRINT @val;
+END
+go
+
+
+结果：
+
+SELECT @name = name, @val = val FROM test_dysql WHERE id=@id
+A
+10
+
+
+
 </code></pre>
     </td>
   </tr>

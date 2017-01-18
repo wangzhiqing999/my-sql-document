@@ -1,0 +1,221 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title> 数据库审计 - 安装配置 </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 数据库审计 </h1>
+
+
+<h2> 安装配置  </h2>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+-- 查询数据库是否启用审计.
+SQL> show parameter audit_trail
+
+NAME                                 TYPE
+------------------------------------ ----------------------
+VALUE
+------------------------------
+audit_trail                          string
+NONE
+
+
+-- 设置启用审计.
+SQL> alter system set audit_trail=DB scope=spfile;
+系统已更改。
+
+
+-- 然后重新启动数据库。
+
+原因：
+SQL> alter system set audit_trail=DB scope=both;
+alter system set audit_trail=DB scope=both
+                 *
+第 1 行出现错误:
+ORA-02095: 无法修改指定的初始化参数
+
+
+
+
+SQL> shutdown
+数据库已经关闭。
+已经卸载数据库。
+ORACLE 例程已经关闭。
+SQL> startup
+ORACLE 例程已经启动。
+
+Total System Global Area  146800640 bytes
+Fixed Size                  1286220 bytes
+Variable Size              96473012 bytes
+Database Buffers           46137344 bytes
+Redo Buffers                2904064 bytes
+数据库装载完毕。
+数据库已经打开。
+SQL>
+
+
+
+-- 查询审计是否开启.
+SQL> show parameter audit_trail
+
+NAME                                 TYPE
+------------------------------------ ----------------------
+VALUE
+------------------------------
+audit_trail                          string
+DB
+SQL>
+
+
+
+
+
+<h3> 如果需要审计信息中包含具体的 SQL 语句 </h3>
+
+注：
+如果要审计信息中， 包含详细的 SQL 语句，与参数的。
+需要
+
+alter system set audit_trail=db_extended scope=spfile; 
+
+
+-- 重新启动以后，查询审计配置：
+SQL> show parameter audit_trail
+
+NAME                                 TYPE
+------------------------------------ ----------------------
+VALUE
+------------------------------
+audit_trail                          string
+DB_EXTENDED
+
+
+
+
+
+-- 定期清除审计信息 （因为数据是存储在 system 表空间的）
+SQL> truncate table sys.AUD$;
+表被截断。
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>

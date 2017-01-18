@@ -1,0 +1,209 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=GBK" />
+  <title>  事务处理 - NOWAIT </title>
+  <link href="Common.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+
+
+<h1> 事务处理 </h1>
+
+
+<h2>  NOWAIT </h2>
+
+NOWAIT 用于在会话中， 遇到行被锁定的情况下， 不等待，直接返回异常。
+
+
+
+<pre><code>
+
+-- 初始表与数据.
+CREATE TABLE test_book (
+    card_no   varchar(6)    NOT NULL,
+	card_user varchar(6),
+	PRIMARY KEY(card_no) 
+);
+
+
+INSERT INTO test_book (
+    card_no,  card_user
+) VALUES (
+    '001',  NULL
+);
+
+INSERT INTO test_book (
+    card_no,  card_user
+) VALUES (
+    '002',  NULL
+);
+
+
+</code></pre>
+
+
+
+<table border="1" style="width:100%">
+
+  <tr>
+    <td> Oracle </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> DB2 </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> SQL Server </td>
+    <td>
+<pre><code>
+
+
+-- 张三的操作.
+-- SQL Server 需要显示的定义 开始一个事务.
+BEGIN TRANSACTION;
+UPDATE 
+	test_book WITH (NOWAIT)
+SET 
+	card_user = '张三'
+WHERE 
+	card_no = '001';
+GO
+
+
+
+<hr/>
+
+
+-- 李四的操作 （在另外一个会话当中）.
+-- SQL Server 需要显示的定义 开始一个事务.
+BEGIN TRANSACTION;
+UPDATE 
+	test_book WITH (NOWAIT)
+SET 
+	card_user = '李四'
+WHERE 
+	card_no = '001';
+GO
+
+消息 1222，级别 16，状态 45，服务器 TEST\SQLEXPRESS，第 4 行
+已超过了锁请求超时时段。
+语句已终止。
+>
+
+
+
+-- 李四更新 未被锁定的行的时候， 是没有问题的。
+BEGIN TRANSACTION;
+UPDATE 
+	test_book WITH (NOWAIT)
+SET 
+	card_user = '李四'
+WHERE 
+	card_no = '002';
+GO
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+  <tr>
+    <td> MySQL</td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+  <tr>
+    <td> SQLite </td>
+    <td>
+<pre><code>
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+  <tr>
+    <td> PostgreSQL </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+
+
+
+
+
+  <tr>
+    <td> MongoDB </td>
+    <td>
+<pre><code>
+
+
+
+
+
+</code></pre>
+    </td>
+  </tr>
+
+
+</table>
+
+
+
+
+</body>
+
+
+</html>
